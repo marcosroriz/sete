@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name='viewport'
+        content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>SETE Software de Gestão do Transporte Escolar</title>
+
+    <!-- Node CSS -->
+    <link rel="stylesheet" href="../node_modules/typeface-montserrat/index.css" />
+    <link rel="stylesheet" href="../node_modules/typeface-patrick-hand/index.css" />
+    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="css/light-bootstrap-dashboard.css?v=2.0.1" />
+    <link rel="stylesheet" href="css/entry.css" />
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+</head>
+
+<body class="bgentry">
+    <div class="wrapper wrapper-full-page">
+        <div class="full-page section-image">
+            <div class="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <h1 class="text-center text-white">
+                                <i class="fa fa-bus"></i>
+                                <span class="ml-3 cursive"> SETE</span>
+                            </h1>
+                            <div class="text-center text-white cursive">
+                                Software para Gestão do Transporte Escolar
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8 mt-5 ml-auto mr-auto">
+                            <div class="nav-container">
+                                <ul class="nav nav-icons justify-content-center" role="tablist">
+                                    <li class="nav-item show active">
+                                        <a class="nav-link tab-title" id="description-tab" href="#login-body" role="tab" data-toggle="tab">
+                                            <i class="fa fa-sign-in"></i>
+                                            <br> Login
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link tab-title" id="help-tab" href="#recover-body" role="tab" data-toggle="tab">
+                                            <i class="fa fa-question-circle"></i>
+                                            <br> Recuperar Senha
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link tab-title" id="legal-info-tab" href="#register-body" role="tab" data-toggle="tab">
+                                            <i class="fa fa-registered"></i>
+                                            <br> Registrar
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="login-body">
+                                    <div class="card stacked-form">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Login</h4>
+                                            <p class="category text-muted">
+                                                Para entrar no sistema por favor digite o endereço de e-mail e senha de seu usuário abaixo.
+                                                <br>
+                                                Caso não tenha cadastro, faça o mesmo na aba <a href="#" id="reglink">registrar</a>.
+                                            </p>
+                                        </div>
+                                        <div class="card-body ">
+                                            <form id="loginform">
+                                                <div class="form-group">
+                                                    <label>E-mail:</label>
+                                                    <input id="loginemail" name="loginemail" data-validation="email" placeholder="Endereço de e-mail:" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Senha:</label>
+                                                    <input id="loginpassword" name="loginpassword" type="password" placeholder="Senha:" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="form-check">
+                                                        <label class="form-check-label">
+                                                            <input id="loginlembrar" class="form-check-input" type="checkbox" value="" checked>
+                                                            <span class="form-check-sign"></span>
+                                                            Lembrar senha
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button id="loginsubmit" class="btn btn-fill mt-2 btn-warning">Login</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="recover-body">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Recuperar Senha</h4>
+                                            <p class="category text-muted">
+                                                Para recuperar sua senha digite o e-mail cadastrado abaixo.
+                                                Você receberá um e-mail automaticamente contendo um link para modificar sua senha.
+                                            </p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="recoveryform">
+                                                <div class="form-group">
+                                                    <label>E-mail:</label>
+                                                    <input id="recoveremail" type="email" placeholder="Endereço de e-mail:" class="form-control">
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button id="recoversubmit" class="btn btn-fill mt-2 btn-warning">Recuperar Senha</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="register-body">
+                                    <div class="card stacked-form">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Registrar</h4>
+                                            <p class="category text-muted">Para registrar seu usuário, por favor preencha o formulário abaixo:</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="registerform">
+                                                <div class="form-group">
+                                                    <label>Nome completo:</label>
+                                                    <input id="regnome" name="regnome" type="text" placeholder="Digite seu nome:" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>CPF:</label>
+                                                    <input id="regcpf" name="regcpf" type="text" placeholder="Digite seu CPF:" class="form-control cpfmask">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Telefone:</label>
+                                                    <input id="regtel" name="regtel" type="text" placeholder="Digite seu Telefone:" class="form-control telmask">
+                                                </div>
+                                                
+                                                <hr>
+
+                                                <div class="form-group">
+                                                    <label>E-mail:</label>
+                                                    <input id="regemail" name="regemail" type="email" placeholder="Endereço de e-mail:" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Senha:</label>
+                                                    <input id="regpassword" name="regpassword" type="password" placeholder="Senha:" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Repetir Senha:</label>
+                                                    <input id="regpasswordrepeat" name="regpasswordrepeat" type="password" placeholder="Repetir Senha:" class="form-control">
+                                                </div>
+
+                                                <hr>
+
+                                                <p>Selecione abaixo o estado e município em que você atua: </p>
+                                                <div class="form-group">
+                                                    <label>Estado:</label>
+                                                    <select class="form-control" id="estado">
+                                                        <option>Acre</option>
+                                                        <option>A</option>
+                                                        <option>B</option>
+                                                        <option>C</option>
+                                                        <option>D</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Município:</label>
+                                                    <select class="form-control" id="cidade">
+                                                        <option value="id">Bahasa Indonesia</option>
+                                                        <option value="ms">Bahasa Melayu</option>
+                                                        <option value="ca">Català</option>
+                                                        <option value="da">Dansk</option>
+                                                        <option value="de">Deutsch</option>
+                                                        <option value="en">English</option>
+                                                        <option value="es">Español</option>
+                                                        <option value="el">Eλληνικά</option>
+                                                        <option value="fr">Français</option>
+                                                        <option value="it">Italiano</option>
+                                                        <option value="hu">Magyar</option>
+                                                        <option value="nl">Nederlands</option>
+                                                        <option value="no">Norsk</option>
+                                                        <option value="pl">Polski</option>
+                                                        <option value="pt">Português</option>
+                                                        <option value="fi">Suomi</option>
+                                                        <option value="sv">Svenska</option>
+                                                        <option value="tr">Türkçe</option>
+                                                        <option value="is">Íslenska</option>
+                                                        <option value="cs">Čeština</option>
+                                                        <option value="ru">Русский</option>
+                                                        <option value="th">ภาษาไทย</option>
+                                                        <option value="zh">中文 (简体)</option>
+                                                        <option value="zh-TW">中文 (繁體)</option>
+                                                        <option value="ja">日本語</option>
+                                                        <option value="ko">한국어</option>
+                                                    </select>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <button id="regsubmit"
+                                                class="btn btn-fill mt-2 btn-warning">Registrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end tab card-body -->
+                        </div>
+                        <!-- end col-md-8 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="footer p-1 bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <center>
+                            <img class="p-1" src="img/logo-fnde.png" alt="FNDE">
+                        </center>
+                    </div>
+                    <div class="col-md-4">
+                        <center>
+                            <img class="p-1" src="img/logo-ufg.png" alt="UFG">
+                        </center>
+                    </div>
+                    <div class="col-md-4">
+                        <center>
+                            <img class="p-1" src="img/logo-fct.jpg" alt="FCT">
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+<!-- Import Scripts -->
+<!-- <script>
+    window.$ = window.jQuery = require('jquery');
+</script> -->
+<!-- <script type="text/javascript" src="js/core/popper.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/core/bootstrap.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/plugins/jquery.validate.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/plugins/bootstrap-selectpicker.js"></script> -->
+
+<!-- Custom Scripts -->
+<script type="text/javascript" src="js/entry-script.js"></script>
+
+</html>
