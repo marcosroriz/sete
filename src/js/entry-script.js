@@ -5,10 +5,6 @@ require("jquery-validation");
 require("jquery-mask-plugin");
 
 window.$.validator.addMethod("cpf", function (value, element) {
-    console.log("CHEGUEI AQUI NO CPF");
-    console.log(value);
-    console.log(element);
-
     value = jQuery.trim(value);
 
     value = value.replace('.', '');
@@ -53,7 +49,6 @@ window.$.validator.addMethod("cpf", function (value, element) {
 window.$.validator.addMethod("lettersonly", function (value, element) {
     return this.optional(element) || /^[a-z áàäéêëíïóõôöúûüùçñ]+$/i.test(value);
 }, "Informe apenas caracteres válidos");
-
 
 $(document).ready(function () {
     var telmaskbehaviour = function (val) {
@@ -138,6 +133,7 @@ $(document).ready(function () {
                 required: "Por favor digite um telefone válido com DDD"
             },
             regemail: {
+                required: "Por favor digite um e-mail válido",
                 email: "Por favor digite um e-mail válido"
             },
             regpassword: {
