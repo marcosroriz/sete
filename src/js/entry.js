@@ -1,98 +1,14 @@
-// Basic libraries
-window.$ = window.jQuery = require('jquery');
-window.Tether = require('tether');
-window.Bootstrap = require('bootstrap');
-require("jquery-validation");
-require("jquery-mask-plugin");
-require("sweetalert");
-
-// Local config
-const Store = require('electron-store');
-const userconfig = new Store();
-
-// Google Firebase
-const firebase = require('firebase/app');
-require('firebase/auth');
-require('firebase/database');
-require('firebase/firestore');
-
-// Initialize Firebase
-let dbconfig = {
-    apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
-    authDomain: "softwareter.firebaseapp.com",
-    databaseURL: "https://softwareter.firebaseio.com",
-    projectId: "softwareter",
-    storageBucket: "softwareter.appspot.com",
-    messagingSenderId: "881352897273"
-};
-firebase.initializeApp(dbconfig);
-
-// Base de dados Firestore
-let database = firebase.firestore();
-
 // Localização do Usuário
 let localizacao;
-
-// Extra JQuery Validator Functions
-window.$.validator.addMethod("cpf", function (value, element) {
-    value = jQuery.trim(value);
-
-    value = value.replace('.', '');
-    value = value.replace('.', '');
-    let cpf = value.replace('-', '');
-
-    while (cpf.length < 11) cpf = "0" + cpf;
-    let expReg = /^0+$|^1+$|^2+$|^3+$|^4+$|^5+$|^6+$|^7+$|^8+$|^9+$/;
-    let a = [];
-    let b = new Number;
-    let c = 11;
-    for (let i = 0; i < 11; i++) {
-        a[i] = cpf.charAt(i);
-        if (i < 9) b += (a[i] * --c);
-    }
-    let x = b % 11;
-    if (x < 2) {
-        a[9] = 0;
-    } else {
-        a[9] = 11 - x;
-    }
-    b = 0;
-    c = 11;
-    let y = 0;
-    for (y = 0; y < 10; y++) {
-        b += (a[y] * c--);
-    }
-    x = b % 11;
-    if (x < 2) {
-        a[10] = 0;
-    } else {
-        a[10] = 11 - x;
-    }
-
-    let retorno = true;
-    if ((cpf.charAt(9) != a[9]) || (cpf.charAt(10) != a[10]) || cpf.match(expReg)) retorno = false;
-
-    return this.optional(element) || retorno;
-
-}, "Informe um CPF válido");
-
-window.$.validator.addMethod("lettersonly", function (value, element) {
-    return this.optional(element) || /^[a-z áàäéêëíïóõôöúûüùçñ]+$/i.test(value);
-}, "Informe apenas caracteres válidos");
-
-window.$.validator.addMethod("pickstate", function (value, element) {
-    return localizacao.estado.value != " ";
-}, "Informe um Estado válido");
-
-window.$.validator.addMethod("pickcity", function (value, element) {
-    return localizacao.cidade.value != " ";
-}, "Informe um Município válido");
-
 
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {
+    // Carrega o rodapé
+    $("#footer").load("./footer.html");
+
     // Popula o campo de email e senha se o usuário tiver logado previamente
+    // Para isso, vamos ver se exite a chave / valor lembrar no arquivo de configuração local do usuário
     if (userconfig.get("lembrar")) {
         $("#loginemail").val(userconfig.get("email"));
         $("#loginpassword").val(userconfig.get("password"));
