@@ -46,19 +46,19 @@
                             <div class="nav-container">
                                 <ul class="nav nav-icons justify-content-center" role="tablist">
                                     <li class="nav-item show active">
-                                        <a class="nav-link tab-title" id="description-tab" href="#login-body" role="tab" data-toggle="tab">
+                                        <a class="nav-link tab-title" id="login-tab" href="#login-body" role="tab" data-toggle="tab">
                                             <i class="fa fa-sign-in"></i>
                                             <br> Login
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link tab-title" id="help-tab" href="#recover-body" role="tab" data-toggle="tab">
+                                        <a class="nav-link tab-title" id="recover-tab" href="#recover-body" role="tab" data-toggle="tab">
                                             <i class="fa fa-question-circle"></i>
                                             <br> Recuperar Senha
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link tab-title" id="legal-info-tab" href="#register-body" role="tab" data-toggle="tab">
+                                        <a class="nav-link tab-title" id="register-tab" href="#register-body" role="tab" data-toggle="tab">
                                             <i class="fa fa-registered"></i>
                                             <br> Registrar
                                         </a>
@@ -116,7 +116,7 @@
                                             <form id="recoveryform">
                                                 <div class="form-group">
                                                     <label>E-mail:</label>
-                                                    <input id="recoveremail" type="email" placeholder="Endereço de e-mail:" class="form-control">
+                                                    <input id="recoveremail" name="recoveremail" data-validation="email" placeholder="Endereço de e-mail:" class="form-control">
                                                 </div>
                                             </form>
                                         </div>
@@ -153,11 +153,11 @@
                                                     <input id="regemail" name="regemail" type="email" placeholder="Endereço de e-mail:" class="form-control">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label>Senha:</label>
+                                                    <label>Senha <em>(mínimo 6 caracteres)</em>:</label>
                                                     <input id="regpassword" name="regpassword" type="password" placeholder="Senha:" class="form-control">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label>Repetir Senha:</label>
+                                                    <label>Repetir Senha <em>(mínimo 6 caracteres)</em>:</label>
                                                     <input id="regpasswordrepeat" name="regpasswordrepeat" type="password" placeholder="Repetir Senha:" class="form-control">
                                                 </div>
 
@@ -166,50 +166,16 @@
                                                 <p>Selecione abaixo o estado e município em que você atua: </p>
                                                 <div class="form-group">
                                                     <label>Estado:</label>
-                                                    <select class="form-control" id="estado">
-                                                        <option>Acre</option>
-                                                        <option>A</option>
-                                                        <option>B</option>
-                                                        <option>C</option>
-                                                        <option>D</option>
-                                                    </select>
+                                                    <select id="regestado" name="regestado" class="form-control"></select>
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Município:</label>
-                                                    <select class="form-control" id="cidade">
-                                                        <option value="id">Bahasa Indonesia</option>
-                                                        <option value="ms">Bahasa Melayu</option>
-                                                        <option value="ca">Català</option>
-                                                        <option value="da">Dansk</option>
-                                                        <option value="de">Deutsch</option>
-                                                        <option value="en">English</option>
-                                                        <option value="es">Español</option>
-                                                        <option value="el">Eλληνικά</option>
-                                                        <option value="fr">Français</option>
-                                                        <option value="it">Italiano</option>
-                                                        <option value="hu">Magyar</option>
-                                                        <option value="nl">Nederlands</option>
-                                                        <option value="no">Norsk</option>
-                                                        <option value="pl">Polski</option>
-                                                        <option value="pt">Português</option>
-                                                        <option value="fi">Suomi</option>
-                                                        <option value="sv">Svenska</option>
-                                                        <option value="tr">Türkçe</option>
-                                                        <option value="is">Íslenska</option>
-                                                        <option value="cs">Čeština</option>
-                                                        <option value="ru">Русский</option>
-                                                        <option value="th">ภาษาไทย</option>
-                                                        <option value="zh">中文 (简体)</option>
-                                                        <option value="zh-TW">中文 (繁體)</option>
-                                                        <option value="ja">日本語</option>
-                                                        <option value="ko">한국어</option>
-                                                    </select>
+                                                    <select id="regcidade" name="regcidade" class="form-control"></select>
                                                 </div>
                                             </form>
                                         </div>
                                         <div class="card-footer text-center">
-                                            <button id="regsubmit"
-                                                class="btn btn-fill mt-2 btn-warning">Registrar</button>
+                                            <button id="regsubmit" class="btn btn-fill mt-2 btn-warning">Registrar</button>
                                         </div>
                                     </div>
                                 </div>
@@ -255,6 +221,7 @@
 <!-- <script src="js/plugins/bootstrap-selectpicker.js"></script> -->
 
 <!-- Custom Scripts -->
-<script src="js/entry-script.js"></script>
+<script src="js/plugins/cidades-estados-utf8.js" type="text/javascript"></script>
+<script src="js/entry-script.js" type="text/javascript"></script>
 
 </html>

@@ -56,45 +56,33 @@
             <div class="collapse " id="componentsExamples">
                 <ul class="nav">
                     <li class="nav-item ">
-                        <a class="nav-link" href="./components/buttons.html">
-                            <span class="sidebar-mini">B</span>
-                            <span class="sidebar-normal">Buttons</span>
+                        <a id="cadastrar_escola" class="nav-link" href="#">
+                            <span class="sidebar-mini">C</span>
+                            <span class="sidebar-normal">Cadastrar</span>
                         </a>
                     </li>
                     <li class="nav-item ">
                         <a class="nav-link" href="./components/grid.html">
-                            <span class="sidebar-mini">GS</span>
-                            <span class="sidebar-normal">Grid System</span>
+                            <span class="sidebar-mini">L</span>
+                            <span class="sidebar-normal">Listar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="./components/grid.html">
+                            <span class="sidebar-mini">M</span>
+                            <span class="sidebar-normal">Modificar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="./components/grid.html">
+                            <span class="sidebar-mini">L</span>
+                            <span class="sidebar-normal">Remover</span>
                         </a>
                     </li>
                     <li class="nav-item ">
                         <a class="nav-link" href="./components/panels.html">
-                            <span class="sidebar-mini">P</span>
-                            <span class="sidebar-normal">Panels</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/sweet-alert.html">
-                            <span class="sidebar-mini">SA</span>
-                            <span class="sidebar-normal">Sweet Alert</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/notifications.html">
-                            <span class="sidebar-mini">N</span>
-                            <span class="sidebar-normal">Notifications</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/icons.html">
-                            <span class="sidebar-mini">I</span>
-                            <span class="sidebar-normal">Icons</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/typography.html">
-                            <span class="sidebar-mini">T</span>
-                            <span class="sidebar-normal">Typography</span>
+                            <span class="sidebar-mini">V</span>
+                            <span class="sidebar-normal">Visualizar</span>
                         </a>
                     </li>
                 </ul>
@@ -262,3 +250,9 @@
         </li>
     </ul>
 </div>
+
+<script>
+    $("#cadastrar_escola").click(function () {
+        $("#content").load("./cadastrar_escola.html");
+    });
+</script>
