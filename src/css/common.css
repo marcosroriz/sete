@@ -1,9 +1,18 @@
 .bgentry {
-    /* background: url("file:///src/img/entry-bg.jpg") fixed no-repeat bottom center; */
     background: url("../img/entry-bg.jpg") fixed no-repeat bottom center;
     background-size: cover;
     min-height: 100vh;
 }
+
+/* .has-error .form-control {
+    border-color: #FB404B !important;
+    color: #FB404B;
+}
+
+.has-success .form-control {
+    border-color: #87CB16;
+    color: #87CB16;
+} */
 
 @media (max-width: 991px) {
     .wrapper {
@@ -64,24 +73,4 @@
 
 .form-control, .form-control:focus {
     border-width: 2px;
-}
-
-img.menu-icon {
-    margin-right: 15px;
-    width: 30px;
-    text-align: center;
-    vertical-align: middle;
-    float: left;
-}
-
-.content {
-    display: none;
-}
-
-.preload {
-    width: 100px;
-    height: 100px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
 }

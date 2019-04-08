@@ -59,6 +59,7 @@
     "jquery-mask-plugin": "^1.14.15",
     "jquery-validation": "^1.19.0",
     "popper.js": "^1.14.7",
+    "sqlite3": "^4.0.6",
     "sweetalert": "^2.1.2",
     "tether": "^1.4.5",
     "typeface-montserrat": "0.0.54",

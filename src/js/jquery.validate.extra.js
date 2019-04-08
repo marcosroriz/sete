@@ -1,5 +1,16 @@
 // Funções extra para validar formulários com o JQuery Validator
 
+// Inicia máscaras de telefone e cpf do registro
+let telmaskbehaviour = function (val) {
+    return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
+};
+
+let teloptions = {
+    onKeyPress: function (val, e, field, options) {
+        field.mask(telmaskbehaviour.apply({}, arguments), options);
+    }
+};
+
 // Validar CPF
 window.$.validator.addMethod("cpf", function (value, element) {
     value = jQuery.trim(value);

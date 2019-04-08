@@ -21,15 +21,6 @@ $(document).ready(function () {
     });
 
     // Inicia máscaras de telefone e cpf do registro
-    let telmaskbehaviour = function (val) {
-        return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
-    };
-    let teloptions = {
-        onKeyPress: function (val, e, field, options) {
-            field.mask(telmaskbehaviour.apply({}, arguments), options);
-        }
-    };
-
     $('.telmask').mask(telmaskbehaviour, teloptions);
     $(".cpfmask").mask('000.000.000-00', { reverse: true });
 
@@ -185,17 +176,49 @@ $(document).ready(function () {
         $("#loginform").validate();
 
         if ($("#loginform").valid()) {
+            var loadingWin = swal({
+                title: "Carregando...",
+                text: "Fazendo login...",
+                icon: "info",
+                buttons: false
+            });
+
             firebase.auth().signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    alert("Login deu certo!");
+                .then((firebaseUser) => {
                     // Set local config 
                     if (loginlembrar) {
                         userconfig.set("lembrar", true);
                         userconfig.set("email", email);
                         userconfig.set("password", password);
+                    } else {
+                        userconfig.delete("lembrar");
+                        userconfig.delete("email");
+                        userconfig.delete("password");
                     }
 
-                    document.location.href = "./dashboard.html";
+                    // Checar se o usuário já fez a configuração inicial
+                    let configDoc = database.collection("data").doc(firebaseUser.user.uid);
+                    configDoc.get().then(function(doc) {
+                        swal.close();
+
+                        let urldestino = "./initconfig.html";
+                        if (doc.exists) {
+                            if (doc.data()["init"]) {
+                                document.location.href = "./dashboard.html";
+                            }
+                        }
+
+                        document.location.href = urldestino;
+                    }).catch(function(err) {
+                        if (err != null) {
+                            swal({
+                                title: "Ops... tivemos um problema!",
+                                text: err.message,
+                                icon: "error",
+                                button: "Fechar"
+                            });
+                        }
+                    });
                 })
                 .catch((err) => {
                     if (err != null) {
@@ -261,15 +284,13 @@ $(document).ready(function () {
                         "password": password,
                         "cpf": $("#regcpf").val(),
                         "telefone": $("#regtel").val(),
-                        "cidade": localizacao.cidade.value,
-                        "estado": localizacao.estado.value
+                        "cidade": $(localizacao.cidade).find("option:selected").text(),
+                        "estado": $(localizacao.estado).find("option:selected").text(),
+                        "cod_cidade": localizacao.cidade.value,
+                        "cod_estado": localizacao.estado.value
                     });
 
                     database.collection("data").doc(fbuser.user.uid).set({
-                        "config": {
-                            "cidade": localizacao.cidade.value,
-                            "estado": localizacao.estado.value
-                        },
                         "init": false
                     });
 
