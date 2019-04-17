@@ -1,3 +1,9 @@
+// Variável armazendo o estado do formulário
+let validadorFormulario;
+
+// Localização do Usuário
+let localizacao;
+
 // Callback a ser chamado quando o Firebase detectar o usuário logado
 let firebaseUser;
 
@@ -5,7 +11,7 @@ firebase.auth().onAuthStateChanged((user) => {
     if (user) {
         firebaseUser = user;
         let usersRegDoc = database.collection("users").doc(firebaseUser.uid);
-        usersRegDoc.get().then(function(doc) {
+        usersRegDoc.get().then(function (doc) {
             if (doc.exists) {
                 $("#regnome").val(doc.data()["nome"]);
                 $("#regemail").val(doc.data()["email"]);
@@ -16,7 +22,7 @@ firebase.auth().onAuthStateChanged((user) => {
                 $("#regcidade").val(doc.data()["cod_cidade"]);
                 $("#regcidade").trigger("change");
             }
-        }).catch(function(err) {
+        }).catch(function (err) {
             if (err != null) {
                 swal({
                     title: "Ops... tivemos um problema!",
@@ -39,7 +45,7 @@ $(document).ready(function () {
     $("#footer").load("./footer.html");
 
     // Inicia o campo de estados/cidade na aba de registro
-    new dgCidadesEstados({
+    localizacao = new dgCidadesEstados({
         cidade: document.getElementById('regcidade'),
         estado: document.getElementById('regestado')
     });
@@ -54,7 +60,7 @@ $(document).ready(function () {
     $(".cpfmask").mask('000.000.000-00', { reverse: true });
 
     // Especifica o validador
-    var $validator = $("#wizardForm").validate({
+    validadorFormulario = $("#wizardForm").validate({
         rules: {
             regnome: {
                 required: true,
@@ -102,7 +108,7 @@ $(document).ready(function () {
             },
             ano: {
                 required: true,
-                digits:true,
+                digits: true,
                 minlength: 4,
                 maxlength: 4
             }
@@ -176,7 +182,7 @@ $(document).ready(function () {
         onNext: function (tab, navigation, index) {
             var $valid = $('#wizardForm').valid();
             if (!$valid) {
-                $validator.focusInvalid();
+                validadorFormulario.focusInvalid();
                 return false;
             }
         },
@@ -202,7 +208,7 @@ $(document).ready(function () {
                 $($wizard).find('.btn-finish').show();
             } else {
                 $($wizard).find('.btn-next').show();
-             
+
                 $($wizard).find('.btn-finish').hide();
             }
 
@@ -250,14 +256,24 @@ window.$.validator.addMethod("outros", function (value, element) {
     let possuiOutros = $("input[name=temOutrasCidades]:checked").val() == "true";
     let valid = true;
 
-    if (possuiOutros) {        
-        let campos = $("select").filter((e, h) => h.name.includes("novoestado") || h.name.includes("novomunicipio"));
-        campos.each(function(_, e) { 
-            if (e.value == " " || e.value == "") {
-                valid = false;
+    if (possuiOutros) {
+        let linhas = $("tr.novodado");
+        let numlinhas = linhas.length;
+
+        // Verifica todas as linhas
+        for (let i = 0; i < numlinhas; i++) {
+            let adicionouLinha = $($("tr.novodado")[i]).find("img")[0].src.includes("remove");
+
+            if (adicionouLinha) {
+                let campos = $($("tr.novodado")[i]).find("select").filter((e, h) => h.name.includes("novoestado") || h.name.includes("novomunicipio"));
+                campos.each(function (_, e) {
+                    if (e.value == " " || e.value == "") {
+                        valid = false;
+                    }
+                });
             }
-        });
-    } 
+        }
+    }
     return valid;
 }, "Informe Municípios válidos");
 
@@ -285,7 +301,7 @@ function addrow(element) {
     let row = $(element.parentElement.parentElement);
 
     let htmlEstado = row.find("select").filter((e, h) => h.name.includes("novoestado"));
-    let htmlMunicipio = row.find("select").filter((e, h) => h.name.includes("novomunicipio"));    
+    let htmlMunicipio = row.find("select").filter((e, h) => h.name.includes("novomunicipio"));
 
     let pEstado = htmlEstado.find("option:selected");
     let codEstado = pEstado.val();
@@ -326,3 +342,78 @@ function rmrow(element) {
     let row = $(element.parentElement.parentElement);
     $(row).remove();
 }
+
+function pegarOutrasCidades() {
+    let cidades = []
+    let linhas = $("tr.novodado");
+    let numlinhas = linhas.length;
+
+    // Verifica todas as linhas de cidades adicionadas
+    for (let i = 0; i < numlinhas; i++) {
+        let adicionouLinha = $($("tr.novodado")[i]).find("img")[0].src.includes("remove");
+
+        if (adicionouLinha) {
+            let campoCidade = $($($("tr.novodado")[i]).find("select")[0]).find("option:selected");
+            let campoEstado = $($($("tr.novodado")[i]).find("select")[1]).find("option:selected");
+
+            cidades[i] = {
+                "cidade": campoCidade.text(),
+                "estado": campoEstado.text(),
+                "cod_cidade": campoCidade.val(),
+                "cod_estado": campoEstado.val()
+            }
+        }
+    }
+
+    return cidades
+}
+
+// Função de conclusão do formulário
+$("#finishconfig").click(() => {
+    // Verifica se está válido
+    let valido = validadorFormulario.valid();
+
+    if (valido) {
+        let dados_pessoais = {
+            "nome": $("#regnome").val(),
+            "email": $("#regemail").val(),
+            "cpf": $("#regcpf").val(),
+            "telefone": $("#regtel").val(),
+            "cidade": $(localizacao.cidade).find("option:selected").text(),
+            "estado": $(localizacao.estado).find("option:selected").text(),
+            "cod_cidade": localizacao.cidade.value,
+            "cod_estado": localizacao.estado.value
+        };
+        let dados_transporte = {
+            "tem_rodoviario": $("#temRodoviario").is(":checked"),
+            "tem_aquaviario": $("#temAquaviario").is(":checked"),
+            "tem_bicicleta": JSON.parse($("input[name='temBicicleta']:checked").val()),
+            "tem_monitor": JSON.parse($("input[name='temMonitor']:checked").val()),
+            "dist_minima": $("input[name='distMinima']:checked").val(),
+            "tem_outras_cidades": JSON.parse($("input[name='temOutrasCidades']:checked").val()),
+            "outras_cidades": pegarOutrasCidades()
+        };
+        let dados_escolares = {
+            "importar_escolas": $("input[name='importarDados']:checked").val(),
+            "ano_base": $("#ano").val()
+        };
+
+        let configRef = database.collection("data").doc(firebaseUser.uid).collection("config");
+        let dadosPessoaisDoc = configRef.doc("dados_pessoais");
+        let dadosTransporteDoc = configRef.doc("dados_transporte");
+        let dadosEscolaresDoc = configRef.doc("dados_escolares");
+
+        let promiseDadosPessoais = dadosPessoaisDoc.set(dados_pessoais, { merge: true });
+        let promiseDadosTrasporte = dadosTransporteDoc.set(dados_transporte, { merge: true });
+        let promiseDadosEscolares = dadosEscolaresDoc.set(dados_escolares, { merge: true });
+
+        let rootDoc = database.collection("data").doc(firebaseUser.uid);
+        let promiseInitDone = rootDoc.set({ "init": true }, { merge: true });
+
+        Promise.all([promiseDadosPessoais, promiseDadosTrasporte, promiseDadosEscolares, promiseInitDone])
+        .then(() => {
+            console.log("OK");
+            document.location.href = "./dashboard.html";
+        });
+    }
+});

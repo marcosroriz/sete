@@ -204,7 +204,7 @@ $(document).ready(function () {
                         let urldestino = "./initconfig.html";
                         if (doc.exists) {
                             if (doc.data()["init"]) {
-                                document.location.href = "./dashboard.html";
+                                urldestino = "./dashboard.html";
                             }
                         }
 
@@ -288,11 +288,11 @@ $(document).ready(function () {
                         "estado": $(localizacao.estado).find("option:selected").text(),
                         "cod_cidade": localizacao.cidade.value,
                         "cod_estado": localizacao.estado.value
-                    });
+                    }, { merge: true });
 
                     database.collection("data").doc(fbuser.user.uid).set({
                         "init": false
-                    });
+                    }, { merge: true });
 
                     $("#login-tab").click();
 
