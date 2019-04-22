@@ -1,6 +1,14 @@
 const electron = require("electron");
 const { app, BrowserWindow, ipcMain } = electron;
-const path = require('path');
+const path = require("path");
+const ImportarEscolasCenso = require("./js/importar_escolas_censo");
+const knex = require('knex')({
+  client: 'sqlite3',
+  connection: {
+    filename: path.join(__dirname, "db", "local.db"),
+  },
+  useNullAsDefault: true
+});
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -67,7 +75,7 @@ function handleSquirrelEvent() {
   }
 };
 
-handleSquirrelEvent()
+handleSquirrelEvent();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -100,9 +108,35 @@ const createEntryWindow = () => {
     // when you should delete the corresponding element.
     entryWindow = null;
   });
+
+  let censoPath = path.join(__dirname, "db", "52.csv");
+  let importarescolas = new ImportarEscolasCenso(censoPath, "52", "5208707")
+  importarescolas.parse((results) => {
+    console.log(results.data);
+
+    knex.batchInsert("Escolas", results.data, 20)
+      .then(function () {
+        console.log("BATCH INSERT");
+      })
+      .catch(function (error) {
+        console.log("ERROR");
+        console.error(error);
+      });
+
+    /*
+    results.data.forEach((escola) => {
+      console.log(escola["MEC_NO_ENTIDADE"]);
+      knex("Escolas").insert(escola).thenReturn().catch(function(err) {
+        console.log("-------------")
+        console.error(err)
+        console.log(escola["MEC_CO_ENTIDADE"]);
+      })
+    });*/
+  });
+
 };
 
-app.disableHardwareAcceleration();
+// app.disableHardwareAcceleration();
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -125,3 +159,4 @@ app.on('activate', () => {
     createEntryWindow();
   }
 });
+
