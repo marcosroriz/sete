@@ -47,6 +47,7 @@
     }
   },
   "dependencies": {
+    "bookshelf": "^0.14.2",
     "bootstrap": "^4.3.1",
     "electron-compile": "^6.4.4",
     "electron-config": "^2.0.0",

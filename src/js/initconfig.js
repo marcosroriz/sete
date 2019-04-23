@@ -1,5 +1,11 @@
+// Variável de comunicação com o processo main
+const { ipcRenderer } = require('electron')
+
 // Variável armazendo o estado do formulário
 let validadorFormulario;
+
+// Janela modular de processamento (ao término do formulário)
+let processingModalWin;
 
 // Localização do Usuário
 let localizacao;
@@ -10,28 +16,6 @@ let firebaseUser;
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
         firebaseUser = user;
-        let usersRegDoc = database.collection("users").doc(firebaseUser.uid);
-        usersRegDoc.get().then(function (doc) {
-            if (doc.exists) {
-                $("#regnome").val(doc.data()["nome"]);
-                $("#regemail").val(doc.data()["email"]);
-                $("#regcpf").val(doc.data()["cpf"]);
-                $("#regtel").val(doc.data()["telefone"]);
-                $("#regestado").val(doc.data()["cod_estado"]);
-                $("#regestado").trigger("change");
-                $("#regcidade").val(doc.data()["cod_cidade"]);
-                $("#regcidade").trigger("change");
-            }
-        }).catch(function (err) {
-            if (err != null) {
-                swal({
-                    title: "Ops... tivemos um problema!",
-                    text: err.message,
-                    icon: "error",
-                    button: "Fechar"
-                });
-            }
-        });
     } else {
         // User not logged in or has just logged out.
         document.location.href = "./entry.html"
@@ -41,6 +25,20 @@ firebase.auth().onAuthStateChanged((user) => {
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {
+    // Carrega dados da base local
+    let userEmail = userconfig.get("email");
+
+    Users.where({ "EMAIL": userEmail }).fetch().then((userData) => {
+        $("#regnome").val(userData.attributes["NOME"]);
+        $("#regemail").val(userData.attributes["EMAIL"]);
+        $("#regcpf").val(userData.attributes["CPF"]);
+        $("#regtel").val(userData.attributes["TELEFONE"]);
+        $("#regestado").val(userData.attributes["COD_ESTADO"]);
+        $("#regestado").trigger("change");
+        $("#regcidade").val(userData.attributes["COD_CIDADE"]);
+        $("#regcidade").trigger("change");
+    });
+
     // Carrega o rodapé
     $("#footer").load("./footer.html");
 
@@ -368,52 +366,74 @@ function pegarOutrasCidades() {
     return cidades
 }
 
+
+function processConfig() {
+    let dados_pessoais = {
+        "nome": $("#regnome").val(),
+        "email": $("#regemail").val(),
+        "cpf": $("#regcpf").val(),
+        "telefone": $("#regtel").val(),
+        "cidade": $(localizacao.cidade).find("option:selected").text(),
+        "estado": $(localizacao.estado).find("option:selected").text(),
+        "cod_cidade": localizacao.cidade.value,
+        "cod_estado": localizacao.estado.value
+    };
+    let dados_transporte = {
+        "tem_rodoviario": $("#temRodoviario").is(":checked"),
+        "tem_aquaviario": $("#temAquaviario").is(":checked"),
+        "tem_bicicleta": JSON.parse($("input[name='temBicicleta']:checked").val()),
+        "tem_monitor": JSON.parse($("input[name='temMonitor']:checked").val()),
+        "dist_minima": $("input[name='distMinima']:checked").val(),
+        "tem_outras_cidades": JSON.parse($("input[name='temOutrasCidades']:checked").val()),
+        "outras_cidades": pegarOutrasCidades()
+    };
+    let dados_escolares = {
+        "importar_escolas": $("input[name='importarDados']:checked").val(),
+        "ano_base": $("#ano").val()
+    };
+
+    let configRef = remotedb.collection("data").doc(firebaseUser.uid).collection("config");
+    let dadosPessoaisDoc = configRef.doc("dados_pessoais");
+    let dadosTransporteDoc = configRef.doc("dados_transporte");
+    let dadosEscolaresDoc = configRef.doc("dados_escolares");
+
+    let promiseDadosPessoais = dadosPessoaisDoc.set(dados_pessoais, { merge: true });
+    let promiseDadosTrasporte = dadosTransporteDoc.set(dados_transporte, { merge: true });
+    let promiseDadosEscolares = dadosEscolaresDoc.set(dados_escolares, { merge: true });
+
+    let rootDoc = remotedb.collection("data").doc(firebaseUser.uid);
+    let promiseInitDone = rootDoc.set({ "init": true }, { merge: true });
+
+    Promise.all([promiseDadosPessoais, promiseDadosTrasporte, promiseDadosEscolares, promiseInitDone])
+        .then(() => {
+            console.log("OK");
+            document.location.href = "./dashboard.html";
+        });
+}
+
+
 // Função de conclusão do formulário
 $("#finishconfig").click(() => {
     // Verifica se está válido
     let valido = validadorFormulario.valid();
 
     if (valido) {
-        let dados_pessoais = {
-            "nome": $("#regnome").val(),
-            "email": $("#regemail").val(),
-            "cpf": $("#regcpf").val(),
-            "telefone": $("#regtel").val(),
-            "cidade": $(localizacao.cidade).find("option:selected").text(),
-            "estado": $(localizacao.estado).find("option:selected").text(),
-            "cod_cidade": localizacao.cidade.value,
-            "cod_estado": localizacao.estado.value
-        };
-        let dados_transporte = {
-            "tem_rodoviario": $("#temRodoviario").is(":checked"),
-            "tem_aquaviario": $("#temAquaviario").is(":checked"),
-            "tem_bicicleta": JSON.parse($("input[name='temBicicleta']:checked").val()),
-            "tem_monitor": JSON.parse($("input[name='temMonitor']:checked").val()),
-            "dist_minima": $("input[name='distMinima']:checked").val(),
-            "tem_outras_cidades": JSON.parse($("input[name='temOutrasCidades']:checked").val()),
-            "outras_cidades": pegarOutrasCidades()
-        };
-        let dados_escolares = {
-            "importar_escolas": $("input[name='importarDados']:checked").val(),
-            "ano_base": $("#ano").val()
-        };
-
-        let configRef = database.collection("data").doc(firebaseUser.uid).collection("config");
-        let dadosPessoaisDoc = configRef.doc("dados_pessoais");
-        let dadosTransporteDoc = configRef.doc("dados_transporte");
-        let dadosEscolaresDoc = configRef.doc("dados_escolares");
-
-        let promiseDadosPessoais = dadosPessoaisDoc.set(dados_pessoais, { merge: true });
-        let promiseDadosTrasporte = dadosTransporteDoc.set(dados_transporte, { merge: true });
-        let promiseDadosEscolares = dadosEscolaresDoc.set(dados_escolares, { merge: true });
-
-        let rootDoc = database.collection("data").doc(firebaseUser.uid);
-        let promiseInitDone = rootDoc.set({ "init": true }, { merge: true });
-
-        Promise.all([promiseDadosPessoais, promiseDadosTrasporte, promiseDadosEscolares, promiseInitDone])
-        .then(() => {
-            console.log("OK");
-            document.location.href = "./dashboard.html";
+        // Inicia janela de processamento
+        processingModalWin = swal({
+            title: "Processando...",
+            text: "Espere um minutinho...",
+            icon: "info",
+            buttons: false
         });
+
+        let importar = JSON.parse($("input[name='importarDados']:checked").val());
+        let codEstado = localizacao.estado.value;
+        let codCidade = localizacao.cidade.value;
+
+        if (importar) {
+            ipcRenderer.send("import:censo", codEstado, codCidade);
+        } else {
+            processConfig();
+        }
     }
 });

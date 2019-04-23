@@ -197,10 +197,8 @@ $(document).ready(function () {
                     }
 
                     // Checar se o usuário já fez a configuração inicial
-                    let configDoc = database.collection("data").doc(firebaseUser.user.uid);
-                    configDoc.get().then(function(doc) {
-                        swal.close();
-
+                    let configDoc = remotedb.collection("data").doc(firebaseUser.user.uid);
+                    configDoc.get().then(function (doc) {
                         let urldestino = "./initconfig.html";
                         if (doc.exists) {
                             if (doc.data()["init"]) {
@@ -209,7 +207,7 @@ $(document).ready(function () {
                         }
 
                         document.location.href = urldestino;
-                    }).catch(function(err) {
+                    }).catch(function (err) {
                         if (err != null) {
                             swal({
                                 title: "Ops... tivemos um problema!",
@@ -273,34 +271,49 @@ $(document).ready(function () {
         $("#registerform").validate();
 
         if ($("#registerform").valid()) {
+            let processingModalWin = swal({
+                title: "Processando...",
+                text: "Espere um minutinho...",
+                icon: "info",
+                buttons: false
+            });
+
             let email = $("#regemail").val();
             let password = $("#regpassword").val();
+            let nome = $("#regnome").val();
+            let cpf = $("#regcpf").val();
+            let telefone = $("#regtel").val();
+            let cidade = $(localizacao.cidade).find("option:selected").text();
+            let estado = $(localizacao.estado).find("option:selected").text();
 
             firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then((fbuser) => {
-                    database.collection("users").doc(fbuser.user.uid).set({
-                        "nome": $("#regnome").val(),
-                        "email": email,
-                        "password": password,
-                        "cpf": $("#regcpf").val(),
-                        "telefone": $("#regtel").val(),
-                        "cidade": $(localizacao.cidade).find("option:selected").text(),
-                        "estado": $(localizacao.estado).find("option:selected").text(),
-                        "cod_cidade": localizacao.cidade.value,
-                        "cod_estado": localizacao.estado.value
-                    }, { merge: true });
+                    let userData = {
+                        "NOME": nome,
+                        "EMAIL": email,
+                        "PASSWORD": password,
+                        "CPF": cpf,
+                        "TELEFONE": telefone,
+                        "CIDADE": cidade,
+                        "ESTADO": estado,
+                        "COD_CIDADE": localizacao.cidade.value,
+                        "COD_ESTADO": localizacao.estado.value
+                    };
 
-                    database.collection("data").doc(fbuser.user.uid).set({
-                        "init": false
-                    }, { merge: true });
+                    let localUser = new Users(userData).save();
+                    let remoteUser = remotedb.collection("users").doc(fbuser.user.uid).set(userData, { merge: true });
+                    let remoteUserData = remotedb.collection("data").doc(fbuser.user.uid).set({ "init": false }, { merge: true });
 
-                    $("#login-tab").click();
-
-                    swal({
-                        title: "Parabéns!",
-                        text: "Sua conta foi criada com sucesso. Você já pode fazer o login.",
-                        icon: "success",
-                        button: "Fechar"
+                    Promise.all([localUser, remoteUser, remoteUserData]).then(() => {
+                        swal.close();
+                        swal({
+                            title: "Parabéns!",
+                            text: "Sua conta foi criada com sucesso. Você já pode fazer o login.",
+                            icon: "success",
+                            button: "Fechar"
+                        });
+                        
+                        $("#login-tab").click();
                     });
                 })
                 .catch((err) => {
