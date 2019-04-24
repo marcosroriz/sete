@@ -21,20 +21,43 @@ firebase.initializeApp(dbconfig);
 let remotedb = firebase.firestore();
 
 // Base de dados Local (sqlite)
-const knex = require('knex')({
-    client: 'sqlite3',
+const knex = require("knex")({
+    client: "sqlite3",
     connection: {
         filename: path.join(__dirname, "db", "local.db"),
     },
     useNullAsDefault: true
 });
 
-const bookshelf = require('bookshelf')(knex);
+const bookshelf = require("bookshelf")(knex);
 
 const Users = bookshelf.Model.extend(
     {
         tableName: "Usuarios",
         idAttribute: "ID"
+    });
+
+const Municipios = bookshelf.Model.extend(
+    {
+        tableName: "Municipios",
+        usuario: function () {
+            return this.hasOne(Users);
+        }
+    });
+
+const FazTransporte = bookshelf.Model.extend(
+    {
+        tableName: "FazTransporte"
+    },
+    {
+        cidades: function (cod_cidade_origem) {
+            return this.forge().query({ where: { COD_CIDADE_ORIGEM: cod_cidade_origem } }).fetch();
+        }
+    })
+
+const ColecaoFazTransporte = bookshelf.Collection.extend(
+    {
+        model: FazTransporte
     });
 
 const Escolas = bookshelf.Model.extend(

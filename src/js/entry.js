@@ -9,9 +9,9 @@ $(document).ready(function () {
 
     // Popula o campo de email e senha se o usuário tiver logado previamente
     // Para isso, vamos ver se exite a chave / valor lembrar no arquivo de configuração local do usuário
-    if (userconfig.get("lembrar")) {
-        $("#loginemail").val(userconfig.get("email"));
-        $("#loginpassword").val(userconfig.get("password"));
+    if (userconfig.get("LEMBRAR")) {
+        $("#loginemail").val(userconfig.get("EMAIL"));
+        $("#loginpassword").val(userconfig.get("PASSWORD"));
     }
 
     // Inicia o campo de estados/cidade na aba de registro
@@ -187,35 +187,24 @@ $(document).ready(function () {
                 .then((firebaseUser) => {
                     // Set local config 
                     if (loginlembrar) {
-                        userconfig.set("lembrar", true);
-                        userconfig.set("email", email);
-                        userconfig.set("password", password);
+                        userconfig.set("LEMBRAR", true);
+                        userconfig.set("EMAIL", email);
+                        userconfig.set("PASSWORD", password);
                     } else {
-                        userconfig.delete("lembrar");
-                        userconfig.delete("email");
-                        userconfig.delete("password");
+                        userconfig.delete("LEMBRAR");
+                        userconfig.delete("EMAIL");
+                        userconfig.delete("PASSWORD");
                     }
+                    userconfig.set("ID", firebaseUser.user.uid);
 
                     // Checar se o usuário já fez a configuração inicial
-                    let configDoc = remotedb.collection("data").doc(firebaseUser.user.uid);
-                    configDoc.get().then(function (doc) {
+                    Users.where({ ID: firebaseUser.user.uid }).fetch().then((userData) => {
+                        let hasInit = JSON.parse(userData.attributes["INIT"]);
                         let urldestino = "./initconfig.html";
-                        if (doc.exists) {
-                            if (doc.data()["init"]) {
-                                urldestino = "./dashboard.html";
-                            }
+                        if (hasInit) {
+                            urldestino = "./dashboard.html";
                         }
-
                         document.location.href = urldestino;
-                    }).catch(function (err) {
-                        if (err != null) {
-                            swal({
-                                title: "Ops... tivemos um problema!",
-                                text: err.message,
-                                icon: "error",
-                                button: "Fechar"
-                            });
-                        }
                     });
                 })
                 .catch((err) => {
@@ -289,6 +278,7 @@ $(document).ready(function () {
             firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then((fbuser) => {
                     let userData = {
+                        "ID": fbuser.user.uid,
                         "NOME": nome,
                         "EMAIL": email,
                         "PASSWORD": password,
@@ -300,9 +290,9 @@ $(document).ready(function () {
                         "COD_ESTADO": localizacao.estado.value
                     };
 
-                    let localUser = new Users(userData).save();
-                    let remoteUser = remotedb.collection("users").doc(fbuser.user.uid).set(userData, { merge: true });
-                    let remoteUserData = remotedb.collection("data").doc(fbuser.user.uid).set({ "init": false }, { merge: true });
+                    let remoteUser = remotedb.collection("users").doc(fbuser.user.uid).set(userData);
+                    let remoteUserData = remotedb.collection("data").doc(fbuser.user.uid).set({ "INIT": false });
+                    let localUser = new Users(userData).save(null, { method: "insert" });
 
                     Promise.all([localUser, remoteUser, remoteUserData]).then(() => {
                         swal.close();
@@ -312,7 +302,7 @@ $(document).ready(function () {
                             icon: "success",
                             button: "Fechar"
                         });
-                        
+
                         $("#login-tab").click();
                     });
                 })

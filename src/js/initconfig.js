@@ -26,9 +26,9 @@ firebase.auth().onAuthStateChanged((user) => {
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {
     // Carrega dados da base local
-    let userEmail = userconfig.get("email");
+    let userID = userconfig.get("ID");
 
-    Users.where({ "EMAIL": userEmail }).fetch().then((userData) => {
+    Users.where({ "ID": userID }).fetch().then((userData) => {
         $("#regnome").val(userData.attributes["NOME"]);
         $("#regemail").val(userData.attributes["EMAIL"]);
         $("#regcpf").val(userData.attributes["CPF"]);
@@ -342,7 +342,24 @@ function rmrow(element) {
 }
 
 function pegarOutrasCidades() {
-    let cidades = []
+    let cidadeOrigem = $(localizacao.cidade).find("option:selected").text();
+    let codCidadeOrigem = localizacao.cidade.value;
+    let estadoOrigem = $(localizacao.estado).find("option:selected").text();
+    let codEstadoOrigem = localizacao.estado.value;
+
+    // Por padrão a cidade faz transporte dentro dela mesmo
+    let cidades = [
+        {
+            "COD_CIDADE_ORIGEM": codCidadeOrigem,
+            "COD_CIDADE_DESTINO": codCidadeOrigem,
+            "CIDADE_ORIGEM": cidadeOrigem,
+            "CIDADE_DESTINO": cidadeOrigem,
+            "COD_ESTADO_ORIGEM": codEstadoOrigem,
+            "COD_ESTADO_DESTINO": codEstadoOrigem,
+            "ESTADO_ORIGEM": estadoOrigem,
+            "ESTADO_DESTINO": estadoOrigem
+        }
+    ]
     let linhas = $("tr.novodado");
     let numlinhas = linhas.length;
 
@@ -354,57 +371,59 @@ function pegarOutrasCidades() {
             let campoCidade = $($($("tr.novodado")[i]).find("select")[0]).find("option:selected");
             let campoEstado = $($($("tr.novodado")[i]).find("select")[1]).find("option:selected");
 
-            cidades[i] = {
-                "cidade": campoCidade.text(),
-                "estado": campoEstado.text(),
-                "cod_cidade": campoCidade.val(),
-                "cod_estado": campoEstado.val()
-            }
+            cidades.push({
+                "COD_CIDADE_ORIGEM": codCidadeOrigem,
+                "CIDADE_ORIGEM": cidadeOrigem,
+                "COD_ESTADO_ORIGEM": codEstadoOrigem,
+                "ESTADO_ORIGEM": estadoOrigem,
+                "COD_CIDADE_DESTINO": campoCidade.val(),
+                "CIDADE_DESTINO": campoCidade.text(),
+                "COD_ESTADO_DESTINO": campoEstado.val(),
+                "ESTADO_DESTINO": campoEstado.text()
+            });
         }
     }
 
-    return cidades
+    return cidades;
 }
 
-
 function processConfig() {
-    let dados_pessoais = {
-        "nome": $("#regnome").val(),
-        "email": $("#regemail").val(),
-        "cpf": $("#regcpf").val(),
-        "telefone": $("#regtel").val(),
-        "cidade": $(localizacao.cidade).find("option:selected").text(),
-        "estado": $(localizacao.estado).find("option:selected").text(),
-        "cod_cidade": localizacao.cidade.value,
-        "cod_estado": localizacao.estado.value
-    };
-    let dados_transporte = {
-        "tem_rodoviario": $("#temRodoviario").is(":checked"),
-        "tem_aquaviario": $("#temAquaviario").is(":checked"),
-        "tem_bicicleta": JSON.parse($("input[name='temBicicleta']:checked").val()),
-        "tem_monitor": JSON.parse($("input[name='temMonitor']:checked").val()),
-        "dist_minima": $("input[name='distMinima']:checked").val(),
-        "tem_outras_cidades": JSON.parse($("input[name='temOutrasCidades']:checked").val()),
-        "outras_cidades": pegarOutrasCidades()
-    };
-    let dados_escolares = {
-        "importar_escolas": $("input[name='importarDados']:checked").val(),
-        "ano_base": $("#ano").val()
+    let dadosPessoais = {
+        "ID": userconfig.get("ID"),
+        "NOME": $("#regnome").val(),
+        "EMAIL": $("#regemail").val(),
+        "CPF": $("#regcpf").val(),
+        "TELEFONE": $("#regtel").val(),
+        "CIDADE": $(localizacao.cidade).find("option:selected").text(),
+        "ESTADO": $(localizacao.estado).find("option:selected").text(),
+        "COD_CIDADE": localizacao.cidade.value,
+        "COD_ESTADO": localizacao.estado.value,
+        "INIT": 1
     };
 
-    let configRef = remotedb.collection("data").doc(firebaseUser.uid).collection("config");
-    let dadosPessoaisDoc = configRef.doc("dados_pessoais");
-    let dadosTransporteDoc = configRef.doc("dados_transporte");
-    let dadosEscolaresDoc = configRef.doc("dados_escolares");
+    let dadosMunicipio = {
+        "ID_USUARIO": userconfig.get("ID"),
+        "COD_CIDADE": localizacao.cidade.value,
+        "TEM_RODOVIARIO": $("#temRodoviario").is(":checked"),
+        "TEM_AQUAVIARIO": $("#temAquaviario").is(":checked"),
+        "TEM_BICICLETA": JSON.parse($("input[name='temBicicleta']:checked").val()),
+        "TEM_MONITOR": JSON.parse($("input[name='temMonitor']:checked").val()),
+        "DIST_MINIMA": $("input[name='distMinima']:checked").val(),
+        "TEM_OUTRAS_CIDADES": JSON.parse($("input[name='temOutrasCidades']:checked").val()),
+    };
 
-    let promiseDadosPessoais = dadosPessoaisDoc.set(dados_pessoais, { merge: true });
-    let promiseDadosTrasporte = dadosTransporteDoc.set(dados_transporte, { merge: true });
-    let promiseDadosEscolares = dadosEscolaresDoc.set(dados_escolares, { merge: true });
+    let dadosDestinosTransportes = pegarOutrasCidades();
 
-    let rootDoc = remotedb.collection("data").doc(firebaseUser.uid);
-    let promiseInitDone = rootDoc.set({ "init": true }, { merge: true });
+    // Armazena algumas variáveis localmente
+    userconfig.set(dadosPessoais);
+    userconfig.set(dadosMunicipio);
 
-    Promise.all([promiseDadosPessoais, promiseDadosTrasporte, promiseDadosEscolares, promiseInitDone])
+    // Salva na base sqlite
+    let promiseDadosUsuario = new Users(dadosPessoais).save();
+    let promiseMunicipio = new Municipios(dadosMunicipio).save(null, { method: "insert" });
+    let promiseFazTransporte = ColecaoFazTransporte.forge(dadosDestinosTransportes).invokeThen("save");
+
+    Promise.all([promiseDadosUsuario, promiseMunicipio, promiseFazTransporte])
         .then(() => {
             console.log("OK");
             document.location.href = "./dashboard.html";
@@ -418,22 +437,25 @@ $("#finishconfig").click(() => {
     let valido = validadorFormulario.valid();
 
     if (valido) {
-        // Inicia janela de processamento
-        processingModalWin = swal({
-            title: "Processando...",
-            text: "Espere um minutinho...",
-            icon: "info",
-            buttons: false
-        });
+        // // Inicia janela de processamento
+        // processingModalWin = swal({
+        //     title: "Processando...",
+        //     text: "Espere um minutinho...",
+        //     icon: "info",
+        //     buttons: false
+        // });
 
-        let importar = JSON.parse($("input[name='importarDados']:checked").val());
+        // Ler Variáveis Básicas do Formulário
         let codEstado = localizacao.estado.value;
         let codCidade = localizacao.cidade.value;
 
-        if (importar) {
-            ipcRenderer.send("import:censo", codEstado, codCidade);
-        } else {
-            processConfig();
-        }
+        // Verifica se precisamos importar dados
+        let importar = JSON.parse($("input[name='importarDados']:checked").val());
+
+        // if (importar) {
+        //     ipcRenderer.send("import:censo", codEstado, codCidade);
+        // } else {
+        processConfig();
+        // }
     }
 });
