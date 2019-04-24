@@ -350,6 +350,7 @@ function pegarOutrasCidades() {
     // Por padrão a cidade faz transporte dentro dela mesmo
     let cidades = [
         {
+            "ID_USUARIO": userconfig.get("ID"),
             "COD_CIDADE_ORIGEM": codCidadeOrigem,
             "COD_CIDADE_DESTINO": codCidadeOrigem,
             "CIDADE_ORIGEM": cidadeOrigem,
@@ -368,10 +369,11 @@ function pegarOutrasCidades() {
         let adicionouLinha = $($("tr.novodado")[i]).find("img")[0].src.includes("remove");
 
         if (adicionouLinha) {
-            let campoCidade = $($($("tr.novodado")[i]).find("select")[0]).find("option:selected");
-            let campoEstado = $($($("tr.novodado")[i]).find("select")[1]).find("option:selected");
+            let campoCidade = $($($("tr.novodado")[i]).find("select")[1]).find("option:selected");
+            let campoEstado = $($($("tr.novodado")[i]).find("select")[0]).find("option:selected");
 
             cidades.push({
+                "ID_USUARIO": userconfig.get("ID"),
                 "COD_CIDADE_ORIGEM": codCidadeOrigem,
                 "CIDADE_ORIGEM": cidadeOrigem,
                 "COD_ESTADO_ORIGEM": codEstadoOrigem,
