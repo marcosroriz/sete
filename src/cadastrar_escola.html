@@ -48,13 +48,13 @@
                             <form id="wizardForm" method="" action="">
                                 <div class="card card-wizard">
                                     <div class="card-header ">
-                                        <h3 class="card-title text-center">Bem-vindo!</h3>
-                                        <p class="card-category text-center">Por favor confirme os dados abaixo para configurarmos o <em>software</em></p>
+                                        <h3 class="card-title text-center">Cadastro de Alunos!</h3>
+                                        <p class="card-category text-center">Por favor entre com os dados abaixo do respectivo aluno</p>
                                     </div>
                                     <div class="card-body ">
                                         <ul class="nav nav-tabs">
                                             <li class="nav-item">
-                                                <a class="nav-link active" href="#tab-dados-pessoais" data-toggle="tab" role="tab" aria-controls="tab-dados-pessoais" aria-selected="true">Dados Básicos</a>
+                                                <a class="nav-link active" href="#tab-dados-pessoais" data-toggle="tab" role="tab" aria-controls="tab-dados-pessoais" aria-selected="true">Localização</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="nav-link" href="#tab-dados-transporte" data-toggle="tab" role="tab" aria-controls="tab2" aria-selected="true">Dados do Transporte</a>
@@ -66,18 +66,22 @@
                                         <div class="tab-content">
                                             <div class="tab-pane fade show active" id="tab-dados-pessoais" role="tabpanel">
                                                 <div class="row justify-content-center">
-                                                    <h6 class="text-center">Confirme os seus dados pessoais:</h6>
+                                                    <h6 class="text-center">Confirme a localização do aluno:</h6>
+                 									// Geolocalização
+                                            
+                                            		<hr class="hr-form" />
+                                            		
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Nome completo:</label>
-                                                            <input id="regnome" name="regnome" type="text" placeholder="Digite seu nome:" class="form-control">
+                                                            <label>Endereço :</label>
+                                                            <input id="regend" name="regend" type="text" placeholder="Digite o endereço do Aluno:" class="form-control">
                                                         </div>
                                                     </div>
                                                     
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>E-mail:</label>
-                                                            <input id="regemail" name="regemail" type="email" placeholder="Endereço de e-mail:" class="form-control">
+                                                            <label>CEP :</label>
+                                                            <input id="regcep" name="regcep" type="text" onkeypress="mascara(this, '#####-###')" maxlength="9" placeholder="Informe o CEP do Aluno:" class="form-control">
                                                         </div>
                                                     </div>
                                                     
