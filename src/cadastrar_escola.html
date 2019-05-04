@@ -1,380 +1,356 @@
-<div class="container-fluid">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-8 ml-auto mr-auto">
-                <form id="wizardForm" method="" action="">
-                    <div class="card card-wizard">
-                        <div class="card-header ">
-                            <h3 class="card-title text-center">Awesome Wizard</h3>
-                            <p class="card-category text-center">Split a complicated flow in multiple steps</p>
-                        </div>
-                        <div class="card-body ">
-                            <ul class="nav nav-tabs">
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="#tab1" data-toggle="tab" role="tab"
-                                        aria-controls="tab1" aria-selected="true">First Tab</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#tab2" data-toggle="tab" role="tab" aria-controls="tab2"
-                                        aria-selected="true">Second Tab</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#tab3" data-toggle="tab" role="tab" aria-controls="tab3"
-                                        aria-selected="true">Third Tab</a>
-                                </li>
-                            </ul>
-                            <div class="tab-content">
-                                <div class="tab-pane fade show active" id="tab1" role="tabpanel">
-                                    <p class="text-center">Please tell us more about yourself.</p>
-                                    <div class="row justify-content-center">
-                                        <div class="col-md-5 ">
-                                            <div class="form-group">
-                                                <label class="control-label">First Name</label>
-                                                <input class="form-control" type="text" name="first_name"
-                                                    placeholder="ex: Mike" />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label class="control-label">Last Name</label>
-                                                <input class="form-control" type="text" name="last_name" required="true"
-                                                    placeholder="ex: Andrew" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center">
-                                        <div class="col-md-10">
-                                            <div class="form-group">
-                                                <label class="control-label">Email
-                                                    <star>*</star>
-                                                </label>
-                                                <input class="form-control" type="text" name="email" email="true"
-                                                    placeholder="ex: hello@creative-tim.com" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="tab2" role="tabpanel">
-                                    <h5 class="text-center">Please give us more details about your platform.</h5>
-                                    <div class="row justify-content-center">
-                                        <div class="col-md-10">
-                                            <div class="form-group">
-                                                <label class="control-label">Your Website
-                                                    <star>*</star>
-                                                </label>
-                                                <input class="form-control" type="text" name="website" url="true"
-                                                    placeholder="ex: http://www.creative-tim.com" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center">
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label class="control-label">Framework Type</label>
-                                                <input class="form-control" type="text" name="framework"
-                                                    placeholder="ex: http://www.creative-tim.com" />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label class="control-label">Language
-                                                    <star>*</star>
-                                                </label>
-                                                <select name="cities" class="selectpicker" data-title="Single Select"
-                                                    data-style="btn-default btn-outline"
-                                                    data-menu-style="dropdown-blue">
-                                                    <option value="id">Bahasa Indonesia</option>
-                                                    <option value="ms">Bahasa Melayu</option>
-                                                    <option value="ca">Català</option>
-                                                    <option value="da">Dansk</option>
-                                                    <option value="de">Deutsch</option>
-                                                    <option value="en">English</option>
-                                                    <option value="es">Español</option>
-                                                    <option value="el">Eλληνικά</option>
-                                                    <option value="fr">Français</option>
-                                                    <option value="it">Italiano</option>
-                                                    <option value="hu">Magyar</option>
-                                                    <option value="nl">Nederlands</option>
-                                                    <option value="no">Norsk</option>
-                                                    <option value="pl">Polski</option>
-                                                    <option value="pt">Português</option>
-                                                    <option value="fi">Suomi</option>
-                                                    <option value="sv">Svenska</option>
-                                                    <option value="tr">Türkçe</option>
-                                                    <option value="is">Íslenska</option>
-                                                    <option value="cs">Čeština</option>
-                                                    <option value="ru">Русский</option>
-                                                    <option value="th">ภาษาไทย</option>
-                                                    <option value="zh">中文 (简体)</option>
-                                                    <option value="zh-TW">中文 (繁體)</option>
-                                                    <option value="ja">日本語</option>
-                                                    <option value="ko">한국어</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center">
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label class="control-label">Bootstrap Version</label>
-                                                <select name="versions" class="selectpicker" data-title="Single Select"
-                                                    data-style="btn-default btn-outline"
-                                                    data-menu-style="dropdown-blue">
-                                                    <option selected="" disabled="">- version -</option>
-                                                    <option value="1.1">Bootstrap 1.1</option>
-                                                    <option value="2.0">Bootstrap 2.0</option>
-                                                    <option value="3.0">Bootstrap 3.0</option>
-                                                    <option value="4.0">Bootstrap 4.0(alpha)</option>
-                                                    <option value="4.0">Bootstrap 4.0(beta)</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label class="control-label">Price</label>
-                                                <input class="form-control" type="text" name="price"
-                                                    placeholder="ex: 19.00" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="tab3" role="tabpanel">
-                                    <h2 class="text-center text-space">Yuhuuu!
-                                        <br>
-                                        <small> Click on "
-                                            <b>Finish</b>" to join our community</small>
-                                    </h2>
-                                </div>
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name='viewport'
+        content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>SETE Software de Gestão do Transporte Escolar</title>
+
+    <!-- Node CSS -->
+    <link rel="stylesheet" href="../node_modules/typeface-montserrat/index.css" />
+    <link rel="stylesheet" href="../node_modules/typeface-patrick-hand/index.css" />
+    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="css/light-bootstrap-dashboard.css?v=2.0.1" />
+    <link rel="stylesheet" href="css/common.css" />
+    <link rel="stylesheet" href="css/initconfig.css" />
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+</head>
+
+<body class="bgentry">
+    <div class="wrapper wrapper-full-page">
+        <div class="full-page section-image">
+            <div class="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <h1 class="text-center text-white">
+                                <i class="fa fa-bus"></i>
+                                <span class="ml-3 cursive"> SETE</span>
+                            </h1>
+                            <div class="text-center text-white cursive">
+                                Software para Gestão do Transporte Escolar
                             </div>
                         </div>
-                        <div class="card-footer text-center">
-                            <button type="button" class="btn btn-default btn-wd btn-back pull-left">Back</button>
-                            <button type="button" class="btn btn-info btn-wd btn-next pull-right">Next</button>
-                            <button type="button" class="btn btn-info btn-wd btn-finish pull-right"
-                                onclick="onFinishWizard()">Finish</button>
-                            <div class="clearfix"></div>
-                        </div>
                     </div>
-                </form>
+                    <!-- end row -->
+
+                    <div class="row">
+                        <div class="col-md-8 mt-5 ml-auto mr-auto">
+                            <form id="wizardForm" method="" action="">
+                                <div class="card card-wizard">
+                                    <div class="card-header ">
+                                        <h3 class="card-title text-center">Bem-vindo!</h3>
+                                        <p class="card-category text-center">Por favor confirme os dados abaixo para configurarmos o <em>software</em></p>
+                                    </div>
+                                    <div class="card-body ">
+                                        <ul class="nav nav-tabs">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" href="#tab-dados-pessoais" data-toggle="tab" role="tab" aria-controls="tab-dados-pessoais" aria-selected="true">Dados Básicos</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="#tab-dados-transporte" data-toggle="tab" role="tab" aria-controls="tab2" aria-selected="true">Dados do Transporte</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="#tab-dados-escolares" data-toggle="tab" role="tab" aria-controls="tab3" aria-selected="true">Dados Escolares</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane fade show active" id="tab-dados-pessoais" role="tabpanel">
+                                                <div class="row justify-content-center">
+                                                    <h6 class="text-center">Confirme os seus dados pessoais:</h6>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Nome completo:</label>
+                                                            <input id="regnome" name="regnome" type="text" placeholder="Digite seu nome:" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>E-mail:</label>
+                                                            <input id="regemail" name="regemail" type="email" placeholder="Endereço de e-mail:" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>CPF:</label>
+                                                            <input id="regcpf" name="regcpf" type="text" placeholder="Digite seu CPF:" class="form-control cpfmask">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Telefone:</label>
+                                                            <input id="regtel" name="regtel" type="text" placeholder="Digite seu Telefone:" class="form-control telmask">
+                                                        </div>
+                                                    </div>
+                                                    <hr class="hr-form" />
+                                                    <h6 class="text-center">Confirme o município em que você atua:</h6>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Estado:</label>
+                                                            <select id="regestado" name="regestado" class="form-control"></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Município:</label>
+                                                            <select id="regcidade" name="regcidade" class="form-control"></select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Fim aba dados pessoais -->
+
+                                            <div class="tab-pane fade" id="tab-dados-transporte" role="tabpanel">
+                                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do Transporte Escolar no município</h6>
+                                                <div class="row justify-content-center">
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Em relação aos modos de transporte, o município oferece transporte escolar (marcar todos que se aplica):</label>
+                                                            <br />
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temRodoviario" name="modoTransporte[]" value="0" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Rodoviário
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temAquaviario" name="modoTransporte[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Aquaviário
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>O município possui bicicletas do programa Caminho da Escola?</label>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="temBicicleta" type="checkbox" value="true">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Sim
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="temBicicleta" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Não
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Existem monitores que atuam dentro dos veículos do transporte escolar do seu município?</label>
+                                                            <br />
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="temMonitor" type="checkbox" value="true">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Sim
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="temMonitor" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Não
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Qual é a distância mínima entre a residência e a escola para que o aluno seja beneficiado com o transporte escolar gratuito?                                                                    ?</label>
+                                                            <br />
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="0">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Até 2 km
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    De 2 a 3 km
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="2">
+                                                                    <span class="form-check-sign"></span>
+                                                                    De 3 a 4 km
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="3">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Acima de 4 km
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="4">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Não possui definição de distância mínima
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                   
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>O município oferece transporte escolar para alunos com destino a outras cidades?</label>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label radio-inline">
+                                                                    <input id="possuiOutrasCidades" name="temOutrasCidades" class="form-check-input" type="radio" type="checkbox" value="true">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Sim
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label radio-inline">
+                                                                    <input class="form-check-input" type="radio" name="temOutrasCidades" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Não
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <hr >
+                                                    <div id="outrosMunicipios" class="col-12 d-none">
+                                                        <hr class="hr-form" />
+                                                        <div name="outros" id="outros" class="form-group">
+                                                            <label>
+                                                                Informe quais são os outros municípios para qual se transportam os alunos.
+                                                                <ul>
+                                                                    <li>
+                                                                        <small>Para adicionar um município, selecione o estado e nome da cidade e clique no íncone <img src="./img/icones/add.png"> da respectiva linha.</small>
+                                                                    </li>
+                                                                    <li>
+                                                                        <small>Para remover um município clique no ícone <img src="./img/icones/remove.png"> da respectiva linha.</small>
+                                                                    </li>
+                                                                </ul>                                                            
+                                                            </label>
+                                                            <table class="table">                                               
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="tbl-col-lg">Estado</th>
+                                                                        <th class="tbl-col-lg">Município</th>
+                                                                        <th class="tbl-add-rm">Adicionar/Remover</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr class="novodado">
+                                                                        <td>
+                                                                            <select name="novoestado" class="form-control"></select>
+                                                                        </td>
+                                                                        <td>
+                                                                            <select name="novomunicipio" class="form-control"></select>
+                                                                        </td>
+                                                                        <td class="tbl-add-rm">
+                                                                            <a href="#" onclick="addrow(this)" class="addbtn">
+                                                                                <img src="./img/icones/add.png" />
+                                                                            </a>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Fim aba dados de transporte -->
+
+                                            <div class="tab-pane fade" id="tab-dados-escolares" role="tabpanel">
+                                                <h6 class="text-center">A respeito de dados escolares, preencha os campos abaixo:</h6>
+                                                <div class="row justify-content-center">
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Você deseja importar os dados de cadastro das escolas do CENSO escolar (2019)?</label>
+                                                            <br />
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="importarDados" type="checkbox" value="true">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Sim
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="importarDados" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Não
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Qual o ano letivo do município?</label>
+                                                            <br />
+                                                            <div class="form-group">
+                                                                <input class="form-control" type="text" id="ano" name="ano" number="true" value="2019">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                            <!-- Fim aba dados escolares -->
+
+                                        </div>
+                                    </div>
+                                    <div class="card-footer text-center">
+                                        <button type="button" class="btn btn-default btn-wd btn-back pull-left">Voltar</button>
+                                        <button type="button" class="btn btn-info btn-wd btn-next pull-right">Próximo</button>
+                                        <button type="button" class="btn btn-info btn-wd btn-finish pull-right" id="finishconfig">Concluir</button>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                        <!-- end col-md-8 -->
+                    </div>
+                    <!-- end row -->
+                </div>
+                <!-- end container -->
             </div>
+            <!-- end content -->
         </div>
+        <footer id="footer" class="footer p-1 bg-light"></footer>
     </div>
-</div>
+</body>
 
-<script>
-    var $validator = $('#wizardForm').validate({
-        rules: {
-            email: {
-                required: true,
-                email: true,
-                minlength: 5
-            },
-            first_name: {
-                required: false,
-                minlength: 5
-            },
-            last_name: {
-                required: false,
-                minlength: 5
-            },
-            website: {
-                required: true,
-                minlength: 5,
-                url: true
-            },
-            framework: {
-                required: false,
-                minlength: 4
-            },
-            cities: {
-                required: true
-            },
-            price: {
-                number: true
-            }
-        },
-        highlight: function (element) {
-            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-        },
-        success: function (element) {
-            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-        },
+<!-- Import Scripts -->
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/db.js"></script>
+<script type="text/javascript" src="js/plugins/cidades-estados-utf8.js"></script>
+<script type="text/javascript" src="js/plugins/jquery.bootstrap-wizard.js"></script>
 
-        // errorPlacement: function(error, element) {
-        //     $(element).parent('div').addClass('has-danger');
-        //  }
-    });
+<!-- Custom Scripts -->
+<script type="text/javascript" src="js/jquery.validate.extra.js"></script>
+<script type="text/javascript" src="js/initconfig.js"></script>
 
-    // Wizard Initialization
-    $('.card-wizard').bootstrapWizard({
-        'tabClass': 'nav nav-pills',
-        'nextSelector': '.btn-next',
-        'previousSelector': '.btn-previous',
-
-        onNext: function (tab, navigation, index) {
-            var $valid = $('#wizardForm').valid();
-            if (!$valid) {
-                $validator.focusInvalid();
-                return false;
-            }
-        },
-
-        onInit: function (tab, navigation, index) {
-            //check number of tabs and fill the entire row
-            var $total = navigation.find('li').length;
-            var $wizard = navigation.closest('.card-wizard');
-
-            $first_li = navigation.find('li:first-child a').html();
-            $moving_div = $('<div class="moving-tab">' + $first_li + '</div>');
-            $('.card-wizard .wizard-navigation').append($moving_div);
-
-            refreshAnimation($wizard, index);
-
-            $('.moving-tab').css('transition', 'transform 0s');
-        },
-
-        onTabClick: function (tab, navigation, index) {
-            var $valid = $('#wizardForm').valid();
-
-            if (!$valid) {
-                return false;
-            } else {
-                return true;
-            }
-        },
-
-        onTabShow: function (tab, navigation, index) {
-            var $total = navigation.find('li').length;
-            var $current = index + 1;
-
-            var $wizard = navigation.closest('.card-wizard');
-
-            // If it's the last tab then hide the last button and show the finish instead
-            if ($current >= $total) {
-                $($wizard).find('.btn-next').hide();
-                $($wizard).find('.btn-finish').show();
-            } else {
-                $($wizard).find('.btn-next').show();
-                $($wizard).find('.btn-finish').hide();
-            }
-
-            button_text = navigation.find('li:nth-child(' + $current + ') a').html();
-
-            setTimeout(function () {
-                $('.moving-tab').text(button_text);
-            }, 150);
-
-            var checkbox = $('.footer-checkbox');
-
-            if (!index == 0) {
-                $(checkbox).css({
-                    'opacity': '0',
-                    'visibility': 'hidden',
-                    'position': 'absolute'
-                });
-            } else {
-                $(checkbox).css({
-                    'opacity': '1',
-                    'visibility': 'visible'
-                });
-            }
-
-            refreshAnimation($wizard, index);
-        }
-    });
-
-
-    // Prepare the preview for profile picture
-    $("#wizard-picture").change(function () {
-        readURL(this);
-    });
-
-    $('[data-toggle="wizard-radio"]').click(function () {
-        wizard = $(this).closest('.card-wizard');
-        wizard.find('[data-toggle="wizard-radio"]').removeClass('active');
-        $(this).addClass('active');
-        $(wizard).find('[type="radio"]').removeAttr('checked');
-        $(this).find('[type="radio"]').attr('checked', 'true');
-    });
-
-    $('[data-toggle="wizard-checkbox"]').click(function () {
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            $(this).find('[type="checkbox"]').removeAttr('checked');
-        } else {
-            $(this).addClass('active');
-            $(this).find('[type="checkbox"]').attr('checked', 'true');
-        }
-    });
-
-    $('.set-full-height').css('height', 'auto');
-
-    //Function to show image before upload
-
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                $('#wizardPicturePreview').attr('src', e.target.result).fadeIn('slow');
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    $(window).resize(function () {
-        $('.card-wizard').each(function () {
-            $wizard = $(this);
-
-            index = $wizard.bootstrapWizard('currentIndex');
-            refreshAnimation($wizard, index);
-
-            $('.moving-tab').css({
-                'transition': 'transform 0s'
-            });
-        });
-    });
-
-    function refreshAnimation($wizard, index) {
-        $total = $wizard.find('.nav li').length;
-        $li_width = 100 / $total;
-
-        total_steps = $wizard.find('.nav li').length;
-        move_distance = $wizard.width() / total_steps;
-        index_temp = index;
-        vertical_level = 0;
-
-        mobile_device = $(document).width() < 600 && $total > 3;
-
-        if (mobile_device) {
-            move_distance = $wizard.width() / 2;
-            index_temp = index % 2;
-            $li_width = 50;
-        }
-
-        $wizard.find('.nav li').css('width', $li_width + '%');
-
-        step_width = move_distance;
-        move_distance = move_distance * index_temp;
-
-        $current = index + 1;
-
-        if ($current == 1 || (mobile_device == true && (index % 2 == 0))) {
-            move_distance -= 8;
-        } else if ($current == total_steps || (mobile_device == true && (index % 2 == 1))) {
-            move_distance += 8;
-        }
-
-        if (mobile_device) {
-            vertical_level = parseInt(index / 2);
-            vertical_level = vertical_level * 38;
-        }
-
-        $wizard.find('.moving-tab').css('width', step_width);
-        $('.moving-tab').css({
-            'transform': 'translate3d(' + move_distance + 'px, ' + vertical_level + 'px, 0)',
-            'transition': 'all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1)'
-
-        });
-    }
-</script>
+</html>
