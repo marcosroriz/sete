@@ -23,6 +23,18 @@
     <!-- Icons -->
     <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
     <link rel="icon" type="image/png" href="img/favicon.png">
+    
+     <script language="JavaScript">
+		function mascara(t, mask){
+ 			var i = t.value.length;
+ 			var saida = mask.substring(1,0);
+ 			var texto = mask.substring(i)
+ 			if (texto.substring(0,1) != saida){
+ 					t.value += texto.substring(0,1);
+ 			}
+ 		}
+ </script>
+  
 </head>
 
 <body class="bgentry">
@@ -57,18 +69,40 @@
                                                 <a class="nav-link active" href="#tab-dados-pessoais" data-toggle="tab" role="tab" aria-controls="tab-dados-pessoais" aria-selected="true">Localização</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="#tab-dados-transporte" data-toggle="tab" role="tab" aria-controls="tab2" aria-selected="true">Dados do Transporte</a>
+                                                <a class="nav-link" href="#tab-dados-transporte" data-toggle="tab" role="tab" aria-controls="tab2" aria-selected="true">Dados Pessoais</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="#tab-dados-escolares" data-toggle="tab" role="tab" aria-controls="tab3" aria-selected="true">Dados Escolares</a>
+                                                <a class="nav-link" href="#tab-dados-escolares" data-toggle="tab" role="tab" aria-controls="tab3" aria-selected="true">Dados Escolar</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content">
                                             <div class="tab-pane fade show active" id="tab-dados-pessoais" role="tabpanel">
                                                 <div class="row justify-content-center">
                                                     <h6 class="text-center">Confirme a localização do aluno:</h6>
-                 									// Geolocalização
-                                            
+                 									
+													<div>
+													     <iframe width="500" height="400" frameborder="0" src="https://www.bing.com/maps/embed?h=400&w=500&cp=-16~-46.99999999999999&lvl=11&typ=d&sty=r&src=SHELL&FORM=MBEDV8" scrolling="no">
+													     </iframe>
+													     <div style="white-space: nowrap; text-align: center; width: 500px; padding: 6px 0;">
+													        <a id="largeMapLink" target="_blank" href="https://www.bing.com/maps?cp=-16~-46.99999999999999&amp;sty=r&amp;lvl=11&amp;FORM=MBEDLD">Exibir Mapa Grande</a> &nbsp; | &nbsp;
+													        <a id="dirMapLink" target="_blank" href="https://www.bing.com/maps/directions?cp=-16~-46.99999999999999&amp;sty=r&amp;lvl=11&amp;rtp=~pos.-16_-46.99999999999999____&amp;FORM=MBEDLD">Obter Trajeto</a>
+													    </div>
+													</div>
+													
+
+													<div class="form-group">
+														<table style="height: 5px;" width="442">
+															<tbody>
+																<tr>
+																<td style="width: 213px;"><label>Latitude :</label> <input id="reglat" class="form-control" name="reglat" type="text" placeholder="Latitude:" /></td>
+																<td style="width: 213px;"><label>Longitude :</label> <input id="reglon" class="form-control" name="reglon" type="text" placeholder="Longitude:" /></td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+
+                                                    
+		                                       
                                             		<hr class="hr-form" />
                                             		
                                                     <div class="col-12">
@@ -85,239 +119,317 @@
                                                         </div>
                                                     </div>
                                                     
-                                                    <div class="col-12">
-                                                        <div class="form-group">
-                                                            <label>CPF:</label>
-                                                            <input id="regcpf" name="regcpf" type="text" placeholder="Digite seu CPF:" class="form-control cpfmask">
-                                                        </div>
-                                                    </div>
+                                                    <hr class="hr-form" />
                                                     
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Telefone:</label>
-                                                            <input id="regtel" name="regtel" type="text" placeholder="Digite seu Telefone:" class="form-control telmask">
+                                                            <label>Dificuldade de Acesso :</label>
+                                                            <br />
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temPorteira" name="modoAcesso[]" value="0" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Porteira
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temMataBurro" name="modoAcesso[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Mata-Burro
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temColchete" name="modoAcesso[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Colchete
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temAtoleiro" name="modoAcesso[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Atoleiro
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temPonte" name="modoAcesso[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Ponte Rústica
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <hr class="hr-form" />
-                                                    <h6 class="text-center">Confirme o município em que você atua:</h6>
+
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Estado:</label>
-                                                            <select id="regestado" name="regestado" class="form-control"></select>
+                                                            <label>* Rota que Utiliza :</label>
+                                                            <input id="regrota" name="regrota" type="integer" placeholder="Informe o numero da rota que utiliza :" class="form-control">
                                                         </div>
                                                     </div>
-                                                    <div class="col-12">
-                                                        <div class="form-group">
-                                                            <label>Município:</label>
-                                                            <select id="regcidade" name="regcidade" class="form-control"></select>
-                                                        </div>
-                                                    </div>
+
                                                 </div>
                                             </div>
                                             <!-- Fim aba dados pessoais -->
 
                                             <div class="tab-pane fade" id="tab-dados-transporte" role="tabpanel">
-                                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do Transporte Escolar no município</h6>
+                                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do discente a ser cadastrado.</h6>
                                                 <div class="row justify-content-center">
-                                                    <div class="col-12">
+                                                
+                                                   <div class="col-12">
+        	                                            <div class="form-check">
+                                                            <label>* Nome do Aluno :</label>
+                                                            <input id="regnome" name="regnome" type="text" placeholder="Informe o nome do Discente(Aluno) :" class="form-control" required minlength="1">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                	<div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Em relação aos modos de transporte, o município oferece transporte escolar (marcar todos que se aplica):</label>
+                                                            <label>* Data de Nascimento :</label>
+                                                            <div class="form-check">
+                                                               <input id="regnome" name="regnome" type="date" placeholder="Informe data de Nascimento do Discente(Aluno) :" class="required minlength="1"">
+                                                        	</div>
+                                                    	</div>
+                                                    </div>
+                                                    
+
+
+													<div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>* Sexo:</label>
                                                             <br />
                                                             <div class="form-check">
                                                                 <label class="form-check-label">
-                                                                    <input id="temRodoviario" name="modoTransporte[]" value="0" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <input id="temMasculino" name="modoSexo[]" value="0" type="checkbox" class="form-check-input" required minlength="1">
                                                                     <span class="form-check-sign"></span>
-                                                                    Rodoviário
+                                                                    Masculino
                                                                 </label>
                                                             </div>
                                                             <div class="form-check">
                                                                 <label class="form-check-label">
-                                                                    <input id="temAquaviario" name="modoTransporte[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <input id="temFeminino" name="modoSexo[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
                                                                     <span class="form-check-sign"></span>
-                                                                    Aquaviário
+                                                                    Feminino
                                                                 </label>
                                                             </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temNInformado" name="modoSexo[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Não Informado
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>* A sua cor ou raça é?:</label>
+                                                            <br />
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temAmarelo" name="modoCorRaca[]" value="0" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Amarelo
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temBranco" name="modoCorRaca[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Branco
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temIndigena" name="modoCorRaca[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Indígena
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temPardo" name="modoCorRaca[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Pardo
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="temPreto" name="modoCorRaca[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Preto
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <hr class="hr-form" />
+
+ 	 	                                            <div class="col-12">
+        	                                            <div class="form-check">
+                                                            <label>* Nome do Responsável :</label>
+                                                            <input id="regnomeresp" name="regnomeresp" type="text" placeholder="Nome do Resposável do Discente(Aluno) :" class="form-control" required minlength="1">
+                                                        </div><br />
+                                                    </div>
+                                                    
+                                 					
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>* Grau de Paresntesco :</label>
+    		                                                <input type="text" name="listareggrauresp" list="listareggrauresp">
+															<datalist id="listareggrauresp">
+															  <option value="Pai">  
+															  <option value="Mãe">
+															</datalist>
+														</div>	
+													</div>
+                                                    
+                                                    <div class="col-12">
+                                                    	<div class="form-check">
+                                                    		<label>* Telefone do Resposável :</label>
+                                                            <input id="reggrauresp" name="reggrauresp" type="text" onkeypress="mascara(this, '(##)#####-####')" maxlength="14" placeholder="Grau do Responsável do Discente(Aluno) :" class="form-control" required minlength="1">
                                                         </div>
                                                     </div>
 
+													<hr class="hr-form" />
+                                                
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>O município possui bicicletas do programa Caminho da Escola?</label>
-                                                            <div class="form-check form-check-radio">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="temBicicleta" type="checkbox" value="true">
-                                                                    <span class="form-check-sign"></span>
-                                                                    Sim
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check form-check-radio">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="temBicicleta" type="checkbox" value="false">
-                                                                    <span class="form-check-sign"></span>
-                                                                    Não
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-12">
-                                                        <div class="form-group">
-                                                            <label>Existem monitores que atuam dentro dos veículos do transporte escolar do seu município?</label>
+                                                            <label>* Possui alguma deficiência??:</label>
                                                             <br />
-                                                            <div class="form-check form-check-radio">
+                                                            <div class="form-check">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="temMonitor" type="checkbox" value="true">
+                                                                    <input id="temDeCaminhar" name="modoDeficiencia[]" value="0" type="checkbox" class="form-check-input" required minlength="1">
                                                                     <span class="form-check-sign"></span>
-                                                                    Sim
+                                                                    De Caminhar
                                                                 </label>
                                                             </div>
-                                                            <div class="form-check form-check-radio">
+                                                            <div class="form-check">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="temMonitor" type="checkbox" value="false">
+                                                                    <input id="temDeOuvir" name="modoDeficiencia[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
                                                                     <span class="form-check-sign"></span>
-                                                                    Não
+                                                                    De Ouvir
                                                                 </label>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <div class="form-group">
-                                                            <label>Qual é a distância mínima entre a residência e a escola para que o aluno seja beneficiado com o transporte escolar gratuito?                                                                    ?</label>
-                                                            <br />
-                                                            <div class="form-check form-check-radio">
+                                                            <div class="form-check">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="0">
+                                                                    <input id="temDeEnxergar" name="modoDeficiencia[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
                                                                     <span class="form-check-sign"></span>
-                                                                    Até 2 km
+                                                                    De enxergar
                                                                 </label>
                                                             </div>
-                                                            <div class="form-check form-check-radio">
+                                                            <div class="form-check">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="1">
+                                                                    <input id="temDeMentalIntelec" name="modoDeficiencia[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
                                                                     <span class="form-check-sign"></span>
-                                                                    De 2 a 3 km
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check form-check-radio">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="2">
-                                                                    <span class="form-check-sign"></span>
-                                                                    De 3 a 4 km
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check form-check-radio">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="3">
-                                                                    <span class="form-check-sign"></span>
-                                                                    Acima de 4 km
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check form-check-radio">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="4">
-                                                                    <span class="form-check-sign"></span>
-                                                                    Não possui definição de distância mínima
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                   
-                                                    <div class="col-12">
-                                                        <div class="form-group">
-                                                            <label>O município oferece transporte escolar para alunos com destino a outras cidades?</label>
-                                                            <div class="form-check form-check-radio">
-                                                                <label class="form-check-label radio-inline">
-                                                                    <input id="possuiOutrasCidades" name="temOutrasCidades" class="form-check-input" type="radio" type="checkbox" value="true">
-                                                                    <span class="form-check-sign"></span>
-                                                                    Sim
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check form-check-radio">
-                                                                <label class="form-check-label radio-inline">
-                                                                    <input class="form-check-input" type="radio" name="temOutrasCidades" type="checkbox" value="false">
-                                                                    <span class="form-check-sign"></span>
-                                                                    Não
+                                                                    Deficiência Mental ou Intelectual
                                                                 </label>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <hr >
-                                                    <div id="outrosMunicipios" class="col-12 d-none">
-                                                        <hr class="hr-form" />
-                                                        <div name="outros" id="outros" class="form-group">
-                                                            <label>
-                                                                Informe quais são os outros municípios para qual se transportam os alunos.
-                                                                <ul>
-                                                                    <li>
-                                                                        <small>Para adicionar um município, selecione o estado e nome da cidade e clique no íncone <img src="./img/icones/add.png"> da respectiva linha.</small>
-                                                                    </li>
-                                                                    <li>
-                                                                        <small>Para remover um município clique no ícone <img src="./img/icones/remove.png"> da respectiva linha.</small>
-                                                                    </li>
-                                                                </ul>                                                            
-                                                            </label>
-                                                            <table class="table">                                               
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th class="tbl-col-lg">Estado</th>
-                                                                        <th class="tbl-col-lg">Município</th>
-                                                                        <th class="tbl-add-rm">Adicionar/Remover</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr class="novodado">
-                                                                        <td>
-                                                                            <select name="novoestado" class="form-control"></select>
-                                                                        </td>
-                                                                        <td>
-                                                                            <select name="novomunicipio" class="form-control"></select>
-                                                                        </td>
-                                                                        <td class="tbl-add-rm">
-                                                                            <a href="#" onclick="addrow(this)" class="addbtn">
-                                                                                <img src="./img/icones/add.png" />
-                                                                            </a>
-                                                                        </td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                             <!-- Fim aba dados de transporte -->
 
                                             <div class="tab-pane fade" id="tab-dados-escolares" role="tabpanel">
-                                                <h6 class="text-center">A respeito de dados escolares, preencha os campos abaixo:</h6>
+                                                <h6 class="text-center">A respeito dos Dados Escolares do Aluno :</h6><br />
                                                 <div class="row justify-content-center">
+                                               
+                                                
+                                                <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>* Escola :</label>
+    		                                                <input type="text" name="escola" list="listaEscola">
+															<datalist id="listaEscola">
+															  <option value="A">  
+															  <option value="B">
+															</datalist>
+														</div>	
+												</div>
+												
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Você deseja importar os dados de cadastro das escolas do CENSO escolar (2019)?</label>
+                                                            <label>* Turno?</label>
                                                             <br />
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="importarDados" type="checkbox" value="true">
+                                                                    <input class="form-check-input" type="radio" name="turno" type="checkbox" value="true">
                                                                     <span class="form-check-sign"></span>
-                                                                    Sim
+                                                                    Manhã
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="importarDados" type="checkbox" value="false">
+                                                                    <input class="form-check-input" type="radio" name="turno" type="checkbox" value="false">
                                                                     <span class="form-check-sign"></span>
-                                                                    Não
+                                                                    Tarde
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="turno" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Noite
                                                                 </label>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Qual o ano letivo do município?</label>
+                                                            <label>* Turno?</label>
                                                             <br />
-                                                            <div class="form-group">
-                                                                <input class="form-control" type="text" id="ano" name="ano" number="true" value="2019">
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="nivel" type="checkbox" value="true">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Infantil
+                                                                </label>
                                                             </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="nivel" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Fundamental
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="nivel" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Médio
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="nivel" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Técnico
+                                                                </label>
+                                                            </div>
+                                                                                                                                                                                    <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="nivel" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    EJA
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio" name="nivel" type="checkbox" value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Superior
+                                                                </label>
+                                                            </div>                                                            
                                                         </div>
                                                     </div>
+                                                                                                        
                                                     
                                                 </div>
                                             </div>
