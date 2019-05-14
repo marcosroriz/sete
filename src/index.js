@@ -92,7 +92,7 @@ const createEntryWindow = () => {
 
   // and load the entry.html of the app.
   //entryWindow.loadURL(`file://${__dirname}/entry.html`);
-  entryWindow.loadURL(`file://${__dirname}/cadastrar_escola.html`);
+  entryWindow.loadURL(`file://${__dirname}/cadastrar_frota.html`);
 
   // Open the DevTools.
   entryWindow.webContents.openDevTools();
