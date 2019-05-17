@@ -1,11 +1,12 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-10 mt-5 ml-auto mr-auto">
-            <form id="wizardCadastrarEscola" method="" action="">
+            <form id="wizardCadastrarAlunoForm" method="" action="">
                 <div class="card card-wizard">
                     <div class="card-header ">
-                        <h3 class="card-title text-center">Cadastro de Alunos!</h3>
-                        <p class="card-category text-center">Por favor entre com os dados abaixo do respectivo aluno</p>
+                        <h3 class="card-title text-center">Cadastro de Alunos</h3>
+                        <p class="card-category text-center">Por favor entre com os dados abaixo do respectivo aluno.
+                        </p>
                     </div>
                     <div class="card-body ">
                         <ul class="nav nav-tabs">
@@ -26,20 +27,10 @@
                             <div class="tab-pane fade show active" id="tab-dados-pessoais" role="tabpanel">
                                 <div class="row justify-content-center">
                                     <h6 class="text-center">Confirme a localização do aluno:</h6>
-
-                                    <div>
-                                        <iframe width="500" height="400" frameborder="0"
-                                            src="https://www.bing.com/maps/embed?h=400&w=500&cp=-16~-46.99999999999999&lvl=11&typ=d&sty=r&src=SHELL&FORM=MBEDV8"
-                                            scrolling="no">
-                                        </iframe>
-                                        <div
-                                            style="white-space: nowrap; text-align: center; width: 500px; padding: 6px 0;">
-                                            <a id="largeMapLink" target="_blank"
-                                                href="https://www.bing.com/maps?cp=-16~-46.99999999999999&amp;sty=r&amp;lvl=11&amp;FORM=MBEDLD">Exibir
-                                                Mapa Grande</a> &nbsp; | &nbsp;
-                                            <a id="dirMapLink" target="_blank"
-                                                href="https://www.bing.com/maps/directions?cp=-16~-46.99999999999999&amp;sty=r&amp;lvl=11&amp;rtp=~pos.-16_-46.99999999999999____&amp;FORM=MBEDLD">Obter
-                                                Trajeto</a>
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <div id="mapCadastroAluno" class="mb-3 mapa"
+                                                style="width: 100%; height: 400px;"></div>
                                         </div>
                                     </div>
 
@@ -48,14 +39,20 @@
                                             <div class="row justify-content-center">
                                                 <div class="col-6 ">
                                                     <div class="form-group">
-                                                        <label class="control-label">Latitude</label>
+                                                        <label class="control-label">
+                                                            Latitude
+                                                            <star>*</star>
+                                                        </label>
                                                         <input class="form-control" type="text" id="reglat"
                                                             name="reglat" placeholder="Latitude:" />
                                                     </div>
                                                 </div>
                                                 <div class="col-6">
                                                     <div class="form-group">
-                                                        <label class="control-label">Longitude</label>
+                                                        <label class="control-label">
+                                                            Longitude
+                                                            <star>*</star>
+                                                        </label>
                                                         <input class="form-control" type="text" id="reglon"
                                                             name="reglon" required="true" placeholder="Longitude:" />
                                                     </div>
@@ -68,7 +65,7 @@
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>Endereço :</label>
+                                            <label>Endereço</label>
                                             <input id="regend" name="regend" type="text"
                                                 placeholder="Digite o endereço do Aluno:" class="form-control">
                                         </div>
@@ -76,10 +73,9 @@
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>CEP :</label>
+                                            <label>CEP</label>
                                             <input id="regcep" name="regcep" type="text"
-                                                onkeypress="mascara(this, '#####-###')" maxlength="9"
-                                                placeholder="Informe o CEP do Aluno:" class="form-control">
+                                                placeholder="Informe o CEP do Aluno:" class="form-control cep">
                                         </div>
                                     </div>
 
@@ -87,7 +83,10 @@
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>Dificuldade de Acesso :</label>
+                                            <label>
+                                                Dificuldade de Acesso:
+                                                <star>*</star>
+                                            </label>
                                             <br />
                                             <div class="form-check">
                                                 <label class="form-check-label">
@@ -131,16 +130,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label>* Rota que Utiliza :</label>
-                                            <input id="regrota" name="regrota" type="integer"
-                                                placeholder="Informe o numero da rota que utiliza :"
-                                                class="form-control">
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
                             <!-- Fim aba dados pessoais -->
@@ -151,30 +140,36 @@
                                 <div class="row justify-content-center">
 
                                     <div class="col-12">
-                                        <div class="form-check">
-                                            <label>* Nome do Aluno :</label>
+                                        <div class="form-group">
+                                            <label>
+                                                Nome do Aluno
+                                                <star>*</star>
+                                            </label>
                                             <input id="regnome" name="regnome" type="text"
-                                                placeholder="Informe o nome do Discente(Aluno) :" class="form-control"
-                                                required minlength="1">
+                                                placeholder="Informe o nome do Discente(Aluno) :" class="form-control">
                                         </div>
                                     </div>
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>* Data de Nascimento :</label>
+                                            <label>
+                                                Data de Nascimento
+                                                <star>*</star>
+                                            </label>
                                             <div class="form-check">
-                                                <input id="regnome" name="regnome" type="date"
-                                                    placeholder="Informe data de Nascimento do Discente(Aluno) :"
-                                                    class="required minlength=" 1"">
+                                                <input id="regdata" name="regdata" type="text"
+                                                    placeholder="Informe a Data de Nascimento do Discente (Aluno)"
+                                                    class="form-control datanasc">
                                             </div>
                                         </div>
                                     </div>
 
-
-
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>* Sexo:</label>
+                                            <label>
+                                                Sexo
+                                                <star>*</star>
+                                            </label>
                                             <br />
                                             <div class="form-check">
                                                 <label class="form-check-label">
@@ -206,7 +201,10 @@
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>* A sua cor ou raça é?:</label>
+                                            <label>
+                                                A sua cor ou raça é?
+                                                <star>*</star>
+                                            </label>
                                             <br />
                                             <div class="form-check">
                                                 <label class="form-check-label">
@@ -255,7 +253,10 @@
 
                                     <div class="col-12">
                                         <div class="form-check">
-                                            <label>* Nome do Responsável :</label>
+                                            <label>
+                                                Nome do Responsável
+                                                <star>*</star>
+                                            </label>
                                             <input id="regnomeresp" name="regnomeresp" type="text"
                                                 placeholder="Nome do Resposável do Discente(Aluno) :"
                                                 class="form-control" required minlength="1">
@@ -265,7 +266,10 @@
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>* Grau de Paresntesco :</label>
+                                            <label>
+                                                Grau de Paresntesco
+                                                <star>*</star>
+                                            </label>
                                             <input type="text" name="listareggrauresp" list="listareggrauresp">
                                             <datalist id="listareggrauresp">
                                                 <option value="Pai">
@@ -276,11 +280,13 @@
 
                                     <div class="col-12">
                                         <div class="form-check">
-                                            <label>* Telefone do Resposável :</label>
+                                            <label>
+                                                Telefone do Resposável:
+                                                <star>*</star>
+                                            </label>
                                             <input id="reggrauresp" name="reggrauresp" type="text"
-                                                onkeypress="mascara(this, '(##)#####-####')" maxlength="14"
-                                                placeholder="Grau do Responsável do Discente(Aluno) :"
-                                                class="form-control" required minlength="1">
+                                                placeholder="Grau do Responsável do Discente(Aluno)"
+                                                class="form-control telmask">
                                         </div>
                                     </div>
 
@@ -465,6 +471,6 @@
         }
     }
 </script>
-<script src="js/cadastrar_escola.js" type="text/javascript"></script>
+<script src="js/cadastrar_aluno.js" type="text/javascript"></script>
 
 </html>

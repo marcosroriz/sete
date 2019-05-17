@@ -88,6 +88,26 @@
                 </ul>
             </div>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#alunoMenu">
+                <img src="./img/icones/aluno.png" class="menu-icon">
+                <p>
+                    Alunos
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="alunoMenu">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a id="cadastrar_aluno" class="nav-link" href="#">
+                            <span class="sidebar-mini">C</span>
+                            <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
         <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#formsExamples">
                 <i class="nc-icon nc-notes"></i>
@@ -254,5 +274,8 @@
 <script>
     $("#cadastrar_escola").click(function () {
         $("#content").load("./cadastrar_escola.html");
+    });
+    $("#cadastrar_aluno").click(function () {
+        $("#content").load("./cadastrar_aluno.html");
     });
 </script>

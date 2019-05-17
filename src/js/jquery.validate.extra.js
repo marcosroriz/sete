@@ -11,6 +11,11 @@ let teloptions = {
     }
 };
 
+// Validar CEP
+window.$.validator.addMethod("cep", function (value, element) {
+    return this.optional(element) || /^[0-9]{5}-[0-9]{3}$/.test(value);
+}, "Por favor, digite um CEP válido");
+
 // Validar CPF
 window.$.validator.addMethod("cpf", function (value, element) {
     value = jQuery.trim(value);
@@ -54,6 +59,11 @@ window.$.validator.addMethod("cpf", function (value, element) {
 
 }, "Informe um CPF válido");
 
+// Validar campo com data de nascimento no formato dd-mm-yyyy
+window.$.validator.addMethod("datanasc", function (value, element) {
+    return this.optional(element) || /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/.test(value);
+}, "Informe uma data de nascimento válida");
+
 // Validar campos que só podem ter letras
 window.$.validator.addMethod("lettersonly", function (value, element) {
     return this.optional(element) || /^[a-z áàäéêëíïóõôöúûüùçñ]+$/i.test(value);
@@ -61,14 +71,30 @@ window.$.validator.addMethod("lettersonly", function (value, element) {
 
 // Validar escolha de estado em um select
 window.$.validator.addMethod("pickstate", function (value, element) {
-    console.log(element);
-    console.log(value);
     return value != " ";
 }, "Informe um Estado válido");
 
 // Validar escolha de município em um select
 window.$.validator.addMethod("pickcity", function (value, element) {
-    console.log(element);
-    console.log(value);
     return value != " ";
 }, "Informe um Município válido");
+
+window.$.extend(window.$.validator.messages, {
+    required: "Campo obrigatório!",
+    remote: "Por favor, corrija este campo.",
+    email: "Por favor, forneça um endereço eletrônico válido.",
+    url: "Por favor, forneça uma URL válida.",
+    date: "Por favor, forneça uma data válida.",
+    dateISO: "Por favor, forneça uma data válida (ISO).",
+    number: "Por favor, forneça um número válido.",
+    digits: "Por favor, forneça somente dígitos.",
+    creditcard: "Por favor, forneça um cartão de crédito válido.",
+    equalTo: "Por favor, forneça o mesmo valor novamente.",
+    accept: "Por favor, forneça um valor com uma extensão válida.",
+    maxlength: jQuery.validator.format("Por favor, forneça não mais que {0} caracteres."),
+    minlength: jQuery.validator.format("Por favor, forneça ao menos {0} caracteres."),
+    rangelength: jQuery.validator.format("Por favor, forneça um valor entre {0} e {1} caracteres de comprimento."),
+    range: jQuery.validator.format("Por favor, forneça um valor entre {0} e {1}."),
+    max: jQuery.validator.format("Por favor, forneça um valor menor ou igual a {0}."),
+    min: jQuery.validator.format("Por favor, forneça um valor maior ou igual a {0}.")
+});

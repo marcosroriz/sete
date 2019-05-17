@@ -203,7 +203,7 @@ $(document).ready(function () {
                         let urldestino = "./initconfig.html";
                         if (hasInit) {
                             //urldestino = "./dashboard.html";
-                        	urldestino = "./cadastrar_escola.html";
+                            urldestino = "./cadastrar_escola.html";
                         }
                         document.location.href = urldestino;
                     });
