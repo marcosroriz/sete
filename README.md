@@ -10,12 +10,11 @@ nilson@ncamaraljr:~$ npm -v
 6.9.0
 nilson@ncamaraljr:~$ node
 Welcome to Node.js v12.4.0.
-[Function: bound consoleCall]
-> console.log("Hello Node");
-Hello Node
-undefined
-> .exit
-nilson@ncamaraljr:~$ 
+
+Testei Node com um Javascript code Básico -> Funcional
+https://nodejs.org/en/about/
+
+
 
 
 
@@ -24,8 +23,11 @@ Help Links
 NodeSource Node.js Binary Distributions
 https://github.com/nodesource/distributions/blob/master/README.md#debinstall
 https://www.vivaolinux.com.br/topico/Iniciantes-no-Linux/Pacote-python-support-nao-instalado
+sudo npm install -g electron --unsafe-perm=true --allow-root (Não Funcionou com o usuário root nem nilson)
+sudo npm install electron --unsafe-perm=true -> (funcionou)
 
 -> apt-get install paraview-python 
+https://github.com/npm/npm/issues/17268
 
 Limpar Código -> Cadastro_transporte 
 
