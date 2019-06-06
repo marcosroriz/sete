@@ -29,5 +29,7 @@ sudo npm install electron --unsafe-perm=true -> (funcionou)
 -> apt-get install paraview-python 
 https://github.com/npm/npm/issues/17268
 
+https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-18-04
+
 Limpar Código -> Cadastro_transporte 
 
