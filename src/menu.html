@@ -56,7 +56,7 @@
             <div class="collapse " id="componentsExamples">
                 <ul class="nav">
                     <li class="nav-item ">
-                        <a id="cadastrar_escola" class="nav-link" href="#">
+                        <a id="link-menu" name="cadastrar_escola" class="nav-link" href="#">
                             <span class="sidebar-mini">C</span>
                             <span class="sidebar-normal">Cadastrar</span>
                         </a>
@@ -100,7 +100,85 @@
             <div class="collapse " id="alunoMenu">
                 <ul class="nav">
                     <li class="nav-item ">
-                        <a id="cadastrar_aluno" class="nav-link" href="#">
+                        <a id="cadastrar_aluno" name="cadastrar_aluno" class="nav-link" href="#">
+                            <span class="sidebar-mini">-</span>
+                            <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="gerenciar_aluno" name="gerenciar_aluno" class="nav-link" href="#">
+                            <span class="sidebar-mini">-</span>
+                            <span class="sidebar-normal">Gerenciar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#servidorMenu">
+                <!--<img src="./img/icones/aluno.png" class="menu-icon">-->
+                <p>
+                    Servidor
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="servidorMenu">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a id="servidor_form" name="servidor-form" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a id="servidor_view" name="servidor/servidor-view" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Gerenciar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#vaiculoMenu">
+                <!--<img src="./img/icones/aluno.png" class="menu-icon">-->
+                <p>
+                    Veiculo
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="vaiculoMenu">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a id="cadastrar_veiculo" name="cadastrar_veiculo" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a id="link-menu-veiculo" name="veiculo/veiculo-view" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Gerenciar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#motoristaMenu">
+                <!--<img src="./img/icones/aluno.png" class="menu-icon">-->
+                <p>
+                    Motorista
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="alunoMenu">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a id="cadastrar_motorista" name="cadastrar_motorista" class="nav-link" href="#">
                             <span class="sidebar-mini">C</span>
                             <span class="sidebar-normal">Cadastrar</span>
                         </a>
@@ -272,10 +350,37 @@
 </div>
 
 <script>
-    $("#cadastrar_motorista").click(function () {
-        $("#content").load("./cadastrar_motorista.html");
-    });
-    $("#cadastrar_aluno").click(function () {
-        $("#content").load("./cadastrar_aluno.html");
+    $(document).ready(function() {
+        $("#cadastrar_motorista").click(function() {
+            $("#content").load("./motorista/motorista-form.html");
+        });
+
+        $("#link-menu").click(function() {
+            $("#content").load("./" + $(this).attr("name") + ".html");
+        });
+
+        //aluno
+        $("#cadastrar_aluno").click(function() {
+            $("#content").load("./aluno/aluno-form.html");
+        });
+        $("#gerenciar_aluno").click(function() {
+            $("#content").load("./aluno/aluno-view.html");
+        });
+
+        //veiculo
+        $("#cadastrar_veiculo").click(function() {
+            $("#content").load("./veiculo/veiculo-form.html");
+        });
+        $("#link-menu-veiculo").click(function() {
+            $("#content").load("./" + $(this).attr("name") + ".html");
+        });
+
+        //SERIVOR
+        $("#servidor_form").click(function() {
+            $("#content").load("./servidor/servidor-form.html");
+        });
+        $("#servidor_view").click(function() {
+            $("#content").load("./servidor/servidor-view.html");
+        });
     });
 </script>
