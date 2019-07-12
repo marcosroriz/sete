@@ -1,0 +1,44 @@
+<style>
+    .text-center {
+        text-align: center;
+    }
+    
+    .margin-top-20 {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container container-body">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card-header">
+                <h4 class="card-title text-center">Gerenciar Servidores</h4>
+            </div>
+
+            <h6 class="mb-3 text-center text-space">...</h6>
+            <table class="table table-bordered" id="servidor-grid">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Endereço</th>
+                        <th scope="col">Telefone</th>
+                        <th scope="col">Sexo</th>
+                        <th scope="col">Turno</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+        </div>
+        <!-- end col-md-8 -->
+    </div>
+</div>
+<script type="text/javaScript">
+    identity_router = "view-servidor";
+</script>
+
+<script src="servidor/servidor-model.js"></script>
+<script src="servidor/servidor-ctrl.js"></script>

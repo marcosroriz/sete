@@ -1,0 +1,407 @@
+<style>
+    .content-body {
+        background: #fff;
+    }
+    
+    .bgentry {
+        background: #ddd;
+    }
+    
+    .margin-top-20 {
+        margin-top: 20px;
+    }
+    
+    #mapCadastroAluno {
+        background: #ddd;
+    }
+</style>
+
+<div class="container content-body">
+    <div class="row">
+        <div class="col-md-12">
+            <form id="wizardCadastrarAlunoForm" method="" action="">
+                <div class="card-header ">
+                    <h4 class="card-title text-center">Cadastro de Alunos</h4>
+                </div>
+                <div class="tab-content">
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <div class="row justify-content-center">
+
+                                <div class="col-4 margin-top-20">
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            <b>Latitude</b>
+                                                <star>*</star>
+                                        </label>
+                                        <input class="form-control" type="text" id="reglat" name="reglat" placeholder="Latitude:" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">
+                                            <b>Longitude</b>
+                                                                <star>*</star>
+                                                            </label>
+                                        <input class="form-control" type="text" id="reglon" name="reglon" required="true" placeholder="Longitude:" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><b>CEP</b></label>
+                                        <input id="regcep" name="regcep" type="text" placeholder="Informe o CEP do Aluno:" class="form-control cep">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>
+                                            <b> Dificuldade de Acesso:</b>
+                                                <star>*</star>
+                                            </label>
+                                        <br />
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                                        <input id="temPorteira" name="temPorteira" value="0"
+                                                                            type="checkbox" class="form-check-input" required minlength="1">
+                                                                        <span class="form-check-sign"></span>
+                                                                        Porteira
+                                                                    </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                                        <input id="temMataBurro" name="temMataBurro" value="1"
+                                                                            type="checkbox" class="form-check-input" required minlength="1">
+                                                                        <span class="form-check-sign"></span>
+                                                                        Mata-Burro
+                                                                    </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                                        <input id="temColchete" name="temColchete" value="1"
+                                                                            type="checkbox" class="form-check-input" required minlength="1">
+                                                                        <span class="form-check-sign"></span>
+                                                                        Colchete
+                                                                    </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                                        <input id="temAtoleiro" name="temAtoleiro" value="1"
+                                                                            type="checkbox" class="form-check-input" required minlength="1">
+                                                                        <span class="form-check-sign"></span>
+                                                                        Atoleiro
+                                                                    </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                                        <input id="temPonte" name="temPonte" value="1" type="checkbox"
+                                                                            class="form-check-input" required minlength="1">
+                                                                        <span class="form-check-sign"></span>
+                                                                        Ponte Rústica
+                                                                    </label>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-2"></div>
+                                <div class="col-6">
+                                    <div class="row">
+                                        <div id="mapCadastroAluno" class="mb-3 mapa" style="width: 100%; height: 400px;"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label><b>Endereço</b></label>
+                            <input id="regend" name="regend" type="text" placeholder="Digite o endereço do Aluno:" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row col-12">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>
+                                    <b>Nome do Aluno</b>
+                                                    <star>*</star>
+                                                </label>
+                                <input id="regnome" name="regnome" type="text" placeholder="Informe o nome do Discente(Aluno) :" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label>
+                                    <b>Data de Nascimento</b>
+                                                    <star>*</star>
+                                                </label>
+                                <div class="form-check">
+                                    <input id="regdata" name="regdata" type="text" placeholder="Informe a Data de Nascimento do Discente (Aluno)" class="form-control datanasc">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>
+                                    <b>Sexo</b>
+                                                    <star>*</star>
+                                                </label>
+                                <br />
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temMasculino" name="sexo" value="Masculino" type="radio"
+                                                            class="form-check-input" required minlength="1">
+                                                        Masculino
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temFeminino" name="sexo" value="Feminimo" type="radio"
+                                                            class="form-check-input" required minlength="1">
+                                                        Feminino
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temNInformado" name="sexo" value="Não Informado"
+                                                            type="radio" class="form-check-input" required minlength="1">
+                                                        Não Informado
+                                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>
+                                    <b>A sua cor ou raça é?</b>
+                                                    <star>*</star>
+                                                </label>
+                                <br />
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temAmarelo" name="cor" value="Amarelo"
+                                                            type="radio">
+                                                        Amarelo
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temBranco" name="cor" value="Branco" type="radio"
+                                                             required minlength="1">
+                                                        Branco
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temIndigena" name="cor" value="Indígina"
+                                                            type="radio">
+                                                        Indígena
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temPardo" name="cor" value="Pardo" type="radio"
+                                                            required minlength="1">
+                                                        Pardo
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temPreto" name="cor" value="Preto" type="radio"
+                                                             required >
+                                                        Preto
+                                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="hr-form" />
+
+                        <div class="col-6">
+                            <div class="form-check">
+                                <label>
+                                    <b>Nome do Responsável</b>
+                                                    <star>*</star>
+                                                </label>
+                                <input id="regnomeresp" name="regnomeresp" type="text" placeholder="Nome do Resposável do Discente(Aluno) :" class="form-control" required minlength="1">
+                            </div><br />
+                        </div>
+
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>
+                                    <b>Grau de Paresntesco</b>
+                                                    <star>*</star>
+                                <input type="text" name="listareggrauresp" id="reggrau" style="margin-top:7px;" class="form-control" list="listareggrauresp">
+                                <datalist id="listareggrauresp">
+                                                    <option value="Pai">
+                                                    <option value="Mãe">
+                                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-check">
+                                <label>
+                                    <b>Telefone do Resposável:</b>
+                                                    <star>*</star>
+                                                </label>
+                                <input id="reggrauresp" name="reggrauresp" type="text" placeholder="Grau do Responsável do Discente(Aluno)" class="form-control telmask">
+                            </div>
+                        </div>
+
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label><b>* Escola :</b></label>
+                                <input type="text" name="escola" id="regescola" list="listaEscola" class="form-control">
+                                <datalist id="listaEscola">
+                                                        <option value="A">
+                                                        <option value="B">
+                                                    </datalist>
+                            </div>
+                        </div>
+
+
+                        <div class="col-5">
+                            <div class="form-group">
+                                <label><b>* Possui alguma deficiência?</b></label>
+                                <br />
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temDeCaminhar" name="modoDeficiencia[]" value="0"
+                                                            type="checkbox" >
+                                                        <span class="form-check-sign"></span>
+                                                        De Caminhar
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temDeOuvir" name="modoDeficiencia[]" value="1"
+                                                            type="checkbox" class="form-check-input" >
+                                                        <span class="form-check-sign"></span>
+                                                        De Ouvir
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temDeEnxergar" name="modoDeficiencia[]" value="1"
+                                                            type="checkbox" class="form-check-input" >
+                                                        <span class="form-check-sign"></span>
+                                                        De enxergar
+                                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                        <input id="temDeMentalIntelec" name="modoDeficiencia[]" value="1"
+                                                            type="checkbox" class="form-check-input">
+                                                        <span class="form-check-sign"></span>
+                                                        Deficiência Mental ou Intelectual
+                                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label><b>* Turno?</b></label>
+                                <br />
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turno"
+                                                            type="checkbox" value="Manhã">
+                                                        Manhã
+                                                    </label>
+                                </div>
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turno"
+                                                            value="Tarde">
+                                                        Tarde
+                                                    </label>
+                                </div>
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turno"
+                                                             value="Noite">
+                                                        Noite
+                                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label><b>* Nivel?</b></label>
+                                <br />
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="nivel"
+                                                            value="Infantil">
+                                                        Infantil
+                                                    </label>
+                                </div>
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="nivel"
+                                                             value="Fundamental">
+                                                        Fundamental
+                                                    </label>
+                                </div>
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="nivel"
+                                                             value="Médio">
+                                                        Médio
+                                                    </label>
+                                </div>
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="nivel"
+                                                             value="Técnico">
+                                                        Técnico
+                                                    </label>
+                                </div>
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="nivel"
+                                                             value="EJA">
+                                                        EJA
+                                                    </label>
+                                </div>
+                                <div class="form-check ">
+                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="nivel"
+                                                            value="Superior">
+                                                        Superior
+                                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-info btn-wd btn-finish pull-right" id="finishconfig">Salvar</button>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+
+        </div>
+        <!-- end col-md-8 -->
+    </div>
+</div>
+
+
+<script type="text/javaScript">
+    identity_router = "form-aluno";
+</script>
+
+<script src="./aluno/aluno-model.js" type="text/javascript"></script>
+<script src="./aluno/aluno-valida.js" type="text/javascript"></script>
+<script src="./aluno/aluno-ctrl.js" type="text/javascript"></script>

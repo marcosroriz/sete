@@ -9,3 +9,6 @@ require("sweetalert");
 // Arquivo de configuração local
 const Store = require("electron-store");
 const userconfig = new Store();
+
+var identity_router = null;
+var identity_object_id = id;
