@@ -1,63 +1,57 @@
 function GetMotoristaForm() {
     return {
-        "ID_MOTORISTA": $("#").val(), //int primarykey
-        "LATITUDE": $("#").val(), //real
-        "LONGITUDE": $("#").val(), //real
-        "NOME": $("#").val(), //string
-        "DATA_NASCIMENTO": $("#").val(), //string
-        "SEXO": $("#").val(), //int
-        "NACIONALIDADE": $("#").val(), //string
-        "DOC_IDENTIFICACAO": $("#").val(), //int
-        "ORGAO_EMISSOR": $("#").val(), //string
-        "CPF": $("#").val(), //int
-        "COR": $("#").val(), //int
-        "DEF_CAMINHAR": $("#").val(), //bool
-        "DEF_OUVIR": $("#").val(), //bool
-        "DEF_ENXERGAR": $("#").val(), //bool
-        "DEF_MENTAL": $("#").val(), //bool
-        "AT_CRIMINAL": $("#").val() //BLOB
+        "ID_MOTORISTA": _motorista.ID_MOTORISTA, //int primarykey
+        //"LATITUDE": $("#LATITUDE").val(), //real
+        //"LONGITUDE": $("#").val(), //real
+        "NOME": $("#NOME").val(), //string
+        "DATA_NASCIMENTO": $("#DATA_NASCIMENTO").val(), //string
+        "NACIONALIDADE": $("#NACIONALIDADE").val(), //string
+        "DOC_IDENTIFICACAO": $("#DOC_IDENTIFICACAO").val(), //int
+        "ORGAO_EMISSOR": $("#ORGAO_EMISSOR").val(), //string
+        "CPF": $("#CPF").val(), //int
+        "SEXO": $("input[name=sexo]:checked").val(), //int
+        "COR": $("input[name=cor]:checked").val(), //$("#regemail").val(), //int
+        "DEF_CAMINHAR": $("#DEF_CAMINHAR").is(":checked"), //bool
+        "DEF_OUVIR": $("#DEF_OUVIR").is(":checked"), //bool
+        "DEF_ENXERGAR": $("#DEF_ENXERGAR").is(":checked"), //bool
+        "DEF_MENTAL": $("#DEF_MENTAL").is(":checked"), //bool
+        //"AT_CRIMINAL": $("#").val() //BLOB
     };
 }
 
-
 function ObterMotoristas() {
-    knex.select('*').from('Mototista').then((rows) => {
-            if (rows.length > 0) {
-                rows.forEach(c => {
-                    console.log(c);
-                });
-            } else
-                console.log("não à registro");
-
-        }).catch((err) => { console.log(err); throw err })
-        .finally(() => {
-            //knex.destroy();
-        });
+    return knex.select('*').from('Motorista');
 }
 
-function InserirMotorista() {
-    const mototistas = [GetMototistaForm()];
-    console.log(mototistas);
-    knex('mototista').insert(mototistas).then(() => console.log("Inserido!"))
+function ObterMotorista(id) {
+    return knex.select('*').from('Motorista').where('ID_MOTORISTA', '=', id);
+}
+
+function InserirMotorista(motorista) {
+    console.log(motorista);
+    if (motorista.ID_MOTORISTA > 0)
+        AtualizarMotorista(motorista);
+    else {
+        motorista.ID_MOTORISTA = undefined;
+        const motoristas = [motorista];
+        knex('Motorista').insert(motoristas).then(() => { SuccessMotorista(); })
+            .catch((err) => { console.log(err); throw err })
+            .finally(() => {});
+    }
+}
+
+function AtualizarMotorista(motorista) {
+    knex('Motorista')
+        .where('ID_MOTORISTA', '=', motorista.ID_MOTORISTA)
+        .update(motorista).then(() => { SuccessMotorista(); })
         .catch((err) => { console.log(err); throw err })
-        .finally(() => {
-            //knex.destroy();
-        });
+        .finally(() => {});
 }
 
-function AtualizarMotorista() {
-    const mototista = GetMototistaForm();
-    console.log(mototista);
-    knex('mototista')
-        .where('id', '=', "1")
-        .update(motorista).then(() => console.log("Atualizado!"))
+function DeleteMotorista(row, id) {
+    knex('Motorista')
+        .where('ID_MOTORISTA', '=', id)
+        .del().then(() => { DeleteRow(row); })
         .catch((err) => { console.log(err); throw err })
-        .finally(() => {
-            //knex.destroy();
-        });
+        .finally(() => {});
 }
-
-function DeleteMotorista() {
-
-}
-s

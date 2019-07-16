@@ -1,204 +1,207 @@
-<div class="container-fluid">
+<style>
+    .content-body {
+        background: #fff;
+    }
+    
+    .bgentry {
+        background: #ddd;
+    }
+    
+    .margin-top-20 {
+        margin-top: 20px;
+    }
+    
+    #mapCadastroAluno {
+        background: #ddd;
+    }
+</style>
+
+<div class="container content-body">
     <div class="row">
-        <div class="col-md-10 mt-5 ml-auto mr-auto">
-            <form id="motoristaForm">
-                <div class="card card-wizard">
-                    <div class="card-header ">
-                        <h3 class="card-title text-center">Cadastro de Motoristas!
-                        </h3>
-                        <p class="card-category text-center">Por favor entre com os dados abaixo do respectivo motorista</p>
+        <div class="col-md-12">
+            <form id="motorista-form" method="" action="">
+                <div class="card-header ">
+                    <h4 class="card-title text-center">Cadastro de Alunos</h4>
+                </div>
+                <div class="row" style="margin-top:30px;">
+
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <label>* Nome Completo do Motorista :</label>
+                                <input id="NOME" name="NOME" type="text" placeholder="Informe o nome completo do Motorista :" class="form-control" required minlength="1">
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body ">
-                        <ul class="nav nav-tabs">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#tab-dados-pessoais" data-toggle="tab" role="tab" aria-controls="tab-dados-pessoais" aria-selected="true">Dados
-                                    Pessoais
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="tab-dados-pessoais" role="tabpanel">
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label>* Data de Nascimento :</label>
+                            <div class="form-check">
+                                <input id="DATA_NASCIMENTO" name="DATA_NASCIMENTO" type="date" placeholder="Informe data de Nascimento" class="form-control" minlength="1">
+                            </div>
+                        </div>
 
-                                <div class="form-group">
-                                    <div class="form-check">
-                                        <label>* Nome Completo do Motorista :</label> 
-                                        <input id="regnomemot" name="regnomemot" type="text" placeholder="Informe o nome completo do Motorista :" class="form-control" required minlength="1">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Rota que Atua :</label>
-                                    <div class="form-check">
-                                        <input id="regrotatua" name="regrotatua" type="integer" onkeypress="mascara(this, '########')" 
-                                        class="form-control" required minlength="1">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>* Data de Nascimento :</label>
-                                    <div class="form-check">
-                                        <input id="regnome" name="regnome" type="date" placeholder="Informe data de Nascimento do Discente(Aluno) :" class="required" minlength="1">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>* Sexo:</label> <br />
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temMasculino" name="modoSexo[]" value="0"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
-                                                                Masculino
-                                                            </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temFeminino" name="modoSexo[]" value="1"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
-                                                                Feminino
-                                                            </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temNInformado" name="modoSexo[]" value="1"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
-                                                                Não Informado
-                                                            </label>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>* Nacionalidade :</label>
-                                    <div class="form-check">
-                                        <input id="regnacionmot" name="regnacionmot" type="text" placeholder="Informe a Nacionalidade do Motorista :" class="form-control" required minlength="1">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>* Documento de Identificação :</label>
-                                    <div class="form-check">
-                                        <input id="regidmotor" name="regidmotor" type="integer" onkeypress="mascara(this, '##.###.###-#')" maxlength="12" class="form-control" required minlength="1 ">
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group ">
-                                                        <label>* Orgão Emissor :</label>
-                                                        <div class="form-check ">
-                                                            <input id="regorgemiss " name="regorgemiss " type="text "
-                                                                placeholder="Digite o Orgão Emissor da Identidade do Motorista: "
-                                                                class="form-control ">
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group ">
-                                                        <label>* CPF :</label>
-                                                        <div class="form-check ">
-                                                            <input id="regcpfmotor " name="regcpfmotor " type="integer "
-                                                            onkeypress="mascara(this, '###.###.###-##')" 
-                                                            maxlength="14" class="form-control" 
-                                                            required minlength="1">
-                                                        </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>* A sua cor ou raça é?:</label> <br />
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temAmarelo" name="modoCorRaca[]" value="0"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
-                                                                Amarelo
-                                                            </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temBranco" name="modoCorRaca[]" value="1"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
-                                                                Branco
-                                                            </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temIndigena" name="modoCorRaca[]" value="1"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
-                                                                Indígena
-                                                            </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temPardo" name="modoCorRaca[]" value="1"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
-                                                                Pardo
-                                                            </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temPreto" name="modoCorRaca[]" value="1"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
-                                                                Preto
-                                                            </label>
-                                    </div>
-                                </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label>
+                                <b>Sexo</b>
+                                                <star>*</star>
+                                            </label>
+                            <br />
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                                    <input id="SEXO" name="sexo" value="Masculino" type="radio"
+                                                        class="form-check-input" required minlength="1">
+                                                    Masculino
+                                                </label>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                                    <input id="SEXO" name="sexo" value="Feminimo" type="radio"
+                                                        class="form-check-input" required minlength="1">
+                                                    Feminino
+                                                </label>
+                            </div>
+                        </div>
 
-                                <hr class="hr-form" />
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label>* Nacionalidade :</label>
+                            <div class="form-check">
+                                <input id="NACIONALIDADE" name="NACIONALIDADE" type="text" placeholder="Informe a Nacionalidade do Motorista :" class="form-control" required minlength="1">
+                            </div>
+                        </div>
 
-                                <div class="form-group">
-                                    <label>* Possui alguma deficiência??:</label> <br />
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temDeCaminhar" name="modoDeficiencia[]" value="0"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label>* Documento de Identificação :</label>
+                            <div class="form-check">
+                                <input id="DOC_IDENTIFICACAO" name="DOC_IDENTIFICACAO" type="integer" onkeypress="mascara(this, '##.###.###-#')" maxlength="12" class="form-control" required minlength="1 ">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group ">
+                            <label>* Orgão Emissor :</label>
+                            <div class="form-check ">
+                                <input id="ORGAO_EMISSOR" name="ORGAO_EMISSOR" type="text " placeholder="Digite o Orgão Emissor da Identidade do Motorista: " required class="form-control ">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group ">
+                            <label>* CPF :</label>
+                            <div class="form-check ">
+                                <input id="CPF" name="CPF" type="integer " onkeypress="mascara(this, '###.###.###-##')" maxlength="14" class="form-control" required minlength="1">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>
+                                                <b>A sua cor ou raça é?</b>
+                                                                <star>*</star>
+                                                            </label>
+                                <br />
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                                    <input id="temAmarelo" name="cor" value="Amarelo"
+                                                                        type="radio">
+                                                                    Amarelo
+                                                                </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                                    <input id="temBranco" name="cor" value="Branco" type="radio"
+                                                                         required minlength="1">
+                                                                    Branco
+                                                                </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                                    <input id="temIndigena" name="cor" value="Indígina"
+                                                                        type="radio">
+                                                                    Indígena
+                                                                </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                                    <input id="temPardo" name="cor" value="Pardo" type="radio"
+                                                                        required minlength="1">
+                                                                    Pardo
+                                                                </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                                                    <input id="temPreto" name="cor" value="Preto" type="radio"
+                                                                         required >
+                                                                    Preto
+                                                                </label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 ">
+                        <hr class="hr-form" />
+
+                        <div class="form-group">
+                            <label>Possui alguma deficiência??:</label> <br />
+                            <div class="form-check">
+                                <label class="form-check-label"> <input
+                                                                id="DEF_CAMINHAR" name="DEF_CAMINHAR" value="1"
+                                                                type="checkbox" class="form-check-input" > <span class="form-check-sign"></span>
                                                                 De Caminhar
                                                             </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temDeOuvir" name="modoDeficiencia[]" value="1"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
+                            </div>
+
+                            <div class="form-check">
+                                <label class="form-check-label"> <input
+                                                                id="DEF_OUVIR" name="DEF_OUVIR" value="1"
+                                                                type="checkbox" class="form-check-input" > <span class="form-check-sign"></span>
                                                                 De Ouvir
                                                             </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temDeEnxergar" name="modoDeficiencia[]" value="1"
-                                                                type="checkbox" class="form-check-input" required
-                                                                minlength="1"> <span class="form-check-sign"></span>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label"> <input
+                                                                id="DEF_ENXERGAR" name="DEF_ENXERGAR" value="1"
+                                                                type="checkbox" class="form-check-input" > <span class="form-check-sign"></span>
                                                                 De enxergar
                                                             </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> <input
-                                                                id="temDeMentalIntelec" name="modoDeficiencia[]"
-                                                                value="1" type="checkbox" class="form-check-input"
-                                                                required minlength="1"> <span
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label"> <input
+                                                                id="DEF_MENTAL" name="DEF_MENTAL"
+                                                                value="1" type="checkbox" class="form-check-input"> <span
                                                                 class="form-check-sign"></span> Deficiência Mental ou
                                                                 Intelectual
                                                             </label>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="form-group">
-                                    <div class="form-group">
-                                        <label>* Anexar Certidão de Antecedência Criminal
-                                                                :</label> <input id="regcerantcri" name="regcerantcri" type="text" placeholder="Anexar Certidão de Antecedência Criminal:" class="form-control">
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
-                        <div class="card-footer text-center">
-                            <button type="button" class="btn btn-default btn-wd btn-back pull-left">Voltar</button>
-                            <button type="button" class="btn btn-info btn-wd btn-next pull-right">Próximo</button>
-                            <button type="button"  class="btn btn-info btn-wd btn-finish pull-right" id="regsubmit">Concluir</button>
-                            <div class="clearfix"></div>
-                        </div>
+
                     </div>
-            </form>
-
-            </div>
-            <!-- end col-md-8 -->
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-info pull-right" style="margin-bottom:20px;">Concluir</button>
+                </div>
         </div>
-    </div>
-    <!-- end row -->
+        </form>
 
-    <script src="./motorista/motorista-valida.js" type="text/javascript"></script>
+    </div>
+    <!-- end col-md-8 -->
+</div>
+
+<script type="text/javaScript">
+    identity_router = "form-motorista";
+</script>
+
+<script src="motorista/motorista-model.js"></script>
+<script src="motorista/motorista-validate.js"></script>
+<script src="motorista/motorista-ctrl.js"></script>

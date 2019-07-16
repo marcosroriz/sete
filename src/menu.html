@@ -175,12 +175,18 @@
                     <b class="caret"></b>
                 </p>
             </a>
-            <div class="collapse " id="alunoMenu">
+            <div class="collapse " id="motoristaMenu">
                 <ul class="nav">
                     <li class="nav-item ">
                         <a id="cadastrar_motorista" name="cadastrar_motorista" class="nav-link" href="#">
-                            <span class="sidebar-mini">C</span>
+                            <span class="sidebar-mini">-</span>
                             <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a id="gerenciar_motorista" name="cadastrar_motorista" class="nav-link" href="#">
+                            <span class="sidebar-mini">-</span>
+                            <span class="sidebar-normal">Gerenciar</span>
                         </a>
                     </li>
                 </ul>
@@ -353,6 +359,9 @@
     $(document).ready(function() {
         $("#cadastrar_motorista").click(function() {
             $("#content").load("./motorista/motorista-form.html");
+        });
+        $("#gerenciar_motorista").click(function() {
+            $("#content").load("./motorista/motorista-view.html");
         });
 
         $("#link-menu").click(function() {

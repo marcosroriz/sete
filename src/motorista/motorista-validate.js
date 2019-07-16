@@ -1,16 +1,15 @@
-
-function mascara(t, mask){
+function mascara(t, mask) {
     var i = t.value.length;
-    var saida = mask.substring(1,0);
+    var saida = mask.substring(1, 0);
     var texto = mask.substring(i)
-    if (texto.substring(0,1) != saida){
-            t.value += texto.substring(0,1);
+    if (texto.substring(0, 1) != saida) {
+        t.value += texto.substring(0, 1);
     }
 }
 
 $(".cpfmask").mask('000.000.000-00', { reverse: true });
 
-$("#motoristaForm").validate({
+$("#motorista-form").validate({
     rules: {
         regnomemot: {
             required: true,
@@ -35,20 +34,20 @@ $("#motoristaForm").validate({
     }
 });
 
+$(document).ready(function() {
 
-$("#regsubmit").click(() => {
-    $("#motoristaForm").validate();
+    $("#motorista-form").submit(function(e) {
+        e.preventDefault();
+        $("#motorista-form").validate();
 
-    if ($("#motoristaForm").valid()) {
-        let processingModalWin = swal({
-            title: "Processando...",
-            text: "Espere um minutinho...",
-            icon: "info",
-            buttons: false
-        });
+        if ($("#motorista-form").valid()) {
+            InsertMotoristaCTRL();
+        }
 
-       
-    } else {
-        alert("Algum erro no formulário");
-    }
-});
+    });
+
+    // Máscaras
+    $(".datanasc").mask('00/00/0000');
+    $(".telmask").mask(telmaskbehaviour, teloptions);
+
+});;

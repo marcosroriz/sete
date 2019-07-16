@@ -95,11 +95,11 @@ function PopularForm(aluno) {
     $("#regend").val(aluno.ENDERECO);
     $("#regcep").val(aluno.CEP);
 
-    $("#temPorteira").attr('checked', aluno.DA_PORTEIRA);
-    $("#temMataBurro").attr('checked', aluno.DA_MATABURRO);
-    $("#temColchete").attr('checked', aluno.DA_COLCHETE);
-    $("#temAtoleiro").attr('checked', aluno.DA_ATOLEIRO);
-    $("#temPonte").attr('checked', aluno.DA_PONTERUSTICA);
+    $("#temPorteira").attr('checked', (aluno.DA_PORTEIRA) ? true : false);
+    $("#temMataBurro").attr('checked', (aluno.DA_MATABURRO) ? true : false);
+    $("#temColchete").attr('checked', (aluno.DA_COLCHETE) ? true : false);
+    $("#temAtoleiro").attr('checked', (aluno.DA_ATOLEIRO) ? true : false);
+    $("#temPonte").attr('checked', (aluno.DA_PONTERUSTICA) ? true : false);
     $("#regnome").val(aluno.NOME);
     $("#regdata").val(aluno.DATA_NASCIMENTO);
     //$("input[name=sexo]:checked").val(aluno.SEXO), //int
@@ -107,10 +107,10 @@ function PopularForm(aluno) {
     $("#regnomeresp").val(aluno.NOME_RESPONSAVEL);
     $("#reggrau").val(aluno.GRAU_RESPONSAVEL);
     $("#regfoneresponsavel").val(aluno.TELEFONE_RESPONSAVEL);
-    $("#temDeCaminhar").attr('checked', aluno.DEF_CAMINHAR);
-    $("#temDeOuvir").attr('checked', aluno.DEF_OUVIR);
-    $("#temDeEnxergar").attr('checked', aluno.DEF_ENXERGAR);
-    $("#temDeMentalIntelec").attr('checked', aluno.DEF_MENTAL);
+    $("#temDeCaminhar").attr('checked', (aluno.DEF_CAMINHAR) ? true : false);
+    $("#temDeOuvir").attr('checked', (aluno.DEF_OUVIR) ? true : false);
+    $("#temDeEnxergar").attr('checked', (aluno.DEF_ENXERGAR) ? true : false);
+    $("#temDeMentalIntelec").attr('checked', (aluno.DEF_MENTAL) ? true : false);
     $("#regescola").val(aluno.ID_ESCOLA);
 
     $('input[value=' + aluno.TURNO + ']').attr('checked', 'checked');

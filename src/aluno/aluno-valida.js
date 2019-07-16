@@ -63,7 +63,7 @@ $(document).ready(function() {
     $(".telmask").mask(telmaskbehaviour, teloptions);
 
     InitMap()
-});;
+});
 
 function InitMap() {
 
