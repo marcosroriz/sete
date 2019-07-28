@@ -31,6 +31,7 @@ function AdicioarLinhaVeiculo(veiculo) {
     cols += '<td class="text-center">' + veiculo.TIPO_TRANSPORTE + '</td>';
     cols += '<td class="text-center">' + veiculo.CAPACIDADE_ATUAL + '</td>';
     cols += '<td class="text-center">';
+    cols += '<a href = "#" data-toggle="modal" data-target=".modal-previsao-manutencao" onclick="PrevisaoManutencaoVeiculo(' + veiculo.ID_VEICULO + ')"> Manutenção </a> | ';
     cols += '<a href = "#" onclick="EditRowVeiculo(' + veiculo.ID_VEICULO + ')"> editar </a> | ';
     cols += '<a href="#" onclick="RemoveTableRowVeiculo(this,' + veiculo.ID_VEICULO + ')">excluir</a >';
     cols += '</td>';
@@ -111,6 +112,18 @@ function EditarVeiculo(id) {
         });
 }
 
+function PrevisaoManutencaoVeiculo(id) {
+    ObterVeiculo(id).then(
+            (rows) => {
+                if (rows.length > 0)
+                    _veiculo = rows[0];
+            })
+        .catch((err) => { console.log(err); throw err })
+        .finally(() => {
+            DetalharDadosVeiculo(_veiculo);
+        });
+}
+
 //popular form
 function PopularForm(veiculo) {
     $("#ID_VEICULO").val(veiculo.ID_VEICULO);
@@ -124,4 +137,13 @@ function PopularForm(veiculo) {
     $("#KM_VEICULO").val(veiculo.KM_VEICULO);
     $("#CAPACIDADE_MAX").val(veiculo.KM_VEICULO);
     $("#CAPACIDADE_ATUAL").val(veiculo.CAPACIDADE_ATUAL);
+}
+
+function DetalharDadosVeiculo(veiculo) {
+    $("#MODAL-PLACA").text(veiculo.PLACA);
+    $("#MODAL-MODELO").text(veiculo.MODELO);
+    $("#MODAL-ANO").text(veiculo.ANO);
+    $("#MODAL-TIPO_TRANSPORTE").text(veiculo.TIPO_TRANSPORTE);
+    $("#MODAL-KM_VEICULO").text(veiculo.KM_VEICULO);
+    CarregarPrevisoesManutencao(veiculo.ID_VEICULO);
 }

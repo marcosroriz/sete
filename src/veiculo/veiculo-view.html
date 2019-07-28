@@ -10,6 +10,10 @@
     .margin-top-20 {
         margin-top: 20px;
     }
+    
+    .container-body {
+        background: #fff;
+    }
 </style>
 
 <div class="container  container-body">
@@ -41,10 +45,16 @@
     </div>
 </div>
 
+<div include-html="veiculo/previsao-manutencao/previsao-manutencao-form.html"></div>
+
 <script type="text/javaScript">
-    identity_router = "view-veiculo";
+    identity_router = "view-veiculo"; includeHTML();
 </script>
 
 <script src="veiculo/veiculo-model.js"></script>
 <script src="veiculo/veiculo-validate.js"></script>
 <script src="veiculo/veiculo-ctrl.js"></script>
+
+<script src="veiculo/previsao-manutencao/previsao-manutencao-model.js"></script>
+<script src="veiculo/previsao-manutencao/previsao-manutencao-validate.js"></script>
+<script src="veiculo/previsao-manutencao/previsao-manutencao-ctrl.js"></script>

@@ -4,6 +4,7 @@
     min-height: 100vh;
 }
 
+
 /* .has-error .form-control {
     border-color: #FB404B !important;
     color: #FB404B;
@@ -29,12 +30,16 @@
     background: #3e3e3e;
 }
 
-.nav-text .nav-item .nav-link, .nav-icons .nav-item .nav-link {
+.nav-text .nav-item .nav-link,
+.nav-icons .nav-item .nav-link {
     color: #ffffff;
     font-variant: small-caps;
 }
 
-.nav-text .nav-item .nav-link.active, .nav-text .nav-item.active .nav-link, .nav-icons .nav-item .nav-link.active, .nav-icons .nav-item.active .nav-link {
+.nav-text .nav-item .nav-link.active,
+.nav-text .nav-item.active .nav-link,
+.nav-icons .nav-item .nav-link.active,
+.nav-icons .nav-item.active .nav-link {
     color: #ffca00;
     font-variant: small-caps;
 }
@@ -71,6 +76,7 @@
     border-top: 5px solid orange
 }
 
-.form-control, .form-control:focus {
+.form-control,
+.form-control:focus {
     border-width: 2px;
 }
