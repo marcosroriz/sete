@@ -78,4 +78,6 @@ function InsertPrevisaoManutencaoCTRL() {
 function SuccessPrevisaoManutencao() {
     alert('Operação realiza com sucesso.');
     CarregarPrevisoesManutencao(_veiculo.ID_VEICULO);
+    $("#pm-descricao").val("");
+    $('#pm-data_prevista').val("");
 }

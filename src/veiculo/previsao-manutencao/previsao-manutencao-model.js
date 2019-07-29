@@ -3,7 +3,7 @@ function GetPrevisaoManutencaoForm() {
     return {
         "id": _previsao_manutencao.id, //int
         "descricao": $("#pm-descricao").val(), //string
-        "data_cadastro": data.getDay() + '/' + (data.getMonth() + 1) + '/' + data.getFullYear(),
+        "data_cadastro": data.getDate() + '/' + (data.getMonth() + 1) + '/' + data.getFullYear(),
         "data_prevista": $('#pm-data_prevista').val(), //string
         "status": 0,
         "veiculo_id": _veiculo.ID_VEICULO //int
@@ -11,7 +11,7 @@ function GetPrevisaoManutencaoForm() {
 }
 
 function ObterPrevisoesManutencao(veiculo_id) {
-    return knex.select('*').where('veiculo_id', '=', veiculo_id).from('PrevisaoManutencao');
+    return knex.select('*').where('veiculo_id', '=', veiculo_id).orderBy('data_prevista', 'desc').from('PrevisaoManutencao');
 }
 
 function ObterPrevisaoManutencao(id) {

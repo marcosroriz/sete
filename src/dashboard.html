@@ -63,6 +63,16 @@
                         <ul class="navbar-nav">
                             <li class="dropdown nav-item">
                                 <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                                    <i class="nc-icon nc-bell-55"></i>
+                                    <span class="notification" id="qtNotificacoes">0</span>
+                                    <span class="d-lg-none">Notificações</span>
+                                </a>
+                                <ul class="dropdown-menu" id="menuNotificacoes" style="margin-left:-100px;">
+                                    <a class="dropdown-item" href="#">Não há notificações</a>
+                                </ul>
+                            </li>
+                            <li class="dropdown nav-item">
+                                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
                                     <i class="nc-icon nc-planet"></i>
                                 </a>
                                 <ul class="dropdown-menu">
@@ -74,20 +84,7 @@
                                     <a class="dropdown-item" href="#">Another action</a>
                                 </ul>
                             </li>
-                            <li class="dropdown nav-item">
-                                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                                    <i class="nc-icon nc-bell-55"></i>
-                                    <span class="notification">5</span>
-                                    <span class="d-lg-none">Notification</span>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <a class="dropdown-item" href="#">Notification 1</a>
-                                    <a class="dropdown-item" href="#">Notification 2</a>
-                                    <a class="dropdown-item" href="#">Notification 3</a>
-                                    <a class="dropdown-item" href="#">Notification 4</a>
-                                    <a class="dropdown-item" href="#">Notification 5</a>
-                                </ul>
-                            </li>
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="nc-icon nc-bullet-list-67"></i>
@@ -172,42 +169,42 @@
 <script src="js/light-bootstrap-dashboard.js?v=2.0.1" type="text/javascript"></script>
 
 <script type="text/javascript" src="js/db.js"></script>
+<script type="text/javascript" src="js/menu-bar.js"></script>
 
 <script type="text/javascript">
     /*
-                            const firebase = require('firebase/app');
-                                require('firebase/auth');
-                                require('firebase/database');
-                                require('firebase/firestore');
+                                                                                                                    const firebase = require('firebase/app');
+                                                                                                                        require('firebase/auth');
+                                                                                                                        require('firebase/database');
+                                                                                                                        require('firebase/firestore');
 
-                                // Initialize Firebase
-                                let dbconfig = {
-                                    apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
-                                    authDomain: "softwareter.firebaseapp.com",
-                                    databaseURL: "https://softwareter.firebaseio.com",
-                                    projectId: "softwareter",
-                                    storageBucket: "softwareter.appspot.com",
-                                    messagingSenderId: "881352897273"
-                                };
-                                firebase.initializeApp(dbconfig);
+                                                                                                                        // Initialize Firebase
+                                                                                                                        let dbconfig = {
+                                                                                                                            apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
+                                                                                                                            authDomain: "softwareter.firebaseapp.com",
+                                                                                                                            databaseURL: "https://softwareter.firebaseio.com",
+                                                                                                                            projectId: "softwareter",
+                                                                                                                            storageBucket: "softwareter.appspot.com",
+                                                                                                                            messagingSenderId: "881352897273"
+                                                                                                                        };
+                                                                                                                        firebase.initializeApp(dbconfig);
 
 
-                                firebase.auth().onAuthStateChanged((user) => {
-                                    if (user) {
-                                        // User logged in already or has just logged in.
-                                        console.log(user.uid);
-                                        console.log("FUNCIONOU");
-                                    } else {
-                                        // User not logged in or has just logged out.
-                                        console.log("errooo");
-                                    }
-                                });
-                */
+                                                                                                                        firebase.auth().onAuthStateChanged((user) => {
+                                                                                                                            if (user) {
+                                                                                                                                // User logged in already or has just logged in.
+                                                                                                                                console.log(user.uid);
+                                                                                                                                console.log("FUNCIONOU");
+                                                                                                                            } else {
+                                                                                                                                // User not logged in or has just logged out.
+                                                                                                                                console.log("errooo");
+                                                                                                                            }
+                                                                                                                        });
+                                                                                                        */
     $(document).ready(function() {
         $("#sidebar").load("./menu.html");
         $("#footer").load("./footer.html");
         $("#content").load("./principal.html");
-
     });
 </script>
 
