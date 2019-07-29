@@ -32,8 +32,8 @@ function ObterPrevisoesManutencaoAbertasVencidas() {
     var mes = (data.getMonth() + 1);
     mes = (mes < 10) ? '0' + mes : mes;
     var dataAtual = data.getFullYear() + '-' + mes + '-' + data.getDate();
-    var dataFim = (data.getFullYear() + 100) + '-' + mes + '-' + data.getDate();
+    var dataFim = (data.getFullYear() - 100) + '-' + mes + '-' + data.getDate();
     return knex.select('*').where('status', '=', 0)
-        .whereBetween('data_prevista', [dataAtual, dataFim])
+        .whereBetween('data_prevista', [dataFim, dataAtual])
         .from('PrevisaoManutencao').innerJoin('Veiculo', 'Veiculo.ID_VEICULO', 'PrevisaoManutencao.veiculo_id');
 }
