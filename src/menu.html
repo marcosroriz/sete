@@ -189,6 +189,12 @@
                             <span class="sidebar-normal">Gerenciar</span>
                         </a>
                     </li>
+                    <li class="nav-item ">
+                        <a id="gerenciar_motorista_rota" name="cadastrar_motorista_rota" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Rotas</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </li>
@@ -197,11 +203,15 @@
 
 <script>
     $(document).ready(function() {
+        //motorista
         $("#cadastrar_motorista").click(function() {
             $("#content").load("./motorista/motorista-form.html");
         });
         $("#gerenciar_motorista").click(function() {
             $("#content").load("./motorista/motorista-view.html");
+        });
+        $("#gerenciar_motorista_rota").click(function() {
+            $("#content").load("./motorista/rota/motorista-rota-view.html");
         });
 
         $("#link-menu").click(function() {

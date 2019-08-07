@@ -79,8 +79,6 @@ $(document).ready(function() {
 
     });
 
-
-
     $("#formVeiculo").submit(function(event) {
         event.preventDefault();
 
