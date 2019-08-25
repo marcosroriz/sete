@@ -1,4 +1,8 @@
 <div class="sidebar-wrapper">
+    <!-- <a class="navbar-brand" href="#" id="logo"><img src="" id="logo" alt=""></a>
+    <div class="navbar-header">
+    </div> -->
+
     <div class="logo">
         <a href="#" class="simple-text logo-normal">
             SETE
@@ -27,14 +31,8 @@
                             <span class="sidebar-mini">EP</span>
                             <span class="sidebar-normal">Edit Profile</span>
                         </a>
-                    </li>
-                    <li>
-                        <a class="profile-dropdown" href="#pablo">
-                            <span class="sidebar-mini">S</span>
-                            <span class="sidebar-normal">Settings</span>
-                        </a>
-                    </li>
                 </ul>
+                </li>
             </div>
         </div>
     </div>
@@ -45,53 +43,10 @@
                 <p>Visão Geral</p>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#componentsExamples">
-                <img src="./img/icones/escola.png" class="menu-icon">
-                <p>
-                    Escolas
-                    <b class="caret"></b>
-                </p>
-            </a>
-            <div class="collapse " id="componentsExamples">
-                <ul class="nav">
-                    <li class="nav-item ">
-                        <a id="link-menu" name="cadastrar_escola" class="nav-link" href="#">
-                            <span class="sidebar-mini">C</span>
-                            <span class="sidebar-normal">Cadastrar</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/grid.html">
-                            <span class="sidebar-mini">L</span>
-                            <span class="sidebar-normal">Listar</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/grid.html">
-                            <span class="sidebar-mini">M</span>
-                            <span class="sidebar-normal">Modificar</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/grid.html">
-                            <span class="sidebar-mini">L</span>
-                            <span class="sidebar-normal">Remover</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/panels.html">
-                            <span class="sidebar-mini">V</span>
-                            <span class="sidebar-normal">Visualizar</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
 
         <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#alunoMenu">
-                <img src="./img/icones/aluno.png" class="menu-icon">
+                <img src="./img/icones/aluno.svg" class="menu-icon">
                 <p>
                     Alunos
                     <b class="caret"></b>
@@ -109,6 +64,47 @@
                         <a id="gerenciar_aluno" name="gerenciar_aluno" class="nav-link" href="#">
                             <span class="sidebar-mini">-</span>
                             <span class="sidebar-normal">Gerenciar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#componentsExamples">
+                <img src="./img/icones/escolas.svg" class="menu-icon">
+                <p>
+                    Escolas
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="componentsExamples">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a id="link-menu" name="cadastrar_escola" class="nav-link" href="#">
+                            <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="./components/grid.html">
+                            <span class="sidebar-normal">Listar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="./components/grid.html">
+                            <span class="sidebar-normal">Modificar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="./components/grid.html">
+                            <span class="sidebar-mini">L</span>
+                            <span class="sidebar-normal">Remover</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="./components/panels.html">
+                            <span class="sidebar-mini">V</span>
+                            <span class="sidebar-normal">Visualizar</span>
                         </a>
                     </li>
                 </ul>
@@ -202,43 +198,43 @@
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         //motorista
-        $("#cadastrar_motorista").click(function() {
+        $("#cadastrar_motorista").click(function () {
             $("#content").load("./motorista/motorista-form.html");
         });
-        $("#gerenciar_motorista").click(function() {
+        $("#gerenciar_motorista").click(function () {
             $("#content").load("./motorista/motorista-view.html");
         });
-        $("#gerenciar_motorista_rota").click(function() {
+        $("#gerenciar_motorista_rota").click(function () {
             $("#content").load("./motorista/rota/motorista-rota-view.html");
         });
 
-        $("#link-menu").click(function() {
+        $("#link-menu").click(function () {
             $("#content").load("./" + $(this).attr("name") + ".html");
         });
 
         //aluno
-        $("#cadastrar_aluno").click(function() {
+        $("#cadastrar_aluno").click(function () {
             $("#content").load("./aluno/aluno-form.html");
         });
-        $("#gerenciar_aluno").click(function() {
+        $("#gerenciar_aluno").click(function () {
             $("#content").load("./aluno/aluno-view.html");
         });
 
         //veiculo
-        $("#cadastrar_veiculo").click(function() {
+        $("#cadastrar_veiculo").click(function () {
             $("#content").load("./veiculo/veiculo-form.html");
         });
-        $("#link-menu-veiculo").click(function() {
+        $("#link-menu-veiculo").click(function () {
             $("#content").load("./" + $(this).attr("name") + ".html");
         });
 
         //SERIVOR
-        $("#servidor_form").click(function() {
+        $("#servidor_form").click(function () {
             $("#content").load("./servidor/servidor-form.html");
         });
-        $("#servidor_view").click(function() {
+        $("#servidor_view").click(function () {
             $("#content").load("./servidor/servidor-view.html");
         });
     });

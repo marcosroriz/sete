@@ -67,7 +67,9 @@
     "sweetalert": "^2.1.2",
     "tether": "^1.4.5",
     "typeface-montserrat": "0.0.54",
-    "typeface-patrick-hand": "0.0.72"
+    "typeface-patrick-hand": "0.0.72",
+    "typeface-poppins": "0.0.72",
+    "typeface-roboto": "0.0.75"
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",

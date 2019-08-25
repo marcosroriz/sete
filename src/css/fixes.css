@@ -1,0 +1,250 @@
+html {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    font-family: "Roboto", sans-serif;
+}
+
+.sidebar li.nav-item {
+    border: 1.5px solid #414550;
+    border-collapse: collapse;
+    color: white;
+}
+
+.sidebar, .sidebar-wrapper {
+    background: #414550;
+}
+
+
+.sidebar .nav .nav-item .nav-link {
+    padding: 10px;
+    margin: 0px;
+    font-size: 1.1em;
+}
+
+
+span.sidebar-normal {
+    font-size: 0.8em;
+}
+
+.navbar-header {
+	text-align: center;
+	margin-top: 7px;
+	margin-bottom: 2px;
+}
+
+#logo {
+    width: 200px;
+    height: 75px;
+    border: 0px solid #676A73;
+    border-radius: 10px;
+    background-color: #676A73;
+}
+
+img.menu-icon {
+    margin-left: 22px;
+}
+
+span.sidebar-mini {
+    margin-left: 20px;
+}
+
+b.caret {
+    margin-right: 20px;
+}* {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.sidebar li.nav-item {
+    border: 1.5px solid #414550;
+    border-collapse: collapse;
+    background-color: #464a56;
+    color: white;
+}
+
+.sidebar-wrapper {
+    background: #414550;
+}
+
+
+.sidebar .nav .nav-item .nav-link {
+    padding: 10px;
+    margin: 0px;
+    font-size: 1.1em;
+    /* border-radius: 0px; */
+}
+
+
+span.sidebar-normal {
+    font-size: 0.8em;
+}
+
+.navbar-header {
+	text-align: center;
+	margin-top: 7px;
+	margin-bottom: 2px;
+}
+
+#logo {
+    width: 200px;
+    height: 75px;
+    border: 0px solid #676A73;
+    border-radius: 10px;
+    background-color: #676A73;
+}
+
+img.menu-icon {
+    margin-left: 22px;
+}
+
+span.sidebar-mini {
+    margin-left: 20px;
+}
+
+b.caret {
+    margin-right: 20px;
+}
+
+.sidebar-wrapper {
+    width: 270px !important;
+}
+
+div#sidebar {
+    width: 270px;
+    min-width: 270px;
+}
+
+.sidebar-wrapper {
+    width: 270px;
+}
+
+.sidebar-wrapper {
+    width: 270px !important;
+}
+
+div#sidebar {
+    width: 270px;
+    min-width: 270px;
+}
+
+.sidebar-wrapper {
+    width: 270px;
+}
+
+.sidebar .nav .nav-item .nav-link:hover {
+    background: #576071;
+}
+
+.sidebar .nav .nav-item a[aria-expanded="true"] {
+  background-color: #576071;
+} 
+
+.sidebar .sidebar-wrapper .nav .nav-item [data-toggle="collapse"]~div .nav .nav-item .nav-link:hover {
+    border: none;
+    border-right: white;
+    border-right-style: solid;
+    border-width: 5px;
+}
+
+.sidebar .sidebar-wrapper .nav .nav-item [data-toggle="collapse"]~div .nav .nav-item .nav-link {
+    font-size: 1em;
+    font-family: "Roboto Cn";
+}
+
+img#pageIcon {
+    margin-top: -10px;
+}
+
+p.pageTitle {
+    margin-left: 20px;
+    margin-top: 10px;
+    font-size: 32px;
+    line-height: 32px;
+}
+
+h4.card-titlev2 {
+    font-weight: normal;
+    text-align: left;
+    font-size: 15px;
+    line-height: 16px;
+    display: flex;
+}
+
+.card-atalho {
+    border: 2px solid #D0D0D0;
+    box-shadow: 0px 1px 4px #E5E9F2;
+    border-radius: 10px;
+}
+
+.card-atalho .card-body {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.nopadding {
+    padding: 0px;
+}
+
+.card-atalho a {
+    color: rgb(33, 37, 41);
+}
+
+.card.card-stats.card-atalho:hover {
+    border: 2px solid #545454;
+    box-shadow: 0px 4px 20px #c3c3c3;
+}
+
+p.card-category.atalho-title {
+    font-size: 16px;color: rgb(33, 37, 41);
+}
+p.card-category.atalho-title {font-size: 16px;color: rgb(33, 37, 41);}
+
+
+.card.card-stats.card-rapid {
+    border-radius: 10pt;
+}
+
+h4.card-title.card-title-atalho {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.sidebar .show li.nav-item {
+    background-color: #7f8592;
+    font-weight: bold;
+    font-size: 13pt;
+}
+
+.sidebar li.nav-item {
+    font-size: 13pt;
+}
+
+.sidebar .show li.nav-item:first-child {
+    margin-top: 3px;
+}
+
+.sidebar li.nav-item:first-child {
+    margin-top: 3px;
+}
+
+.svg-icon {
+    height: 48px;
+}
+
+.card.card-stats.card-rapid {
+    margin-left: 20px;
+    margin-right: 20px;
+    height: 180px;
+    width: 180px;
+    border: 2px solid #D0D0D0;
+    box-shadow: 0px 1px 4px #E5E9F2;
+}
+
+.card.card-stats.card-rapid:hover {
+    border: 2px solid #545454;
+    box-shadow: 0px 4px 20px #c3c3c3;
+}
