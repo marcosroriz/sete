@@ -168,6 +168,26 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#garangemMenu">
+                <!--<img src="./img/icones/aluno.png" class="menu-icon">-->
+                <p>
+                    Garagem
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="garangemMenu">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a id="cadastrar_garagem" name="cadastrar_veiculo" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Gerênciar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#motoristaMenu">
                 <!--<img src="./img/icones/aluno.png" class="menu-icon">-->
                 <p>
@@ -198,6 +218,26 @@
                 </ul>
             </div>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#rotaMenu">
+                <!--<img src="./img/icones/aluno.png" class="menu-icon">-->
+                <p>
+                    Rota
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="rotaMenu">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a id="cadastrar_rota" name="cadastrar_rota" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Gerenciar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
     </ul>
 </div>
 
@@ -216,6 +256,19 @@
 
         $("#link-menu").click(function() {
             $("#content").load("./" + $(this).attr("name") + ".html");
+        });
+
+        //modules/garagem
+        $("#cadastrar_garagem").click(function() {
+            $("#content").load("./modules/garagem/garagem.html");
+        });
+
+        //modules/garagem
+        $("#gerenciar_rota").click(function() {
+            $("#content").load("./modules/rota/rota.html");
+        });
+        $("#cadastrar_rota").click(function() {
+            $("#content").load("./modules/rota/rota-form.html");
         });
 
         //aluno

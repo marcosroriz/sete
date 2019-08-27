@@ -1,0 +1,87 @@
+.bgentry {
+    background: #ddd;
+}
+
+.padding-left-20 {
+    padding-left: 20px;
+}
+
+.margin-top-20 {
+    margin-top: 20px;
+}
+
+label.error {
+    color: red;
+    position: absolute;
+    font-size: 13px;
+}
+
+.error-checked label.error {
+    top: -15px;
+    left: 0;
+}
+
+.container-body {
+    background: #fff;
+}
+
+.botton-cadastro {}
+
+.funcionamento {
+    width: 100%;
+}
+
+.funcionamento .error {
+    margin-top: 90px;
+}
+
+.th-action {
+    width: 180px;
+    max-width: 180px;
+}
+
+
+/********** vinculo aluno rota *************/
+
+.grid-drop {
+    padding: 15px;
+    border: 1px solid #ccc;
+    margin-top: 15px;
+    height: 300px;
+    overflow: auto;
+}
+
+.grid-drop label {
+    width: 100%;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.grid-drop label:hover {
+    background: #eee;
+}
+
+.grid-drop .active {
+    background: #ccc;
+    color: #000;
+}
+
+.grid-divisor-drop {
+    padding-top: 150px;
+    text-align: center;
+}
+
+.grid-divisor-drop i {
+    font-size: 30px;
+    cursor: pointer;
+    opacity: 0.1;
+}
+
+.grid-divisor-drop i:hover {
+    opacity: 0.3;
+}
+
+.menu-relacao-aluno,
+.menu-relacao-escola {
+    display: none;
+}

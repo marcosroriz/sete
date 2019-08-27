@@ -1,0 +1,226 @@
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Dados Básicos</a>
+    </li>
+    <li class="nav-item menu-relacao-aluno">
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Alunos Atendidos</a>
+    </li>
+    <li class="nav-item menu-relacao-escola">
+        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Escolas Atendidas</a>
+    </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+
+    <!-- cadastro -->
+    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+
+        <form id="formRota" action="#">
+            <div class="row" id="new_cadastrar" style="display: none;">
+
+                <div class="form-group col-md-6">
+                    <label>
+                                                Nome
+                                                <star>*</star>
+                                            </label>
+                    <input id="nome" name="nome" type="text" placeholder="Informe o nome" class="form-control">
+                </div>
+                <div class="form-group col-md-6">
+                    <label>
+                                                Quilometragem
+                                                <star>*</star>
+                                            </label>
+                    <input id="quilometragem" name="quilometragem" type="text" placeholder="Informe a quilometragem" class="form-control col-md-6">
+                </div>
+                <div class="form-group col-md-6">
+
+                    <div class="col-md-12 margin-top-20"></div>
+                    <div class="form-group"><label>
+                                    Funcionamento
+                                    <star>*</star>
+                                </label>
+                        <div class="form-check">
+                            <label class="form-check-label funcionamento">
+                                                                <input id="enum_turno_manha" required name="funcionamento[]" value="1"
+                                                                    type="checkbox" >
+                                                                <span class="form-check-sign"></span>
+                                                                Manhã
+                                                            </label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                                                <input id="enum_turno_tarde"  required  name="funcionamento[]" value="2"
+                                                                    type="checkbox" class="form-check-input" >
+                                                                <span class="form-check-sign"></span>
+                                                                Tarde
+                                                            </label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                                                <input id="enum_turno_noite" required  name="funcionamento[]" value="3"
+                                                                    type="checkbox" class="form-check-input" >
+                                                                <span class="form-check-sign"></span>
+                                                                Noite
+                                                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>
+                                        Horário de Inicio
+                                        <star>*</star>
+                                    </label>
+                    <input id="hora_inicio" name="hora_inicio" type="text" placeholder="00:00" class="form-control col-md-6 hora">
+
+                    <div class="col-md-12 margin-top-20"></div>
+                    <label>
+                                    Horário de Retorno
+                            <star>*</star>
+                        </label>
+                    <input id="hora_retorno" name="hora_retorno" type="text" placeholder="00:00" class="form-control col-md-6 hora">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>
+                                                    Motorista
+                                                    <star>*</star>
+                                                </label>
+
+                    <select class="form-control select-motorista" required name="motorista_id" id="motorista_id">
+                                                        <option value="">Selecione um Motorista</option>
+                                                    </select>
+
+                    <div class="col-md-12 margin-top-20"></div>
+
+                    <label>
+                                    Garagem de Inicio
+                                    <star>*</star>
+                                </label>
+                    <select class="form-control select-garagem-inicio" required name="garagem_id_partida" id="garagem_id_partida">
+                                        <option value="">Selecione uma garagem</option>
+                                    </select>
+                    <div class="col-md-12 margin-top-20"></div>
+                    <label>
+                                Garagem de Términio
+                        <star>*</star>
+                    </label>
+                    <select class="form-control select-garagem-terminio" required name="garagem_id_terminio" id="garagem_id_terminio">
+                            <option value="">Selecione uma garagem</option>
+                        </select>
+
+                </div>
+                <div class="form-group col-md-6">
+
+                    <div class="col-md-12 margin-top-20"></div>
+                    <div class="form-group"><label>
+                                        Dificuladades de Acesso:
+                                        <star>*</star>
+                                    </label>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                                                    <input id="EnumDificultadeAcesso_mata_burro" name="dificuldade_acesso[]" value="1"
+                                                                        type="checkbox" >
+                                                                    <span class="form-check-sign"></span>
+                                                                    Mata Burro
+                                                                </label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                                                    <input id="EnumDificultadeAcesso_porteira" name="dificuldade_acesso[]" value="2"
+                                                                        type="checkbox" class="form-check-input" >
+                                                                    <span class="form-check-sign"></span>
+                                                                    Porteira
+                                                                </label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                                                    <input id="EnumDificultadeAcesso_colchete" name="dificuldade_acesso[]" value="3"
+                                                                        type="checkbox" class="form-check-input" >
+                                                                    <span class="form-check-sign"></span>
+                                                                    Colchete
+                                                                </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left margin-top-20">
+
+                <label class="btn btn-default botton-cadastro " onclick="ShowHideCadastro()">Cadastrar Rota</label>
+
+                <button type="submit" class="btn btn-info
+                                        btn-wd botton-cadastro-save 
+                                        btn-finish pull-right" style="display: none;">Salvar</button>
+                <div class="clearfix"></div>
+
+            </div>
+
+            <div class="col-md-12 margin-top-20"></div>
+
+        </form>
+
+
+    </div>
+
+
+    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="row">
+            <div class="col-md-12 ">
+                <b>Rota: </b><label class="nome_rota"></label><br />
+                <b>Motorista: </b><label class="nome_motorista"></label>
+            </div>
+            <div class="col-md-5 ">
+
+                <!--<input class="form-control" />-->
+                <div class="grid-drop grid-drop-aluno lado_aluno_1">
+                </div>
+            </div>
+            <div class="col-md-2 grid-divisor-drop">
+                <i class="fa fa-chevron-circle-left left-aluno" onclick="ClickAlunoLeft(this)"></i>
+                <br />
+                <br />
+                <i class="fa fa-chevron-circle-right right-aluno" onclick="ClickAlunoRight(this)"></i>
+            </div>
+            <div class="col-md-5">
+                <!--<input class="form-control" />-->
+                <div class="grid-drop grid-drop-aluno lado_aluno_2">
+                </div>
+            </div>
+        </div>
+        <div class="text-left margin-top-20">
+            <label class="btn btn-default" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" onclick="ShowHideCadastro()">Finalizar</label>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+        <div class="row">
+
+            <div class="col-md-12 ">
+                <b>Rota: </b><label class="nome_rota"></label><br />
+                <b>Motorista: </b><label class="nome_motorista"></label>
+            </div>
+
+            <div class="col-md-5 ">
+
+
+                <!--<input class="form-control" />-->
+                <div class="grid-drop grid-drop-escola lado_escola_1">
+                </div>
+            </div>
+            <div class="col-md-2 grid-divisor-drop">
+                <i class="fa fa-chevron-circle-left left-escola" onclick="ClickEscolaLeft(this)"></i>
+                <br />
+                <br />
+                <i class="fa fa-chevron-circle-right right-escola" onclick="ClickEscolaRight(this)"></i>
+            </div>
+            <div class="col-md-5">
+                <!--<input class="form-control" />-->
+                <div class="grid-drop grid-drop-escola lado_escola_2">
+                </div>
+            </div>
+        </div>
+        <div class="text-left margin-top-20">
+            <label class="btn btn-default" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" onclick="ShowHideCadastro()">Finalizar</label>
+        </div>
+
+    </div>
+</div>
