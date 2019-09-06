@@ -59,9 +59,23 @@ window.$.validator.addMethod("cpf", function (value, element) {
 
 }, "Informe um CPF válido");
 
+// Validar latitude e longitude
+window.$.validator.addMethod("posicao", function (value, element) {
+    return this.optional(element) ||
+        (value.length >= 2 && /^(?=.)-?((0?[8-9][0-9])|180|([0-1]?[0-7]?[0-9]))?(?:\.[0-9]{1,20})?$/.test(value));
+}, "Informe uma posição válida");
+
+// Validar um select
+window.$.validator.addMethod("pickselect", function (value, element) {
+    return value != " ";
+}, "Selecione uma opção");
+
+
+
 // Validar campo com data de nascimento no formato dd-mm-yyyy
 window.$.validator.addMethod("datanasc", function (value, element) {
-    return this.optional(element) || /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/.test(value);
+    // return this.optional(element) || /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/.test(value);
+    return moment(value,"DD/MM/YYYY").isValid();
 }, "Informe uma data de nascimento válida");
 
 // Validar campos que só podem ter letras

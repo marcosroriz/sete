@@ -97,6 +97,7 @@ span.sidebar-normal {
 
 img.menu-icon {
     margin-left: 22px;
+    height: 28px;
 }
 
 span.sidebar-mini {
@@ -236,10 +237,11 @@ h4.card-title.card-title-atalho {
 }
 
 .card.card-stats.card-rapid {
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: auto;
+    margin-right: auto;
     height: 180px;
-    width: 180px;
+    min-width: 180px;
+    width: 60%;
     border: 2px solid #D0D0D0;
     box-shadow: 0px 1px 4px #E5E9F2;
 }
@@ -247,4 +249,113 @@ h4.card-title.card-title-atalho {
 .card.card-stats.card-rapid:hover {
     border: 2px solid #545454;
     box-shadow: 0px 4px 20px #c3c3c3;
+}
+
+.control-label.inline-label {
+    padding-top: 10px !important;
+}
+
+.has-success .form-control:focus {
+    border-top-color: #E3E3E3;
+    border-left-color: #E3E3E3;
+    border-right-color: #E3E3E3;
+}
+
+.form-control:focus {
+    border-top-color: #E3E3E3;
+    border-left-color: #E3E3E3;
+    border-right-color: #E3E3E3;
+    border-bottom-color: #9B9B9B;
+}
+
+button.btn.btn-default.btn-wd.btn-back.pull-left.disabled {
+    border-width: 0px;
+}
+
+div#content {
+    background: #EFF2F7;
+}
+
+.card-wizard .nav-tabs .nav-item .nav-link {
+    vertical-align: middle;
+    background: #E5E5E5;
+    border-top-color: #7A7A7A;
+    border-top-style: solid;
+    border-top-width: 3px;
+    color: #808590;
+    height: 95px;
+    padding-top: 20px;
+    font-size: 19.1px;
+}
+
+.card-wizard .nav-tabs .nav-item .nav-link.active {
+    background: #ffffff;
+    border-top-color: #f1ce33;
+    border-top-style: solid;
+    border-top-width: 3px;
+    color: #2A2D33;
+}
+
+.card.card-wizard.wiz-fixes {
+    box-shadow: none;
+    /* border: none; */
+    border-radius: 20px;
+    border-color: #e8e2e2;
+    border-top: none;
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+}
+
+.wiz-fixes .card-body {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 16px;
+}
+
+.wiz-fixes .card-body .nav {
+    margin-top: 0px;
+}
+
+.wiz-fixes .tab-content {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+img.wiz-icon {
+    height: 50px;
+    filter: invert(0.7);
+    padding-right: 20px;
+}
+
+.card-wizard .nav-tabs .nav-item .nav-link.active .wiz-icon {
+    filter: invert(0);
+}
+
+.control-label b {
+    font-weight: 600;
+    font-size: 13px;
+    color: #7b7b7b;
+}
+
+.mapawiz {
+    margin-left: 15px;
+    margin-right: 15px;
+    border: #e0dfdf;
+    border-style: solid;
+    border-width: 5px;
+    padding: 0px;
+}
+
+.tab-wiz .form-group {
+    background: #F7F7F7;
+    padding: 20px;
+    padding-bottom: 25px;
+    border-radius: 5px;
+}
+
+.card .card-body .control-label {
+    color: #66696f;
+    padding-top: 12px;
+    font-size: 14px;
+    font-weight: 500;
 }

@@ -5,6 +5,7 @@ window.Bootstrap = require("bootstrap");
 require("jquery-validation");
 require("jquery-mask-plugin");
 require("sweetalert");
+require("moment");
 
 // Arquivo de configuração local
 const Store = require("electron-store");

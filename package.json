@@ -61,6 +61,7 @@
     "jquery-mask-plugin": "^1.14.15",
     "jquery-validation": "^1.19.0",
     "knex": "^0.16.5",
+    "moment": "^2.24.0",
     "papaparse": "^4.6.3",
     "popper.js": "^1.14.7",
     "sqlite3": "^4.0.6",
