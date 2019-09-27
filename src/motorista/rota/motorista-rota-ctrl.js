@@ -56,7 +56,7 @@ function EditarRotaMotorista(id) {
 
 function SelectEditAlunos(id) {
 
-    ObterDadosPorCondicao('RelacaoRotaAluno', 'rota_id', id).then(
+    ObterDadosPorCondicao('RelacaoRotaMotoristaAluno', 'rota_id', id).then(
             (rows) => {
                 _alunos_edit = rows;
                 console.log(rows);

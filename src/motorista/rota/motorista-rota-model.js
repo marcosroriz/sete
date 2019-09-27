@@ -41,7 +41,7 @@ function InserirRotaAlunos(id_rota) {
         rota_alunos.push(rota_aluno);
     }
     if (rota_alunos.length > 0)
-        knex('RelacaoRotaAluno').insert(rota_alunos).then(() => {})
+        knex('RelacaoRotaMotoristaAluno').insert(rota_alunos).then(() => {})
         .catch((err) => { console.log(err); throw err })
         .finally(() => {
             SuccessRotaMotorista();
@@ -70,7 +70,7 @@ function DeleteRotaMotorista(row, id) {
 }
 
 function DeleteRelacaoRotaAluno(id) {
-    knex('RelacaoRotaAluno')
+    knex('RelacaoRotaMotoristaAluno')
         .where('rota_id', '=', id)
         .del().then(() => {})
         .catch((err) => { console.log(err); throw err })
