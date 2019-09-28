@@ -1,4 +1,4 @@
-// Função para retornar um Mapa Clicável do OpenLayers
+// Função para retornar um Mapa Clicável e Simples do OpenLayers
 
 function novoMapaOpenLayers(target, latitude, longitude) {
     let mapa = {};
@@ -28,6 +28,38 @@ function novoMapaOpenLayers(target, latitude, longitude) {
     mapa["vectorSource"] = vectorSource;
     mapa["vectorLayer"] = vectorLayer;
     mapa["map"] = olMap;
+    
+    mapa["layers"] = {
+        "base" : {
+            "source" : vectorSource,
+            "layer"  : vectorLayer
+        }
+    }
+
+    mapa["addLayer"] = function(lname) {
+        let vs = new ol.source.Vector();
+        let vl = new ol.layer.Vector({
+            source: vs
+        });
+        
+        let lyr = {
+            "source" : vs,
+            "layer"  : vl
+        }
+
+        mapa["layers"][lname] = lyr;
+        olMap.addLayer(vl);
+        return lyr;
+    }
+
+
+    mapa["rmLayer"] = function(lname) {
+        if (mapa["layers"][lname] != null) {
+            olMap.removeLayer(mapa["layers"][lname]);
+            delete mapa["layers"][lname];
+        }
+    }
 
     return mapa;
 }
+

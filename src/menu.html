@@ -231,6 +231,12 @@
                             <span class="sidebar-normal">Gerenciar</span>
                         </a>
                     </li>
+                    <li class="nav-item ">
+                        <a id="rota-sugestao" name="rota-sugestao" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Sugerir</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </li>
@@ -259,13 +265,18 @@
             $("#content").load("./modules/garagem/garagem.html");
         });
 
-        //modules/garagem
+        // Módulo / Garagem
         $("#gerenciar_rota").click(function() {
             $("#content").load("./modules/rota/rota.html");
         });
         $("#cadastrar_rota").click(function() {
             $("#content").load("./modules/rota/rota-form.html");
         });
+
+        $("#rota-sugestao").click(function() {
+            $("#content").load("./modules/rota/rota-sugestao-view.html");
+        });
+
 
         //aluno
         $("#cadastrar_aluno").click(function () {

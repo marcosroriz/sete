@@ -154,15 +154,17 @@ div#sidebar {
     font-family: "Roboto Cn";
 }
 
-img#pageIcon {
+/* img#pageIcon {
     margin-top: -10px;
-}
+} */
 
 p.pageTitle {
     margin-left: 20px;
     margin-top: 10px;
     font-size: 32px;
     line-height: 32px;
+    font-variant: small-caps;
+    font-weight: 500;
 }
 
 h4.card-titlev2 {
@@ -358,4 +360,24 @@ img.wiz-icon {
     padding-top: 12px;
     font-size: 14px;
     font-weight: 500;
+}
+
+img#pageIcon {
+    max-width: 50px;
+    max-height: 50px;
+}
+
+.form-check.form-check-radio {
+    display: inline-block;
+}
+
+.form-check-radio input[type="radio"]:checked+.form-check-sign::after {
+    padding-top: 0px !important;
+    margin-top: -26px !important;
+    color: #485f8e;
+}
+
+.tab-2-fix {
+    padding-left: 0px;
+    padding-right: 0px;
 }
