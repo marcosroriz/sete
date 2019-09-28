@@ -1,6 +1,7 @@
 const electron = require("electron");
 const { app, BrowserWindow, ipcMain } = electron;
 const path = require("path");
+
 // const ImportarEscolasCenso = require("./js/importar_escolas_censo");
 // const knex = require('knex')({
 //   client: 'sqlite3',
@@ -92,7 +93,7 @@ const createEntryWindow = () => {
 
   // and load the entry.html of the app.
   //entryWindow.loadURL(`file://${__dirname}/entry.html`);
-  entryWindow.loadURL(`file://${__dirname}/login-view.html`);
+  entryWindow.loadURL(`file://${__dirname}/dashboard.html`);
 
   // Open the DevTools.
   entryWindow.webContents.openDevTools();
@@ -160,4 +161,9 @@ app.on('activate', () => {
     createEntryWindow();
   }
 });
+
+// Route Generation Algorithm
+ipcMain.on('route-generation', (event, arg) => {
+  console.log(arg) // prints "ping"
+})
 
