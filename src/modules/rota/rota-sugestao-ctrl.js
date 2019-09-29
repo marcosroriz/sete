@@ -1,10 +1,11 @@
-// Imports
+// Lista de Imports
 // IPC para processar algoritmo
 const { ipcRenderer } = require('electron');
 
-
 // Config View
 var mapaConfig = novoMapaOpenLayers("mapaRotaSugestaoConfig", -16.8152409, -49.2756642);
+
+// TODO: Passar isso para qualquer tipo de mapa no arquivo de js comum
 window.onresize = function () {
     setTimeout(function () { mapaConfig["map"].updateSize(); }, 200);
 }
@@ -134,21 +135,126 @@ function drawElements(arrAlunos, arrGaragens, arrEscolas) {
 }
 
 drawElements(alunos, garagens, escolas);
+mapaConfig["map"].getView().fit(vSource.getExtent());
+
+// Validar Formulário
+var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
+    rules: {
+        publico: {
+            required: true
+        }, 
+        turno: {
+            required: true
+        },
+        maxTime: {
+            required: true,
+            number: true,
+            min: 0,
+            max: 360
+        },
+        maxDist: {
+            required: true,
+            number: true,
+            min: 0,
+            max: 100
+        },
+        numVehicles: {
+            required: true,
+            number: true,
+            min: 0,
+            max: 1000
+        },
+        maxCapacity: {
+            required: true,
+            number: true,
+            min: 0,
+            max: 100
+        },
+    },
+    messages: {
+        publico: {
+            required: "Por favor selecione o público alvo"
+        },
+        turno: {
+            required: "Por favor selecione o turno dos(as) alunos(as)",
+        },
+        maxTime: {
+            required: "Por favor informe o tempo máximo desejado para cada rota",
+            min: "Por favor selecione um valor acima de 0 minutos",
+            max: "Por favor selecione um valor abaixo de 360 minutos (6 horas)",
+        },
+        maxDist: {
+            required: "Por favor informe a distância máxima percorrida por rota",
+            min: "Por favor selecione um valor acima de 0 km",
+            max: "Por favor selecione um valor abaixo de 100 km"
+        },
+        numVehicles: {
+            required: "Por favor informe o número desejado (total) de veículos",
+            min: "Por favor selecione um valor acima de 0 veículos",
+            max: "Por favor selecione um valor abaixo de 1000 veículos",
+        },
+        maxTime: {
+            required: "Por favor informe a capacidade máxima dos veículos",
+            min: "Por favor selecione um valor acima de 0 assento",
+            max: "Por favor selecione um valor abaixo de 100 assentos",
+        },
+    },
+    highlight: function (element) {
+        $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+        $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
+    },
+    success: function (element) {
+        $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+        $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
+    },
+    errorPlacement: function (error, element) {
+        console.log(error);
+        console.log(element);
+        $(element).closest('.form-group').append(error).addClass('has-error');
+    }
+});
+
+$('.card-wizard').bootstrapWizard({
+    'tabClass': 'nav nav-pills',
+    'nextSelector': '.btn-next',
+    'previousSelector': '.btn-back',
+
+    onNext: function (tab, navigation, index) {
+        var $valid = $('#wizardSugestaoRotaForm').valid();
+        if (!$valid) {
+            validadorFormulario.focusInvalid();
+            return false;
+        } else {
+            window.scroll(0, 0);
+        }
+    },
+
+    onTabClick: function (tab, navigation, index) {
+        var $valid = $('#wizardSugestaoRotaForm').valid();
+        if (!$valid) {
+            return false;
+        } else {
+            window.scroll(0, 0);
+            return true;
+        }
+    }
+});
+
 
 // Trigger para Iniciar Simulação
 $("#rota-sugestao-initBtnSim").click(() => {
-    // Juntar dados em um objeto
-    let routeGenerationInputData = {
-        "alunos": alunos,
-        "escolas": escolas,
-        "garagem": garagens,
-        "veiculos": [15, 25, 15],
-        "maxTempo": 120,
-        "maxDist": 40,
-        "numAlunos": Object.keys(alunos).length,
-        "numEscolas": Object.keys(escolas).length,
-        "numVeiculos": 3,
-    };
+    // // Juntar dados em um objeto
+    // let routeGenerationInputData = {
+    //     "alunos": alunos,
+    //     "escolas": escolas,
+    //     "garagem": garagens,
+    //     "veiculos": [15, 25, 15],
+    //     "maxTempo": 120,
+    //     "maxDist": 40,
+    //     "numAlunos": Object.keys(alunos).length,
+    //     "numEscolas": Object.keys(escolas).length,
+    //     "numVeiculos": 3,
+    // };
 
-    ipcRenderer.send('route-generation', routeGenerationInputData);
+    // ipcRenderer.send('route-generation', routeGenerationInputData);
 });
