@@ -137,18 +137,18 @@ drawElements(alunos, garagens, escolas);
 
 // Trigger para Iniciar Simulação
 $("#rota-sugestao-initBtnSim").click(() => {
-   // Juntar dados em um objeto
-   let routeGenerationInputData = {
-       "alunos"      : alunos,
-       "escolas"     : escolas,
-       "garagem"     : garagens,
-       "veiculos"    : [15, 25, 15],
-       "maxTempo"    : 120,
-       "maxDist"     : 40,
-       "numAlunos"   : Object.keys(alunos).length,
-       "numEscolas"  : Object.keys(escolas).length,
-       "numVeiculos" : 3,
-   };
+    // Juntar dados em um objeto
+    let routeGenerationInputData = {
+        "alunos": alunos,
+        "escolas": escolas,
+        "garagem": garagens,
+        "veiculos": [15, 25, 15],
+        "maxTempo": 120,
+        "maxDist": 40,
+        "numAlunos": Object.keys(alunos).length,
+        "numEscolas": Object.keys(escolas).length,
+        "numVeiculos": 3,
+    };
 
-   ipcRenderer.send('route-generation', routeGenerationInputData);
+    ipcRenderer.send('route-generation', routeGenerationInputData);
 });
