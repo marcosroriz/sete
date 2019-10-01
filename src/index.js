@@ -1,7 +1,7 @@
 const electron = require("electron");
 const { app, BrowserWindow, ipcMain } = electron;
 const path = require("path");
-
+const ClarkeWrightSchoolBusRouting = require("./js/routing/clarke-wright-schoolbus-routing.js");
 // const ImportarEscolasCenso = require("./js/importar_escolas_censo");
 // const knex = require('knex')({
 //   client: 'sqlite3',
@@ -80,11 +80,11 @@ handleSquirrelEvent();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let entryWindow;
+let appWindow;
 
 const createEntryWindow = () => {
   // Create the entry window.
-  entryWindow = new BrowserWindow({
+  appWindow = new BrowserWindow({
     width: 800,
     height: 600,
     backgroundThrottling: false,
@@ -93,22 +93,22 @@ const createEntryWindow = () => {
 
   // and load the entry.html of the app.
   //entryWindow.loadURL(`file://${__dirname}/entry.html`);
-  entryWindow.loadURL(`file://${__dirname}/dashboard.html`);
+  appWindow.loadURL(`file://${__dirname}/dashboard.html`);
 
   // Open the DevTools.
-  entryWindow.webContents.openDevTools();
+  appWindow.webContents.openDevTools();
 
-  entryWindow.on("ready-to-show", () => {
-    entryWindow.maximize();
-    entryWindow.show();
+  appWindow.on("ready-to-show", () => {
+    appWindow.maximize();
+    appWindow.show();
   });
 
   // Emitted when the window is closed.
-  entryWindow.on('closed', () => {
+  appWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    entryWindow = null;
+    appWindow = null;
   });
 
   // let censoPath = path.join(__dirname, "db", "52.csv");
@@ -157,13 +157,18 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (entryWindow === null) {
+  if (appWindow === null) {
     createEntryWindow();
   }
 });
 
 // Route Generation Algorithm
-ipcMain.on('route-generation', (event, arg) => {
-  console.log(arg) // prints "ping"
+ipcMain.on("route-generation", (event, arg) => {
+  console.time("simulacao");
+  let schoolBusRouter = new ClarkeWrightSchoolBusRouting(arg);
+  let busRoutes = schoolBusRouter.route();
+  console.timeEnd("simulacao");
+
+  appWindow.webContents.send("end:route-generation", { x : 2, data: busRoutes });
 })
 

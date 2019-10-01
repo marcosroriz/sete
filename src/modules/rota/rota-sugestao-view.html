@@ -128,8 +128,8 @@
                                                     </label>
                                                     <div class="input-group mb-3">
                                                         <input id="maxDist" name="maxDist" type="number"
-                                                            class="form-control" placeholder="Exemplo: 30 km"
-                                                            value="20">
+                                                            class="form-control" placeholder="Exemplo: 25 km"
+                                                            value="25">
                                                         <div class="input-group-append col-6">
                                                             <span class="input-group-text"
                                                                 id="basic-addon2">quilômetros</span>
@@ -191,10 +191,19 @@
                             </div>
 
                             <div class="tab-pane tab-wiz fade" id="tab-rota-sugestao-geradas" role="tabpanel">
-                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do
-                                    discente a ser cadastrado.</h6>
+                                <h6 class="mb-3 text-center text-space">O sistema sugere as seguintes rotas.
+                                    Por favor, escolha quais delas você deseja salvar.</h6>
                                 <div class="row justify-content-center">
-
+                                    <div class="col-12">
+                                        <label class="control-label">
+                                            <b>Rotas geradas</b>
+                                            <star>*</star>
+                                        </label>
+                                        <div class="row">
+                                            <div id="mapaRotaSugestaoGerada" class="mb-2 mapawiz"
+                                                style="width: 100%; height: 400px;"></div>
+                                        </div>
+                                    </div>
                                     <div class="col-12">
                                         <div class="form-group">
                                             <label>
@@ -213,12 +222,12 @@
                             <button type="button" class="btn btn-default btn-wd btn-back pull-left">
                                 Voltar
                             </button>
-                            <button type="button" id="rota-sugestao-initBtnSim" 
-                                    class="btn btn-info btn-wd btn-next pull-right">
+                            <button type="button" id="rota-sugestao-initBtnSim"
+                                class="btn btn-info btn-wd btn-next pull-right">
                                 Iniciar Simulação
                             </button>
-                            <button type="button" id="rota-sugestao-saveBtnSim" 
-                                    class="btn btn-info btn-wd btn-finish pull-right">
+                            <button type="button" id="rota-sugestao-saveBtnSim"
+                                class="btn btn-info btn-wd btn-finish pull-right">
                                 Concluir
                             </button>
                             <div class="clearfix"></div>

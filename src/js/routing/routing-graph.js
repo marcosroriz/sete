@@ -10,11 +10,12 @@ module.exports = class RoutingGraph {
         this.matrix = new Map();
     }
 
-    addVertex(key, lat, lng) {
+    addVertex(key, lat, lng, passengers = 0) {
         let vertex = new Map();
         vertex.set("key", key);
         vertex.set("lat", lat);
         vertex.set("lng", lng);
+        vertex.set("passengers", passengers);
         vertex.set("edges", new Map());
         vertex.set("savings", new Map());
         this.matrix.set(key, vertex);
@@ -30,6 +31,10 @@ module.exports = class RoutingGraph {
         } else {
             return this.matrix.get(d).get("savings").get(c);
         }
+    }
+
+    passengers(c) {
+        return this.matrix.get(c).get("passengers");
     }
 
     vertexToLatLon(c) {
@@ -71,7 +76,7 @@ module.exports = class RoutingGraph {
     }
 
     buildSavings() {
-        let savings = new Heap((a, b) => b.value() - a.value());
+        this.savingsList = new Heap((a, b) => a.compareTo(b));
 
         this.matrix.forEach(c => {
             let ckey = c.get("key");
@@ -80,9 +85,12 @@ module.exports = class RoutingGraph {
             // For each neighbor d from c compute the saving Scd
             this.matrix.forEach((d) => {
                 let dkey = d.get("key");
-                if (ckey != dkey && ckey != "garage" && dkey != "garage") {
+                if (ckey != dkey && ckey != "garage" && dkey != "garage" &&
+                    ckey != "school" && dkey != "school") {
+                    let tgc = cedges.get("garage");
+
                     // Check if we already computed the savings
-                    // Only proceed if we haven't computed
+                    // If negative, compute, otherwise reuse the value
                     if (!(d.get("savings").has(ckey))) {
                         let tcs = cedges.get("school");
                         let tgd = this.matrix.get("garage").get("edges").get(dkey);
@@ -90,13 +98,16 @@ module.exports = class RoutingGraph {
                         let scd = tcs + tgd - tcd;
 
                         c.get("savings").set(dkey, scd);
-
-                        savings.push(new Saving(ckey, dkey, scd));
+                        this.savingsList.push(new Saving(ckey, dkey, scd, tgc));
+                    } else {
+                        let scd = d.get("savings").get(ckey);
+                        c.get("savings").set(dkey, scd);
+                        this.savingsList.push(new Saving(ckey, dkey, scd, tgc));
                     }
                 }
             });
         });
 
-        return savings;
+        return this.savingsList;
     }
 }
