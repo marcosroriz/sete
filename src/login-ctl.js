@@ -204,8 +204,8 @@ $(document).ready(function () {
                         let hasInit = JSON.parse(userData[0]["INIT"]);
                         let urldestino = "./initconfig.html";
                         if (hasInit) {
-                            //urldestino = "./dashboard.html";
-                            urldestino = "./cadastrar_escola.html";
+                            urldestino = "./dashboard.html";
+                            // urldestino = "./cadastrar_escola.html";
                         }
                         document.location.href = urldestino;
                     });

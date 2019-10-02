@@ -1,6 +1,3 @@
-// Variável de comunicação com o processo main
-const { ipcRenderer } = require('electron')
-
 // Variável armazendo o estado do formulário
 let validadorFormulario;
 

@@ -1,5 +1,15 @@
 // Função para retornar um Mapa Clicável e Simples do OpenLayers
 
+var mapaCores = ["#E58606","#5D69B1","#52BCA3","#99C945","#CC61B0",
+                 "#24796C","#DAA51B","#2F8AC4","#764E9F","#ED645A",
+                 "#CC3A8E","#A5AA99"];
+
+var cor = 0;
+
+function proximaCor() {
+    return mapaCores[++cor % mapaCores.length];
+}
+
 function novoMapaOpenLayers(target, latitude, longitude) {
     let mapa = {};
     
@@ -43,6 +53,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         });
         
         let lyr = {
+            "name"   : lname,
             "source" : vs,
             "layer"  : vl
         }
@@ -55,6 +66,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
 
     mapa["rmLayer"] = function(lname) {
         if (mapa["layers"][lname] != null) {
+            mapa["layers"][lname].source.clear();
             olMap.removeLayer(mapa["layers"][lname]);
             delete mapa["layers"][lname];
         }

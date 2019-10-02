@@ -33,18 +33,18 @@ class ClarkeWrightSchoolBusRouting {
 
         // Add Garage to the Graph
         // Only using a single garage!
-        this.graph.addVertex("garage", this.garage["lat"], this.garage["lng"]);
+        this.graph.addGarageVertex(this.garage["key"], this.garage["lat"], this.garage["lng"]);
 
         // Add Stops
         // TODO: Add # students at each stop
         this.stops.forEach((s) => {
-            this.graph.addVertex(s["key"], s["lat"], s["lng"], s["passengers"]);
+            this.graph.addStopVertex(s["key"], s["lat"], s["lng"], s["passengers"]);
         });
 
         // Get the distance to the first school
         // TODO: Fix this
         this.schools.forEach((s) => {
-            this.graph.addVertex("school", s["lat"], s["lng"]);
+            this.graph.addSchoolVertex(s["key"], s["lat"], s["lng"]);
         });
 
         // Map of Bus Routes
@@ -84,6 +84,10 @@ class ClarkeWrightSchoolBusRouting {
 
                 // We can merge!
                 if (totalPassengers <= this.maxCapacity && totalTravDistance <= this.maxTravDist) {
+                    if (saving.c == "16" || saving.d == "16") {
+                        console.log("vou fazer merge com 16");
+                    }
+                    
                     // Delete old routes
                     this.routes.delete(cRoute.id);
                     this.routes.delete(dRoute.id);
@@ -105,17 +109,6 @@ class ClarkeWrightSchoolBusRouting {
     setRoute(stopID, busRoute) {
         this.stopsToRouteMap.set(stopID, busRoute.id);
     }
-
-    // merge(otherBusRoute, c, d) {
-    //     let mergePossible = false;
-
-    //     if (this.first() == c && 
-    //         otherBusRoute.first() == d &&
-    //         ) {
-
-    //     }
-    //     return mergePossible;
-    // }
 
     route() {
         // First, build dist matrix
@@ -142,10 +135,11 @@ class ClarkeWrightSchoolBusRouting {
         this.routes.forEach((r) => {
             console.log(r.toLatLongRoute(this.graph));
             console.log("-------")
-        })
+        });
 
         return this.routes;
     }
+
 }
 
 module.exports = ClarkeWrightSchoolBusRouting;

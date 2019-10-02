@@ -1,13 +1,18 @@
-// Lista de Imports
-// IPC para processar algoritmo
-const { ipcRenderer } = require('electron');
 
-// Config View
+// Lista de Imports
+// Mapas
 var mapaConfig = novoMapaOpenLayers("mapaRotaSugestaoConfig", -16.8152409, -49.2756642);
+var mapaRotaGerada = novoMapaOpenLayers("mapaRotaSugestaoGerada", -16.8152409, -49.2756642);
+var rotaLayers = new Array();
+var rotasGeradas = new Map();
 
 // TODO: Passar isso para qualquer tipo de mapa no arquivo de js comum
 window.onresize = function () {
-    setTimeout(function () { mapaConfig["map"].updateSize(); }, 200);
+    setTimeout(function () { 
+        console.log("resize");
+        if (mapaConfig != null) { mapaConfig["map"].updateSize(); }
+        if (mapaRotaGerada != null) { mapaRotaGerada["map"].updateSize(); }
+    }, 200);
 }
 
 // Pontos de Parada
@@ -27,7 +32,6 @@ function getAlunos() {
     a.push({ key: 14, lat: -16.87517, lng: -49.21696, school: "S1", passengers: 1 });
     a.push({ key: 15, lat: -16.88314, lng: -49.21585, school: "S1", passengers: 1 });
     a.push({ key: 16, lat: -16.88006, lng: -49.22106, school: "S1", passengers: 1 });
-    a.push({ key: 16, lat: -16.88006, lng: -49.22106, school: "S1", passengers: 1 });
     a.push({ key: 17, lat: -16.80018, lng: -49.12808, school: "S2", passengers: 1 });
     a.push({ key: 18, lat: -16.80503, lng: -49.12542, school: "S1", passengers: 1 });
     a.push({ key: 19, lat: -16.79706, lng: -49.11872, school: "S1", passengers: 1 });
@@ -42,7 +46,6 @@ function getAlunos() {
     a.push({ key: 28, lat: -16.94552, lng: -49.13829, school: "S2",passengers: 1 });
     a.push({ key: 29, lat: -16.94589, lng: -49.1257, school: "S1",passengers: 1 });
     a.push({ key: 30, lat: -16.85882, lng: -49.27791, school: "S1",passengers: 1 });
-    a.push({ key: 31, lat: -16.86449, lng: -49.27654, school: "S2",passengers: 1 });
     a.push({ key: 31, lat: -16.86449, lng: -49.27654, school: "S2",passengers: 1 });
     a.push({ key: 32, lat: -16.86917, lng: -49.28418, school: "S1",passengers: 1 });
     a.push({ key: 33, lat: -16.87566, lng: -49.28341, school: "S1",passengers: 1 });
@@ -78,11 +81,7 @@ var alunos   = getAlunos();
 var garagens = getGaragens();
 var escolas  = getEscolas();
 
-
-// Onde vamos adicionar os elementos
-var vSource = mapaConfig["vectorSource"];
-
-function drawElements(arrAlunos, arrGaragens, arrEscolas) {
+function drawMapElements(arrAlunos, arrGaragens, arrEscolas, camada) {
     for (let i in arrAlunos) {
         let a = arrAlunos[i];
         let p = new ol.Feature({
@@ -97,7 +96,7 @@ function drawElements(arrAlunos, arrGaragens, arrEscolas) {
                 src: "img/icones/aluno-marcador.png"
             })
         }));
-        vSource.addFeature(p);
+        camada.addFeature(p);
     }
 
     for (let i in arrEscolas) {
@@ -114,7 +113,7 @@ function drawElements(arrAlunos, arrGaragens, arrEscolas) {
                 src: "img/icones/escola-marcador.png"
             })
         }));
-        vSource.addFeature(p);
+        camada.addFeature(p);
     }
     for (let i in arrGaragens) {
         let g = arrGaragens[i];
@@ -130,23 +129,99 @@ function drawElements(arrAlunos, arrGaragens, arrEscolas) {
                 src: "img/icones/garagem-marcador.png"
             })
         }));
-        vSource.addFeature(p);
+        camada.addFeature(p);
     }
+}
 
+function getPoint(stopType, stopID) {
+    let parada;
+    if (stopType == "garage") {
+        parada = garagens;
+    } else if (stopType == "school") {
+        for (let i = 0; i < escolas.length; i++) {
+            if (escolas[i].key == stopID) {
+                parada = escolas[i];
+                break;
+            }
+        }
+    } else {
+        for (let i = 0; i < alunos.length; i++) {
+            if (alunos[i].key == stopID) {
+                parada = alunos[i];
+                break;
+            }
+        }
+    }
+    return new ol.geom.Point(ol.proj.fromLonLat([parada["lng"], parada["lat"]])).getCoordinates();
+}
+
+function drawRoutes(routesJSON) {
+    routesJSON.forEach((r) => {
+        // Adiciona para camadas
+        rotasGeradas.set(r["id"], r);
+        let camada = mapaRotaGerada["addLayer"](r["id"]);
+
+        // Pega coordenadas
+        let pontosRota = new Array();
+        for (let i = 1; i < r["path"].length; i++) {
+            let parada = r["path"][i];
+            pontosRota.push(getPoint(parada.type, parada.id));
+        }
+
+        // Desenha Line String
+        let p = new ol.Feature({
+            "geometry": new ol.geom.LineString(pontosRota)
+        });
+        let styles = new Array();
+        styles.push(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: proximaCor(),
+                width: 3 
+            })
+        }));
+        
+        // Desenha setinhas
+        p.getGeometry().forEachSegment(function (start, end) {
+            var dx = end[0] - start[0];
+            var dy = end[1] - start[1];
+            var rotation = Math.atan2(dy, dx);
+            // arrows
+            styles.push(new ol.style.Style({
+                geometry: new ol.geom.Point(end),
+                image: new ol.style.Icon({
+                    src: 'https://openlayers.org/en/latest/examples/data/arrow.png',
+                    anchor: [0.75, 0.5],
+                    rotateWithView: true,
+                    rotation: -rotation
+                })
+            }));
+        });
+
+        // Atribui todos as setinhas e traçado
+        p.setStyle(styles);
+
+        // Joga na camada
+        camada.source.addFeature(p);
+    });
 }
 
 // Desenha elementos
-drawElements(alunos, garagens, escolas);
+// Onde vamos adicionar os elementos
+var vSource = mapaConfig["vectorSource"];
+drawMapElements(alunos, garagens, escolas, vSource);
 mapaConfig["map"].getView().fit(vSource.getExtent());
 
-// Realiza a Simulação
+var gSource = mapaRotaGerada["vectorSource"];
+drawMapElements(alunos, garagens, escolas, gSource);
+mapaRotaGerada["map"].getView().fit(gSource.getExtent());
 
-// Modal informando o usuário que está ocorrendo a simulação
-var simModal;
+//////////////////////////////////////////////////////////////
+// Realiza a Simulação
+//////////////////////////////////////////////////////////////
 
 // Trigger para Iniciar Simulação
 function initSimulation() {
-    simModal = swal({
+    swal({
         title: "Simulando...",
         text: "Espere um minutinho...",
         type: "warning",
@@ -176,15 +251,28 @@ function initSimulation() {
         "schools"     : escolas,
     };
 
-    ipcRenderer.send('route-generation', routeGenerationInputData); 
+    ipcRenderer.send('start:route-generation', routeGenerationInputData); 
 };
 
 // Trigger para finalizar simulação
-ipcRenderer.on("end:route-generation", function (event, arg) {
-    // swal.close();
-    console.log(arg);
-    // targetPriceVal = Number(arg);
-    // targetPrice.innerHTML = '$'+targetPriceVal.toLocaleString('en')
+ipcRenderer.on("end:route-generation", function (event, routesJSON) {
+    console.log(routesJSON);
+    setTimeout(function() {
+        // Apaga rotas anteriores desenhadas
+        for (let camadaID of rotasGeradas.keys()) {
+            mapaRotaGerada["rmLayer"](camadaID);
+        }
+        rotasGeradas = new Map();
+
+        // Desenha novas rotas
+        drawRoutes(routesJSON);
+
+        // Atualiza o mapa
+        mapaRotaGerada["map"].updateSize();
+        mapaRotaGerada["map"].getView().fit(gSource.getExtent());
+        swal.close();
+    }, 2000);
+    console.log("terminei aqui");
 });
 
 

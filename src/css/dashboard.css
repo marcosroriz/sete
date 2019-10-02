@@ -2,6 +2,7 @@
     /* background: url("file:///src/img/entry-bg.jpg") fixed no-repeat bottom center; */
     /*    background: url("../img/entry-bg.jpg") fixed no-repeat bottom center; */
     background-size: cover;
+    background: #EFF2F7;
     min-height: 100vh;
 }
 

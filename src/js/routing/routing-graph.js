@@ -10,15 +10,33 @@ module.exports = class RoutingGraph {
         this.matrix = new Map();
     }
 
-    addVertex(key, lat, lng, passengers = 0) {
+    addGarageVertex(key, lat, lng) {
+        return this.addVertex("garage", lat, lng, 0, "garage", key);
+    }
+
+    addStopVertex(key, lat, lng, passengers = 0) {
+        return this.addVertex(key, lat, lng, passengers, "stop", key);
+    }
+
+    addSchoolVertex(key, lat, lng, passengers = 0) {
+        return this.addVertex("school", lat, lng, passengers, "school", key);
+    }
+
+    addVertex(key, lat, lng, passengers = 0, type = "stop", rawkey = "") {
         let vertex = new Map();
         vertex.set("key", key);
+        vertex.set("rawkey", rawkey);
         vertex.set("lat", lat);
         vertex.set("lng", lng);
         vertex.set("passengers", passengers);
+        vertex.set("type", type);
         vertex.set("edges", new Map());
         vertex.set("savings", new Map());
         this.matrix.set(key, vertex);
+    }
+
+    getVertex(c) {
+        return this.matrix.get(c);
     }
 
     distance(c, d) {

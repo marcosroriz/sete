@@ -163,12 +163,17 @@ app.on('activate', () => {
 });
 
 // Route Generation Algorithm
-ipcMain.on("route-generation", (event, arg) => {
+ipcMain.on("start:route-generation", (event, arg) => {
   console.time("simulacao");
   let schoolBusRouter = new ClarkeWrightSchoolBusRouting(arg);
   let busRoutes = schoolBusRouter.route();
   console.timeEnd("simulacao");
 
-  appWindow.webContents.send("end:route-generation", { x : 2, data: busRoutes });
+  let routesJSON = new Array();
+  busRoutes.forEach((r) => {
+    routesJSON.push(r.toPlainJSON(schoolBusRouter.graph));
+  });
+
+  appWindow.webContents.send("end:route-generation", routesJSON);
 })
 

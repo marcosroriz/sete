@@ -1,4 +1,7 @@
-// Bibliotecas Básicas
+// IPC
+const { ipcRenderer } = require('electron');
+
+// Bibliotecas Básicas do JS
 window.$ = window.jQuery = require("jquery");
 window.Tether = require("tether");
 window.Bootstrap = require("bootstrap");

@@ -428,3 +428,10 @@ span.input-group-text {
 .has-success .has-error .form-control:focus {
     border-color: #87CB16;
 }
+
+/* Disable text dragging */
+*, *::after, *::before {
+	-webkit-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-app-region: no-drag;
+}
