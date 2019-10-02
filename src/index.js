@@ -2,6 +2,8 @@ const electron = require("electron");
 const { app, BrowserWindow, ipcMain } = electron;
 const path = require("path");
 const ClarkeWrightSchoolBusRouting = require("./js/routing/clarke-wright-schoolbus-routing.js");
+const TwoOpt = require("./js/routing/twoopt.js");
+const SchoolBusKMeans = require("./js/routing/kmeans.js");
 // const ImportarEscolasCenso = require("./js/importar_escolas_censo");
 // const knex = require('knex')({
 //   client: 'sqlite3',
@@ -164,13 +166,26 @@ app.on('activate', () => {
 
 // Route Generation Algorithm
 ipcMain.on("start:route-generation", (event, arg) => {
+  console.time("kmeans");
+  let kmeans = new SchoolBusKMeans(arg);
+  let partitions = kmeans.partition(arg["numVehicles"]);
+  console.timeEnd("kmeans");
+
   console.time("simulacao");
   let schoolBusRouter = new ClarkeWrightSchoolBusRouting(arg);
   let busRoutes = schoolBusRouter.route();
   console.timeEnd("simulacao");
 
-  let routesJSON = new Array();
+  console.time("2-opt");
+  let optimizedRoutes = new Array();
   busRoutes.forEach((r) => {
+    let optRoute = new TwoOpt(r, schoolBusRouter.graph).optimize();
+    optimizedRoutes.push(optRoute);
+  });
+  console.timeEnd("2-opt");
+
+  let routesJSON = new Array();
+  optimizedRoutes.forEach((r) => {
     routesJSON.push(r.toPlainJSON(schoolBusRouter.graph));
   });
 

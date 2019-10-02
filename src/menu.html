@@ -232,6 +232,12 @@
                         </a>
                     </li>
                     <li class="nav-item ">
+                        <a id="rota-desenhar" name="rota-desenhar" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Desenhar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
                         <a id="rota-sugestao" name="rota-sugestao" class="nav-link" href="#">
                             <span class="sidebar-mini"></span>
                             <span class="sidebar-normal">Sugerir</span>
@@ -273,10 +279,14 @@
             $("#content").load("./modules/rota/rota-form.html");
         });
 
+        // Links de Rota
+        $("#rota-desenhar").click(function() {
+            $("#content").load("./modules/rota/rota-desenhar-view.html");
+        });
+
         $("#rota-sugestao").click(function() {
             $("#content").load("./modules/rota/rota-sugestao-view.html");
         });
-
 
         //aluno
         $("#cadastrar_aluno").click(function () {
