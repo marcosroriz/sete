@@ -67,6 +67,7 @@ class ClarkeWrightSchoolBusRouting {
     processSavings(savingsQueue) {
         while (!savingsQueue.empty()) {
             let saving = savingsQueue.pop();
+            console.log(saving);
             let cRoute = this.getRoute(saving.c);
             let dRoute = this.getRoute(saving.d);
 
@@ -84,10 +85,6 @@ class ClarkeWrightSchoolBusRouting {
 
                 // We can merge!
                 if (totalPassengers <= this.maxCapacity && totalTravDistance <= this.maxTravDist) {
-                    if (saving.c == "16" || saving.d == "16") {
-                        console.log("vou fazer merge com 16");
-                    }
-                    
                     // Delete old routes
                     this.routes.delete(cRoute.id);
                     this.routes.delete(dRoute.id);

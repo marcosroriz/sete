@@ -26,6 +26,10 @@ class BusRoute {
         return this.route.includes(x);
     }
 
+    length() {
+        return this.route.length;
+    }
+
     // FIXME: fix last and first piont
     reverse() {
         return new BusRoute({ path: this.route.reverse() });
