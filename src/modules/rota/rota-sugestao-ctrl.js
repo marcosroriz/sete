@@ -256,7 +256,6 @@ function initSimulation() {
 
 // Trigger para finalizar simulação
 ipcRenderer.on("end:route-generation", function (event, routesJSON) {
-    console.log(routesJSON);
     setTimeout(function() {
         // Apaga rotas anteriores desenhadas
         for (let camadaID of rotasGeradas.keys()) {
@@ -272,7 +271,6 @@ ipcRenderer.on("end:route-generation", function (event, routesJSON) {
         mapaRotaGerada["map"].getView().fit(gSource.getExtent());
         swal.close();
     }, 2000);
-    console.log("terminei aqui");
 });
 
 
