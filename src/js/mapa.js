@@ -38,6 +38,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
     mapa["vectorSource"] = vectorSource;
     mapa["vectorLayer"] = vectorLayer;
     mapa["map"] = olMap;
+    mapa["layerSwitcherActivated"] = false;
     
     mapa["layers"] = {
         "base" : {
@@ -63,12 +64,60 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         return lyr;
     }
 
+    mapa["addGroupLayer"] = function(title, lyrs) {
+        let groupLayer = new ol.layer.Group({
+            "title": title,
+            "type": "base",
+            "layers": lyrs
+        });
+        
+        mapa["groupLayer"] = groupLayer;
+        olMap.addLayer(groupLayer);
+    }
+
+    mapa["createLayer"] = function(lname, title) {
+        let vs = new ol.source.Vector();
+        let vl = new ol.layer.Vector({
+            "title": title,
+            "source": vs
+        });
+        
+        let lyr = {
+            "name"   : lname,
+            "title"  : title,
+            "source" : vs,
+            "layer"  : vl
+        }
+
+        return lyr;
+    }
 
     mapa["rmLayer"] = function(lname) {
         if (mapa["layers"][lname] != null) {
             mapa["layers"][lname].source.clear();
             olMap.removeLayer(mapa["layers"][lname]);
             delete mapa["layers"][lname];
+        }
+    }
+
+    mapa["rmGroupLayer"] = function(lname) {
+        if (mapa["groupLayer"] != null) {
+            olMap.removeLayer(mapa["groupLayer"]);
+        }
+    }
+
+    mapa["activateLayerSwitcher"] = function(elemID) {
+        if (mapa["layerSwitcherActivated"] == false) {
+            // var layerSwitcher = new ol.control.LayerSwitcher({
+                // tipLabel: 'Rotas', // Optional label for button
+                // groupSelectStyle: 'children' // Can be 'children' [default], 'group' or 'none'
+            // });
+            let elem = document.getElementById(elemID);
+            ol.control.LayerSwitcher.renderPanel(olMap, elem);
+            // olMap.addControl(layerSwitcher);
+            // layerSwitcher.showPanel();
+
+            mapa["layerSwitcherActivated"] = true;
         }
     }
 

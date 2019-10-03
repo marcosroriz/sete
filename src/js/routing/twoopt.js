@@ -27,10 +27,7 @@ module.exports = class TwoOpt {
 
                 let newRoute = new BusRoute({ path: newPath });
                 let newRouteCost = newRoute.travDistance(this.routingGraph);
-                console.log(newRouteCost, bestCost);
-
                 if (newRouteCost < bestCost) {
-                    console.log("OPA! Otimizamos");
                     improved = true;
                     this.busRoute = newRoute;
                     bestCost = newRouteCost;
@@ -46,7 +43,6 @@ module.exports = class TwoOpt {
         let pairs = new Array();
         for (let i = 0; i < this.busRoute.length() - 3; i++) {
             for (let j = i + 2; j < this.busRoute.length() - 2; j++) {
-                console.log("Par: ", i, j);
                 pairs.push([i, j]);
             }
         }

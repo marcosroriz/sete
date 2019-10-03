@@ -16,7 +16,6 @@ module.exports = class SchoolBusKMeans {
     }
 
     partition(numVehicles) {
-        console.log("foi?");
         kmeans.clusterize(this.vectors,
             {
                 k: numVehicles,
@@ -29,7 +28,6 @@ module.exports = class SchoolBusKMeans {
             }, (err, res) => {
                 if (err) console.error(err);
                 else console.log('%o', res);
-                console.log("aqui");
             })
     }
 }

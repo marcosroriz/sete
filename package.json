@@ -70,6 +70,7 @@
     "ol-layerswitcher": "^3.4.0",
     "papaparse": "^4.6.3",
     "popper.js": "^1.14.7",
+    "sidebar-v2": "^0.4.0",
     "sqlite3": "^4.0.6",
     "sweetalert": "^2.1.2",
     "tether": "^1.4.5",

@@ -156,10 +156,14 @@ function getPoint(stopType, stopID) {
 }
 
 function drawRoutes(routesJSON) {
+    let grupoDeCamadas = new Array();
+    let numRota = 1;
     routesJSON.forEach((r) => {
         // Adiciona para camadas
         rotasGeradas.set(r["id"], r);
-        let camada = mapaRotaGerada["addLayer"](r["id"]);
+        let rotaCor = proximaCor();
+        let camada = mapaRotaGerada["createLayer"](r["id"], 
+            `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota++}`);
 
         // Pega coordenadas
         let pontosRota = new Array();
@@ -175,7 +179,7 @@ function drawRoutes(routesJSON) {
         let styles = new Array();
         styles.push(new ol.style.Style({
             stroke: new ol.style.Stroke({
-                color: proximaCor(),
+                color: rotaCor,
                 width: 3 
             })
         }));
@@ -202,7 +206,12 @@ function drawRoutes(routesJSON) {
 
         // Joga na camada
         camada.source.addFeature(p);
+
+        // Salva camada no grupoDeCamadas
+        grupoDeCamadas.unshift(camada.layer);
     });
+
+    mapaRotaGerada["addGroupLayer"]("Rotas", grupoDeCamadas);
 }
 
 // Desenha elementos
@@ -258,13 +267,17 @@ function initSimulation() {
 ipcRenderer.on("end:route-generation", function (event, routesJSON) {
     setTimeout(function() {
         // Apaga rotas anteriores desenhadas
-        for (let camadaID of rotasGeradas.keys()) {
-            mapaRotaGerada["rmLayer"](camadaID);
-        }
-        rotasGeradas = new Map();
+        mapaRotaGerada["rmGroupLayer"]();
+        // for (let camadaID of rotasGeradas.keys()) {
+            // mapaRotaGerada["rmLayer"](camadaID);
+        // }
 
         // Desenha novas rotas
+        rotasGeradas = new Map();
         drawRoutes(routesJSON);
+
+        // Ativa grupo
+        mapaRotaGerada["activateLayerSwitcher"]("sidebar-RotasGeradas");
 
         // Atualiza o mapa
         mapaRotaGerada["map"].updateSize();

@@ -435,3 +435,57 @@ span.input-group-text {
 	-webkit-user-drag: none;
 	-webkit-app-region: no-drag;
 }
+
+/* Sidebar Rota */
+#sidebar-RotasGeradas ul {
+    list-style-type: none;
+    padding-inline-start: 10px;
+    padding-inline-end: 0px;
+    padding: 2px;
+
+}
+
+#sidebar-RotasGeradas li {
+    padding-inline-start:0px;
+    margin-left: 10px;
+    border-top: #c1c1c1;
+    padding-top: 3px;
+    border-top-style: solid;
+    border-top-width: 2px;
+}
+
+#sidebar-RotasGeradas > ul {
+    list-style-type: none;
+    padding-inline-start: 0px;
+    padding-inline-end: 0px;
+    background: whitesmoke;
+    border-style: solid;
+    border-color: #b0b2b5;
+    padding: 2px;
+}
+
+#sidebar-RotasGeradas > ul > li {
+    list-style-type: none;
+    border: none;
+    padding: 2px;
+}
+
+
+#sidebar-RotasGeradas input[type=checkbox], input[type=radio] {
+    padding: 20px;
+}
+
+#sidebar-RotasGeradas label {
+    margin-left: 5px;
+    color: #423e3e;
+    vertical-align: text-top;
+}
+
+span.corRota {
+    height: 0.7em;
+    width: 20px !important;
+    padding: 2px;
+    margin-right: 10px;
+    margin-left: 10px;
+    display: inline-block;
+}
