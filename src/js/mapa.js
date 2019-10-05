@@ -15,18 +15,29 @@ function novoMapaOpenLayers(target, latitude, longitude) {
     
     let vectorSource = new ol.source.Vector();
     let vectorLayer = new ol.layer.Vector({
-        source: vectorSource
+        source: vectorSource,
+        displayInLayerSwitcher: false,
     });
     
     let olMap = new ol.Map({
         "target": target,
         "layers": [
             new ol.layer.Tile({
+                title: "Satélite",
+                baseLayer: true,
+                displayInLayerSwitcher: true,
                 source: new ol.source.BingMaps({
                     key: "ciN5QAQYiHzOFNabIODf~b61cOBWqj2nmKSuoyjuyKA~AiShqLNGsToztBeSE2Tk8Pb1cUdr4nikxL24hlMRaHCJkIpKaYtdBXoxaDEgFhQv",
                     imagerySet: "AerialWithLabels"
                 })
             }),
+            new ol.layer.Tile({
+                title: "Vias",
+                baseLayer: true,
+                displayInLayerSwitcher: true,
+                source: new ol.source.OSM(),
+                visible: false
+            }),        
             vectorLayer
         ],
         "view": new ol.View({
@@ -56,7 +67,8 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         let lyr = {
             "name"   : lname,
             "source" : vs,
-            "layer"  : vl
+            "layer"  : vl,
+            "displayInLayerSwitcher": false,
         }
 
         mapa["layers"][lname] = lyr;
@@ -68,6 +80,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         let groupLayer = new ol.layer.Group({
             "title": title,
             "type": "base",
+            "displayInLayerSwitcher": true,
             "layers": lyrs
         });
         
@@ -112,11 +125,18 @@ function novoMapaOpenLayers(target, latitude, longitude) {
                 // tipLabel: 'Rotas', // Optional label for button
                 // groupSelectStyle: 'children' // Can be 'children' [default], 'group' or 'none'
             // });
-            let elem = document.getElementById(elemID);
-            ol.control.LayerSwitcher.renderPanel(olMap, elem);
+            // let elem = document.getElementById(elemID);
+            // ol.control.LayerSwitcher.renderPanel(olMap, elem);
             // olMap.addControl(layerSwitcher);
             // layerSwitcher.showPanel();
 
+            var switcher = new ol.control.LayerSwitcher({
+                target: $(".sidebar-RotasGeradas").get(0),
+                reordering: false,
+                extent: true,
+                trash: false
+            });
+            olMap.addControl(switcher);
             mapa["layerSwitcherActivated"] = true;
         }
     }

@@ -36,28 +36,28 @@ function getAlunos() {
     a.push({ key: 18, lat: -16.80503, lng: -49.12542, school: "S1", passengers: 1 });
     a.push({ key: 19, lat: -16.79706, lng: -49.11872, school: "S1", passengers: 1 });
     a.push({ key: 20, lat: -16.79731, lng: -49.11134, school: "S1", passengers: 1 });
-    a.push({ key: 21, lat: -16.78884, lng: -49.1431, school: "S2", passengers: 1 });
-    a.push({ key: 22, lat: -16.79003, lng: -49.12976, school: "S2", passengers: 1 });
-    a.push({ key: 23, lat: -16.79888, lng: -49.12299, school: "S2", passengers: 1 });
-    a.push({ key: 24, lat: -16.91227, lng: -49.10845, school: "S2", passengers: 1 });
-    a.push({ key: 25, lat: -16.90915, lng: -49.1154, school: "S2", passengers: 1 });
-    a.push({ key: 26, lat: -16.92779, lng: -49.09266, school: "S2", passengers: 1 });
-    a.push({ key: 27, lat: -16.93938, lng: -49.105, school: "S2", passengers: 1 });
-    a.push({ key: 28, lat: -16.94552, lng: -49.13829, school: "S2",passengers: 1 });
-    a.push({ key: 29, lat: -16.94589, lng: -49.1257, school: "S1",passengers: 1 });
-    a.push({ key: 30, lat: -16.85882, lng: -49.27791, school: "S1",passengers: 1 });
-    a.push({ key: 31, lat: -16.86449, lng: -49.27654, school: "S2",passengers: 1 });
-    a.push({ key: 32, lat: -16.86917, lng: -49.28418, school: "S1",passengers: 1 });
-    a.push({ key: 33, lat: -16.87566, lng: -49.28341, school: "S1",passengers: 1 });
-    a.push({ key: 34, lat: -16.87821, lng: -49.26607, school: "S1",passengers: 1 });
-    a.push({ key: 35, lat: -16.86935, lng: -49.32064, school: "S2",passengers: 1 });
-    a.push({ key: 36, lat: -16.84019, lng: -49.36664, school: "S1",passengers: 1 });
-    a.push({ key: 37, lat: -16.83242, lng: -49.38458, school: "S1",passengers: 1 });
-    a.push({ key: 38, lat: -16.83256, lng: -49.37794, school: "S1",passengers: 1 });
-    a.push({ key: 39, lat: -16.85186, lng: -49.38025, school: "S1",passengers: 1 });
-    a.push({ key: 40, lat: -16.85139, lng: -49.38933, school: "S1",passengers: 1 });
-    a.push({ key: 41, lat: -16.84646, lng: -49.38971, school: "S1",passengers: 1 });
-    a.push({ key: 42, lat: -16.85382, lng: -49.36705, school: "S1",passengers: 1 });
+    // a.push({ key: 21, lat: -16.78884, lng: -49.1431, school: "S2", passengers: 1 });
+    // a.push({ key: 22, lat: -16.79003, lng: -49.12976, school: "S2", passengers: 1 });
+    // a.push({ key: 23, lat: -16.79888, lng: -49.12299, school: "S2", passengers: 1 });
+    // a.push({ key: 24, lat: -16.91227, lng: -49.10845, school: "S2", passengers: 1 });
+    // a.push({ key: 25, lat: -16.90915, lng: -49.1154, school: "S2", passengers: 1 });
+    // a.push({ key: 26, lat: -16.92779, lng: -49.09266, school: "S2", passengers: 1 });
+    // a.push({ key: 27, lat: -16.93938, lng: -49.105, school: "S2", passengers: 1 });
+    // a.push({ key: 28, lat: -16.94552, lng: -49.13829, school: "S2",passengers: 1 });
+    // a.push({ key: 29, lat: -16.94589, lng: -49.1257, school: "S1",passengers: 1 });
+    // a.push({ key: 30, lat: -16.85882, lng: -49.27791, school: "S1",passengers: 1 });
+    // a.push({ key: 31, lat: -16.86449, lng: -49.27654, school: "S2",passengers: 1 });
+    // a.push({ key: 32, lat: -16.86917, lng: -49.28418, school: "S1",passengers: 1 });
+    // a.push({ key: 33, lat: -16.87566, lng: -49.28341, school: "S1",passengers: 1 });
+    // a.push({ key: 34, lat: -16.87821, lng: -49.26607, school: "S1",passengers: 1 });
+    // a.push({ key: 35, lat: -16.86935, lng: -49.32064, school: "S2",passengers: 1 });
+    // a.push({ key: 36, lat: -16.84019, lng: -49.36664, school: "S1",passengers: 1 });
+    // a.push({ key: 37, lat: -16.83242, lng: -49.38458, school: "S1",passengers: 1 });
+    // a.push({ key: 38, lat: -16.83256, lng: -49.37794, school: "S1",passengers: 1 });
+    // a.push({ key: 39, lat: -16.85186, lng: -49.38025, school: "S1",passengers: 1 });
+    // a.push({ key: 40, lat: -16.85139, lng: -49.38933, school: "S1",passengers: 1 });
+    // a.push({ key: 41, lat: -16.84646, lng: -49.38971, school: "S1",passengers: 1 });
+    // a.push({ key: 42, lat: -16.85382, lng: -49.36705, school: "S1",passengers: 1 });
 
     return a;
 }
@@ -282,6 +282,12 @@ ipcRenderer.on("end:route-generation", function (event, routesJSON) {
         // Atualiza o mapa
         mapaRotaGerada["map"].updateSize();
         mapaRotaGerada["map"].getView().fit(gSource.getExtent());
+
+        setTimeout(() => {
+            $('.expend-layers').click();
+            $('.ol-layerswitcher-buttons').hide();
+            $('.layerswitcher-opacity').hide();
+        }, 100);      
         swal.close();
     }, 2000);
 });

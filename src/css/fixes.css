@@ -448,7 +448,7 @@ span.input-group-text {
 #sidebar-RotasGeradas li {
     padding-inline-start:0px;
     margin-left: 10px;
-    border-top: #c1c1c1;
+    border-top: #e4e4e4;
     padding-top: 3px;
     border-top-style: solid;
     border-top-width: 2px;
@@ -481,6 +481,10 @@ span.input-group-text {
     vertical-align: text-top;
 }
 
+.layerswitcher-opacity {
+    display: none;
+}
+
 span.corRota {
     height: 0.7em;
     width: 20px !important;
@@ -488,4 +492,27 @@ span.corRota {
     margin-right: 10px;
     margin-left: 10px;
     display: inline-block;
+}
+
+li.ol-header {
+    display: none !important;
+}
+
+.ol-layerswitcher {
+    background: whitesmoke;
+    padding-top: 10px;
+    padding-left: 0px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    border: #c7c8ca;
+    border-style: solid;
+}
+
+.ol-layer-group {
+    border: none !important;
+}
+
+.ol-layerswitcher {
+    overflow-y: scroll;
+    max-height: 355px;
 }
