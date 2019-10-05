@@ -1,0 +1,105 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/rota-sugestao2.png">
+        <p class="pageTitle">Malha Viária</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 ml-auto mr-auto">
+            <div class="card card-wizard wiz-fixes">
+                <div class="card-body ">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item col-6 tab-2-fix">
+                            <a class="nav-link active" href="#tab-rota-malha-atual" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-rota.png" class="wiz-icon">
+                                Malha Atual
+                            </a>
+                        </li>
+                        <li class="nav-item col-6 tab-2-fix">
+                            <a class="nav-link" href="#tab-rota-malha-enviar" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-update.png" class="wiz-icon">
+                                Atualizar Malha
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Abas -->
+                    <div class="tab-content">
+                        <div class="tab-pane tab-wiz fade show active" id="tab-rota-malha-atual" role="tabpanel">
+                            <div class="row justify-content-center">
+                                <h6 class="mb-4 mt-1 text-center text-space">
+                                    Essa ferramenta possibilita visualizar e submeter modificações da malha viária
+                                    do município.
+                                    <br>
+                                    As alterações da malha devem ser realizadas através do software <b>JOSM</b>.
+                                </h6>
+
+                                <div class="alert alert-warning alert-with-icon" data-notify="container">
+                                    <button type="button" aria-hidden="true" class="close" data-dismiss="alert">
+                                        <i class="nc-icon nc-simple-remove"></i>
+                                    </button>
+                                    <span data-notify="icon" class="fa fa-exclamation-circle"></span>
+                                    <span data-notify="message">
+                                        As alterações da malha devem ser realizadas através do software <b>JOSM</b>. 
+                                        Caso tenha alguma dúvida, <a href="#">clique aqui</a>.
+                                    </span>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>
+                                            <b>Malha Atual:</b>
+                                            <star>*</star>
+                                        </label>
+
+                                        <button id="baixarMalha" class="col-9 ml-2 mr-2 btn btn-success">
+                                            <i class="fa fa-download"></i> Baixar Malha Atual
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane tab-wiz fade" id="tab-rota-malha-enviar" role="tabpanel">
+                            <h6 class="mb-4 text-center text-space">
+                                Por favor envie o arquivo OSM contendo a malha atualizada.
+                            </h6>
+                            <div class="row justify-content-center">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>
+                                            <b>Malha Atualizada:</b>
+                                            <star>*</star>
+                                        </label>
+                                        <input type="file" accept=".osm,.xml,.zip" class="file-input" id="novaMalhaOSM">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-center">
+                        <button type="button" class="btn btn-default btn-wd btn-back pull-left">
+                            Voltar
+                        </button>
+                        <button type="button" class="btn btn-info btn-wd btn-next pull-right">
+                            Atualizar a malha
+                        </button>
+                        <button type="button" id="rota-malha-salvarNovaMalha"
+                            class="btn btn-info btn-wd btn-finish pull-right">
+                            Salvar
+                        </button>
+                        <div class="clearfix"></div>
+                        <!-- Fim footer -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</div>
+
+<script src="../../node_modules/osm-read/osm-read-pbf.js"></script>
+<script src="./modules/rota/rota-malha-ctrl.js" type="text/javascript"></script>

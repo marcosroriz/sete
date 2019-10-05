@@ -14,8 +14,10 @@
   "keywords": [],
   "author": "CECATE UFG <cecate@fct.ufg.br>",
   "license": "MIT",
-  "build":  {
-    "extraResources": ["./bin/**"]
+  "build": {
+    "extraResources": [
+      "./bin/**"
+    ]
   },
   "config": {
     "forge": {
@@ -72,6 +74,8 @@
     "ol": "^6.0.1",
     "ol-ext": "^3.1.6",
     "ol-layerswitcher": "^3.4.0",
+    "osm-read": "^0.6.0",
+    "osmtogeojson": "^3.0.0-beta.3",
     "papaparse": "^4.6.3",
     "popper.js": "^1.14.7",
     "sidebar-v2": "^0.4.0",
@@ -82,12 +86,14 @@
     "typeface-montserrat": "0.0.54",
     "typeface-patrick-hand": "0.0.72",
     "typeface-poppins": "0.0.72",
-    "typeface-roboto": "0.0.75"
+    "typeface-roboto": "0.0.75",
+    "zlibjs": "^0.3.1"
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
+    "devtron": "^1.4.0",
     "electron-forge": "^5.2.4",
     "electron-prebuilt-compile": "4.0.0",
     "electron-winstaller": "^3.0.4",

@@ -7,10 +7,21 @@ const path = require("path");
 const squirrel = require("./main/installer/squirrel.js");
 squirrel();
 
-// Optimization
-const ClarkeWrightSchoolBusRouting = require("./main/routing/clarke-wright-schoolbus-routing.js");
-const TwoOpt = require("./main/routing/twoopt.js");
-const SchoolBusKMeans = require("./main/routing/kmeans.js");
+// Database Creator
+const dbPath = path.join(__dirname, "db", "local.db");
+const sqliteDB = require("knex")({
+  client: "sqlite3",
+  connection: {
+    filename: dbPath
+  },
+  useNullAsDefault: true
+});
+
+// Malha Update
+const MalhaUpdate = require("./main/malha/malha-update.js");
+
+// Route Optimization
+const RouteOptimization = require("./main/routing/routing-optimization.js");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -71,30 +82,18 @@ app.on('activate', () => {
 });
 
 // Route Generation Algorithm
-ipcMain.on("start:route-generation", (event, arg) => {
-  console.time("kmeans");
-  let kmeans = new SchoolBusKMeans(arg);
-  let partitions = kmeans.partition(arg["numVehicles"]);
-  console.timeEnd("kmeans");
+ipcMain.on("start:route-generation", (event, routingArgs) => {
+  console.time("entire-route-optimization");
+  let optRoutes = new RouteOptimization(routingArgs).optimize();
+  console.timeEnd("entire-route-optimization");
 
-  console.time("simulacao");
-  let schoolBusRouter = new ClarkeWrightSchoolBusRouting(arg);
-  let busRoutes = schoolBusRouter.route();
-  console.timeEnd("simulacao");
-
-  console.time("2-opt");
-  let optimizedRoutes = new Array();
-  busRoutes.forEach((r) => {
-    let optRoute = new TwoOpt(r, schoolBusRouter.graph).optimize();
-    optimizedRoutes.push(optRoute);
-  });
-  console.timeEnd("2-opt");
-
-  let routesJSON = new Array();
-  optimizedRoutes.forEach((r) => {
-    routesJSON.push(r.toPlainJSON(schoolBusRouter.graph));
-  });
-
-  appWindow.webContents.send("end:route-generation", routesJSON);
+  appWindow.webContents.send("end:route-generation", optRoutes);
 })
 
+// Malha Update
+ipcMain.on("start:malha-update", (event, newOSMFile) => {
+  console.time("malha-update");
+  let malha = new MalhaUpdate(newOSMFile, dbPath, sqliteDB);
+  malha.update();
+  console.timeEnd("malha-update");  
+});

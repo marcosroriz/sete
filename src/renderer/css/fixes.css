@@ -516,3 +516,21 @@ li.ol-header {
     overflow-y: scroll;
     max-height: 355px;
 }
+
+/* File-input */
+.file-input {
+    margin-left: 10px;
+    font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+}
+
+.alert span {
+    font-size: 1em;
+    font-weight: normal;
+}
+
+.alert-warning span a {
+    color: white;
+    font-weight: 700;
+    font-size: 1em;
+}

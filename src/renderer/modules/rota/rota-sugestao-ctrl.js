@@ -1,4 +1,3 @@
-
 // Lista de Imports
 // Mapas
 var mapaConfig = novoMapaOpenLayers("mapaRotaSugestaoConfig", -16.8152409, -49.2756642);

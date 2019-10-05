@@ -238,6 +238,12 @@
                         </a>
                     </li>
                     <li class="nav-item ">
+                        <a id="rota-malha" name="rota-malha" class="nav-link" href="#">
+                            <span class="sidebar-mini"></span>
+                            <span class="sidebar-normal">Malha</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
                         <a id="rota-sugestao" name="rota-sugestao" class="nav-link" href="#">
                             <span class="sidebar-mini"></span>
                             <span class="sidebar-normal">Sugerir</span>
@@ -284,6 +290,10 @@
             $("#content").load("./modules/rota/rota-desenhar-view.html");
         });
 
+        $("#rota-malha").click(function() {
+            $("#content").load("./modules/rota/rota-malha-view.html");
+        });
+        
         $("#rota-sugestao").click(function() {
             $("#content").load("./modules/rota/rota-sugestao-view.html");
         });

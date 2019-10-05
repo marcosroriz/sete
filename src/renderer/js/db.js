@@ -20,11 +20,10 @@ firebase.initializeApp(dbconfig);
 // Base de dados Firestore
 let remotedb = firebase.firestore();
 
-// Base de dados Local (sqlite)
 const knex = require("knex")({
     client: "sqlite3",
     connection: {
-        filename: path.join(__dirname, "db", "local.db"),
+        filename: path.join(__dirname, "..", "db", "local.db"),
     },
     useNullAsDefault: true
 });
