@@ -38,10 +38,6 @@ class MalhaUpdate {
             console.log("status", netDBCreation.status);
             console.log(netDBCreation.stdout);
         });
-
-        osmread.parse({
-            file
-        })
     }
 }
 
