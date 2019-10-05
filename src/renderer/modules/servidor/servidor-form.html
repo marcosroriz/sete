@@ -1,0 +1,146 @@
+<style>
+    .bgentry {
+        background: #ddd;
+    }
+    
+    .padding-left-20 {
+        padding-left: 20px;
+    }
+    
+    .margin-top-20 {
+        margin-top: 20px;
+    }
+    
+    label.error {
+        color: red;
+        position: absolute;
+        font-size: 13px;
+    }
+    
+    .error-checked label.error {
+        top: -15px;
+        left: 0;
+    }
+    
+    .container-body {
+        background: #fff;
+    }
+</style>
+
+
+<div class="container container-body">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card-header">
+                <h4 class="card-title text-center">Cadastro de Servidor</h4>
+            </div>
+
+            <h6 class="mb-3 text-center text-space">...</h6>
+            <form id="formServidor" action="#">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>
+                                    LATITUDE
+                                    <star>*</star>
+                                </label>
+                        <input id="LATITUDE" name="LATITUDE" type="text" placeholder="Informe a latitude" class="form-control col-md-6">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>
+                                    LONGITUDE
+                                    <star>*</star>
+                                </label>
+                        <input id="LONGITUDE" name="LONGITUDE" type="text" placeholder="Informe a longitude" class="form-control col-md-6">
+                    </div>
+
+                    <div class="col-md-12 margin-top-20"></div>
+
+                    <div class="form-group col-md-6">
+                        <label>
+                                    ENDERECO
+                                    <star>*</star>
+                                </label>
+                        <input id="ENDERECO" name="ENDERECO" type="text" placeholder="Informe o endereço" class="form-control">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>
+                                    CEP
+                                    <star>*</star>
+                                </label>
+                        <input id="CEP" name="CEP" type="text" placeholder="Informe o cep" class="form-control col-md-6 cep">
+                    </div>
+
+                    <div class="col-md-12 margin-top-20"></div>
+
+                    <div class="form-group col-md-6">
+                        <label>
+                                    Nome
+                                    <star>*</star>
+                                </label>
+                        <input id="NOME" name="NOME" type="text" placeholder="Informe o nome" class="form-control">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Data de Nascimento
+                                    <star>*</star>
+                                </label>
+                        <input id="DATA_NASCIMENTO" name="DATA_NASCIMENTO" type="text" placeholder="__/__/____" class="form-control datanasc">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Telefone
+                                    <star>*</star>
+                                </label>
+                        <input id="TELEFONE" name="TELEFONE" type="text" placeholder="(00) 00000-0000" class="form-control mask-fone">
+                    </div>
+
+                    <div class="col-md-12 margin-top-20"></div>
+
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Sexo
+                                    <star>*</star>
+                                </label>
+                        <select id="SEXO" name="SEXO" class="form-control">
+                                    <option value="" selected>Informe o sexo</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Feminino">Feminino</option>
+                                </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Turno
+                                    <star>*</star>
+                                </label>
+                        <select id="TURNO" name="TURNO" class="form-control">
+                                    <option value="" selected>Informe o turno</option>
+                                    <option value="Matutino">Matutino</option>
+                                    <option value="Vespertino">Vespertino</option>
+                                    <option value="Noturno">Noturno</option>
+                                </select>
+                    </div>
+
+                    <div class="col-md-12 margin-top-20"></div>
+
+                    <div class="col-md-12 text-left margin-top-20">
+                        <button type="submit" class="btn btn-info
+                                    btn-wd
+                                    btn-finish pull-right">Salvar</button>
+                        <div class="clearfix"></div>
+
+                    </div>
+                </div>
+            </form>
+
+        </div>
+        <!-- end col-md-8 -->
+    </div>
+</div>
+
+<script type="text/javaScript">
+    identity_router = "form-servidor";
+</script>
+
+<script src="servidor/servidor-model.js"></script>
+<script src="servidor/servidor-validate.js"></script>
+<script src="servidor/servidor-ctrl.js"></script>

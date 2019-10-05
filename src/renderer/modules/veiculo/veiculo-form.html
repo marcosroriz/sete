@@ -1,0 +1,190 @@
+<style>
+    .bgentry {
+        background: #ddd;
+    }
+    
+    .padding-left-20 {
+        padding-left: 20px;
+    }
+    
+    .margin-top-20 {
+        margin-top: 20px;
+    }
+    
+    label.error {
+        color: red;
+        position: absolute;
+        font-size: 13px;
+    }
+    
+    .error-checked label.error {
+        top: -15px;
+        left: 0;
+    }
+    
+    .container-body {
+        background: #fff;
+    }
+</style>
+
+<div class="container container-body">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card-header">
+                <h4 class="card-title text-center">Cadastro de Veiculo</h4>
+            </div>
+
+            <h6 class="mb-3 text-center text-space">...</h6>
+            <form action="#" name="formVeiculo" id="formVeiculo">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Placa
+                                    <star>*</star>
+                                </label>
+                        <input id="PLACA" name="PLACA" type="text" placeholder="informe à placa" class="form-control mask-placa">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Modelo
+                                    <star>*</star>
+                                </label>
+                        <input id="MODELO" name="MODELO" type="text" placeholder="Informe o modelo" class="form-control">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Ano
+                                    <star>*</star>
+                                </label>
+                        <input id="ANO" name="ANO" type="text" placeholder="Informe o ano" class="form-control mask-ano">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Tipo Transporte
+                                    <star>*</star>
+                                </label>
+                        <select id="TIPO_TRANSPORTE" name="TIPO_TRANSPORTE" class="form-control">
+                                    <option value="" disabled selected>Tipo
+                                        Veiculo</option>
+                                    <option value="ORE 1">ORE 1</option>
+                                    <option value="ORE 1 (4X4)">ORE 1 (4X4)</option>
+                                    <option value="ORE 2">ORE 2</option>
+                                    <option value="ORE 3">ORE 3</option>
+                                    <option value="Kombi / Vans">Kombi / Vans</option>
+                                    <option value="Onibûs">Onibûs</option>
+                                    <option value="L-EM">L-EM</option>
+                                    <option value="L-EG">L-EG</option>
+                                    <option value="Lancha">Lancha</option>
+                                    <option value="Micro Onibús">Micro Onibús</option>
+                                    <option value="Caminhoneta">Caminhoneta</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                    </div>
+
+                    <div class="margin-top-20 col-md-12"></div>
+
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Origem
+                                    <star>*</star>
+                                </label>
+                        <div class="col-md-12 padding-left-20
+                                    error-checked">
+
+                            <input class="form-check-input" type="radio" name="ORIGEM" id="ORIGEM" value="Próprio">
+                            <label class="form-check-label">
+                                        Próprio
+                                    </label>
+                            <br />
+                            <input class="form-check-input" type="radio" name="ORIGEM" id="ORIGEM" value="Terceirizado">
+                            <label class="form-check-label">
+                                        Terceirizado
+                                    </label>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Aquisição
+                                    <star>*</star>
+                                </label>
+                        <div class="col-md-12 padding-left-20
+                                    error-checked">
+
+                            <input class="form-check-input" type="radio" name="AQUISICAO" id="AQUISICAO" value="Comprado">
+                            <label class="form-check-label">
+                                        Comprado
+                                    </label>
+                            <br />
+                            <input class="form-check-input" type="radio" name="AQUISICAO" id="AQUISICAO" value="Doado">
+                            <label class="form-check-label">
+                                        Doado
+                                    </label>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Possui Garagem
+                                    <star>*</star>
+                                </label>
+                        <select id="POSSUI_GARAGEM" name="POSSUI_GARAGEM" class="form-control">
+                                    <option value="" selected>Possui Garagem</option>
+                                    <option value="sim">Sim</option>
+                                    <option value="não">Não</option>
+                                </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Km
+                                    <star>*</star>
+                                </label>
+                        <input id="KM_VEICULO" name="KM_VEICULO" type="text" placeholder="Informe a kilometragem" class="form-control mask-number">
+                    </div>
+
+                    <div class="margin-top-20 col-md-12"></div>
+                    <!--
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Ultima Manutenção
+                                    <star>*</star>
+                                </label>
+                        <input id="ULTIMA_MANUTENCAO" name="ULTIMA_MANUTENCAO" type="text" placeholder="Informe data da ultima
+                                    manutenção" class="form-control">
+                    </div>-->
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Capacidade Maxima
+                                    <star>*</star>
+                                </label>
+                        <input id="CAPACIDADE_MAX" name="CAPACIDADE_MAX" type="text" placeholder="Informe a capacidade max" class="form-control mask-number">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>
+                                    Capacidade Atual
+                                    <star>*</star>
+                                </label>
+                        <input id="CAPACIDADE_ATUAL" name="CAPACIDADE_ATUAL" type="text" placeholder="Informe a capacidade atual" class="form-control mask-number">
+                    </div>
+
+                    <div class="col-md-12 text-left margin-top-20">
+                        <button type="submit" class="btn btn-info
+                                    btn-wd
+                                    btn-finish pull-right">Salvar</button>
+                        <div class="clearfix"></div>
+
+                    </div>
+                </div>
+            </form>
+
+        </div>
+        <!-- end col-md-8 -->
+    </div>
+</div>
+
+<script type="text/javaScript">
+    identity_router = "form-veiculo";
+</script>
+
+<script src="veiculo/veiculo-model.js"></script>
+<script src="veiculo/veiculo-validate.js"></script>
+<script src="veiculo/veiculo-ctrl.js"></script>

@@ -1,0 +1,58 @@
+.bgentry {
+    background: #ddd;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.margin-top-20 {
+    margin-top: 20px;
+}
+
+.container-body {
+    background: #fff;
+}
+
+
+/*-- modal --*/
+
+.modal-content {
+    border-radius: 0px;
+}
+
+.modal-rota-manutencao {
+    min-width: 80%;
+}
+
+.grid-cadastro-aluno {
+    border-left: 1px solid #ddd;
+    padding: 10px 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 200px;
+    background: #f1f1f1;
+    margin-bottom: 10px;
+}
+
+.title-grid {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.grid-cadastro-manutencao textarea {
+    height: 80px;
+}
+
+.list-manutencao {
+    border-top: 1px solid #dddd;
+    padding-top: 10px;
+}
+
+.td-action {
+    width: 150px;
+}
+
+.td-code {
+    width: 100px;
+}
