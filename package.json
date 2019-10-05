@@ -14,6 +14,9 @@
   "keywords": [],
   "author": "CECATE UFG <cecate@fct.ufg.br>",
   "license": "MIT",
+  "build":  {
+    "extraResources": ["./bin/**"]
+  },
   "config": {
     "forge": {
       "make_targets": {
@@ -67,10 +70,12 @@
     "moment": "^2.24.0",
     "node-kmeans": "^1.1.9",
     "ol": "^6.0.1",
+    "ol-ext": "^3.1.6",
     "ol-layerswitcher": "^3.4.0",
     "papaparse": "^4.6.3",
     "popper.js": "^1.14.7",
     "sidebar-v2": "^0.4.0",
+    "spatialite": "^0.1.0",
     "sqlite3": "^4.0.6",
     "sweetalert": "^2.1.2",
     "tether": "^1.4.5",
