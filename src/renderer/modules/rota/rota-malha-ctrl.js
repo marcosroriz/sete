@@ -1,6 +1,24 @@
 // Lista de Imports
-const electron  = require('electron');
-const configDir = (electron.app || electron.remote.app).getPath('userData');
+var fs = require("fs-extra");
+
+$("#baixarMalha").click(() => {
+    dialog.showSaveDialog(win, {
+        title: "Salvar Malha OSM",
+        buttonLabel: "Salvar Malha",
+        filters: [
+            { name: "OSM", extensions: ["osm"] }
+        ]
+    }, (arqDestino) => {
+        console.log(arqDestino);
+        let arqOrigem = path.join(userDataDir, "malha.osm");
+        try {
+            fs.copySync(arqOrigem, arqDestino)
+            console.log('success!')
+        } catch (err) {
+            console.error(err)
+        }
+    });
+});
 
 $('#rota-malha-salvarNovaMalha').click(() => {
     swal({

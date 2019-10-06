@@ -1,5 +1,12 @@
-// IPC
-const { ipcRenderer } = require('electron');
+// Imports Principais
+const electron = require('electron');
+const { ipcRenderer, remote } = electron;
+const app = remote.app;
+const dialog = remote.dialog;
+const win = remote.getCurrentWindow();
+
+// Caminhos Comuns
+const userDataDir = app.getPath('userData');
 
 // Bibliotecas Básicas do JS
 window.$ = window.jQuery = require("jquery");

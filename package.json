@@ -62,6 +62,7 @@
     "electron-wix-msi": "^2.1.1",
     "firebase": "^5.11.1",
     "font-awesome": "^4.7.0",
+    "fs-extra": "^8.1.0",
     "geolib": "^3.0.4",
     "heap": "^0.2.6",
     "jquery": "^3.3.1",
