@@ -34,28 +34,28 @@ class MalhaUpdate {
         
         let spatialiteNetBinPath = path.join(app.getAppPath(), "bin", binName);
         let args = ["-o", this.newOSMFile, "-d", this.dbPath, "-T", tableName];
-        return child_process.spawnSync(spatialiteNetBinPath, args);
+        return child_process.spawn(spatialiteNetBinPath, args);
     }
 
     update() {
         // First, check if OSM network data is OK
         Promise.all(this.clearNetwork("malhaTest")).then(() => {
             let malhaTestCreation = this.createBasicNet("malhaTest");
-            
-            let status = malhaTestCreation.status;
-            if (status == 0) {
-                // Process returned OK
-                // Ok, now we'll copy the updated OSM file to the existing one
-                let userDataPath = app.getPath('userData');
-                let dstFile = path.join(userDataPath, "malha.osm");
-                try {
-                    fs.copySync(this.newOSMFile, dstFile);
-                    console.log("foi");
-                    console.log("salvei em: ", dstFile);
-                } catch (err) {
-                    console.error(err);
+            malhaTestCreation.on('close', (status) => {
+                if (status == 0) {
+                    // Process returned OK
+                    // Ok, now we'll copy the updated OSM file to the existing one
+                    let userDataPath = app.getPath('userData');
+                    let dstFile = path.join(userDataPath, "malha.osm");
+                    try {
+                        fs.copySync(this.newOSMFile, dstFile);
+                        console.log("foi");
+                        console.log("salvei em: ", dstFile);
+                    } catch (err) {
+                        console.error(err);
+                    }
                 }
-            }
+            });
             // console.log(malhaTestCreation.pid);
             // console.log("status", malhaTestCreation.status);
             // console.log(malhaTestCreation.stdout);
