@@ -16,6 +16,8 @@ const sqliteDB = require("knex")({
   },
   useNullAsDefault: true
 });
+const spatialite = require("spatialite");
+const spatialiteDB = new spatialite.Database(dbPath);
 
 // Malha Update
 const MalhaUpdate = require("./main/malha/malha-update.js");
@@ -84,10 +86,10 @@ app.on('activate', () => {
 // Route Generation Algorithm
 ipcMain.on("start:route-generation", (event, routingArgs) => {
   console.time("entire-route-optimization");
-  let optRoutes = new RouteOptimization(routingArgs).optimize();
+  let optRoutes = new RouteOptimization(routingArgs, spatialiteDB).optimize();
   console.timeEnd("entire-route-optimization");
 
-  appWindow.webContents.send("end:route-generation", optRoutes);
+  // appWindow.webContents.send("end:route-generation", optRoutes);
 })
 
 // Malha Update
@@ -96,4 +98,10 @@ ipcMain.on("start:malha-update", (event, newOSMFile) => {
   let malha = new MalhaUpdate(newOSMFile, dbPath, sqliteDB);
   malha.update();
   console.timeEnd("malha-update");  
+});
+
+// Send answer update
+app.on("finish-update", (event, arg) => {
+  console.log("cheguei aqui");
+  console.log(arg);
 });
