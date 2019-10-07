@@ -33,27 +33,66 @@ class MalhaUpdate {
         }
         
         let spatialiteNetBinPath = path.join(app.getAppPath(), "bin", binName);
-        let args = ["-o", this.newOSMFile, "-d", this.dbPath, "-T", tableName];
+        let templateFile = path.join(path.dirname(this.dbPath), "osm_road_template");
+        let args = ["-o", this.newOSMFile, 
+                    "-d", this.dbPath, 
+                    "-T", tableName, 
+                    "-tf", templateFile];
+        console.log(spatialiteNetBinPath);
+        console.log(args);
         return child_process.spawn(spatialiteNetBinPath, args);
     }
 
-    update() {
+    createVirtualNetwork(tableName) {
+        let binName = "spatialite_network.exe";
+        if (process.platform == "linux") {
+            binName = "spatialite_network";
+        } else if (process.platform == "win32") {
+            binName = "spatialite_network.exe";
+        } else {
+            binName = "spatialite_network_mac";
+        }
+
+        let spatialliteVirtualNetBin = path.join(app.getAppPath(), "bin", binName);
+        let args = ["-d", this.dbPath, 
+                    "-T", tableName, 
+                    "-f", "node_from",
+                    "-t", "node_to",
+                    "-g", "geometry",
+                    "-n", "name",
+                    "-c", "cost",
+                    "-o", tableName + "_data",
+                    "-v", tableName + "_net"];
+        console.log(spatialliteVirtualNetBin);
+        console.log(args);
+        return child_process.spawn(spatialliteVirtualNetBin, args);
+
+    }
+    async update() {
         // First, check if OSM network data is OK
-        Promise.all(this.clearNetwork("malhaTest")).then(() => {
-            let malhaTestCreation = this.createBasicNet("malhaTest");
-            malhaTestCreation.on('close', (status) => {
+        Promise.all(this.clearNetwork("malha")).then(() => {
+            let malhaCreation = this.createBasicNet("malha");
+            malhaCreation.on('close', (status) => {
                 if (status == 0) {
                     // Process returned OK
-                    // Ok, now we'll copy the updated OSM file to the existing one
-                    let userDataPath = app.getPath('userData');
-                    let dstFile = path.join(userDataPath, "malha.osm");
-                    try {
-                        fs.copySync(this.newOSMFile, dstFile);
-                        console.log("foi");
-                        console.log("salvei em: ", dstFile);
-                    } catch (err) {
-                        console.error(err);
-                    }
+
+                    // Now, we'll create the routing network
+                    let malhaVirtualNetwork = this.createVirtualNetwork("malha");
+                    malhaVirtualNetwork.on('close', (statusNet) => {
+                        console.log(statusNet);
+
+                        // Ok, now we'll copy the updated OSM file to the existing one
+                        let userDataPath = app.getPath('userData');
+                        let dstFile = path.join(userDataPath, "malha.osm");
+                        try {
+                            fs.copySync(this.newOSMFile, dstFile);
+                            console.log("salvei em: ", dstFile);
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    });
+                } else {
+                    // Handle error
                 }
             });
             // console.log(malhaTestCreation.pid);
