@@ -16,18 +16,27 @@ module.exports = class SchoolBusKMeans {
     }
 
     partition(numVehicles) {
-        kmeans.clusterize(this.vectors,
-            {
-                k: numVehicles,
-                distance: (a, b) => {
-                    return getDistance(
-                        { latitude: a[0], longitude: a[1] },
-                        { latitude: b[0], longitude: b[1] }
-                    );
-                }
-            }, (err, res) => {
-                if (err) console.error(err);
-                else console.log('%o', res);
-            })
+        return new Promise((resolve, reject) => {
+            kmeans.clusterize(this.vectors,
+                {
+                    k: numVehicles,
+                    distance: (a, b) => {
+                        return getDistance(
+                            { latitude: a[0], longitude: a[1] },
+                            { latitude: b[0], longitude: b[1] }
+                        );
+                    }
+                }, (err, res) => {
+                    if (err) {
+                        console.error(err);
+                        // TODO: SEND ERROR TO SCREEN
+                    }
+                    else {
+                        console.log('%o', res);
+                        resolve(res);
+                    }
+                });
+        });
+        
     }
 }

@@ -10,7 +10,10 @@ const BusRoute = require("./busroute.js");
 const Saving = require("./saving.js");
 
 class ClarkeWrightSchoolBusRouting {
-    constructor(inputData) {
+    constructor(inputData, spatialiteDB) {
+        // Database Parameters
+        this.spatialiteDB = spatialiteDB;
+
         // Algorithm Parameters
         this.maxTravDist = inputData["maxTravDist"];
         this.maxTravTime = inputData["maxTravTime"];
@@ -29,20 +32,19 @@ class ClarkeWrightSchoolBusRouting {
         this.schools = inputData["schools"];
 
         // Create and prepare the routing Graph
-        this.graph = new RoutingGraph();
+        this.graph = new RoutingGraph(this.spatialiteDB);
 
         // Add Garage to the Graph
-        // Only using a single garage!
+        // FIXME: Only using a single garage!
         this.graph.addGarageVertex(this.garage["key"], this.garage["lat"], this.garage["lng"]);
 
         // Add Stops
-        // TODO: Add # students at each stop
         this.stops.forEach((s) => {
             this.graph.addStopVertex(s["key"], s["lat"], s["lng"], s["passengers"]);
         });
 
         // Get the distance to the first school
-        // TODO: Fix this
+        // FIXME: Fix this
         this.schools.forEach((s) => {
             this.graph.addSchoolVertex(s["key"], s["lat"], s["lng"]);
         });
@@ -52,6 +54,14 @@ class ClarkeWrightSchoolBusRouting {
 
         // Map of Bus Stops to Routes
         this.stopsToRouteMap = new Map();
+    }
+
+    buildSpatialIndex() {
+        return Promise.all(this.graph.buildSpatialVertex());
+    }
+
+    buildSpatialMatrix() {
+        return Promise.all(this.graph.buildSpatialMatrix());
     }
 
     buildInitialRoute() {
@@ -105,6 +115,11 @@ class ClarkeWrightSchoolBusRouting {
 
     setRoute(stopID, busRoute) {
         this.stopsToRouteMap.set(stopID, busRoute.id);
+    }
+
+    spatialRoute() {
+        return this.buildSpatialIndex()
+                  .then(this.buildSpatialMatrix());
     }
 
     route() {

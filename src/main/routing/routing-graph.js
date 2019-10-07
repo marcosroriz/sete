@@ -6,8 +6,9 @@ const geolib = require("geolib");
 const { getDistance } = geolib;
 
 module.exports = class RoutingGraph {
-    constructor() {
+    constructor(spatialiteDB) {
         this.matrix = new Map();
+        this.spatialiteDB = spatialiteDB;
     }
 
     addGarageVertex(key, lat, lng) {
@@ -31,9 +32,112 @@ module.exports = class RoutingGraph {
         vertex.set("passengers", passengers);
         vertex.set("type", type);
         vertex.set("edges", new Map());
+        vertex.set("spatialCostEdges", new Map());
+        vertex.set("spatialDistEdges", new Map());
         vertex.set("savings", new Map());
         this.matrix.set(key, vertex);
     }
+
+    buildSpatialVertex() {
+        this.spatialiteDB.run('BEGIN TRANSACTION');
+
+        let promisesArray = new Array();
+        this.matrix.forEach(c => {
+            promisesArray.push(this.getSpatialVertex(c, this.spatialiteDB));
+        });
+
+        this.spatialiteDB.run('COMMIT TRANSACTION');
+        return promisesArray;
+    }
+
+    buildSpatialMatrix() {
+        // this.spatialiteDB.run('BEGIN TRANSACTION');
+        let promisesArray = new Array();
+
+        // Graph pairs here are called (c, d) rather than (u, v) due to the paper nomenclature
+        this.matrix.forEach(c => {
+            let ckey = c.get("key");
+
+            this.matrix.forEach(d => {
+                let dkey = d.get("key");
+
+                if (ckey == dkey) {
+                    // Set distance to itself to zero
+                    c.get("spatialDistEdges").set(dkey, 0);
+                } else {
+                    // Check if v has computed the distance to u
+                    if (d.get("spatialDistEdges").has(ckey)) {
+                        // We do not need to compute dist(u, v), since we already computed dist(v,u)
+                        // Just save the already computed distance in u
+                        c.get("spatialDistEdges").set(dkey, d.get("spatialDistEdges").get(ckey));
+                    } else {
+                        // Compute the distance
+                        promisesArray.push(this.getSpatialDistance(c, d, this.spatialiteDB));
+                    }
+                }
+            });
+        });
+
+        // this.spatialiteDB.run('COMMIT TRANSACTION');
+        return promisesArray;
+    }
+
+    getSpatialDistance(c, d, spatialiteDB) {
+        let cnodeID = c.get("dbNodeID");
+        let dnodeID = d.get("dbNodeID");
+
+        let sqlQuery = `SELECT *, ST_LENGTH(geometry, 1) AS dist, AsGeoJSON(geometry) AS js
+                        FROM malha_net
+                        WHERE NodeFrom = ${cnodeID} AND NodeTo = ${dnodeID}
+                        LIMIT 1`;
+        return new Promise((resolve, reject) => {
+            spatialiteDB.get(sqlQuery, (err, row) => {
+                console.log(sqlQuery);
+                let cost = row["Cost"];
+                let dist = row["dist"];
+                console.log(c.get("key"), d.get("key"), cost, dist);
+                c.get("spatialDistEdges").set(d.get("key"), dist);
+                c.get("spatialCostEdges").set(d.get("key"), cost);
+                resolve();
+            });
+        });
+    }
+
+    getSpatialVertex(c, spatialiteDB) {
+        let lng = c.get("lng");
+        let lat = c.get("lat");
+
+        let sqlQuery = `SELECT ST_Distance(ST_GeomFromText('POINT(${lng} ${lat})', 4326), linha.geometry, 1) AS dist, 
+                               node_id
+                        FROM malha_nodes AS linha
+                        ORDER BY dist
+                        LIMIT 1`;
+        return new Promise((resolve, reject) => {
+            spatialiteDB.get(sqlQuery, (err, row) => {
+                c.set("dbNodeID", row["node_id"]);
+                resolve();
+            });
+        });
+    }
+    // }
+
+    // getSpatialVertex(c, spatialiteDB) {
+    //     let lng = c.get("lng");
+    //     let lat = c.get("lat");
+
+    //     let sqlQuery = `SELECT ST_Distance(ST_GeomFromText('POINT(${lng} ${lat})', 4326), linha.geometry, 1) AS dist, 
+    //                            node_id
+    //                     FROM malha_nodes AS linha
+    //                     ORDER BY dist
+    //                     LIMIT 1`;
+    //     return new Promise((resolve, reject) => {
+    //             this.spatialiteDB.get(sqlQuery, (err, row) => {
+    //                 console.log("dbNodeID", row["node_id"]);
+    //                 c.set("dbNodeID", row["node_id"]);
+    //                 resolve();
+    //             });
+    //     });
+    // }
 
     getVertex(c) {
         return this.matrix.get(c);
