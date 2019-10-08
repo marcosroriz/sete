@@ -7,37 +7,33 @@ const TwoOpt = require("./twoopt.js");
 const SchoolBusKMeans = require("./kmeans.js");
 
 module.exports = class RoutingOptimization {
-  constructor(routingParams, spatialiteDB) {
-    this.routingParams = routingParams;
-    this.spatialiteDB = spatialiteDB;
-  }
+    constructor(routingParams, spatialiteDB) {
+        this.routingParams = routingParams;
+        this.spatialiteDB = spatialiteDB;
+    }
 
-  optimize() {
-    // Activate spatial db
-    this.spatialiteDB.spatialite((error) => {
-      let kmeans = new SchoolBusKMeans(this.routingParams);
-      kmeans.partition(this.routingParams["numVehicles"])
-            .then((clusters) => {
-                  console.log("Saída do Kmeans");
-                  console.log(clusters);
-                  console.log("Executa um Clark por Cluster");
+    optimize() {
+        // Activate spatial db
+        this.spatialiteDB.spatialite((error) => {
+            let kmeans = new SchoolBusKMeans(this.routingParams);
+            kmeans.partition(this.routingParams["numVehicles"])
+                  .then((clusters) => {
+                    console.log(clusters);
+                    console.log("Executa um Clark por Cluster");
 
-                  let schoolBusRouter = new ClarkeWrightSchoolBusRouting(this.routingParams,
-                                                                        this.spatialiteDB);
-                  schoolBusRouter.buildSpatialIndex()
-                                 .then(() => {
-                                   console.log("cheguei aqui");
-                                   return schoolBusRouter.buildSpatialMatrix()
-                                 })
-                                 .then(() => {
-                                   console.log("construimos a matrix O/D");
-                                   console.log(schoolBusRouter);
-                                   console.log("construimos a matrix O/D");
-                                   console.log("construimos a matrix O/D");
-                                 });
-             });
-      });
-  }
+                    let schoolBusRouter = new ClarkeWrightSchoolBusRouting(this.routingParams,
+                                                                           this.spatialiteDB);
+                    schoolBusRouter.spatialRoute().then((routes) => {
+                        // Print Routes
+                        console.log(routes);
+                        routes.forEach((r) => {
+                            console.log(r.toLatLongRoute(this.graph));
+                            console.log("-------")
+                        });
+                    });
+                });
+        });
+    }
 }
 
                //  schoolBusRouter.buildDistMatrix()

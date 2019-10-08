@@ -32,7 +32,8 @@ class ClarkeWrightSchoolBusRouting {
         this.schools = inputData["schools"];
 
         // Create and prepare the routing Graph
-        this.graph = new RoutingGraph(this.spatialiteDB);
+        // FIXME: put argument in inputData
+        this.graph = new RoutingGraph(this.spatialiteDB, true);
 
         // Add Garage to the Graph
         // FIXME: Only using a single garage!
@@ -118,30 +119,44 @@ class ClarkeWrightSchoolBusRouting {
     }
 
     spatialRoute() {
+        // First, build spatial index
         return this.buildSpatialIndex()
-                  .then(this.buildSpatialMatrix());
+                  .then(() => this.buildSpatialMatrix()) // Second, build spatial matrix
+                  .then(() => {
+                      // Third, run clark
+                      return new Promise((resolve, reject) => {
+                          // Build initial rotes for each bus stop (or student)
+                          this.buildInitialRoute();
+
+                          // Build savings and put it on a priority queue
+                          let savings = this.graph.buildSavings();
+
+                          // Process savings
+                          this.processSavings(savings);
+
+                          // Print Routes
+                          this.routes.forEach((r) => {
+                              console.log(r.toLatLongRoute(this.graph));
+                              console.log("-------")
+                          });
+
+                          resolve(this.routes);
+                      });
+                  });
     }
 
     route() {
         // First, build dist matrix
-        console.time("build-distmatrix");
         this.graph.buildDistMatrix();
-        console.timeEnd("build-distmatrix");
 
         // Second, build initial rotes for each bus stop (or student)
-        console.time("build-initial-route");
         this.buildInitialRoute();
-        console.timeEnd("build-initial-route");
 
         // Third, build savings and put it on a priority queue
-        console.time("build-savings");
         let savings = this.graph.buildSavings();
-        console.timeEnd("build-savings");
 
         // Process savings
-        console.time("process-savings");
         this.processSavings(savings);
-        console.timeEnd("process-savings");
         
         // Print Routes
         this.routes.forEach((r) => {

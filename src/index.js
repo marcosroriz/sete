@@ -10,11 +10,11 @@ squirrel();
 // Database Creator
 const dbPath = path.join(__dirname, "db", "local.db");
 const sqliteDB = require("knex")({
-  client: "sqlite3",
-  connection: {
-    filename: dbPath
-  },
-  useNullAsDefault: true
+    client: "sqlite3",
+    connection: {
+        filename: dbPath
+    },
+    useNullAsDefault: true
 });
 const spatialite = require("spatialite");
 const spatialiteDB = new spatialite.Database(dbPath);
@@ -30,33 +30,33 @@ const RouteOptimization = require("./main/routing/routing-optimization.js");
 let appWindow;
 
 const createEntryWindow = () => {
-  // Create the entry window.
-  appWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    backgroundThrottling: false,
-    show: false
-  });
+    // Create the entry window.
+    appWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        backgroundThrottling: false,
+        show: false
+    });
 
-  // and load the entry.html of the app.
-  //entryWindow.loadURL(`file://${__dirname}/entry.html`);
-  appWindow.loadURL(`file://${__dirname}/renderer/dashboard.html`);
+    // and load the entry.html of the app.
+    //entryWindow.loadURL(`file://${__dirname}/entry.html`);
+    appWindow.loadURL(`file://${__dirname}/renderer/dashboard.html`);
 
-  // Open the DevTools.
-  appWindow.webContents.openDevTools();
+    // Open the DevTools.
+    appWindow.webContents.openDevTools();
 
-  appWindow.on("ready-to-show", () => {
-    appWindow.maximize();
-    appWindow.show();
-  });
+    appWindow.on("ready-to-show", () => {
+        appWindow.maximize();
+        appWindow.show();
+    });
 
-  // Emitted when the window is closed.
-  appWindow.on('closed', () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    appWindow = null;
-  });
+    // Emitted when the window is closed.
+    appWindow.on('closed', () => {
+        // Dereference the window object, usually you would store windows
+        // in an array if your app supports multi windows, this is the time
+        // when you should delete the corresponding element.
+        appWindow = null;
+    });
 };
 
 // app.disableHardwareAcceleration();
@@ -68,40 +68,35 @@ app.on('ready', createEntryWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+    // On OS X it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (appWindow === null) {
-    createEntryWindow();
-  }
+    // On OS X it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (appWindow === null) {
+        createEntryWindow();
+    }
 });
 
 // Route Generation Algorithm
 ipcMain.on("start:route-generation", (event, routingArgs) => {
-  console.time("entire-route-optimization");
-  let optRoutes = new RouteOptimization(routingArgs, spatialiteDB).optimize();
-  console.timeEnd("entire-route-optimization");
-
-  // appWindow.webContents.send("end:route-generation", optRoutes);
+    let optRoutes = new RouteOptimization(routingArgs, spatialiteDB).optimize();
+    // appWindow.webContents.send("end:route-generation", optRoutes);
 })
 
 // Malha Update
 ipcMain.on("start:malha-update", (event, newOSMFile) => {
-  console.time("malha-update");
-  let malha = new MalhaUpdate(newOSMFile, dbPath, sqliteDB);
-  malha.update();
-  console.timeEnd("malha-update");  
+    let malha = new MalhaUpdate(newOSMFile, dbPath, sqliteDB);
+    malha.update();
 });
 
-// Send answer update
+// Send Answer Update
 app.on("finish-update", (event, arg) => {
-  console.log("cheguei aqui");
-  console.log(arg);
+    console.log("cheguei aqui");
+    console.log(arg);
 });

@@ -46,7 +46,8 @@ class BusRoute {
 
     travDistance(routingGraph) {
         let dist = 0;
-        for (let i = 0; i < this.route.length - 1; i++) {
+        // FIXME: disregard trip from garage to bus stop
+        for (let i = 1; i < this.route.length - 1; i++) {
             let c = this.route[i];
             let d = this.route[i + 1];
             dist = dist + routingGraph.distance(c, d);
