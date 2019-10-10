@@ -9,6 +9,7 @@ $("#baixarMalha").click(() => {
             { name: "OSM", extensions: ["osm"] }
         ]
     }, (arqDestino) => {
+        debugger;
         console.log(arqDestino);
         let arqOrigem = path.join(userDataDir, "malha.osm");
         try {
@@ -38,8 +39,27 @@ $('#rota-malha-salvarNovaMalha').click(() => {
     ipcRenderer.send('start:malha-update', osmFilePath);
 });
 
-$('#lol').click(() => {
-    console.log("lol");
+
+ipcRenderer.on("end:malha-update", function (event, status) {
+    if (status) {
+        swal({
+            title: "Malha atualizada com sucesso",
+            text: "Clique em OK para retornar a visão geral do sistema.",
+            type: "success",
+            icon: "success",
+            closeOnClickOutside: false,
+            allowOutsideClick: false,
+            showConfirmButton: true,
+            confirmButtonText: "Ok"
+        });
+    } else {
+        swal({
+            title: "Ops... tivemos um problema!",
+            text: err.message,
+            icon: "error",
+            button: "Fechar"
+        });
+    } 
 });
 
 // Wizard

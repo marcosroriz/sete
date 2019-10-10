@@ -85,14 +85,24 @@ app.on('activate', () => {
 
 // Route Generation Algorithm
 ipcMain.on("start:route-generation", (event, routingArgs) => {
-    let optRoutes = new RouteOptimization(routingArgs, spatialiteDB).optimize();
-    // appWindow.webContents.send("end:route-generation", optRoutes);
+    new RouteOptimization(routingArgs, spatialiteDB).optimize().then((optRoutes) => {
+        console.log("aqui");
+        console.log("aqui");
+        console.log("aqui");
+        appWindow.webContents.send("end:route-generation", optRoutes);      
+    });
 })
 
 // Malha Update
 ipcMain.on("start:malha-update", (event, newOSMFile) => {
     let malha = new MalhaUpdate(newOSMFile, dbPath, sqliteDB);
-    malha.update();
+    malha.update()
+        .then((updateData) => {
+            appWindow.webContents.send("end:malha-update", true);      
+        })
+        .catch((err) => {
+            appWindow.webContents.send("end:malha-update", false);
+        })
 });
 
 // Send Answer Update

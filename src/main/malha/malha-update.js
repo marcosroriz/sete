@@ -49,9 +49,9 @@ class MalhaUpdate {
         // let t2 = this.sqliteDB.schema.dropTableIfExists(tableName + "_nodes");
         // let t3 = this.sqliteDB.schema.dropTableIfExists(tableName + "_data");
         let t1 = this.sqliteDB.schema.dropTableIfExists(tableName + "_net")
-                    .catch((err) => {
-                        console.log("cheguei aqui");
-                    });
+            .catch((err) => {
+                console.log("SUPRRESED ERROR", err);
+            });
         return Promise.all([t1]);
     }
 
@@ -69,13 +69,13 @@ class MalhaUpdate {
         } else {
             binName = "spatialite_osm_net_mac";
         }
-        
+
         let spatialiteNetBinPath = path.join(app.getAppPath(), "bin", binName);
         let templateFile = path.join(path.dirname(this.dbPath), "osm_road_template");
-        let args = ["-o", this.newOSMFile, 
-                    "-d", this.dbPath, 
-                    "-T", tableName, 
-                    "-tf", templateFile];
+        let args = ["-o", this.newOSMFile,
+            "-d", this.dbPath,
+            "-T", tableName,
+            "-tf", templateFile];
         console.log(spatialiteNetBinPath);
         console.log(args);
         return child_process.spawn(spatialiteNetBinPath, args);
@@ -92,72 +92,75 @@ class MalhaUpdate {
         }
 
         let spatialliteVirtualNetBin = path.join(app.getAppPath(), "bin", binName);
-        let args = ["-d", this.dbPath, 
-                    "-T", tableName, 
-                    "-f", "node_from",
-                    "-t", "node_to",
-                    "-g", "geometry",
-                    "-n", "name",
-                    "-c", "cost",
-                    "-o", tableName + "_data",
-                    "-v", tableName + "_net",
-                    "--oneway-tofrom", "oneway_tofrom",
-                    "--oneway-fromto", "oneway_fromto",
-                    "--overwrite-output"];
+        let args = ["-d", this.dbPath,
+            "-T", tableName,
+            "-f", "node_from",
+            "-t", "node_to",
+            "-g", "geometry",
+            "-n", "name",
+            "-c", "cost",
+            "-o", tableName + "_data",
+            "-v", tableName + "_net",
+            "--oneway-tofrom", "oneway_tofrom",
+            "--oneway-fromto", "oneway_fromto",
+            "--overwrite-output"];
         console.log(spatialliteVirtualNetBin);
         console.log(args);
         return child_process.spawn(spatialliteVirtualNetBin, args);
 
     }
-    async update() {
-        // First, check if OSM network data is OK
-        return Promise.all(this.clearBasicNet("malha"))
-            .then(() => {
-            this.clearVirtualNet("malha")
-            .then(() => {
-            this.clearRemainderNet("malha")
-            .then(() => {
-            let malhaCreation = this.createBasicNet("malha");
-            malhaCreation.on('close', (status) => {
-            if (status == 0) {
-            // Process returned OK
-            // Now, we'll create the routing network
-            let malhaVirtualNetwork = this.createVirtualNetwork("malha");
-            malhaVirtualNetwork.on('close', (statusNet) => {
-                                                console.log(statusNet);
+    update() {
+        return new Promise((resolve, reject) => {
+            // First, check if OSM network data is OK
+            return Promise.all(this.clearBasicNet("malha"))
+                .then(() => { this.clearVirtualNet("malha") })
+                .then(() => { this.clearRemainderNet("malha") })
+                .then(() => {
+                    let malhaCreation = this.createBasicNet("malha");
+                    malhaCreation.on('close', (status) => {
+                        if (status == 0) {
+                            // Process returned OK
+                            // Now, we'll create the routing network
+                            let malhaVirtualNetwork = this.createVirtualNetwork("malha");
+                            malhaVirtualNetwork.on('close', (statusNet) => {
+                                console.log(statusNet);
+                                // Ok, now we'll copy the updated OSM file to the existing one
+                                let userDataPath = app.getPath('userData');
+                                let dstFile = path.join(userDataPath, "malha.osm");
+                                try {
+                                    fs.copySync(this.newOSMFile, dstFile);
+                                    console.log("NOVO ARQUIVO DA MALHA SALVO EM: ", dstFile);
+                                    resolve(dstFile)
+                                } catch (err) {
+                                    reject(err);
+                                }
+                            });
 
-                                                // Ok, now we'll copy the updated OSM file to the existing one
-                                                let userDataPath = app.getPath('userData');
-                                                let dstFile = path.join(userDataPath, "malha.osm");
-                                                try {
-                                                    fs.copySync(this.newOSMFile, dstFile);
-                                                    console.log("salvei em: ", dstFile);
-                                                } catch (err) {
-                                                    console.error(err);
-                                                }
-                                            });
-                                            
-                                            malhaVirtualNetwork.stdout.on('data', (data) => {
-                                                console.log(`stdout: ${data}`);
-                                            });
+                            malhaVirtualNetwork.stdout.on('data', (data) => {
+                                console.log(`stdout: ${data}`);
+                            });
 
-                                            malhaVirtualNetwork.stderr.on('data', (data) => {
-                                                console.error(`stderr: ${data}`);
-                                            });
-                                            
-                                        } else {
-                                            // Handle error
-                                        }
-                                    });
+                            malhaVirtualNetwork.stderr.on('data', (data) => {
+                                console.error(`stderr: ${data}`);
+                            });
 
-                        malhaCreation.stdout.on('data', (data) => {
-                            console.log(`stdout: ${data}`);
-                        });
+                        } else {
+                            reject("Erro ao tentar criar a malha");
+                        }
+                    });
 
-                        malhaCreation.stderr.on('data', (data) => {
-                            console.error(`stderr: ${data}`);
-                        });
-        })})});
+                    malhaCreation.stdout.on('data', (data) => {
+                        console.log(`stdout: ${data}`);
+                    });
+
+                    malhaCreation.stderr.on('data', (data) => {
+                        console.error(`stderr: ${data}`);
+                    });
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        });
     }
 }
 
