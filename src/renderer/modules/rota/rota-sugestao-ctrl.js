@@ -1,4 +1,6 @@
 // Lista de Imports
+var GeoJSON = require('geojson');
+
 // Mapas
 var mapaConfig = novoMapaOpenLayers("mapaRotaSugestaoConfig", -16.8152409, -49.2756642);
 var mapaRotaGerada = novoMapaOpenLayers("mapaRotaSugestaoGerada", -16.8152409, -49.2756642);
@@ -80,6 +82,17 @@ var alunos   = getAlunos();
 var garagens = getGaragens();
 var escolas  = getEscolas();
 
+// debugger;
+
+// var elements = alunos.concat(garagens).concat(escolas);
+// elements.forEach((v) => {
+//     console.log(`<node version="1" id='${v.key}' visible='true' lat='${v.lat}' lon='${v.lng}'>
+//     <tag k="highway" v="bus_stop"/>
+//     </node>`);
+// })
+// var gp = GeoJSON.parse(elements, { Point: ['lat', 'lng'] });
+// console.log(gp);
+
 function drawMapElements(arrAlunos, arrGaragens, arrEscolas, camada) {
     for (let i in arrAlunos) {
         let a = arrAlunos[i];
@@ -160,28 +173,55 @@ function drawRoutes(routesJSON) {
     routesJSON.forEach((r) => {
         // Adiciona para camadas
         rotasGeradas.set(r["id"], r);
+        
         let rotaCor = proximaCor();
         let camada = mapaRotaGerada["createLayer"](r["id"], 
             `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota++}`);
 
-        // Pega coordenadas
+        // Make this dynamic
+        pickedRoute = r;
+        pickedRouteLength = r["purejson"].coordinates.length;
+        vl = camada.layer;
+
+        // Add Route Drawing
+        let gjson = new ol.format.GeoJSON({ featureProjection: 'EPSG:3857' })
+                                 .readFeatures(r["geojson"]);
+        let styles = new Array();
+        styles.push(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: rotaCor,
+                width: 5
+            })
+        }));
+
+        // Ponto inicial
+        let geoMarker = new ol.Feature({
+            type: 'geoMarker',
+            geometry: new ol.geom.Point(r["purejson"].coordinates[0])
+        });
+        geoMarker.setStyle = new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 7,
+                fill: new ol.style.Fill({ color: 'black' }),
+                stroke: new ol.style.Stroke({
+                    color: 'white', width: 2
+                })
+            })
+        });
+
+        // Add additional properties
+        gjson.forEach(f => {
+            f.set("rota", r["id"]);
+            f.set("marker", geoMarker);
+        });
+
+        // Poem setinhas nos pontos
         let pontosRota = new Array();
         for (let i = 1; i < r["path"].length; i++) {
             let parada = r["path"][i];
             pontosRota.push(getPoint(parada.type, parada.id));
         }
-
-        // Desenha Line String
-        let p = new ol.Feature({
-            "geometry": new ol.geom.LineString(pontosRota)
-        });
-        let styles = new Array();
-        styles.push(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: rotaCor,
-                width: 3 
-            })
-        }));
+        let p = new ol.Feature({ "geometry": new ol.geom.LineString(pontosRota) });
         
         // Desenha setinhas
         p.getGeometry().forEachSegment(function (start, end) {
@@ -200,13 +240,12 @@ function drawRoutes(routesJSON) {
             }));
         });
 
-        // Atribui todos as setinhas e traçado
-        p.setStyle(styles);
-
-        // Joga na camada
-        camada.source.addFeature(p);
-
         // Salva camada no grupoDeCamadas
+        camada.source.addFeatures(gjson);
+        camada.layer.setStyle(styles);
+
+        // let popup = buildPopup(r["id"], mapaRotaGerada["select"]);
+        // mapaRotaGerada["map"].addOverlay(popup);
         grupoDeCamadas.unshift(camada.layer);
     });
 
@@ -222,6 +261,113 @@ mapaConfig["map"].getView().fit(vSource.getExtent());
 var gSource = mapaRotaGerada["vectorSource"];
 drawMapElements(alunos, garagens, escolas, gSource);
 mapaRotaGerada["map"].getView().fit(gSource.getExtent());
+
+var selectRoute = new ol.interaction.Select({
+    hitTolerance: 5,
+    multi: false,
+    condition: ol.events.condition.singleClick,
+    filter: (feature, layer) => {
+        if (feature.getGeometry().getType() == "LineString") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+});
+
+///////////////////////////////////////////////////////////////////////////////
+// Animação
+///////////////////////////////////////////////////////////////////////////////
+var btnIniciarAnimacao = $("#animarRota");
+btnIniciarAnimacao.on('click', (evt) => {
+    startAnimation();
+});
+
+var pickedRoute = null;
+var pickedRouteLength = 0;
+var vl;
+var animating = false;
+var speed = 100
+var now = 0;
+
+function startAnimation() {
+    if (animating) {
+        stopAnimation(false);
+    } else {
+        animating = true;
+        now = new Date().getTime();
+        // startButton.textContent = "Cancelar Traçado";
+        // just in case you pan somewhere else
+        // map.getView().setCenter(center);
+        mapaRotaGerada["groupLayer"].on('postrender', moveFeature);
+        mapaRotaGerada["map"].render();
+    }
+}
+
+var moveFeature = function (event) {
+    var vectorContext = getVectorContext(event);
+    var frameState = event.frameState;
+
+    var elapsedTime = frameState.time - now;
+    // here the trick to increase speed is to jump some indexes
+    // on lineString coordinates
+    var index = Math.round(speed * elapsedTime / 1000);
+
+    if (index >= pickedRoute.coordinates.length) {
+        mapaRotaGerada["groupLayer"].un('postrender', moveFeature);
+        return;
+    }
+
+    let geoMarker = new ol.Feature({
+        type: 'geoMarker',
+        geometry: new ol.geom.Point(pickedRoute.coordinates[index])
+    });
+    geoMarker.setStyle = new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: 7,
+            fill: new ol.style.Fill({ color: 'black' }),
+            stroke: new ol.style.Stroke({
+                color: 'white', width: 2
+            })
+        })
+    });
+
+    vectorContext.drawFeature(geoMarker);
+// tell OpenLayers to continue the postrender animation
+mapaRotaGerada["map"].render();
+};
+  
+
+///////////////////////////////////////////////////////////////////////////////
+// Popup
+///////////////////////////////////////////////////////////////////////////////
+mapaRotaGerada["map"].addInteraction(selectRoute);
+let popup = new ol.Overlay.PopupFeature({
+    popupClass: "default anim",
+    select: selectRoute,
+    closeBox: true,
+    onshow: () => {
+        // pickedRoute = 130;
+
+    },
+    template: {
+        title: (elem) => {
+            return "Rota " + elem.get("rota");
+        },
+        attributes: {
+            'numPassengers': {
+                title: 'Número de Passageiros'
+            },
+            'travDistance': {
+                title: 'Tamanho da Rota',  // attribute's title
+                before: '',           // something to add before
+                format: ol.Overlay.PopupFeature.localString(),  // format as local string
+                after: ' km.'        // something to add after
+            }
+        }
+    }
+});
+mapaRotaGerada["map"].addOverlay(popup);
 
 //////////////////////////////////////////////////////////////
 // Realiza a Simulação
@@ -267,16 +413,13 @@ ipcRenderer.on("end:route-generation", function (event, routesJSON) {
     setTimeout(function() {
         // Apaga rotas anteriores desenhadas
         mapaRotaGerada["rmGroupLayer"]();
-        // for (let camadaID of rotasGeradas.keys()) {
-            // mapaRotaGerada["rmLayer"](camadaID);
-        // }
 
         // Desenha novas rotas
         rotasGeradas = new Map();
         drawRoutes(routesJSON);
 
         // Ativa grupo
-        mapaRotaGerada["activateLayerSwitcher"]("sidebar-RotasGeradas");
+        mapaRotaGerada["activateSidebarLayerSwitcher"](".sidebar-RotasGeradas");
 
         // Atualiza o mapa
         mapaRotaGerada["map"].updateSize();
@@ -286,7 +429,7 @@ ipcRenderer.on("end:route-generation", function (event, routesJSON) {
             $('.expend-layers').click();
             $('.ol-layerswitcher-buttons').hide();
             $('.layerswitcher-opacity').hide();
-        }, 100);      
+        }, 100);
         swal.close();
     }, 2000);
 });

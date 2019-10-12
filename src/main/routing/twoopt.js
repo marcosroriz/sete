@@ -5,6 +5,7 @@ module.exports = class TwoOpt {
     constructor(busRoute, routingGraph) {
         this.busRoute = busRoute;
         this.routingGraph = routingGraph;
+        this.initialCost = this.busRoute.travDistance(this.routingGraph);
     }
 
     optimize() {
@@ -36,6 +37,8 @@ module.exports = class TwoOpt {
             }
         }
 
+        console.log("OLD COST", "NEW COST");
+        console.log(this.initialCost, bestCost);
         return this.busRoute;
     }
 

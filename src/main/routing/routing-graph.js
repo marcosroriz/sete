@@ -130,7 +130,6 @@ module.exports = class RoutingGraph {
                     console.log("aqui aqui");
                     console.log(sqlQuery);
                 }
-                console.log(c.get("key"), d.get("key"), cost, dist);
                 c.get("spatialDistEdges").set(d.get("key"), dist);
                 c.get("spatialCostEdges").set(d.get("key"), cost);
                 resolve();

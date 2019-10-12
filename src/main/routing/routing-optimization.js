@@ -13,25 +13,41 @@ module.exports = class RoutingOptimization {
     }
 
     optimize() {
-        // Activate spatial db
-        this.spatialiteDB.spatialite((error) => {
-            let kmeans = new SchoolBusKMeans(this.routingParams);
-            kmeans.partition(this.routingParams["numVehicles"])
-                  .then((clusters) => {
-                    console.log(clusters);
-                    console.log("Executa um Clark por Cluster");
+        return new Promise((resolve, reject) => {
+            // Activate spatial db
+            this.spatialiteDB.spatialite((error) => {
+                let kmeans = new SchoolBusKMeans(this.routingParams);
+                kmeans.partition(this.routingParams["numVehicles"])
+                      .then((clusters) => {
+                            console.log(clusters);
+                            console.log("Executa um Clark por Cluster");
 
-                    let schoolBusRouter = new ClarkeWrightSchoolBusRouting(this.routingParams,
-                                                                           this.spatialiteDB);
-                    schoolBusRouter.spatialRoute().then((routes) => {
-                        // Print Routes
-                        console.log(routes);
-                        routes.forEach((r) => {
-                            console.log(r.toLatLongRoute(this.graph));
-                            console.log("-------")
-                        });
+                            let schoolBusRouter = new ClarkeWrightSchoolBusRouting(this.routingParams,
+                                                                                this.spatialiteDB);
+                            schoolBusRouter.spatialRoute().then((busRoutes) => {
+                                // Print Routes
+                                console.log(busRoutes);
+
+                                // Run OPT
+                                let optimizedRoutes = new Array();
+                                busRoutes.forEach((r) => {
+                                    let optRoute = new TwoOpt(r, schoolBusRouter.graph).optimize();
+                                    optimizedRoutes.push(optRoute);
+                                });
+
+                                // Compute Route JSON (need to run at promise)
+                                let promises = new Array();
+                                optimizedRoutes.forEach((r) => {
+                                    promises.push(r.toPlainJSON(schoolBusRouter.graph, this.spatialiteDB));
+                                });
+
+                                Promise.all(promises).then((routesJSON) => {
+                                    console.log(routesJSON);
+                                    resolve(routesJSON);
+                                })
+                            });
                     });
-                });
+            });
         });
     }
 }

@@ -56,21 +56,71 @@ class BusRoute {
         return dist;
     }
 
-    toPlainJSON(routingGraph) {
-        let routeJSON = {};
-        routeJSON["id"] = this.busID;
-        routeJSON["numPassengers"] = this.numPassengers(routingGraph);
-        routeJSON["travDistance"] = this.travDistance(routingGraph);
-        routeJSON["path"] = new Array();
-        for (let i = 0; i < this.route.length; i++) {
-            let vertex = routingGraph.getVertex(this.route[i]);
-            routeJSON["path"].push({
-                id: vertex.get("rawkey"),
-                type: vertex.get("type")
+    toGeoJSON(c, d, spatialiteDB, route) {
+        let cnodeID = c.get("dbNodeID");
+        let dnodeID = d.get("dbNodeID");
+        let sqlQuery = `SELECT AsGeoJSON(geometry) AS js
+                        FROM malha_net
+                        WHERE NodeFrom = ${cnodeID} AND NodeTo = ${dnodeID}
+                        LIMIT 1`;
+        return new Promise((resolve, reject) => {
+            spatialiteDB.get(sqlQuery, (err, row) => {
+                resolve({
+                    ckey: c.get("key"),
+                    dkey: d.get("key"),
+                    gjson: row["js"]
+                });
             });
-        }
+        });
+    }
 
-        return routeJSON;
+    toPlainJSON(routingGraph, spatialiteDB) {
+        return new Promise((resolve, reject) => {
+            let routeJSON = {};
+            routeJSON["id"] = this.busID;
+            routeJSON["numPassengers"] = this.numPassengers(routingGraph);
+            routeJSON["travDistance"] = this.travDistance(routingGraph);
+            routeJSON["path"] = new Array();
+            routeJSON["geojson"] = "";
+    
+            // Promises for computing GeoJson distance in each pair of the path
+            // Compute Path
+            let promises = new Array();
+    
+            for (let i = 0; i < this.route.length - 1; i++) {
+                let c = routingGraph.getVertex(this.route[i]);
+                let d = routingGraph.getVertex(this.route[i + 1]);
+                routeJSON["path"].push({
+                    id: c.get("rawkey"),
+                    type: c.get("type")
+                });
+                promises.push(this.toGeoJSON(c, d, spatialiteDB, this.route));
+            }
+
+            Promise.all(promises).then((values) => {
+                let pathGeojson = JSON.parse(values[1].gjson);
+                for (let i = 2; i < values.length; i++) {
+                    let pairGeoJson = JSON.parse(values[i].gjson);
+                    for (let j = 1; j < pairGeoJson.coordinates.length; j++) {
+                        pathGeojson.coordinates.push(pairGeoJson.coordinates[j]);
+                    }
+                }
+                routeJSON["purejson"] = pathGeojson;
+                routeJSON["geojson"] = {
+                    "type": "Feature",
+                    "properties": {
+                        "numPassengers": routeJSON["numPassengers"],
+                        "travDistance": (routeJSON["travDistance"] / 1000).toFixed(2),
+                        // TODO: Colocar escolas
+                    },
+                    "geometry": {
+                        "type": pathGeojson.type,
+                        "coordinates": pathGeojson.coordinates,
+                    }
+                }
+                resolve(routeJSON);
+            });
+        });
     }
 
     toLatLongRoute(routingGraph) {

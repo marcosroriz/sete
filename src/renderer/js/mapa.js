@@ -1,8 +1,8 @@
 // Função para retornar um Mapa Clicável e Simples do OpenLayers
 
-var mapaCores = ["#E58606","#5D69B1","#52BCA3","#99C945","#CC61B0",
-                 "#24796C","#DAA51B","#2F8AC4","#764E9F","#ED645A",
-                 "#CC3A8E","#A5AA99"];
+var mapaCores = ["#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0",
+    "#24796C", "#DAA51B", "#2F8AC4", "#764E9F", "#ED645A",
+    "#CC3A8E", "#A5AA99"];
 
 var cor = 0;
 
@@ -12,13 +12,13 @@ function proximaCor() {
 
 function novoMapaOpenLayers(target, latitude, longitude) {
     let mapa = {};
-    
+
     let vectorSource = new ol.source.Vector();
     let vectorLayer = new ol.layer.Vector({
         source: vectorSource,
         displayInLayerSwitcher: false,
     });
-    
+
     let olMap = new ol.Map({
         "target": target,
         "layers": [
@@ -37,7 +37,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
                 displayInLayerSwitcher: true,
                 source: new ol.source.OSM(),
                 visible: false
-            }),        
+            }),
             vectorLayer
         ],
         "view": new ol.View({
@@ -50,24 +50,24 @@ function novoMapaOpenLayers(target, latitude, longitude) {
     mapa["vectorLayer"] = vectorLayer;
     mapa["map"] = olMap;
     mapa["layerSwitcherActivated"] = false;
-    
+
     mapa["layers"] = {
-        "base" : {
-            "source" : vectorSource,
-            "layer"  : vectorLayer
+        "base": {
+            "source": vectorSource,
+            "layer": vectorLayer
         }
     }
 
-    mapa["addLayer"] = function(lname) {
+    mapa["addLayer"] = function (lname) {
         let vs = new ol.source.Vector();
         let vl = new ol.layer.Vector({
             source: vs
         });
-        
+
         let lyr = {
-            "name"   : lname,
-            "source" : vs,
-            "layer"  : vl,
+            "name": lname,
+            "source": vs,
+            "layer": vl,
             "displayInLayerSwitcher": false,
         }
 
@@ -76,36 +76,36 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         return lyr;
     }
 
-    mapa["addGroupLayer"] = function(title, lyrs) {
+    mapa["addGroupLayer"] = function (title, lyrs) {
         let groupLayer = new ol.layer.Group({
             "title": title,
             "type": "base",
             "displayInLayerSwitcher": true,
             "layers": lyrs
         });
-        
+
         mapa["groupLayer"] = groupLayer;
         olMap.addLayer(groupLayer);
     }
 
-    mapa["createLayer"] = function(lname, title) {
+    mapa["createLayer"] = function (lname, title) {
         let vs = new ol.source.Vector();
         let vl = new ol.layer.Vector({
             "title": title,
             "source": vs
         });
-        
+
         let lyr = {
-            "name"   : lname,
-            "title"  : title,
-            "source" : vs,
-            "layer"  : vl
+            "name": lname,
+            "title": title,
+            "source": vs,
+            "layer": vl
         }
 
         return lyr;
     }
 
-    mapa["rmLayer"] = function(lname) {
+    mapa["rmLayer"] = function (lname) {
         if (mapa["layers"][lname] != null) {
             mapa["layers"][lname].source.clear();
             olMap.removeLayer(mapa["layers"][lname]);
@@ -113,25 +113,28 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         }
     }
 
-    mapa["rmGroupLayer"] = function(lname) {
+    mapa["rmGroupLayer"] = function (lname) {
         if (mapa["groupLayer"] != null) {
             olMap.removeLayer(mapa["groupLayer"]);
         }
     }
 
-    mapa["activateLayerSwitcher"] = function(elemID) {
-        if (mapa["layerSwitcherActivated"] == false) {
-            // var layerSwitcher = new ol.control.LayerSwitcher({
-                // tipLabel: 'Rotas', // Optional label for button
-                // groupSelectStyle: 'children' // Can be 'children' [default], 'group' or 'none'
-            // });
-            // let elem = document.getElementById(elemID);
-            // ol.control.LayerSwitcher.renderPanel(olMap, elem);
-            // olMap.addControl(layerSwitcher);
-            // layerSwitcher.showPanel();
+    mapa["activateSelect"] = function () {
+        let select = new ol.interaction.Select({
+            hitTolerance: 5,
+            multi: false,
+            condition: ol.events.condition.singleClick
+        });
+        olMap.addInteraction(select);
 
+        mapa["select"] = select;
+        return select;
+    }
+
+    mapa["activateSidebarLayerSwitcher"] = function (elemID) {
+        if (mapa["layerSwitcherActivated"] == false) {
             var switcher = new ol.control.LayerSwitcher({
-                target: $(".sidebar-RotasGeradas").get(0),
+                target: $(elemID).get(0),
                 reordering: false,
                 extent: true,
                 trash: false
