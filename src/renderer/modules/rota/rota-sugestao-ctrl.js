@@ -181,7 +181,7 @@ function drawRoutes(routesJSON) {
         // Make this dynamic
         pickedRoute = r;
         pickedRouteLength = r["purejson"].coordinates.length;
-        vl = camada.layer;
+        pickedLayer = camada.layer;
 
         // Add Route Drawing
         let gjson = new ol.format.GeoJSON({ featureProjection: 'EPSG:3857' })
@@ -243,6 +243,8 @@ function drawRoutes(routesJSON) {
         // Salva camada no grupoDeCamadas
         camada.source.addFeatures(gjson);
         camada.layer.setStyle(styles);
+        camada.layer.setZIndex(1);
+
 
         // let popup = buildPopup(r["id"], mapaRotaGerada["select"]);
         // mapaRotaGerada["map"].addOverlay(popup);
@@ -280,32 +282,19 @@ var selectRoute = new ol.interaction.Select({
 ///////////////////////////////////////////////////////////////////////////////
 var btnIniciarAnimacao = $("#animarRota");
 btnIniciarAnimacao.on('click', (evt) => {
+    pickedLayer.setZIndex(2);
     startAnimation();
 });
 
+var pickedLayer = null;
 var pickedRoute = null;
 var pickedRouteLength = 0;
-var vl;
 var animating = false;
-var speed = 100
+var speed = 20;
 var now = 0;
 
-function startAnimation() {
-    if (animating) {
-        stopAnimation(false);
-    } else {
-        animating = true;
-        now = new Date().getTime();
-        // startButton.textContent = "Cancelar Traçado";
-        // just in case you pan somewhere else
-        // map.getView().setCenter(center);
-        mapaRotaGerada["groupLayer"].on('postrender', moveFeature);
-        mapaRotaGerada["map"].render();
-    }
-}
-
 var moveFeature = function (event) {
-    var vectorContext = getVectorContext(event);
+    var vectorContext = ol.render.getVectorContext(event);
     var frameState = event.frameState;
 
     var elapsedTime = frameState.time - now;
@@ -313,16 +302,20 @@ var moveFeature = function (event) {
     // on lineString coordinates
     var index = Math.round(speed * elapsedTime / 1000);
 
-    if (index >= pickedRoute.coordinates.length) {
-        mapaRotaGerada["groupLayer"].un('postrender', moveFeature);
+    if (index >= pickedRouteLength) {
+        pickedLayer.un('postrender', moveFeature);
         return;
     }
 
+    let pcoord = pickedRoute["purejson"].coordinates[index];
+    let plat = pcoord[1];
+    let plng = pcoord[0];
+    
+
     let geoMarker = new ol.Feature({
-        type: 'geoMarker',
-        geometry: new ol.geom.Point(pickedRoute.coordinates[index])
+        geometry: new ol.geom.Point(ol.proj.fromLonLat([plng, plat]))
     });
-    geoMarker.setStyle = new ol.style.Style({
+    let geoStyle = new ol.style.Style({
         image: new ol.style.Circle({
             radius: 7,
             fill: new ol.style.Fill({ color: 'black' }),
@@ -332,11 +325,34 @@ var moveFeature = function (event) {
         })
     });
 
-    vectorContext.drawFeature(geoMarker);
-// tell OpenLayers to continue the postrender animation
-mapaRotaGerada["map"].render();
+    let iconStyle = new ol.style.Style({
+        image: new ol.style.Icon({
+            // anchor: [0, 0],
+            // anchorXUnits: 'pixels',
+            // anchorYUnits: 'pixels',
+            opacity: 1,
+            img: document.getElementById("onibusMarcador"),
+            // src: "img/icones/onibus-marcador.png",
+            imgSize: [36, 36],
+            // size: [36, 36]
+        })
+    });
+
+    vectorContext.drawFeature(geoMarker, iconStyle);
+    // tell OpenLayers to continue the postrender animation
+    mapaRotaGerada["map"].render();
 };
-  
+
+function startAnimation() {
+    animating = true;
+    now = new Date().getTime();
+    // startButton.textContent = "Cancelar Traçado";
+    // just in case you pan somewhere else
+    // map.getView().setCenter(center);
+    pickedLayer.on("postrender", moveFeature);
+    mapaRotaGerada["map"].render();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Popup
