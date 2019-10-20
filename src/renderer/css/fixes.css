@@ -335,9 +335,16 @@ img.wiz-icon {
 
 .control-label b {
     font-weight: 600;
+    font-size: 14px;
+    color: #7b7b7b;
+}
+
+.latlon-label b {
+    font-weight: 600;
     font-size: 13px;
     color: #7b7b7b;
 }
+
 
 .mapawiz {
     margin-left: 15px;
@@ -349,7 +356,7 @@ img.wiz-icon {
 }
 
 .tab-wiz .form-group {
-    background: #F7F7F7;
+    background: #f3f3f3;
     padding: 20px;
     padding-bottom: 20px;
     border-radius: 5px;
@@ -533,4 +540,108 @@ li.ol-header {
     color: white;
     font-weight: 700;
     font-size: 1em;
+}
+
+.form-group .col-10 {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.form-group .col-9 {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.form-group .col-8 {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+label.form-check-label.from-check-inline {
+    font-size: 14px;
+    font-weight: 450;
+}
+
+
+label.form-check-label {
+    font-size: 14px;
+    font-weight: 450;
+}
+
+.hint {
+    font-size: 12px;
+    color: #aba5a5;
+    font-style: italic;
+}
+
+/* Mapa */
+.ol-layerswitcher-image li:hover p {
+    font-weight: 600;
+    font-size: 10px;
+    padding-bottom: 2px;
+    font-family: Roboto;
+}
+
+li.ol-imgcontainer.select.ol-layer-hidden {
+    font-size: 12px;
+}
+
+.ol-attribution button, .ol-attribution ul {
+    font-size: 10px;
+}
+
+.ol-attribution li {
+    font-size: 10px;
+    color: #635a5a;
+}
+
+a.ol-attribution-bing-tos {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.ol-attribution li a {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+li.ol-imgcontainer.select.ol-layer-hidden {
+    border: 3px solid red;
+}
+
+li.ol-imgcontainer.ol-layer-hidden {
+    opacity: .7;
+}
+
+.ol-layerswitcher-image.ol-unselectable.ol-control.ol-collapsed {
+    top: 320px !important;
+}
+
+.ol-layerswitcher-image.ol-unselectable.ol-control {
+    top: 280px;
+}
+
+span.gcd-road {
+
+    font-size: 11px;
+    line-height: 1px;
+    font-weight: 400;
+}
+
+.ol-geocoder ul.gcd-gl-result {
+    /* border-radius: 50px; */
+    left: 2.2rem;
+    border: #ffffffa8;
+    border-style: solid;
+    max-height: 250px;
+}
+
+.ol-geocoder ul.gcd-gl-result>li>a {
+    padding-left: 10px;
+    padding-right: 10px;
+    line-height: 1.2;
+}
+
+.ol-geocoder ul.gcd-gl-result>li:nth-child(odd) {
+    background-color: #eaeff7;
 }

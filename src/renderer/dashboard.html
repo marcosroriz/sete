@@ -17,7 +17,8 @@
     <link rel="stylesheet" href="../../node_modules/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/ol.css" />
-    <link rel="stylesheet" href="../../node_modules/ol-ext/dist/ol-ext.css" />
+    <link rel="stylesheet" href="../../node_modules/ol-ext/dist/ol-ext.min.css" />
+    <link rel="stylesheet" href="../../node_modules/ol-geocoder/dist/ol-geocoder.min.css" />
     <link rel="stylesheet" href="css/datatables.min.css" />
 
     <!-- Template CSS -->
@@ -54,16 +55,18 @@
         $(".content").fadeIn(1000);
     });
 </script>
+
 <script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript" src="js/mapa.js"></script>
 <script type="text/javascript" src="js/jquery.validate.extra.js"></script>
 
 <!-- Map Scripts -->
 <script type="text/javascript" src="js/core/ol.6.0.1.js"></script>
-<!-- <script type="text/javascript" src="../node_modules/ol-layerswitcher/dist/ol-layerswitcher.js"></script> -->
 <script type="text/javascript" src="js/core/ol-ext.js"></script>
+<script type="text/javascript" src="../../node_modules/ol-geocoder/dist/ol-geocoder.js"></script>
 
 <!-- Plugins -->
+<script type="text/javascript" src="js/plugins/cidades-estados-utf8.js"></script>
 <script type="text/javascript" src="js/plugins/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/plugins/vfs_fonts.js"></script>
 <script type="text/javascript" src="js/plugins/datatables.min.js"></script>

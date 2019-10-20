@@ -28,6 +28,14 @@ const knex = require("knex")({
     useNullAsDefault: true
 });
 
+// Dados da cidade
+// FIXME: Parametrizar isso!
+var cidadeLatitude = -16.8152409;
+var cidadeLongitude = -49.2756642;
+var codCidade = "5201405";
+var codEstado = "52";
+
+
 const bookshelf = require("bookshelf")(knex);
 
 const Users = bookshelf.Model.extend(

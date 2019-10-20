@@ -32,10 +32,12 @@ let appWindow;
 const createEntryWindow = () => {
     // Create the entry window.
     appWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        backgroundThrottling: false,
-        show: false
+        "width": 1250,
+        "height": 650,
+        "minWidth": 1250,      
+        "minHeight": 650,
+        "backgroundThrottling": false,
+        "show": false
     });
 
     // and load the entry.html of the app.

@@ -1,11 +1,11 @@
 // Funções extra para validar formulários com o JQuery Validator
 
 // Inicia máscaras de telefone e cpf do registro
-let telmaskbehaviour = function (val) {
+var telmaskbehaviour = function (val) {
     return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
 };
 
-let teloptions = {
+var teloptions = {
     onKeyPress: function (val, e, field, options) {
         field.mask(telmaskbehaviour.apply({}, arguments), options);
     }
@@ -70,8 +70,6 @@ window.$.validator.addMethod("pickselect", function (value, element) {
     return value != " ";
 }, "Selecione uma opção");
 
-
-
 // Validar campo com data de nascimento no formato dd-mm-yyyy
 window.$.validator.addMethod("datanasc", function (value, element) {
     // return this.optional(element) || /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/.test(value);
@@ -101,6 +99,8 @@ window.$.extend(window.$.validator.messages, {
     date: "Por favor, forneça uma data válida.",
     dateISO: "Por favor, forneça uma data válida (ISO).",
     number: "Por favor, forneça um número válido.",
+    cep: "Por favor, digite um CEP válido",
+    cpf: "Por favor, digite um CPF válido",
     digits: "Por favor, forneça somente dígitos.",
     creditcard: "Por favor, forneça um cartão de crédito válido.",
     equalTo: "Por favor, forneça o mesmo valor novamente.",

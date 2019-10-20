@@ -56,7 +56,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
             "source": vectorSource,
             "layer": vectorLayer
         }
-    }
+    };
 
     mapa["addLayer"] = function (lname) {
         let vs = new ol.source.Vector();
@@ -74,7 +74,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         mapa["layers"][lname] = lyr;
         olMap.addLayer(vl);
         return lyr;
-    }
+    };
 
     mapa["addGroupLayer"] = function (title, lyrs) {
         let groupLayer = new ol.layer.Group({
@@ -86,7 +86,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
 
         mapa["groupLayer"] = groupLayer;
         olMap.addLayer(groupLayer);
-    }
+    };
 
     mapa["createLayer"] = function (lname, title) {
         let vs = new ol.source.Vector();
@@ -103,7 +103,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         }
 
         return lyr;
-    }
+    };
 
     mapa["rmLayer"] = function (lname) {
         if (mapa["layers"][lname] != null) {
@@ -111,13 +111,13 @@ function novoMapaOpenLayers(target, latitude, longitude) {
             olMap.removeLayer(mapa["layers"][lname]);
             delete mapa["layers"][lname];
         }
-    }
+    };
 
     mapa["rmGroupLayer"] = function (lname) {
         if (mapa["groupLayer"] != null) {
             olMap.removeLayer(mapa["groupLayer"]);
         }
-    }
+    };
 
     mapa["activateSelect"] = function () {
         let select = new ol.interaction.Select({
@@ -129,7 +129,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
 
         mapa["select"] = select;
         return select;
-    }
+    };
 
     mapa["activateSidebarLayerSwitcher"] = function (elemID) {
         if (mapa["layerSwitcherActivated"] == false) {
@@ -142,7 +142,42 @@ function novoMapaOpenLayers(target, latitude, longitude) {
             olMap.addControl(switcher);
             mapa["layerSwitcherActivated"] = true;
         }
-    }
+    };
+
+    mapa["activateImageLayerSwitcher"] = function () {
+        if (mapa["layerSwitcherActivated"] == false) {
+            var switcher = new ol.control.LayerSwitcherImage({
+                reordering: false,
+                extent: true,
+                trash: false,
+                displayInLayerSwitcher: (l) => {
+                    if (l.values_.displayInLayerSwitcher != undefined) {
+                        return l.values_.displayInLayerSwitcher;
+                    } else if (l.values_.name == undefined) {
+                        return true;
+                    } else {
+                        return !l.values_.name.startsWith("geocoder");
+                    }
+                }
+            });
+            olMap.addControl(switcher);
+            mapa["layerSwitcherActivated"] = true;
+        }
+    };
+
+    mapa["activateGeocoder"] = function () {
+        var geocoder = new Geocoder('nominatim', {
+            provider: 'osm',
+            autoComplete: true,
+            autoCompleteMinLength: 4,
+            lang: 'pt-BR', //en-US, fr-FR
+            placeholder: 'Procurar por ...',
+            limit: 5,
+            countrycodes: "br",
+            keepOpen: true
+        });
+        olMap.addControl(geocoder);
+    };
 
     return mapa;
 }

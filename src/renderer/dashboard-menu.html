@@ -81,7 +81,7 @@
             <div class="collapse " id="componentsExamples">
                 <ul class="nav">
                     <li class="nav-item ">
-                        <a id="link-menu" name="cadastrar_escola" class="nav-link" href="#">
+                        <a id="link-menu" name="escola/escola-cadastrar-view" class="nav-link" href="#">
                             <span class="sidebar-normal">Cadastrar</span>
                         </a>
                     </li>
@@ -277,6 +277,11 @@
 
 <script>
     $(document).ready(function () {
+        // Módulo Escola
+        $("#cadastrar_escola").click(() => {
+            $("#content").load("./modules/escola/escola-cadastrar-view.html");
+        });
+
         //motorista
         $("#cadastrar_motorista").click(function () {
             $("#content").load("./modules/motorista/motorista-form.html");
