@@ -25,7 +25,7 @@ mapaOL.on('singleclick', function (evt) {
         );
         posicaoEscola.setStyle(new ol.style.Style({
             image: new ol.style.Icon({
-                anchor: [12, 37],
+                anchor: [25, 40],
                 anchorXUnits: 'pixels',
                 anchorYUnits: 'pixels',
                 opacity: 1,
@@ -101,6 +101,9 @@ var validadorFormulario = $("#wizardCadastrarEscolaForm").validate({
         areaUrbana: {
             required: true,
         },
+        locDif: {
+            required: true,
+        },
         nomeEscola: {
             required: true,
             minlength: 3
@@ -142,6 +145,9 @@ var validadorFormulario = $("#wizardCadastrarEscolaForm").validate({
         },
         areaUrbana: {
             required: "Por favor selecione a localização da escola",
+        },
+        locDif: {
+            required: "Por favor informe se a escola está situada em área diferenciada"
         },
         telContato: {
             required: "Por favor digite um telefone válido com DDD"
@@ -231,6 +237,8 @@ $("#salvarescola").click(() => {
         return false;
     } else {
         console.log("É VÁLIDO!");
+        var schoolJSON = GetEscolaFromForm();
+        console.log(schoolJSON);
         return true;
     }
 });

@@ -148,8 +148,6 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         if (mapa["layerSwitcherActivated"] == false) {
             var switcher = new ol.control.LayerSwitcherImage({
                 reordering: false,
-                extent: true,
-                trash: false,
                 displayInLayerSwitcher: (l) => {
                     if (l.values_.displayInLayerSwitcher != undefined) {
                         return l.values_.displayInLayerSwitcher;
