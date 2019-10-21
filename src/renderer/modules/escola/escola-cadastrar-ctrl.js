@@ -52,6 +52,8 @@ mapaOL.on('singleclick', function (evt) {
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
     $("#reglat").val(parseFloat(lat).toFixed(10));
     $("#reglon").val(parseFloat(lon).toFixed(10));
+    $("#reglat").valid();
+    $("#reglon").valid();
 });
 
 // Dados cadastrais
@@ -226,6 +228,36 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
+var onSaveCallBack = (err, result) => {
+    if (err) {
+        Swal2.fire({
+            title: "Ops... tivemos um problema!",
+            text: "Erro ao salvar a escola!" + err,
+            icon: "error",
+            button: "Fechar"
+        });
+    } else {
+        Swal2.fire({
+            title: "Escola salva com sucesso",
+            text: "A escola " + $("#nomeEscola").val() + " foi salva com sucesso. " +
+                  "Clique abaixo para retornar ao painel.",
+            type: "success",
+            icon: "success",
+            showCancelButton: false,
+            confirmButtonClass: "btn-success",
+            confirmButtonText: "Retornar ao painel",
+            closeOnConfirm: false,
+            closeOnClickOutside: false,
+            allowOutsideClick: false,
+            showConfirmButton: true
+        })
+        .then(() => {
+            $("#content").load("./dashboard.html");
+        });
+
+    }
+};
+
 $("#salvarescola").click(() => {
     $("[name='temRegime[]']").valid();
     $("[name='temNivel[]']").valid();
@@ -236,8 +268,8 @@ $("#salvarescola").click(() => {
         console.log("Não é Válido");
         return false;
     } else {
-        console.log("É VÁLIDO!");
         var schoolJSON = GetEscolaFromForm();
+        InserirEscola(schoolJSON, onSaveCallBack);
         console.log(schoolJSON);
         return true;
     }

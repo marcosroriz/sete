@@ -14,7 +14,8 @@ window.Tether = require("tether");
 window.Bootstrap = require("bootstrap");
 require("jquery-validation");
 require("jquery-mask-plugin");
-require("sweetalert");
+const swal = require("sweetalert");
+const Swal2 = require("sweetalert2");
 require("moment");
 
 // Arquivo de configuração local

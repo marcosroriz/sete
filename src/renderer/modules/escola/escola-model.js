@@ -24,3 +24,13 @@ function GetEscolaFromForm() {
         "HORARIO_NOTURNO": $("#temHorarioNoite").is(":checked"), // bool
     };
 }
+
+function InserirEscola(escolaJSON, onSaveCallBack) {
+    knex("Escolas").insert(escolaJSON)
+        .then((res) => {
+            onSaveCallBack(false, res);
+        })
+        .catch((err) => {
+            onSaveCallBack(err);
+        });
+}
