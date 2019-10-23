@@ -34,3 +34,13 @@ function InserirEscola(escolaJSON, onSaveCallBack) {
             onSaveCallBack(err);
         });
 }
+
+function BuscarTodasEscolas(callbackFn) {
+    knex("Escolas").select()
+        .then((res) => {
+            callbackFn(false, res);
+        })
+        .catch((err) => {
+            callbackFn(err);
+        });
+}

@@ -645,3 +645,42 @@ span.gcd-road {
 .ol-geocoder ul.gcd-gl-result>li:nth-child(odd) {
     background-color: #eaeff7;
 }
+
+.card.data-tables {
+    box-shadow: none;
+    border-radius: 20px;
+    border-color: #cdcfd4;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+select.custom-select.custom-select-sm.form-control.form-control-sm {
+    height: 35px;
+}
+
+.card .table tbody td {
+    font-weight: 350;
+    font-size: 1em;
+}
+
+table.dataTable tbody th,
+table.dataTable tbody td {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: normal;
+}
+
+.dataTable thead tr th {
+    font-weight: bold;
+    font-size: 12px;
+    border: #8a99a7 !important;
+    border-bottom-style: solid !important;
+    border-width: 4px !important;
+    min-height: 40px !important;
+    vertical-align: middle;
+}
+
+div#datatables_info {
+    font-size: 12px;
+    font-weight: 300;
+}

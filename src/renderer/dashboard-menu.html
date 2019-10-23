@@ -81,13 +81,13 @@
             <div class="collapse " id="componentsExamples">
                 <ul class="nav">
                     <li class="nav-item ">
-                        <a id="link-menu" name="escola/escola-cadastrar-view" class="nav-link" href="#">
+                        <a name="escola/escola-cadastrar-view" class="link-menu nav-link" href="#">
                             <span class="sidebar-normal">Cadastrar</span>
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="./components/grid.html">
-                            <span class="sidebar-normal">Listar</span>
+                        <a name="escola/escola-listar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Gerenciar</span>
                         </a>
                     </li>
                     <li class="nav-item ">
@@ -293,7 +293,7 @@
             $("#content").load("./modules/motorista/rota/motorista-rota-view.html");
         });
 
-        $("#link-menu").click(function () {
+        $(".link-menu").click(function () {
             $("#content").load("./modules/" + $(this).attr("name") + ".html");
         });
 
