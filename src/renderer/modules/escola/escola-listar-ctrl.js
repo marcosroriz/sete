@@ -36,7 +36,30 @@ var dTable = $("#datatables").DataTable({
             "next":       "Próxima",
             "previous":   "Anterior"
         },
-    }
+    },
+    dom: 'frtipB',
+    buttons: [
+        {
+            extend: 'pdfHtml5',
+            orientation: "landscape",
+            title: "Escolas cadastradas",
+            text: "Exportar para PDF",
+            exportOptions: {
+                columns: [0, 1, 2, 3, 4]
+            },
+            customize: function (doc) {
+                doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
+                doc.images = doc.images || {};
+                doc.images["logo"] = baseImages.get("logo");
+                doc.content.splice(1, 0, {
+                    alignment: 'center',
+                    margin: [0, 0, 0, 12],
+                    image: "logo"
+                });
+                doc.styles.tableHeader.fontSize = 14;
+            }
+        }
+    ]
 });
 
 // $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
