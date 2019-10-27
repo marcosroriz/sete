@@ -1,22 +1,33 @@
 // Preenchimento da Tabela via SQL
 var listaDeEscolas = new Map();
-var dTable = $("#datatables").DataTable({
+
+// DataTables
+var dataTableEscolas = $("#datatables").DataTable({
     // fixedHeader: true,
     columns: [
         { data: 'NOME', width: "55%" },
         { data: 'LOCALIZACAO',  width: "15%" },
         { data: 'ENSINO', width: "15%" },
         { data: 'HORARIO', width: "25%" },
-        { data: 'NUMALUNOS', width: "100px" },
+        { data: 'NUM_ALUNOS', width: "150px" },
         {
             data: "ACOES",
-            width: "100px",
+            width: "110px",
             sortable: false,
-            defaultContent: '<a href="#" class="btn btn-link btn-info like"><i class="fa fa-heart"></i></a>' +
-                            '<a href="#" class="btn btn-link btn-warning edit"><i class="fa fa-edit"></i></a>' +
-                            '<a href="#" class="btn btn-link btn-danger remove"><i class="fa fa-times"></i></a>'
+            defaultContent: '<a href="#" class="btn btn-link btn-info escolaStudent"><i class="fa fa-user-graduate"></i></a>' +
+                            '<a href="#" class="btn btn-link btn-primary escolaView"><i class="fa fa-search"></i></a>' +
+                            '<a href="#" class="btn btn-link btn-warning escolaEdit"><i class="fa fa-edit"></i></a>' +
+                            '<a href="#" class="btn btn-link btn-danger escolaRemove"><i class="fa fa-times"></i></a>'
         }
     ],
+    columnDefs: [{
+        targets: 0,
+        render: function (data, type, row) {
+            return data.length > 50 ?
+                data.substr(0, 50) + '…' :
+                data;
+        }
+    }],
     autoWidth: false,
     bAutoWidth: false,
     lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
@@ -26,7 +37,7 @@ var dTable = $("#datatables").DataTable({
         "search": "_INPUT_",
         "searchPlaceholder": "Procurar escolas",
         "lengthMenu": "Mostrar _MENU_ escolas por página",
-        "zeroRecords": "Não achamos essa escola",
+        "zeroRecords": "Não encontrei nenhuma escola cadastrada",
         "info": "Mostrando página _PAGE_ de _PAGES_",
         "infoEmpty": "Sem registros disponíveis",
         "infoFiltered": "(Escolas filtradas a partir do total de _MAX_ escolas)",
@@ -48,7 +59,8 @@ var dTable = $("#datatables").DataTable({
                 columns: [0, 1, 2, 3, 4]
             },
             customize: function (doc) {
-                doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
+                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[2].table.widths = ['30%', '15%', '20%', '20%', '15%'];
                 doc.images = doc.images || {};
                 doc.images["logo"] = baseImages.get("logo");
                 doc.content.splice(1, 0, {
@@ -56,21 +68,42 @@ var dTable = $("#datatables").DataTable({
                     margin: [0, 0, 0, 12],
                     image: "logo"
                 });
-                doc.styles.tableHeader.fontSize = 14;
+                doc.styles.tableHeader.fontSize = 12;
             }
         }
     ]
 });
 
-// $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
-//     dTable.columns.adjust().draw();
-// } ); 
+dataTableEscolas.on('click', '.escolaView', function () {
+    var $tr = $(this).closest('tr');
+
+    if ($tr.hasClass('child')) {
+        $tr = $tr.prev('.parent');
+    }
+
+    estadoEscola = dataTableEscolas.row($tr).data();
+    navigateDashboard("./modules/escola/escola-dados-view.html");
+});
+
+dataTableEscolas.on('click', '.escolaEdit', function () {
+    var $tr = $(this).closest('tr');
+
+    if ($tr.hasClass('child')) {
+        $tr = $tr.prev('.parent');
+    }
+
+    estadoEscola = dataTableEscolas.row($tr).data();
+    action = "editarEscola";
+    navigateDashboard("./modules/escola/escola-cadastrar-view.html");
+});
+
+
 
 
 // Transformar linha do DB para JSON
 var parseEscolaDB = function (escolaRaw) {
     var escolaJSON = Object.assign({}, escolaRaw);
-    escolaJSON["NOME"] = escolaJSON["NOME"] + " UNIVERSIDADE FEDERAL DE GOIÁS";
+    escolaJSON["NOME"] = escolaJSON["NOME"];
     switch (escolaRaw["MEC_TP_LOCALIZACAO"]) {
         case 1:
             escolaJSON["LOCALIZACAO"] = "Urbana";
@@ -111,45 +144,62 @@ var parseEscolaDB = function (escolaRaw) {
     if (escolaRaw["HORARIO_VESPERTINO"]) horarioEnsino.push("Noite");
     escolaJSON["HORARIO"] = horarioEnsino.join(", ");
 
-    escolaJSON["NUMALUNOS"] = 0;
+    var regimeEnsino = new Array();
+    if (escolaRaw["MEC_IN_REGULAR"]) regimeEnsino.push("Regular");
+    if (escolaRaw["MEC_IN_EJA"]) regimeEnsino.push("EJA");
+    if (escolaRaw["MEC_IN_PROFISSIONALIZANTE"]) regimeEnsino.push("Profissionalizante");
+    escolaJSON["REGIME"] = regimeEnsino.join(", ");
+
+
+    escolaJSON["NUM_ALUNOS"] = 0;
 
     return escolaJSON;
 };
 
-// Callback para listar escolas
+// Função para relatar erro
+var errorFnEscolas = (err) => {
+    Swal2.fire({
+        title: "Ops... tivemos um problema!",
+        text: "Erro ao listar as escolas! Feche e abra o software novamente. \n" + err,
+        icon: "error",
+        button: "Fechar"
+    });
+}
+
+// Callback para pegar número de alunos da escola
+var listaNumAlunosCB = (err, result) => {
+    if (err) {
+        errorFnEscolas(err);
+    } else {
+        for (let escolaRaw of result) {
+            let eID = escolaRaw["ID_ESCOLA"];
+            let qtde = escolaRaw["NUM_ALUNOS"];
+            let escolaJSON = listaDeEscolas.get(eID);
+            escolaJSON["NUM_ALUNOS"] = qtde;
+            listaDeEscolas.set(eID, escolaJSON);
+        }
+
+        listaDeEscolas.forEach((escola) => {
+            dataTableEscolas.row.add(escola);
+        });
+        for (let [k, v] of listaDeEscolas) {
+            dataTableEscolas
+        }
+        dataTableEscolas.draw();
+    }
+};
+
+// Callback para pegar dados inicia da escolas
 var listaInicialCB = (err, result) => {
     if (err) {
-        Swal2.fire({
-            title: "Ops... tivemos um problema!",
-            text: "Erro ao listar as escolas! Feche e abra o software novamente. \n" + err,
-            icon: "error",
-            button: "Fechar"
-        });
+        errorFnEscolas(err);
     } else {
         for (let escolaRaw of result) {
             let escolaJSON = parseEscolaDB(escolaRaw);
             listaDeEscolas.set(escolaJSON["ID_ESCOLA"], escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
-            dTable.row.add(escolaJSON);
         }
-        dTable.draw();
+        NumeroDeAlunosEscolas(listaNumAlunosCB);
     }
 };
 
 BuscarTodasEscolas(listaInicialCB);
-

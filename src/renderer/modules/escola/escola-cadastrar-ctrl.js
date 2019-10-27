@@ -185,6 +185,8 @@ var validadorFormulario = $("#wizardCadastrarEscolaForm").validate({
     }
 });
 
+// Salva a aba atual (para voltar para página anterior)
+var tabIndex = 0;
 
 $('.card-wizard').bootstrapWizard({
     'tabClass': 'nav nav-pills',
@@ -212,6 +214,7 @@ $('.card-wizard').bootstrapWizard({
     },
 
     onTabShow: function (tab, navigation, index) {
+        tabIndex = index;
         var $total = navigation.find('li').length;
         var $current = index + 1;
 
@@ -224,6 +227,12 @@ $('.card-wizard').bootstrapWizard({
         } else {
             $($wizard).find('.btn-next').show();
             $($wizard).find('.btn-finish').hide();
+        }
+
+        if (action == "editarEscola") {
+            $($wizard).find('#cancelarAcao').show();
+        } else {
+            $($wizard).find('#cancelarAcao').hide();
         }
     }
 });
@@ -254,9 +263,43 @@ var onSaveCallBack = (err, result) => {
         .then(() => {
             $("#content").load("./dashboard.html");
         });
-
     }
 };
+
+if (action == "editarEscola") {
+    PopulateEscolaFromState(estadoEscola); 
+    posicaoEscola = new ol.Feature(
+        new ol.geom.Point(ol.proj.fromLonLat([estadoEscola["LOC_LONGITUDE"],
+                                              estadoEscola["LOC_LATITUDE"]]))
+    );
+    posicaoEscola.setStyle(new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [25, 40],
+            anchorXUnits: 'pixels',
+            anchorYUnits: 'pixels',
+            opacity: 1,
+            src: "img/icones/escola-marker.png"
+        })
+    }));
+    vectorSource.addFeature(posicaoEscola);
+    $("#cancelarAcao").click(() => {
+        Swal2.fire({
+            title: 'Cancelar Edição?',
+            text: "Se você cancelar nenhum alteração será feita nos dados da escola.",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            cancelButtonText: "Voltar a editar",
+            confirmButtonText: 'Sim, cancelar'
+        }).then((result) => {
+            if (result.value) {
+                navigateDashboard(lastPage);
+            }
+        })
+    });
+    
+}
 
 $("#salvarescola").click(() => {
     $("[name='temRegime[]']").valid();
@@ -274,3 +317,4 @@ $("#salvarescola").click(() => {
         return true;
     }
 });
+

@@ -23,4 +23,35 @@ function getBase64Image(imgName, imgURI, outputFormat, callback) {
     }
 }
 
-getBase64Image("logo", "./img/icones/tempo-rota.svg", "image/svg+xml", saveImgCallback);
+// getBase64Image("logo", "./img/icones/tempo-rota.svg", "image/svg+xml", saveImgCallback);
+getBase64Image("logo", "./img/icones/casamarker.png", "image/png", saveImgCallback);
+
+
+function docReport(doc) {
+    doc.styles = doc.styles || {};
+    doc.styles["title"] = {
+        fontSize: 18,
+        bold: true,
+        alignment: "center",
+        margin: [0, 0, 0, 10]
+    }
+    doc.styles["tableInfo"] = {
+        fontSize: 12,
+        margin: [0, 0, 0, 10]
+    }
+    doc.styles["tableInfoHeader"] = {
+        fontSize: 13,
+        bold: true,
+    }
+
+    doc.images = doc.images || {};
+    doc.images["logo"] = baseImages.get("logo");
+    doc.content.splice(1, 0, {
+        alignment: 'center',
+        margin: [0, 0, 0, 12],
+        image: "logo"
+    });
+    doc.styles.tableHeader.fontSize = 12;
+
+    return doc;
+}

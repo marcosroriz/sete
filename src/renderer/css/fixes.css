@@ -287,7 +287,7 @@ div#content {
     color: #808590;
     height: 95px;
     padding-top: 20px;
-    font-size: 19.1px;
+    font-size: 18px;
 }
 
 .card-wizard .nav-tabs .nav-item .nav-link.active {
@@ -680,7 +680,89 @@ table.dataTable tbody td {
     vertical-align: middle;
 }
 
-div#datatables_info {
+div.dataTables_info {
     font-size: 12px;
     font-weight: 300;
+}
+
+.detalheTitulo {
+    font-size: 20px !important;
+}
+
+
+td.text-right.detalheChave {
+    width: 25%;
+}
+
+td.text-left.detalheValor {
+    font-weight: 500 !important;
+}
+
+.detalheToolBar {
+    text-align: center;
+}
+
+.btnExcel {
+    background: #43AA8B;
+    border: none;
+}
+
+.btnExcel:hover {
+    background: #457b6b;
+}
+
+.detalheToolBar button {
+    margin: 5px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.btnMoficar {
+    background: #FAB24F;
+    border: none;
+}
+
+.btnApagar {
+    background: #ED2E3B;
+    border: none;
+}
+
+.detalheToolBar button span, .card .card-footer .btn {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.btnMoficar:hover, .btnMoficar:active, .btnMoficar:focus {
+    background: #ea951f;
+}
+
+.btnApagar:hover, .btnApagar:active, .btnApagar:focus {
+    background: #b5555c;
+}
+
+.btnImprimir {
+    background: #25A4EC;
+    border: none;
+}
+
+.btnImprimir:hover, .btnImprimir:active, .btnImprimir:focus {
+    background: #277aa9;
+}
+
+.card .dataTable tbody td:last-child,
+.card .dataTable thead th:last-child {
+    /* padding-right: 15px; */
+    display: table-cell;
+    min-width: 110px;
+}
+
+.dataTables_wrapper .pagination .paginate_button.page-item.first .page-link,
+.dataTables_wrapper .pagination .paginate_button.page-item.previous .page-link,
+.dataTables_wrapper .pagination .paginate_button.page-item.next .page-link,
+.dataTables_wrapper .pagination .paginate_button.page-item.last .page-link {
+    border-radius: 25px;
+}
+
+div#swal2-content {
+    font-size: 14px;
 }

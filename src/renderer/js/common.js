@@ -14,13 +14,33 @@ window.Tether = require("tether");
 window.Bootstrap = require("bootstrap");
 require("jquery-validation");
 require("jquery-mask-plugin");
+require("moment");
 const swal = require("sweetalert");
 const Swal2 = require("sweetalert2");
-require("moment");
+const htmlToImage = require("html-to-image");
+
+// Variáveis Basicas
+const appTitle = "SETE - Software de Gestão do Transporte Escolar"
 
 // Arquivo de configuração local
 const Store = require("electron-store");
 const userconfig = new Store();
+
+// Variáveis globais utilizadas para navegação
+var lastPage = "dashboard";
+var currentPage = "dashboard";
+
+// Função de Navegação Dash
+function navigateDashboard(target) {
+    lastPage = currentPage;
+    currentPage = target;
+    $("#content").load(target);
+}
+
+// Função de Navegação do Software
+function navigatePage(target) {
+    document.location.href = target;
+}
 
 var identity_router = null;
 var identity_object_id = id;

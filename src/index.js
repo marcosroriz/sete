@@ -47,6 +47,13 @@ const createEntryWindow = () => {
     // Open the DevTools.
     appWindow.webContents.openDevTools();
 
+    // Prevent External Navigation
+    appWindow.webContents.on("will-navigate", (e, url) => {
+        console.log(e);
+        console.log(url);
+        e.preventDefault();
+    });
+
     appWindow.on("ready-to-show", () => {
         appWindow.maximize();
         appWindow.show();

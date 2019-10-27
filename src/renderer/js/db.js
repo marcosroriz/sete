@@ -25,7 +25,10 @@ const knex = require("knex")({
     connection: {
         filename: path.join(__dirname, "..", "db", "local.db"),
     },
-    useNullAsDefault: true
+    useNullAsDefault: true,
+    pool: {
+        afterCreate: (conn, cb) => conn.run('PRAGMA foreign_keys = ON', cb)
+    }
 });
 
 // Dados da cidade

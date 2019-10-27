@@ -277,6 +277,11 @@
 
 <script>
     $(document).ready(function () {
+        $(".link-menu").click(function () {
+            currentPage = "./modules/" + $(this).attr("name") + ".html";
+            $("#content").load("./modules/" + $(this).attr("name") + ".html");
+        });
+        
         // Módulo Escola
         $("#cadastrar_escola").click(() => {
             $("#content").load("./modules/escola/escola-cadastrar-view.html");
@@ -293,9 +298,6 @@
             $("#content").load("./modules/motorista/rota/motorista-rota-view.html");
         });
 
-        $(".link-menu").click(function () {
-            $("#content").load("./modules/" + $(this).attr("name") + ".html");
-        });
 
         //modules/garagem
         $("#cadastrar_garagem").click(function() {

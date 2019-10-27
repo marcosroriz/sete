@@ -180,3 +180,8 @@ function novoMapaOpenLayers(target, latitude, longitude) {
     return mapa;
 }
 
+var mapPNGExportOptions = {
+    filter: function (element) {
+        return element.className ? element.className.indexOf('ol-control') === -1 : true;
+    }
+};
