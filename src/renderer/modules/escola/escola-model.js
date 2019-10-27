@@ -102,3 +102,15 @@ function ListaDeAlunosPorEscola(idEscola, callbackFn) {
             callbackFn(err);
         })
 }
+
+function RemoverEscola(idEscola, callbackFn) {
+    knex("Escolas")
+        .where("ID_ESCOLA", idEscola)
+        .del()
+        .then((res) => {
+            callbackFn(false, res);
+        })
+        .catch((err) => {
+            callbackFn(err);
+        })
+}

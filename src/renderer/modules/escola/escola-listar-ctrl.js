@@ -82,6 +82,7 @@ dataTableEscolas.on('click', '.escolaView', function () {
     }
 
     estadoEscola = dataTableEscolas.row($tr).data();
+    action = "visualizarEscola";
     navigateDashboard("./modules/escola/escola-dados-view.html");
 });
 
@@ -97,6 +98,47 @@ dataTableEscolas.on('click', '.escolaEdit', function () {
     navigateDashboard("./modules/escola/escola-cadastrar-view.html");
 });
 
+dataTableEscolas.on('click', '.escolaRemove', function () {
+    var $tr = $(this).closest('tr');
+
+    if ($tr.hasClass('child')) {
+        $tr = $tr.prev('.parent');
+    }
+
+    estadoEscola = dataTableEscolas.row($tr).data();
+    action = "apagarEscola";
+    Swal2.fire({
+        title: 'Remover essa escola?',
+        text: "Ao remover uma escola os alunos remanescentes da mesma deverão ser alocados novamente a outra(s) escola(s).",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        cancelButtonText: "Cancelar",
+        confirmButtonText: 'Sim, remover'
+    }).then((result) => {
+        if (result.value) {
+            RemoverEscola(estadoEscola["ID_ESCOLA"], (err, result) => {
+                if (result) {
+                    dataTableEscolas.row($tr).remove();
+                    dataTableEscolas.draw();
+                    Swal2.fire({
+                        type: 'success',
+                        title: "Sucesso!",
+                        text: "Escola removida com sucesso!",
+                        confirmButtonText: 'Retornar a página de administração'
+                    });
+                } else {
+                    Swal2.fire({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'Tivemos algum problema. Por favor, reinicie o software!',
+                    });
+                }
+            })
+        }
+    })
+});
 
 
 
