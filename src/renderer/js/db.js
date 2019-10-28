@@ -31,6 +31,8 @@ const knex = require("knex")({
     }
 });
 
+knex.on('query', console.log);
+
 // Dados da cidade
 // FIXME: Parametrizar isso!
 var cidadeLatitude = -16.8152409;

@@ -1,0 +1,93 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/escola-cadastro.png">
+        <p class="pageTitle">Gerir Alunos Atendidos pela Escola</p>
+    </div>
+
+    <div class="row">
+        <div class="mt-3 col-md-10 ml-auto mr-auto">
+            <div class="card card-wizard wiz-fixes mb-3">
+                <div class="card-body">
+                    <ul class="nav nav-tabs singletab">
+                        <li class="nav-item col-12 tab-2-fix">
+                            <a class="nav-link active" href="#tab-gerir-alunos" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-aluno.png" class="wiz-icon">
+                                Lista de Alunos
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane tab-wiz fade show active" id="tab-gerir-alunos">
+                            <div class="row">
+                                <div class="col-12 tituloSecao">
+                                    <span class="mb-3">Universidade Federal de Goiás</span>
+                                </div>
+                            </div>
+
+                            <div class="row mt-2">
+                                <ul class="fa-ul ul-dica">
+                                    <li><span class="fa-li"><i class="fa fa-check-square"></i></span>Para associar um
+                                        aluno a uma escola selecione o mesmo e clique no ícone <i
+                                            class="fa fa-arrow-right"></i>.
+                                    </li>
+                                    <li><span class="fa-li"><i class="fa fa-check-square"></i></span>Para desassociar um
+                                        aluno de uma escola selecione o mesmo e clique no ícone <i
+                                            class="fa fa-arrow-left"></i>.
+                                </ul>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-5">
+                                    <h3 class="listaSelect">Outros Alunos</h3>
+                                    <input id="filtroOutrosAlunos" type="text" placeholder="Filtro" class="form-control">
+                                </div>
+                                <div class="col-2">
+
+                                </div>
+                                <div class="col-5">
+                                    <h3 class="listaSelect">Alunos Atendidos <span id="totalNumAlunos" class="badge badge-success badge-total"></span></h3>
+                                    <input id="filtroTxtAtendidos" type="text" placeholder="Filtro" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row mt-1 mb-3">
+                                <div class="col-5">
+                                    <select id="alunosOutros" class="unselected form-control dual-list" multiple="">
+                                    </select>
+                                </div>
+                                <div class="col-2 mt-auto mb-auto">
+                                    <div class="row m-2">
+                                        <button id="colocarAluno" class="btn col-12 btn-outline">
+                                            <i class="fa fa-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                    <div class="row m-2">
+                                        <button id="tirarAluno" class="btn col-12 btn-outline">
+                                            <i class="fa fa-arrow-left"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <select id="alunosAtendidos" class="unselected form-control dual-list" multiple="">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-12 text-center">
+                                    <button type="button" id="btnCancelar" class="btn btnCancelar m-2">
+                                        Cancelar Edição
+                                    </button>
+                                    <button type="button" id="btnSalvar" class="btn btnSalvar m-2">
+                                        Salvar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="./modules/escola/escola-model.js" type="text/javascript"></script>
+        <script src="./modules/escola/escola-gerir-alunos-ctrl.js" type="text/javascript"></script>

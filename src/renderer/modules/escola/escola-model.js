@@ -103,6 +103,20 @@ function ListaDeAlunosPorEscola(idEscola, callbackFn) {
         })
 }
 
+function ListaDeAlunosNaoAtendidosPorEscola(idEscola, callbackFn) {
+    knex("Alunos")
+        .select("Alunos.ID_ALUNO", "Alunos.NOME", "Alunos.DATA_NASCIMENTO")
+        .leftJoin("EscolaTemAlunos", "Alunos.ID_ALUNO", "=", "EscolaTemAlunos.ID_ALUNO")
+        .where("EscolaTemAlunos.ID_ESCOLA", "<>", idEscola)
+        .orWhereNull("EscolaTemAlunos.ID_ESCOLA")
+        .then((res) => {
+            callbackFn(false, res);
+        })
+        .catch((err) => {
+            callbackFn(err);
+        })
+}
+
 function RemoverEscola(idEscola, callbackFn) {
     knex("Escolas")
         .where("ID_ESCOLA", idEscola)

@@ -74,12 +74,16 @@ var dataTableEscolas = $("#datatables").DataTable({
     ]
 });
 
-dataTableEscolas.on('click', '.escolaView', function () {
-    var $tr = $(this).closest('tr');
+dataTableEscolas.on('click', '.escolaStudent', function () {
+    var $tr = getRowOnClick(this);
 
-    if ($tr.hasClass('child')) {
-        $tr = $tr.prev('.parent');
-    }
+    estadoEscola = dataTableEscolas.row($tr).data();
+    action = "gerirAlunosEscola";
+    navigateDashboard("./modules/escola/escola-gerir-alunos-view.html");
+});
+
+dataTableEscolas.on('click', '.escolaView', function () {
+    var $tr = getRowOnClick(this);
 
     estadoEscola = dataTableEscolas.row($tr).data();
     action = "visualizarEscola";
@@ -87,11 +91,7 @@ dataTableEscolas.on('click', '.escolaView', function () {
 });
 
 dataTableEscolas.on('click', '.escolaEdit', function () {
-    var $tr = $(this).closest('tr');
-
-    if ($tr.hasClass('child')) {
-        $tr = $tr.prev('.parent');
-    }
+    var $tr = getRowOnClick(this);
 
     estadoEscola = dataTableEscolas.row($tr).data();
     action = "editarEscola";
@@ -99,11 +99,7 @@ dataTableEscolas.on('click', '.escolaEdit', function () {
 });
 
 dataTableEscolas.on('click', '.escolaRemove', function () {
-    var $tr = $(this).closest('tr');
-
-    if ($tr.hasClass('child')) {
-        $tr = $tr.prev('.parent');
-    }
+    var $tr = getRowOnClick(this);
 
     estadoEscola = dataTableEscolas.row($tr).data();
     action = "apagarEscola";

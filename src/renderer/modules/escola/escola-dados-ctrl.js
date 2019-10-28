@@ -242,7 +242,6 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable( {
 } );
 
 ListaDeAlunosPorEscola(estadoEscola["ID_ESCOLA"], (err, result) => {
-    console.log(result);
     result.forEach((v) => {
         dataTableListaDeAlunos.row.add(v);
     });

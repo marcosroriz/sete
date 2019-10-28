@@ -711,6 +711,32 @@ td.text-left.detalheValor {
     background: #457b6b;
 }
 
+.btnSalvar {
+    background: #43AA8B;
+    border: none;
+    width: 200px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.btnSalvar:hover, .btnSalvarbtnSalvar:active, .btnSalvar:focus {
+    background: #457b6b;
+}
+
+.btnCancelar {
+    background: #ED2E3B;
+    border: none;
+    font-weight: 500;
+    font-size: 14px;
+    width: 200px;
+}
+
+.btnCancelar:hover, .btnCancelar:active, .btnCancelar:focus {
+    background: #b5555c;
+}
+
+
+
 .detalheToolBar button {
     margin: 5px;
     margin-top: 15px;
@@ -765,4 +791,53 @@ td.text-left.detalheValor {
 
 div#swal2-content {
     font-size: 14px;
+}
+.dual-list {
+    height: 200px;
+}
+
+.dual-list option {
+    font-size: 14px;
+}
+
+.tituloSecao span {
+    font-size: 16px;
+}
+
+.tituloSecao {
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #889aad;
+    margin-top: 0px;
+}
+
+ul.singletab {
+    margin-bottom: 0px !important;
+}
+
+h3.listaSelect {
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.ul-dica {
+    color: #538ca9;
+}
+
+.ul-dica li {
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.ul-dica .fa-li {
+    font-size: 12px;
+    color: #ecac2e;
+}
+
+.ul-dica i {
+    font-size: 12px;
+}
+
+.badge-total {
+    vertical-align: text-top;
 }
