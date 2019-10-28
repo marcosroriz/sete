@@ -42,7 +42,7 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#nomeContato").val(estadoEscolaJSON["CONTATO_RESPONSAVEL"]);
     $("#telContato").val(estadoEscolaJSON["CONTATO_TELEFONE"]);
     $("input[name='tipoDependencia']").filter(`[value="${estadoEscolaJSON["MEC_TP_DEPENDENCIA"]}"]`).prop("checked", true);
-    
+
     $("#temEnsinoRegular").prop("checked", estadoEscolaJSON["MEC_IN_REGULAR"]);
     $("#temEnsinoEJA").prop("checked", estadoEscolaJSON["MEC_IN_EJA"]);
     $("#temEnsinoProf").prop("checked", estadoEscolaJSON["MEC_IN_PROFISSIONALIZANTE"]);
@@ -105,7 +105,7 @@ function ListaDeAlunosPorEscola(idEscola, callbackFn) {
 
 function ListaDeAlunosNaoAtendidosPorEscola(idEscola, callbackFn) {
     knex("Alunos")
-        .select("Alunos.ID_ALUNO", "Alunos.NOME", "Alunos.DATA_NASCIMENTO")
+        .select("Alunos.ID_ALUNO", "Alunos.NOME", "Alunos.DATA_NASCIMENTO", "EscolaTemAlunos.ID_ESCOLA")
         .leftJoin("EscolaTemAlunos", "Alunos.ID_ALUNO", "=", "EscolaTemAlunos.ID_ALUNO")
         .where("EscolaTemAlunos.ID_ESCOLA", "<>", idEscola)
         .orWhereNull("EscolaTemAlunos.ID_ESCOLA")
@@ -127,4 +127,15 @@ function RemoverEscola(idEscola, callbackFn) {
         .catch((err) => {
             callbackFn(err);
         })
+}
+
+function AdicionaAlunoEscola(idAluno, idEscola) {
+    return knex("EscolaTemAlunos")
+           .insert({ "ID_ESCOLA": idEscola, "ID_ALUNO": idAluno });
+}
+
+function RemoveAlunoEscola(idAluno) {
+    return knex("EscolaTemAlunos")
+           .where("ID_ALUNO", idAluno)
+           .del()
 }

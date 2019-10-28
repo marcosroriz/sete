@@ -711,7 +711,7 @@ td.text-left.detalheValor {
     background: #457b6b;
 }
 
-.btnSalvar {
+.btnSalvar, .btnSalvar:focus {
     background: #43AA8B;
     border: none;
     width: 200px;
@@ -719,11 +719,11 @@ td.text-left.detalheValor {
     font-size: 14px;
 }
 
-.btnSalvar:hover, .btnSalvarbtnSalvar:active, .btnSalvar:focus {
+.btnSalvar:hover, .btnSalvar:active {
     background: #457b6b;
 }
 
-.btnCancelar {
+.btnCancelar, .btnCancelar:focus {
     background: #ED2E3B;
     border: none;
     font-weight: 500;
@@ -731,7 +731,7 @@ td.text-left.detalheValor {
     width: 200px;
 }
 
-.btnCancelar:hover, .btnCancelar:active, .btnCancelar:focus {
+.btnCancelar:hover, .btnCancelar:active {
     background: #b5555c;
 }
 
@@ -743,12 +743,12 @@ td.text-left.detalheValor {
     margin-bottom: 15px;
 }
 
-.btnMoficar {
+.btnMoficar, .btnMoficar:focus {
     background: #FAB24F;
     border: none;
 }
 
-.btnApagar {
+.btnApagar, .btnApagar:focus {
     background: #ED2E3B;
     border: none;
 }
@@ -758,20 +758,20 @@ td.text-left.detalheValor {
     font-size: 14px;
 }
 
-.btnMoficar:hover, .btnMoficar:active, .btnMoficar:focus {
+.btnMoficar:hover, .btnMoficar:active {
     background: #ea951f;
 }
 
-.btnApagar:hover, .btnApagar:active, .btnApagar:focus {
+.btnApagar:hover, .btnApagar:active {
     background: #b5555c;
 }
 
-.btnImprimir {
+.btnImprimir, .btnImprimir:focus {
     background: #25A4EC;
     border: none;
 }
 
-.btnImprimir:hover, .btnImprimir:active, .btnImprimir:focus {
+.btnImprimir:hover, .btnImprimir:active {
     background: #277aa9;
 }
 

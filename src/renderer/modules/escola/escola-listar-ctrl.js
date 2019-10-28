@@ -59,8 +59,7 @@ var dataTableEscolas = $("#datatables").DataTable({
                 columns: [0, 1, 2, 3, 4]
             },
             customize: function (doc) {
-                doc.content[2].table.widths = ['30%', '70%'];
-                doc.content[2].table.widths = ['30%', '15%', '20%', '20%', '15%'];
+                doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
                 doc.images = doc.images || {};
                 doc.images["logo"] = baseImages.get("logo");
                 doc.content.splice(1, 0, {
