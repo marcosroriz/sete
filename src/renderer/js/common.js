@@ -27,8 +27,8 @@ const Store = require("electron-store");
 const userconfig = new Store();
 
 // Variáveis globais utilizadas para navegação
-var lastPage = "dashboard";
-var currentPage = "dashboard";
+var lastPage = "./dashboard-main.html";
+var currentPage = "./dashboard-main.html";
 
 // Função genérica para relatar erros
 var errorFn = (msg, err) => {
@@ -45,6 +45,7 @@ function navigateDashboard(target) {
     lastPage = currentPage;
     currentPage = target;
     $("#content").load(target);
+    window.scrollTo(0, 0);
 }
 
 // Função de Navegação do Software

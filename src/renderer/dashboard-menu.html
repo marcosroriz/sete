@@ -95,23 +95,6 @@
                             <span class="sidebar-normal">Visualizar</span>
                         </a>
                     </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/grid.html">
-                            <span class="sidebar-normal">Modificar</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/grid.html">
-                            <span class="sidebar-mini">L</span>
-                            <span class="sidebar-normal">Remover</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./components/panels.html">
-                            <span class="sidebar-mini">V</span>
-                            <span class="sidebar-normal">Visualizar</span>
-                        </a>
-                    </li>
                 </ul>
             </div>
         </li>
@@ -283,8 +266,7 @@
 <script>
     $(document).ready(function () {
         $(".link-menu").click(function () {
-            currentPage = "./modules/" + $(this).attr("name") + ".html";
-            $("#content").load("./modules/" + $(this).attr("name") + ".html");
+            navigateDashboard("./modules/" + $(this).attr("name") + ".html");
         });
 
         // Módulo Escola
