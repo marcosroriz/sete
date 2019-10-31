@@ -39,6 +39,7 @@ var cidadeLatitude = -16.8152409;
 var cidadeLongitude = -49.2756642;
 var codCidade = "5201405";
 var codEstado = "52";
+var minZoom = 15;
 
 
 const bookshelf = require("bookshelf")(knex);

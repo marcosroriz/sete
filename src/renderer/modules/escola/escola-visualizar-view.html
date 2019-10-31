@@ -1,0 +1,57 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/escola-cadastro.png">
+        <p class="pageTitle">Visualizar Escolas Cadastradas</p>
+    </div>
+
+    <div class="row">
+        <div class="mt-3 col-md-11 ml-auto mr-auto">
+            <div class="card card-wizard wiz-fixes mb-3">
+                <div class="card-body mb-3">
+                    <ul class="nav nav-tabs singletab">
+                        <li class="nav-item col-12 tab-2-fix">
+                            <a class="nav-link active" href="#tab-vis-escola" data-toggle="tab" role="tab">
+                                <img src="./img/icones/rota-sugestao2.png" class="wiz-icon">
+                                Mapa da Escola (e Alunos Atendidos)
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane tab-wiz fade show active" id="tab-vis-escola">
+                            <div class="row">
+                                <div class="col-12 tituloSecao">
+                                    <span class="mb-3">Selecione a Escola</span>
+                                </div>
+                            </div>
+                            <div class="row mt-3 mb-3">
+                                <select id="escolaViz" name="escolaViz" class="form-control">
+                                    <option value="0">------------</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="mapaCanvas">
+                                <label class="control-label">
+                                    <b>Localização</b>
+                                </label>
+                                <div id="mapVizEscola" class="mb-2 mapawiz" style="width: 100%; height: 400px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12 text-center">
+                            <button type="button" id="btnVoltar" class="btn btn-info m-2">
+                                Voltar
+                            </button>
+                            <button type="button" id="btnExpJPEG" class="btn btnSalvar m-2">
+                                Exportar Imagem (JPEG)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./modules/escola/escola-model.js" type="text/javascript"></script>
+<script src="./modules/escola/escola-visualizar-ctrl.js" type="text/javascript"></script>

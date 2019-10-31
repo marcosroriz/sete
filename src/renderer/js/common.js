@@ -30,6 +30,16 @@ const userconfig = new Store();
 var lastPage = "dashboard";
 var currentPage = "dashboard";
 
+// Função genérica para relatar erros
+var errorFn = (msg, err) => {
+    Swal2.fire({
+        title: "Ops... tivemos um problema!",
+        text: msg + " Feche e abra o software novamente. \n" + err,
+        icon: "error",
+        button: "Fechar"
+    });
+}
+
 // Função de Navegação Dash
 function navigateDashboard(target) {
     lastPage = currentPage;

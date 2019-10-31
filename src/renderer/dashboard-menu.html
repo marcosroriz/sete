@@ -91,6 +91,11 @@
                         </a>
                     </li>
                     <li class="nav-item ">
+                        <a name="escola/escola-visualizar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Visualizar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
                         <a class="nav-link" href="./components/grid.html">
                             <span class="sidebar-normal">Modificar</span>
                         </a>
@@ -281,7 +286,7 @@
             currentPage = "./modules/" + $(this).attr("name") + ".html";
             $("#content").load("./modules/" + $(this).attr("name") + ".html");
         });
-        
+
         // Módulo Escola
         $("#cadastrar_escola").click(() => {
             $("#content").load("./modules/escola/escola-cadastrar-view.html");
@@ -300,28 +305,28 @@
 
 
         //modules/garagem
-        $("#cadastrar_garagem").click(function() {
+        $("#cadastrar_garagem").click(function () {
             $("#content").load("./modules/garagem/garagem.html");
         });
 
         // Módulo / Garagem
-        $("#gerenciar_rota").click(function() {
+        $("#gerenciar_rota").click(function () {
             $("#content").load("./modules/rota/rota.html");
         });
-        $("#cadastrar_rota").click(function() {
+        $("#cadastrar_rota").click(function () {
             $("#content").load("./modules/rota/rota-form.html");
         });
 
         // Links de Rota
-        $("#rota-desenhar").click(function() {
+        $("#rota-desenhar").click(function () {
             $("#content").load("./modules/rota/rota-desenhar-view.html");
         });
 
-        $("#rota-malha").click(function() {
+        $("#rota-malha").click(function () {
             $("#content").load("./modules/rota/rota-malha-view.html");
         });
-        
-        $("#rota-sugestao").click(function() {
+
+        $("#rota-sugestao").click(function () {
             $("#content").load("./modules/rota/rota-sugestao-view.html");
         });
 

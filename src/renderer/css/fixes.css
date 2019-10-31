@@ -841,3 +841,7 @@ h3.listaSelect {
 .badge-total {
     vertical-align: text-top;
 }
+
+select option {
+    font-size: 14px;
+}

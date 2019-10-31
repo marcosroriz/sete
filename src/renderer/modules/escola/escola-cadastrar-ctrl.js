@@ -1,7 +1,7 @@
 // Posição da Escola (no Mapa)
 var posicaoEscola;
 
-var mapa = novoMapaOpenLayers("mapCadastroEscola", -16.8152409, -49.2756642);
+var mapa = novoMapaOpenLayers("mapCadastroEscola", cidadeLatitude, cidadeLongitude);
 var vectorSource = mapa["vectorSource"];
 var vectorLayer = mapa["vectorLayer"];
 var mapaOL = mapa["map"];
@@ -239,12 +239,7 @@ $('.card-wizard').bootstrapWizard({
 
 var onSaveCallBack = (err, result) => {
     if (err) {
-        Swal2.fire({
-            title: "Ops... tivemos um problema!",
-            text: "Erro ao salvar a escola!" + err,
-            icon: "error",
-            button: "Fechar"
-        });
+        errorFn("Erro ao salvar a escola!", err);
     } else {
         Swal2.fire({
             title: "Escola salva com sucesso",
