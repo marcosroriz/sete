@@ -362,6 +362,22 @@ img.wiz-icon {
     border-radius: 5px;
 }
 
+
+.tab-wiz .form-group {
+    background: #fbfbfb;
+    border-style: solid;
+    border-color: #f9f9f9;
+}
+
+.form-group.obr {
+    background: #efefef;
+    border-color: #ece6e6;
+}
+
+.form-check.form-check-radio {
+    margin-top: 10px;
+}
+
 .card .card-body .control-label {
     color: #66696f;
     padding-top: 12px;
@@ -419,8 +435,8 @@ span.input-group-text {
 /* Colocar input errado da cor vermelha */
 .form-group.has-error {
     background: #ffe4e4;
-    border-width: 2px;
-    border-style: dashed;
+    border-width: 4px;
+    border-style: solid;
     border-color: #f5c7c7;
 }
 
@@ -844,4 +860,36 @@ h3.listaSelect {
 
 select option {
     font-size: 14px;
+}
+
+.optlabel {
+    display: -webkit-box;
+    font-size: 14px;
+    font-weight: bold;
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    font-variant: all-petite-caps;
+    color: #9e9e9e;
+    width: 64px;
+    height: 42px;
+    padding-left: 7px;
+}
+
+.obrlabel {
+    display: -webkit-box;
+    font-size: 14px;
+    font-weight: bold;
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    font-variant: all-petite-caps;
+    color: #9e9e9e;
+}
+
+
+.form-group.has-error .error {
+    margin-top: 20px;
+    padding-right: 20px;
+    font-weight: 500;
+    text-align: center;
+    margin-left: auto;
 }

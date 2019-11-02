@@ -8,11 +8,6 @@
         <div class="col-md-10 ml-auto mr-auto">
             <form id="wizardCadastrarAlunoForm" method="" action="">
                 <div class="card card-wizard wiz-fixes">
-                    <!-- <div class="card-header ">
-                        <h3 class="card-title text-center">Cadastro de Alunos</h3>
-                        <p class="card-category text-center">Por favor entre com os dados abaixo do respectivo aluno.
-                        </p>
-                    </div> -->
                     <div class="card-body ">
                         <ul class="nav nav-tabs">
                             <li class="nav-item">
@@ -40,9 +35,10 @@
                         <div class="tab-content">
                             <div class="tab-pane tab-wiz fade show active" id="tab-dados-pessoais" role="tabpanel">
                                 <div class="row justify-content-center">
-                                    <h5 class="text-center mb-2">Preencha os dados referentes a localização do aluno:
-                                    </h5>
-                                    <div class="col-12">
+                                    <h6 class="text-center mb-2">
+                                        Preencha os dados referentes a localização do aluno
+                                    </h6>
+                                    <div class="col-12 obr">
                                         <label class="control-label">
                                             <b>Localização da Residência do Aluno (clique no mapa)</b>
                                             <star>*</star>
@@ -53,38 +49,33 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-12">
-                                        <div class="form-group">
+                                    <div class="col-12 mt-1">
+                                        <div class="form-group obr">
                                             <div class="row justify-content-center">
                                                 <div class="col-6 ">
-                                                    <div class="form-group">
-                                                        <div class="row">
-                                                            <label class="col-2 control-label"><b>Latitude</b>
-                                                                <star>*</star>
-                                                            </label>
-                                                            <div class="col-10">
-                                                                <input class="form-control" type="text" id="reglat"
-                                                                    name="reglat" placeholder="Latitude:" />
-                                                            </div>
+                                                    <div class="row">
+                                                        <div class="obrlabel">
+                                                            Obrigatório
+                                                        </div>
+                                                        <label class="col-4 control-label latlon-label"><b>Latitude</b>
+                                                            <star>*</star>
+                                                        </label>
+                                                        <div class="col-5">
+                                                            <input class="form-control" type="text" id="reglat"
+                                                                name="reglat" placeholder="Latitude:" />
                                                         </div>
                                                     </div>
-                                                    <!-- <div class="form-group">
-                                                        <label class="control-label">
-                                                            <b>Latitude</b>
-                                                            <star>*</star>
-                                                        </label>
-                                                        <input class="form-control" type="text" id="reglat"
-                                                            name="reglat" placeholder="Latitude:" />
-                                                    </div> -->
                                                 </div>
                                                 <div class="col-6">
-                                                    <div class="form-group">
-                                                        <label class="control-label">
-                                                            <b>Longitude</b>
+                                                    <div class="row">
+                                                        <label class="col-4 control-label latlon-label"><b>Longitude</b>
                                                             <star>*</star>
                                                         </label>
-                                                        <input class="form-control" type="text" id="reglon"
-                                                            name="reglon" required="true" placeholder="Longitude:" />
+                                                        <div class="col-5">
+                                                            <input class="form-control" type="text" id="reglon"
+                                                                name="reglon" required="true"
+                                                                placeholder="Longitude:" />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -96,85 +87,90 @@
                                     <div class="col-12">
                                         <div class="form-group">
                                             <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
                                                 <label class="col-2 control-label">Endereço</label>
-                                                <div class="col-10">
+                                                <div class="col-8">
                                                     <input id="regend" name="regend" type="text"
                                                         placeholder="Digite o endereço do Aluno:" class="form-control">
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- <div class="form-group">
-                                            <label>Endereço</label>
-                                            <input id="regend" name="regend" type="text"
-                                                placeholder="Digite o endereço do Aluno:" class="form-control">
-                                        </div> -->
                                     </div>
 
                                     <div class="col-12">
                                         <div class="form-group">
                                             <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
                                                 <label class="col-2 control-label">CEP</label>
-                                                <div class="col-10">
+                                                <div class="col-8">
                                                     <input id="regcep" name="regcep" type="text"
-                                                        placeholder="Informe o CEP do Aluno:" class="form-control cep">
+                                                        placeholder="Informe o CEP da residência do Aluno:"
+                                                        class="form-control cep">
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- <div class="form-group">
-                                            <label>CEP</label>
-                                            <input id="regcep" name="regcep" type="text"
-                                                placeholder="Informe o CEP do Aluno:" class="form-control cep">
-                                        </div> -->
                                     </div>
 
                                     <hr class="hr-form" />
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>
-                                                Dificuldade de Acesso:
+                                            <label class="mb-3 control-label">
+                                                <b>O local possui alguma dificuldade de acesso? Se sim, marque as
+                                                    dificuldades:</b>
                                             </label>
-                                            <br />
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <button id="temPorteira" name="temPorteira" value="0"
-                                                        type="checkbox" class="form-check-input">
-                                                        <span class="form-check-sign"></span>
-                                                        Porteira
-                                                </label>
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <div class="col-10">
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label">
+                                                            <input id="temMataBurro" name="temPorteira" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Porteira </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temMataBurro" name="temMataBurro" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Mata-Burro
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temColchete" name="temColchete" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Colchete
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temAtoleiro" name="temAtoleiro" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Atoleiro
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temPonte" name="temPonte" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Ponte Rústica
+                                                        </label>
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label from-check-inline">
-                                                    <input id="temMataBurro" name="temMataBurro" value="1"
-                                                        type="checkbox" class="form-check-input">
-                                                    <span class="form-check-sign"></span>
-                                                    Mata-Burro
-                                                </label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label from-check-inline">
-                                                    <input id="temColchete" name="temColchete" value="1" type="checkbox"
-                                                        class="form-check-input">
-                                                    <span class="form-check-sign"></span>
-                                                    Colchete
-                                                </label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label from-check-inline">
-                                                    <input id="temAtoleiro" name="temAtoleiro" value="1" type="checkbox"
-                                                        class="form-check-input">
-                                                    <span class="form-check-sign"></span>
-                                                    Atoleiro
-                                                </label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label from-check-inline">
-                                                    <input id="temPonte" name="temPonte" value="1" type="checkbox"
-                                                        class="form-check-input">
-                                                    <span class="form-check-sign"></span>
-                                                    Ponte Rústica
-                                                </label>
-                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -183,104 +179,216 @@
 
                             <div class="tab-pane tab-wiz fade" id="tab-dados-transporte" role="tabpanel">
                                 <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do
-                                    discente a ser cadastrado.</h6>
+                                    aluno sendo cadastrado.</h6>
                                 <div class="row justify-content-center">
 
                                     <div class="col-12">
-                                        <div class="form-group">
-                                            <label>
-                                                <b>Nome do Aluno</b>
-                                                <star>*</star>
-                                            </label>
-                                            <input id="regnome" name="regnome" type="text"
-                                                placeholder="Informe o nome do Discente(Aluno) :" class="form-control">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label>
-                                                <b>Data de Nascimento</b>
-                                                <star>*</star>
-                                            </label>
-                                            <div class="form-check">
-                                                <input id="regdata" name="regdata" type="text"
-                                                    placeholder="Informe a Data de Nascimento do Discente (Aluno)"
-                                                    class="form-control datanasc">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Nome do Aluno</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regnome" name="regnome" type="text"
+                                                        placeholder="Informe o nome do aluno:" class="form-control">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>
-                                                <b>Sexo</b>
-                                                <star>*</star>
-                                            </label>
-                                            <br />
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input id="temMasculino" name="modoSexo[]" value="0" type="checkbox"
-                                                        class="form-check-input" required minlength="1">
-                                                    <span class="form-check-sign"></span>
-                                                    Masculino
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    CPF do Aluno
                                                 </label>
+                                                <div class="col-6">
+                                                    <input id="regcpf" name="regcpf" type="text"
+                                                        placeholder="Informe o cpf do aluno:"
+                                                        class="form-control cpfmask">
+                                                </div>
                                             </div>
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input id="temFeminino" name="modoSexo[]" value="1" type="checkbox"
-                                                        class="form-check-input" required minlength="1">
-                                                    <span class="form-check-sign"></span>
-                                                    Feminino
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Data de Nascimento</b>
+                                                    <star>*</star>
                                                 </label>
+                                                <div class="col-6">
+                                                    <input id="regdata" name="regdata" type="text"
+                                                        placeholder="Informe a data de nascimento do aluno"
+                                                        class="form-control datanasc">
+                                                </div>
                                             </div>
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input id="temNInformado" name="modoSexo[]" value="1"
-                                                        type="checkbox" class="form-check-input" required minlength="1">
-                                                    <span class="form-check-sign"></span>
-                                                    Não Informado
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Nome do Responsável</b>
+                                                    <star>*</star>
                                                 </label>
+                                                <div class="col-6">
+                                                    <input id="regnome" name="regnome" type="text"
+                                                        placeholder="Informe o nome do responsável:"
+                                                        class="form-control">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label>
-                                                <b>A sua cor ou raça é?</b>
-                                                <star>*</star>
-                                            </label>
-                                            <br />
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input id="temAmarelo" name="cor" value="Amarelo" type="radio">
-                                                    Amarelo
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Telefone do Responsável
                                                 </label>
+                                                <div class="col-6">
+                                                    <input id="regtelresp" name="regtelresp" type="text"
+                                                        placeholder="Telefone do responsável"
+                                                        class="form-control telmask">
+                                                </div>
                                             </div>
-                                            <div class="form-check  form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input id="temBranco" name="cor" value="Branco" type="radio">
-                                                    Branco
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="control-label">
+                                                    <b>Grau de Parentesco do Responsável</b>
+                                                    <star>*</star>
                                                 </label>
+                                                <div class="col-6">
+                                                    <select id="listareggrauresp" name="listareggrauresp"
+                                                        class="form-control">
+                                                        <option value="0">Pai, Mãe, Padrasto ou Madrasta</option>
+                                                        <option value="1">Avô ou Avó</option>
+                                                        <option value="2">Irmão ou Irmã</option>
+                                                        <option value="4">Outro Parente</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <div class="form-check  form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input id="temIndigena" name="cor" value="Indígina" type="radio">
-                                                    Indígena
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="control-label">
+                                                    <b>Sexo do Aluno:</b>
+                                                    <star>*</star>
                                                 </label>
+                                                <div class="col-6">
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="modoSexo"
+                                                                value="1">
+                                                            <span class="form-check-sign"></span>
+                                                            Masculino
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="modoSexo"
+                                                                value="2">
+                                                            <span class="form-check-sign"></span>
+                                                            Feminino
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="modoSexo"
+                                                                value="3">
+                                                            <span class="form-check-sign"></span>
+                                                            Não Informado
+                                                        </label>
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                            <div class="form-check  form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input id="temPardo" name="cor" value="Pardo" type="radio">
-                                                    Pardo
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="control-label">
+                                                    <b>A cor ou raça do aluno é?</b>
+                                                    <star>*</star>
                                                 </label>
-                                            </div>
-                                            <div class="form-check  form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input id="temPreto" name="cor" value="Preto" type="radio">
-                                                    Preto
-                                                </label>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="corAluno"
+                                                            value="1">
+                                                        <span class="form-check-sign"></span>
+                                                        Amarelo
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="corAluno"
+                                                            value="2">
+                                                        <span class="form-check-sign"></span>
+                                                        Branco
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="corAluno"
+                                                            value="3">
+                                                        <span class="form-check-sign"></span>
+                                                        Indígena
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="corAluno"
+                                                            value="4">
+                                                        <span class="form-check-sign"></span>
+                                                        Pardo
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="corAluno"
+                                                            value="5">
+                                                        <span class="form-check-sign"></span>
+                                                        Preto
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -288,201 +396,182 @@
                                     <hr class="hr-form" />
 
                                     <div class="col-12">
-                                        <div class="form-check">
-                                            <label>
-                                                <b>Nome do Responsável</b>
-                                                <star>*</star>
-                                            </label>
-                                            <input id="regnomeresp" name="regnomeresp" type="text"
-                                                placeholder="Nome do Resposável do Discente(Aluno) :"
-                                                class="form-control">
-                                        </div><br />
-                                    </div>
-
-
-                                    <div class="col-12">
                                         <div class="form-group">
-                                            <label>
-                                                <b>Grau de Parentesco</b>
-                                                <star>*</star>
+                                            <label class="mb-3 control-label">
+                                                <b>O aluno possui alguma deficiência? Se sim, marque as
+                                                    opções:</b>
                                             </label>
-                                            <select id="listareggrauresp" name="listareggrauresp" class="form-control">
-                                                <option value="">Selecione uma opção</option>
-                                                <option value="0">Pai, Mãe, Padrasto ou Madrasta</option>
-                                                <option value="1">Avô ou Avó</option>
-                                                <option value="2">Irmão ou Irmã</option>
-                                                <!-- <option value="3">TIO OU TIA</option>
-                                                <option value="4">PRIMO OU PRIMA</option> -->
-                                                <option value="4">Outro Parente</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="form-check">
-                                            <label>
-                                                Telefone do Resposável:
-                                                <star>*</star>
-                                            </label>
-                                            <input id="reggrauresp" name="reggrauresp" type="text"
-                                                placeholder="Grau do Responsável do Discente(Aluno)"
-                                                class="form-control telmask">
-                                        </div>
-                                    </div>
-
-                                    <hr class="hr-form" />
-
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label>* Possui alguma deficiência??:</label>
-                                            <br />
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input id="temDeCaminhar" name="modoDeficiencia[]" value="0"
-                                                        type="checkbox" class="form-check-input" required minlength="1">
-                                                    <span class="form-check-sign"></span>
-                                                    De Caminhar
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input id="temDeOuvir" name="modoDeficiencia[]" value="1"
-                                                        type="checkbox" class="form-check-input" required minlength="1">
-                                                    <span class="form-check-sign"></span>
-                                                    De Ouvir
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input id="temDeEnxergar" name="modoDeficiencia[]" value="1"
-                                                        type="checkbox" class="form-check-input" required minlength="1">
-                                                    <span class="form-check-sign"></span>
-                                                    De enxergar
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input id="temDeMentalIntelec" name="modoDeficiencia[]" value="1"
-                                                        type="checkbox" class="form-check-input" required minlength="1">
-                                                    <span class="form-check-sign"></span>
-                                                    Deficiência Mental ou Intelectual
-                                                </label>
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <div class="col-10">
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label">
+                                                            <input id="temDeCaminhar" name="temDeCaminhar" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            De Caminhar </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temDeOuvir" name="temDeOuvir" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            De Ouvir
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temDeEnxergar" name="temDeEnxergar" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            De Enxergar
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temDefMental" name="temDefMental" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Mental ou Intelectual
+                                                        </label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <hr>
-
                                 </div>
                             </div>
                             <!-- Fim aba dados de transporte -->
 
                             <div class="tab-pane tab-wiz fade" id="tab-dados-escolares" role="tabpanel">
-                                <h6 class="text-center">A respeito dos Dados Escolares do Aluno :</h6><br />
+                                <h6 class="text-center">A respeito dos dados escolares do aluno, responda:</h6><br />
                                 <div class="row justify-content-center">
-
-
                                     <div class="col-12">
-                                        <div class="form-group">
-                                            <label>* Escola :</label>
-                                            <input type="text" name="escola" list="listaEscola">
-                                            <datalist id="listaEscola">
-                                                <option value="A">
-                                                <option value="B">
-                                            </datalist>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label>* Turno?</label>
-                                            <br />
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="turno"
-                                                        type="checkbox" value="true">
-                                                    <span class="form-check-sign"></span>
-                                                    Manhã
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="control-label">
+                                                    <b>Qual a Escola do Aluno?</b>
+                                                    <star>*</star>
                                                 </label>
-                                            </div>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="turno"
-                                                        type="checkbox" value="false">
-                                                    <span class="form-check-sign"></span>
-                                                    Tarde
-                                                </label>
-                                            </div>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="turno"
-                                                        type="checkbox" value="false">
-                                                    <span class="form-check-sign"></span>
-                                                    Noite
-                                                </label>
+                                                <div class="col-6">
+                                                    <select id="listareggrauresp" name="listareggrauresp"
+                                                        class="form-control">
+                                                        <option value="0">Escolher escola depois</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group">
-                                            <label>* Turno?</label>
-                                            <br />
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="nivel"
-                                                        type="checkbox" value="true">
-                                                    <span class="form-check-sign"></span>
-                                                    Infantil
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="control-label">
+                                                    <b>Qual o turno que o aluno estuda?</b>
+                                                    <star>*</star>
                                                 </label>
-                                            </div>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="nivel"
-                                                        type="checkbox" value="false">
-                                                    <span class="form-check-sign"></span>
-                                                    Fundamental
-                                                </label>
-                                            </div>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="nivel"
-                                                        type="checkbox" value="false">
-                                                    <span class="form-check-sign"></span>
-                                                    Médio
-                                                </label>
-                                            </div>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="nivel"
-                                                        type="checkbox" value="false">
-                                                    <span class="form-check-sign"></span>
-                                                    Técnico
-                                                </label>
-                                            </div>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="nivel"
-                                                        type="checkbox" value="false">
-                                                    <span class="form-check-sign"></span>
-                                                    EJA
-                                                </label>
-                                            </div>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="nivel"
-                                                        type="checkbox" value="false">
-                                                    <span class="form-check-sign"></span>
-                                                    Superior
-                                                </label>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="1">
+                                                        <span class="form-check-sign"></span>
+                                                        Manhã
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="2">
+                                                        <span class="form-check-sign"></span>
+                                                        Tarde
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="3">
+                                                        <span class="form-check-sign"></span>
+                                                        Integral (Manhã + Tarde)
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="4">
+                                                        <span class="form-check-sign"></span>
+                                                        Noite
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="col-12 mb-3">
+                                                <label class="control-label">
+                                                    <b>Em qual nível de ensino o aluno se encontra?</b>
+                                                    <star>*</star>
+                                                </label>
+                                            </div>
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="1">
+                                                        <span class="form-check-sign"></span>
+                                                        Infantil (Creche)
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="2">
+                                                        <span class="form-check-sign"></span>
+                                                        Fundamental
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="3">
+                                                        <span class="form-check-sign"></span>
+                                                        Médio
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="4">
+                                                        <span class="form-check-sign"></span>
+                                                        Superior
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="turnoAluno"
+                                                            value="5">
+                                                        <span class="form-check-sign"></span>
+                                                        Outro
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- Fim aba dados escolares -->
-
                         </div>
                     </div>
                     <div class="card-footer text-center">

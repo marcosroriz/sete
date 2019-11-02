@@ -49,14 +49,17 @@
                                     </div>
 
                                     <div class="col-12 mt-1">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row justify-content-center">
                                                 <div class="col-6 ">
                                                     <div class="row">
+                                                        <div class="obrlabel">
+                                                            Obrigatório
+                                                        </div>
                                                         <label class="col-4 control-label latlon-label"><b>Latitude</b>
                                                             <star>*</star>
                                                         </label>
-                                                        <div class="col-6">
+                                                        <div class="col-5">
                                                             <input class="form-control" type="text" id="reglat"
                                                                 name="reglat" placeholder="Latitude:" />
                                                         </div>
@@ -67,7 +70,7 @@
                                                         <label class="col-4 control-label latlon-label"><b>Longitude</b>
                                                             <star>*</star>
                                                         </label>
-                                                        <div class="col-6">
+                                                        <div class="col-5">
                                                             <input class="form-control" type="text" id="reglon"
                                                                 name="reglon" required="true"
                                                                 placeholder="Longitude:" />
@@ -81,13 +84,16 @@
                                     <hr class="hr-form" />
 
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <label class="col-2 control-label">
                                                     <b>Estado</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-10">
+                                                <div class="col-8">
                                                     <select id="regestado" name="regestado"
                                                         class="form-control"></select>
                                                 </div>
@@ -96,13 +102,16 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <label class="col-2 control-label">
                                                     <b>Cidade</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-10">
+                                                <div class="col-8">
                                                     <select id="regcidade" name="regcidade"
                                                         class="form-control"></select>
                                                 </div>
@@ -112,12 +121,15 @@
                                     <div class="col-12">
                                         <div class="form-group">
                                             <div class="row">
-                                                <label class="col-2 control-label">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-3 control-label">
                                                     Endereço da Escola
                                                 </label>
-                                                <div class="col-10">
+                                                <div class="col-7">
                                                     <input id="regend" name="regend" type="text"
-                                                        placeholder="Digite o endereço da Escola:" class="form-control">
+                                                        placeholder="Digite o endereço da escola" class="form-control">
                                                 </div>
                                             </div>
                                         </div>
@@ -126,12 +138,15 @@
                                     <div class="col-12">
                                         <div class="form-group">
                                             <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
                                                 <label class="col-2 control-label">
                                                     CEP
                                                 </label>
-                                                <div class="col-10">
+                                                <div class="col-8 ">
                                                     <input id="regcep" name="regcep" type="text"
-                                                        placeholder="Informe o CEP da Escola (caso possua):"
+                                                        placeholder="Informe o CEP da Escola (caso possua)"
                                                         class="form-control cep">
                                                 </div>
                                             </div>
@@ -139,39 +154,48 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group">
-                                            <label class="control-label">
-                                                <b>A escola está localizada em:</b>
-                                                <star>*</star>
-                                            </label>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="areaUrbana"
-                                                        type="checkbox" value="1">
-                                                    <span class="form-check-sign"></span>
-                                                    Área Urbana
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="control-label">
+                                                    <b>A escola está localizada em:</b>
+                                                    <star>*</star>
                                                 </label>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="areaUrbana"
+                                                            type="checkbox" value="1">
+                                                        <span class="form-check-sign"></span>
+                                                        Área Urbana
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="areaUrbana"
+                                                            type="checkbox" value="2">
+                                                        <span class="form-check-sign"></span>
+                                                        Área Rural
+                                                    </label>
+                                                </div>
                                             </div>
-                                            <div class="form-check form-check-radio">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="areaUrbana"
-                                                        type="checkbox" value="2">
-                                                    <span class="form-check-sign"></span>
-                                                    Área Rural
-                                                </label>
-                                            </div>
+
                                         </div>
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
                                                 <label class="control-label ml-3">
                                                     <b>A escola está localizada em área diferenciada?</b>
                                                     <star>*</star>
                                                 </label>
                                             </div>
-                                            <div class="row mt-1">
+                                            <div class="row mt-3">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <div class="form-check form-check-radio">
                                                     <label class="form-check-label">
                                                         <input class="form-check-input" type="radio" name="locDif"
@@ -219,13 +243,16 @@
                                 <div class="row justify-content-center">
 
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <label class="col-4 control-label">
                                                     <b>Nome da Escola</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-8">
+                                                <div class="col-6">
                                                     <input id="nomeEscola" name="nomeEscola" type="text"
                                                         placeholder="Informe o nome da Escola:" class="form-control">
                                                 </div>
@@ -236,10 +263,13 @@
                                     <div class="col-12">
                                         <div class="form-group">
                                             <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
                                                 <label class="col-4 control-label">
                                                     Nome para contato
                                                 </label>
-                                                <div class="col-8">
+                                                <div class="col-6">
                                                     <input id="nomeContato" name="nomeContato" type="text"
                                                         placeholder="Informe um nome para contato na Escola:"
                                                         class="form-control">
@@ -251,10 +281,13 @@
                                     <div class="col-12">
                                         <div class="form-group">
                                             <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
                                                 <label class="col-4 control-label">
                                                     Telefone para contato
                                                 </label>
-                                                <div class="col-8">
+                                                <div class="col-6">
                                                     <input id="telContato" name="telContato" type="text"
                                                         placeholder="Informe o telefone de contato da Escola:"
                                                         class="form-control telmask">
@@ -266,13 +299,16 @@
                                     <hr class="sepForm" />
 
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <label class="col-4 control-label">
                                                     <b>A escola é:</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-8 mt-2">
+                                                <div class="col-6">
                                                     <div class="row">
                                                         <div class="form-check form-check-radio">
                                                             <label class="form-check-label">
@@ -325,13 +361,16 @@
                                 <br />
                                 <div class="row justify-content-center">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <label class="col-4 control-label">
                                                     <b>Em relação ao regime, <br> a escola oferece ensino:</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-8 mt-3">
+                                                <div class="col-6 mt-2">
                                                     <div class="row">
                                                         <div class="form-check form-check-inline">
                                                             <label class="form-check-label from-check-inline">
@@ -364,13 +403,16 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <label class="col-4 control-label">
                                                     <b>Em relação ao nível, <br> a escola oferece ensino:</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-8 mt-3">
+                                                <div class="col-6 mt-2">
                                                     <div class="row">
                                                         <div class="form-check form-check-inline">
                                                             <label class="form-check-label from-check-inline">
@@ -406,14 +448,17 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <label class="col-6 control-label">
                                                     <b>Em relação ao horário de funcionamento, <br> a escola funciona no
                                                         período da:</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-6 mt-3">
+                                                <div class="col-4 mt-2">
                                                     <div class="row">
                                                         <div class="form-check form-check-inline">
                                                             <label class="form-check-label from-check-inline">
@@ -453,7 +498,8 @@
                         </div>
                     </div>
                     <div class="card-footer text-center">
-                        <button type="button" id="cancelarAcao" class="btn btn-default btn-wd btnApagar pull-left">Cancelar Edição</button>
+                        <button type="button" id="cancelarAcao"
+                            class="btn btn-default btn-wd btnApagar pull-left">Cancelar Edição</button>
                         <button type="button" class="btn btn-default btn-wd btn-back pull-left">Voltar</button>
                         <button type="button" class="btn btn-info btn-wd btn-next pull-right">Próximo</button>
                         <button type="button" class="btn btn-info btn-wd btn-finish pull-right"
