@@ -35,3 +35,7 @@ small > img {
 button.btn.btn-default.btn-wd.btn-back.pull-left.disabled {
     border-width: 0px;
 }
+
+.entry-logo {
+    width: 200px;
+}

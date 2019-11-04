@@ -39,10 +39,10 @@
 
     <div class="wrapper">
         <!-- <div id="sidebar" class="sidebar" data-color="black" data-image="file://img/sidebar-5.jpg"></div> -->
-        <div id="sidebar" class="sidebar" data-color="black" data-image="file://img/logo-fnde.png"></div>
+        <div id="sidebar" class="sidebar" data-color="black" data-image="file://renderer/img/logo-fnde.png"></div>
         <div class="main-panel">
             <div id="content" class="content"></div>
-            <footer id="footer" class="footer p-1 bg-light"></footer>
+            <footer id="footer" class="footer p-1"></footer>
         </div>
     </div>
 
@@ -114,7 +114,7 @@
     $(document).ready(function () {
         $("#sidebar").load("dashboard-menu.html");
         $("#content").load("dashboard-main.html");
-        $("#footer").load("dashboard-footer.html");
+        $("#footer").load("footer.html");
     });
 </script>
 

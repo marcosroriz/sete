@@ -893,3 +893,13 @@ select option {
     text-align: center;
     margin-left: auto;
 }
+
+.logoimg img {
+    width: 150px;
+}
+
+.logoimg {
+    padding: 20px;
+    padding-bottom: 0px;
+    text-align: center;
+}

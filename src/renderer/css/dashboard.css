@@ -60,7 +60,8 @@
 
 .footer {
     height: 100%;
-    border-top: 5px solid orange
+    border-top: 5px solid orange;
+    background: white;
 }
 
 .form-control, .form-control:focus {
@@ -85,4 +86,29 @@ img.menu-icon {
     position: fixed;
     top: 50%;
     left: 50%;
+}
+
+.sidebar .user {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 0px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    /* margin-top: 0px; */
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+    background: #6c7280;
+    padding-left: 10px;
+}
+
+.sidebar .user .info .caret {
+    right: 0px;
+}
+
+.user .info span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+.profile-dropdown span {
+    font-family: "Roboto Condensed", "Roboto";
 }

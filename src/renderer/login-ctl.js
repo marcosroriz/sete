@@ -1,5 +1,5 @@
 // Localização do Usuário
-let localizacao;
+var localizacao;
 
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
@@ -172,9 +172,9 @@ $(document).ready(function () {
     // No caso de login iremos fazer o login com o Firebase as preferências
     // do usuário no arquivo local (userconfig)
     $("#loginsubmit").click(() => {
-        let email = $("#loginemail").val();
-        let password = $("#loginpassword").val();
-        let lembrarlogin = $("#loginlembrar").is(":checked");
+        var email = $("#loginemail").val();
+        var password = $("#loginpassword").val();
+        var lembrarlogin = $("#loginlembrar").is(":checked");
 
         $("#loginform").validate();
 
@@ -201,8 +201,8 @@ $(document).ready(function () {
 
                     // Checar se o usuário já fez a configuração inicial
                     RecuperarUsuario(firebaseUser.user.uid).then((userData) => {
-                        let hasInit = JSON.parse(userData[0]["INIT"]);
-                        let urldestino = "./initconfig.html";
+                        var hasInit = JSON.parse(userData[0]["INIT"]);
+                        var urldestino = "./initconfig.html";
                         if (hasInit) {
                             urldestino = "./dashboard.html";
                             // urldestino = "./cadastrar_escola.html";
@@ -228,7 +228,7 @@ $(document).ready(function () {
 
     // recoversubmit
     $("#recoversubmit").click(() => {
-        let email = $("#recoveremail").val();
+        var email = $("#recoveremail").val();
 
         $("#recoveryform").validate();
 
@@ -263,24 +263,24 @@ $(document).ready(function () {
         $("#registerform").validate();
 
         if ($("#registerform").valid()) {
-            let processingModalWin = swal({
+            var processingModalWin = swal({
                 title: "Processando...",
                 text: "Espere um minutinho...",
                 icon: "info",
                 buttons: false
             });
 
-            let email = $("#regemail").val();
-            let password = $("#regpassword").val();
-            let nome = $("#regnome").val();
-            let cpf = $("#regcpf").val();
-            let telefone = $("#regtel").val();
-            let cidade = $(localizacao.cidade).find("option:selected").text();
-            let estado = $(localizacao.estado).find("option:selected").text();
+            var email = $("#regemail").val();
+            var password = $("#regpassword").val();
+            var nome = $("#regnome").val();
+            var cpf = $("#regcpf").val();
+            var telefone = $("#regtel").val();
+            var cidade = $(localizacao.cidade).find("option:selected").text();
+            var estado = $(localizacao.estado).find("option:selected").text();
 
             firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then((fbuser) => {
-                    let userData = {
+                    var userData = {
                         "ID": fbuser.user.uid,
                         "NOME": nome,
                         "EMAIL": email,
@@ -293,9 +293,9 @@ $(document).ready(function () {
                         "COD_ESTADO": localizacao.estado.value
                     };
 
-                    let remoteUser = remotedb.collection("users").doc(fbuser.user.uid).set(userData);
-                    let remoteUserData = remotedb.collection("data").doc(fbuser.user.uid).set({ "INIT": false });
-                    let localUser = InserirUsuario(userData);
+                    var remoteUser = remotedb.collection("users").doc(fbuser.user.uid).set(userData);
+                    var remoteUserData = remotedb.collection("data").doc(fbuser.user.uid).set({ "INIT": false });
+                    var localUser = InserirUsuario(userData);
 
                     Promise.all([localUser, remoteUser, remoteUserData]).then(() => {
                         swal.close();
@@ -313,7 +313,7 @@ $(document).ready(function () {
                     console.log(err);
 
                     if (err != null) {
-                        let errmsg = err.message;
+                        var errmsg = err.message;
                         if (err.code == "auth/email-already-in-use") {
                             errmsg = "O e-mail informado já foi cadastrado."
                         } else if (err.code == "auth/network-request-failed") {

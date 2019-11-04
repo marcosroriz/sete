@@ -80,3 +80,7 @@
 .form-control:focus {
     border-width: 2px;
 }
+
+.entry-logo {
+    width: 250px;
+}

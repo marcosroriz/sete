@@ -10,10 +10,13 @@
     <title>SETE Software de Gestão do Transporte Escolar</title>
 
     <!-- Node CSS -->
-    <link rel="stylesheet" href="../node_modules/typeface-montserrat/index.css" />
-    <link rel="stylesheet" href="../node_modules/typeface-patrick-hand/index.css" />
-    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../../node_modules/typeface-poppins/index.css" />
+    <link rel="stylesheet" href="../../node_modules/typeface-roboto/index.css" />
+    <link rel="stylesheet" href="../../node_modules/typeface-roboto-condensed/index.css" />
+    <link rel="stylesheet" href="../../node_modules/typeface-montserrat/index.css" />
+    <link rel="stylesheet" href="../../node_modules/typeface-patrick-hand/index.css" />
+    <link rel="stylesheet" href="../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
 
     <!-- Template CSS -->
     <link rel="stylesheet" href="css/light-bootstrap-dashboard.css?v=2.0.1" />
@@ -32,16 +35,11 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-12">
-                            <h1 class="text-center text-white">
-                                <i class="fa fa-bus"></i>
-                                <span class="ml-3 cursive"> SETE</span>
-                            </h1>
-                            <div class="text-center text-white cursive">
-                                Software para Gestão do Transporte Escolar
+                            <div class="text-center text-white">
+                                <img src="img/icones/logobrancomelhor.png" class="entry-logo" />
                             </div>
                         </div>
                     </div>
-                    <!-- end row -->
 
                     <div class="row">
                         <div class="col-md-8 mt-5 ml-auto mr-auto">
@@ -49,49 +47,63 @@
                                 <div class="card card-wizard">
                                     <div class="card-header ">
                                         <h3 class="card-title text-center">Bem-vindo!</h3>
-                                        <p class="card-category text-center">Por favor confirme os dados abaixo para configurarmos o <em>software</em></p>
+                                        <p class="card-category text-center">Por favor confirme os dados abaixo para
+                                            configurarmos o <em>software</em></p>
                                     </div>
                                     <div class="card-body ">
                                         <ul class="nav nav-tabs">
                                             <li class="nav-item">
-                                                <a class="nav-link active" href="#tab-dados-pessoais" data-toggle="tab" role="tab" aria-controls="tab-dados-pessoais" aria-selected="true">Dados Básicos</a>
+                                                <a class="nav-link active" href="#tab-dados-pessoais" data-toggle="tab"
+                                                    role="tab" aria-controls="tab-dados-pessoais"
+                                                    aria-selected="true">Dados Básicos</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="#tab-dados-transporte" data-toggle="tab" role="tab" aria-controls="tab2" aria-selected="true">Dados do Transporte</a>
+                                                <a class="nav-link" href="#tab-dados-transporte" data-toggle="tab"
+                                                    role="tab" aria-controls="tab2" aria-selected="true">Dados do
+                                                    Transporte</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="#tab-dados-escolares" data-toggle="tab" role="tab" aria-controls="tab3" aria-selected="true">Dados Escolares</a>
+                                                <a class="nav-link" href="#tab-dados-escolares" data-toggle="tab"
+                                                    role="tab" aria-controls="tab3" aria-selected="true">Dados
+                                                    Escolares</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content">
-                                            <div class="tab-pane fade show active" id="tab-dados-pessoais" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="tab-dados-pessoais"
+                                                role="tabpanel">
                                                 <div class="row justify-content-center">
                                                     <h6 class="text-center">Confirme os seus dados pessoais:</h6>
                                                     <div class="col-12">
                                                         <div class="form-group">
                                                             <label>Nome completo:</label>
-                                                            <input id="regnome" name="regnome" type="text" placeholder="Digite seu nome:" class="form-control">
+                                                            <input id="regnome" name="regnome" type="text"
+                                                                placeholder="Digite seu nome:" class="form-control">
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="col-12">
                                                         <div class="form-group">
                                                             <label>E-mail:</label>
-                                                            <input id="regemail" name="regemail" type="email" placeholder="Endereço de e-mail:" class="form-control">
+                                                            <input id="regemail" name="regemail" type="email"
+                                                                placeholder="Endereço de e-mail:" class="form-control">
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="col-12">
                                                         <div class="form-group">
                                                             <label>CPF:</label>
-                                                            <input id="regcpf" name="regcpf" type="text" placeholder="Digite seu CPF:" class="form-control cpfmask">
+                                                            <input id="regcpf" name="regcpf" type="text"
+                                                                placeholder="Digite seu CPF:"
+                                                                class="form-control cpfmask">
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="col-12">
                                                         <div class="form-group">
                                                             <label>Telefone:</label>
-                                                            <input id="regtel" name="regtel" type="text" placeholder="Digite seu Telefone:" class="form-control telmask">
+                                                            <input id="regtel" name="regtel" type="text"
+                                                                placeholder="Digite seu Telefone:"
+                                                                class="form-control telmask">
                                                         </div>
                                                     </div>
                                                     <hr class="hr-form" />
@@ -99,13 +111,15 @@
                                                     <div class="col-12">
                                                         <div class="form-group">
                                                             <label>Estado:</label>
-                                                            <select id="regestado" name="regestado" class="form-control"></select>
+                                                            <select id="regestado" name="regestado"
+                                                                class="form-control"></select>
                                                         </div>
                                                     </div>
                                                     <div class="col-12">
                                                         <div class="form-group">
                                                             <label>Município:</label>
-                                                            <select id="regcidade" name="regcidade" class="form-control"></select>
+                                                            <select id="regcidade" name="regcidade"
+                                                                class="form-control"></select>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -113,22 +127,29 @@
                                             <!-- Fim aba dados pessoais -->
 
                                             <div class="tab-pane fade" id="tab-dados-transporte" role="tabpanel">
-                                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do Transporte Escolar no município</h6>
+                                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a
+                                                    respeito do Transporte Escolar no município</h6>
                                                 <div class="row justify-content-center">
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Em relação aos modos de transporte, o município oferece transporte escolar (marcar todos que se aplica):</label>
+                                                            <label>Em relação aos modos de transporte, o município
+                                                                oferece transporte escolar (marcar todos que se
+                                                                aplica):</label>
                                                             <br />
                                                             <div class="form-check">
                                                                 <label class="form-check-label">
-                                                                    <input id="temRodoviario" name="modoTransporte[]" value="0" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <input id="temRodoviario" name="modoTransporte[]"
+                                                                        value="0" type="checkbox"
+                                                                        class="form-check-input" required minlength="1">
                                                                     <span class="form-check-sign"></span>
                                                                     Rodoviário
                                                                 </label>
                                                             </div>
                                                             <div class="form-check">
                                                                 <label class="form-check-label">
-                                                                    <input id="temAquaviario" name="modoTransporte[]" value="1" type="checkbox" class="form-check-input" required minlength="1">
+                                                                    <input id="temAquaviario" name="modoTransporte[]"
+                                                                        value="1" type="checkbox"
+                                                                        class="form-check-input" required minlength="1">
                                                                     <span class="form-check-sign"></span>
                                                                     Aquaviário
                                                                 </label>
@@ -138,17 +159,22 @@
 
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>O município possui bicicletas do programa Caminho da Escola?</label>
+                                                            <label>O município possui bicicletas do programa Caminho da
+                                                                Escola?</label>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="temBicicleta" type="checkbox" value="true">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="temBicicleta" type="checkbox"
+                                                                        value="true">
                                                                     <span class="form-check-sign"></span>
                                                                     Sim
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="temBicicleta" type="checkbox" value="false">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="temBicicleta" type="checkbox"
+                                                                        value="false">
                                                                     <span class="form-check-sign"></span>
                                                                     Não
                                                                 </label>
@@ -158,18 +184,21 @@
 
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Existem monitores que atuam dentro dos veículos do transporte escolar do seu município?</label>
+                                                            <label>Existem monitores que atuam dentro dos veículos do
+                                                                transporte escolar do seu município?</label>
                                                             <br />
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="temMonitor" type="checkbox" value="true">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="temMonitor" type="checkbox" value="true">
                                                                     <span class="form-check-sign"></span>
                                                                     Sim
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="temMonitor" type="checkbox" value="false">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="temMonitor" type="checkbox" value="false">
                                                                     <span class="form-check-sign"></span>
                                                                     Não
                                                                 </label>
@@ -178,81 +207,99 @@
                                                     </div>
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Qual é a distância mínima entre a residência e a escola para que o aluno seja beneficiado com o transporte escolar gratuito?                                                                    ?</label>
+                                                            <label>Qual é a distância mínima entre a residência e a
+                                                                escola para que o aluno seja beneficiado com o
+                                                                transporte escolar gratuito? ?</label>
                                                             <br />
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="0">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="distMinima" type="checkbox" value="0">
                                                                     <span class="form-check-sign"></span>
                                                                     Até 2 km
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="1">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="distMinima" type="checkbox" value="1">
                                                                     <span class="form-check-sign"></span>
                                                                     De 2 a 3 km
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="2">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="distMinima" type="checkbox" value="2">
                                                                     <span class="form-check-sign"></span>
                                                                     De 3 a 4 km
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="3">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="distMinima" type="checkbox" value="3">
                                                                     <span class="form-check-sign"></span>
                                                                     Acima de 4 km
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="distMinima" type="checkbox" value="4">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="distMinima" type="checkbox" value="4">
                                                                     <span class="form-check-sign"></span>
                                                                     Não possui definição de distância mínima
                                                                 </label>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                   
+
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>O município oferece transporte escolar para alunos com destino a outras cidades?</label>
+                                                            <label>O município oferece transporte escolar para alunos
+                                                                com destino a outras cidades?</label>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label radio-inline">
-                                                                    <input id="possuiOutrasCidades" name="temOutrasCidades" class="form-check-input" type="radio" type="checkbox" value="true">
+                                                                    <input id="possuiOutrasCidades"
+                                                                        name="temOutrasCidades" class="form-check-input"
+                                                                        type="radio" type="checkbox" value="true">
                                                                     <span class="form-check-sign"></span>
                                                                     Sim
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label radio-inline">
-                                                                    <input class="form-check-input" type="radio" name="temOutrasCidades" type="checkbox" value="false">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="temOutrasCidades" type="checkbox"
+                                                                        value="false">
                                                                     <span class="form-check-sign"></span>
                                                                     Não
                                                                 </label>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <hr >
+                                                    <hr>
                                                     <div id="outrosMunicipios" class="col-12 d-none">
                                                         <hr class="hr-form" />
                                                         <div name="outros" id="outros" class="form-group">
                                                             <label>
-                                                                Informe quais são os outros municípios para qual se transportam os alunos.
+                                                                Informe quais são os outros municípios para qual se
+                                                                transportam os alunos.
                                                                 <ul>
                                                                     <li>
-                                                                        <small>Para adicionar um município, selecione o estado e nome da cidade e clique no íncone <img src="./img/icones/add.png"> da respectiva linha.</small>
+                                                                        <small>Para adicionar um município, selecione o
+                                                                            estado e nome da cidade e clique no íncone
+                                                                            <img src="./img/icones/add.png"> da
+                                                                            respectiva linha.</small>
                                                                     </li>
                                                                     <li>
-                                                                        <small>Para remover um município clique no ícone <img src="./img/icones/remove.png"> da respectiva linha.</small>
+                                                                        <small>Para remover um município clique no ícone
+                                                                            <img src="./img/icones/remove.png"> da
+                                                                            respectiva linha.</small>
                                                                     </li>
-                                                                </ul>                                                            
+                                                                </ul>
                                                             </label>
-                                                            <table class="table">                                               
+                                                            <table class="table">
                                                                 <thead>
                                                                     <tr>
                                                                         <th class="tbl-col-lg">Estado</th>
@@ -263,13 +310,16 @@
                                                                 <tbody>
                                                                     <tr class="novodado">
                                                                         <td>
-                                                                            <select name="novoestado" class="form-control"></select>
+                                                                            <select name="novoestado"
+                                                                                class="form-control"></select>
                                                                         </td>
                                                                         <td>
-                                                                            <select name="novomunicipio" class="form-control"></select>
+                                                                            <select name="novomunicipio"
+                                                                                class="form-control"></select>
                                                                         </td>
                                                                         <td class="tbl-add-rm">
-                                                                            <a href="#" onclick="addrow(this)" class="addbtn">
+                                                                            <a href="#" onclick="addrow(this)"
+                                                                                class="addbtn">
                                                                                 <img src="./img/icones/add.png" />
                                                                             </a>
                                                                         </td>
@@ -283,22 +333,28 @@
                                             <!-- Fim aba dados de transporte -->
 
                                             <div class="tab-pane fade" id="tab-dados-escolares" role="tabpanel">
-                                                <h6 class="text-center">A respeito de dados escolares, preencha os campos abaixo:</h6>
+                                                <h6 class="text-center">A respeito de dados escolares, preencha os
+                                                    campos abaixo:</h6>
                                                 <div class="row justify-content-center">
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Você deseja importar os dados de cadastro das escolas do CENSO escolar (2019)?</label>
+                                                            <label>Você deseja importar os dados de cadastro das escolas
+                                                                do CENSO escolar (2019)?</label>
                                                             <br />
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="importarDados" type="checkbox" value="true">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="importarDados" type="checkbox"
+                                                                        value="true">
                                                                     <span class="form-check-sign"></span>
                                                                     Sim
                                                                 </label>
                                                             </div>
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
-                                                                    <input class="form-check-input" type="radio" name="importarDados" type="checkbox" value="false">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="importarDados" type="checkbox"
+                                                                        value="false">
                                                                     <span class="form-check-sign"></span>
                                                                     Não
                                                                 </label>
@@ -310,11 +366,12 @@
                                                             <label>Qual o ano letivo do município?</label>
                                                             <br />
                                                             <div class="form-group">
-                                                                <input class="form-control" type="text" id="ano" name="ano" number="true" value="2019">
+                                                                <input class="form-control" type="text" id="ano"
+                                                                    name="ano" number="true" value="2019">
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                 </div>
                                             </div>
                                             <!-- Fim aba dados escolares -->
@@ -322,9 +379,12 @@
                                         </div>
                                     </div>
                                     <div class="card-footer text-center">
-                                        <button type="button" class="btn btn-default btn-wd btn-back pull-left">Voltar</button>
-                                        <button type="button" class="btn btn-info btn-wd btn-next pull-right">Próximo</button>
-                                        <button type="button" class="btn btn-info btn-wd btn-finish pull-right" id="finishconfig">Concluir</button>
+                                        <button type="button"
+                                            class="btn btn-default btn-wd btn-back pull-left">Voltar</button>
+                                        <button type="button"
+                                            class="btn btn-info btn-wd btn-next pull-right">Próximo</button>
+                                        <button type="button" class="btn btn-info btn-wd btn-finish pull-right"
+                                            id="finishconfig">Concluir</button>
                                         <div class="clearfix"></div>
                                     </div>
                                 </div>

@@ -40,6 +40,8 @@ const createEntryWindow = () => {
         "show": false
     });
 
+    // appWindow.setMenuBarVisibility(false);
+
     // and load the entry.html of the app.
     //entryWindow.loadURL(`file://${__dirname}/entry.html`);
     appWindow.loadURL(`file://${__dirname}/renderer/dashboard.html`);

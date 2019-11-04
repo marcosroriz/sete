@@ -1,3 +1,8 @@
+// Máscaras
+$('.cep').mask('00000-000');
+$(".telmask").mask(telmaskbehaviour, teloptions);
+
+
 // Posição do Aluno (Mapa)
 var posicaoAluno;
 

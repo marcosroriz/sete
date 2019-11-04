@@ -18,7 +18,7 @@ let dbconfig = {
 firebase.initializeApp(dbconfig);
 
 // Base de dados Firestore
-let remotedb = firebase.firestore();
+var remotedb = firebase.firestore();
 
 const knex = require("knex")({
     client: "sqlite3",
