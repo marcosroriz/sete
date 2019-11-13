@@ -3,3 +3,4 @@ var action = "";
 
 // Variáveis globais -> Escola
 var estadoEscola;
+var estadoAluno;

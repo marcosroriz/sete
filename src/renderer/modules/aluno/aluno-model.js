@@ -1,3 +1,41 @@
+function GetAlunoFromForm() {
+    return {
+        "LOC_LATITUDE": $("#reglat").val(), // real
+        "LOC_LONGITUDE": $("#reglon").val(), // real
+        "LOC_ENDERECO": $("#regend").val(), // string
+        "LOC_CEP": $("#regcep").val(), // string
+        "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
+        "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
+        "DA_COLCHETE": $("#temColchete").is(":checked"), // bool
+        "DA_ATOLEIRO": $("#temAtoleiro").is(":checked"), // bool
+        "DA_PONTERUSTICA": $("#temPonte").is(":checked"), // bool
+        
+        "NOME": $("#regnome").val(), // string
+        "CPF": $("#regcpf").val(), // number
+        "DATA_NASCIMENTO": $("#regdata").val(), // string
+        "NOME_RESPONSAVEL": $("#regnomeresp").val(), // string
+        "TELEFONE_RESPONSAVEL": $("#regtelresp").val(), // string
+        "GRAU_RESPONSAVEL": $("#listareggrauresp").val(),
+        "SEXO": $("input[name='modoSexo']:checked").val(), // int
+        "COR": $("input[name='corAluno']:checked").val(), // int
+        "DEF_CAMINHAR": $("#temDeCaminhar").is(":checked"), // bool
+        "DEF_OUVIR": $("#temDeOuvir").is(":checked"), // bool
+        "DEF_ENXERGAR": $("#temDeEnxergar").is(":checked"), // bool
+        "DEF_MENTAL": $("#temDefMental").is(":checked"), // bool
+
+        "TURNO": $("input[name='turnoAluno']:checked").val(), // int
+        "NIVEL": $("input[name='nivelAluno']:checked").val(), // int
+    };
+}
+
+function InserirAlunoPromise(alunoJSON) {
+    return knex("Alunos").insert(alunoJSON);
+}
+
+function InserirAlunoEscolaPromise(alunoJSON) {
+    return knex("Alunos").insert(alunoJSON);
+}
+
 function GetAlunoForm() {
     return {
         "ID_ALUNO": _aluno.ID_ALUNO, //int primary key

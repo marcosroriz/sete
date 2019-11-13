@@ -1,12 +1,12 @@
 // Máscaras
 $('.cep').mask('00000-000');
+$(".cpfmask").mask('000.000.000-00', { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
-
 
 // Posição do Aluno (Mapa)
 var posicaoAluno;
+var mapa = novoMapaOpenLayers("mapCadastroAluno", cidadeLatitude, cidadeLongitude);
 
-var mapa = novoMapaOpenLayers("mapCadastroAluno", -16.8152409, -49.2756642)
 var vectorSource = mapa["vectorSource"];
 var vectorLayer = mapa["vectorLayer"];
 var mapaOL = mapa["map"];
@@ -33,6 +33,8 @@ mapaOL.on('singleclick', function (evt) {
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
     $("#reglat").val(lat);
     $("#reglon").val(lon);
+    $("#reglat").valid();
+    $("#reglon").valid();
 });
 
 
@@ -66,6 +68,21 @@ var validadorFormulario = $("#wizardCadastrarAlunoForm").validate({
         listareggrauresp: {
             required: true,
             pickselect: true
+        },
+        modoSexo: {
+            required: true
+        },
+        corAluno: {
+            required: true
+        },
+        listaescola: {
+            required: true,
+        },
+        turnoAluno: {
+            required: true
+        },
+        nivelAluno: {
+            required: true
         }
     },
     messages: {
@@ -166,3 +183,100 @@ $('.card-wizard').bootstrapWizard({
         }
     }
 });
+
+BuscarTodasEscolas((err, result) => {
+    result.forEach((escola) => {
+        var eID = escola["ID_ESCOLA"];
+        var eNome = escola["NOME"];
+        $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
+    });
+    $("#totalNumAlunos").text($("#alunosAtendidos option").length);
+});
+
+
+$("#salvaraluno").click(() => {
+    $("[name='turnoAluno']").valid();
+    $("[name='nivelAluno']").valid();
+    
+    var alunoJSON = GetAlunoFromForm();
+    console.log(alunoJSON);
+
+    var idEscola = $("#listaescola").val();
+    console.log(idEscola);
+
+    var $valid = $('#wizardCadastrarAlunoForm').valid();
+    if (!$valid) {
+        return false;
+    } else {
+        InserirAlunoPromise(alunoJSON)
+        .then((res) => {
+            console.log(res);
+            if (idEscola != 0) {
+                var idAluno = res[0];
+                AdicionaAlunoEscola(idAluno, idEscola)
+                .then((res) => {
+                    Swal2.fire({
+                        title: "Aluno salvo com sucesso",
+                        text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
+                              "Clique abaixo para retornar ao painel.",
+                        type: "success",
+                        icon: "success",
+                        showCancelButton: false,
+                        confirmButtonClass: "btn-success",
+                        confirmButtonText: "Retornar ao painel",
+                        closeOnConfirm: false,
+                        closeOnClickOutside: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    })
+                    .then(() => {
+                        $("#content").load("./dashboard.html");
+                    });
+                })
+                .catch((err) => {
+                    errorFn("Erro ao inserir o aluno na escola!", err);
+                });
+            }
+        })
+        .catch((err) => {
+            errorFn("Erro ao salvar o aluno!", err);
+        });
+    }
+});
+
+
+
+if (action == "editarAluno") {
+    PopulateAlunoFromState(estadoAluno); 
+    posicaoAluno = new ol.Feature(
+        new ol.geom.Point(ol.proj.fromLonLat([estadoEscola["LOC_LONGITUDE"],
+                                              estadoEscola["LOC_LATITUDE"]]))
+    );
+    posicaoAluno.setStyle(new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [25, 40],
+            anchorXUnits: 'pixels',
+            anchorYUnits: 'pixels',
+            opacity: 1,
+            src: "img/icones/escola-marker.png"
+        })
+    }));
+    vectorSource.addFeature(posicaoAluno);
+    $("#cancelarAcao").click(() => {
+        Swal2.fire({
+            title: 'Cancelar Edição?',
+            text: "Se você cancelar nenhum alteração será feita nos dados do aluno.",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            cancelButtonText: "Voltar a editar",
+            confirmButtonText: 'Sim, cancelar'
+        }).then((result) => {
+            if (result.value) {
+                navigateDashboard(lastPage);
+            }
+        })
+    });
+    
+}
