@@ -11,24 +11,38 @@ var vectorSource = mapa["vectorSource"];
 var vectorLayer = mapa["vectorLayer"];
 var mapaOL = mapa["map"];
 
+// Ativa busca
+mapa["activateGeocoder"]();
+
+// Ativa camadas
+mapa["activateImageLayerSwitcher"]();
+
 mapaOL.on('singleclick', function (evt) {
-    if (posicaoAluno == null) {
-        posicaoAluno = new ol.Feature(
-            new ol.geom.Point(evt.coordinate)
-        );
-        posicaoAluno.setStyle(new ol.style.Style({
-            image: new ol.style.Icon({
-                anchor: [12, 37],
-                anchorXUnits: 'pixels',
-                anchorYUnits: 'pixels',
-                opacity: 1,
-                src: "img/icones/casamarker.png"
-            })
-        }));
-        vectorSource.addFeature(posicaoAluno);
-    } else {
-        posicaoAluno.getGeometry().setCoordinates(evt.coordinate);
+    if (evt.originalEvent.path.length > 21) {
+        return;
     }
+
+    if (posicaoAluno != null) {
+        try {
+            vectorSource.removeFeature(posicaoAluno);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    posicaoAluno = new ol.Feature(
+        new ol.geom.Point(evt.coordinate)
+    );
+    posicaoAluno.setStyle(new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [25, 50],
+            anchorXUnits: 'pixels',
+            anchorYUnits: 'pixels',
+            opacity: 1,
+            src: "img/icones/casamarker.png"
+        })
+    }));
+    vectorSource.addFeature(posicaoAluno);
 
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
     $("#reglat").val(lat);
@@ -161,26 +175,12 @@ $('.card-wizard').bootstrapWizard({
             $($wizard).find('.btn-finish').hide();
         }
 
-        var button_text = navigation.find('li:nth-child(' + $current + ') a').html();
-
-        setTimeout(function () {
-            $('.moving-tab').text(button_text);
-        }, 150);
-
-        var checkbox = $('.footer-checkbox');
-
-        if (!index == 0) {
-            $(checkbox).css({
-                'opacity': '0',
-                'visibility': 'hidden',
-                'position': 'absolute'
-            });
+        if (action == "editarAluno") {
+            $($wizard).find('#cancelarAcao').show();
         } else {
-            $(checkbox).css({
-                'opacity': '1',
-                'visibility': 'visible'
-            });
+            $($wizard).find('#cancelarAcao').hide();
         }
+
     }
 });
 

@@ -15,39 +15,42 @@ mapa["activateImageLayerSwitcher"]();
 // Lida com click de usuário
 mapaOL.on('singleclick', function (evt) {
     if (evt.originalEvent.path.length > 21) {
-        // User clicked on layer switch, ignore event
         return;
     }
 
-    if (posicaoEscola == null) {
-        posicaoEscola = new ol.Feature(
-            new ol.geom.Point(evt.coordinate)
-        );
-        posicaoEscola.setStyle(new ol.style.Style({
-            image: new ol.style.Icon({
-                anchor: [25, 40],
-                anchorXUnits: 'pixels',
-                anchorYUnits: 'pixels',
-                opacity: 1,
-                src: "img/icones/escola-marker.png"
-            })
-        }));
-        vectorSource.addFeature(posicaoEscola);
-
-        var translate = new ol.interaction.Translate({
-            features: new ol.Collection([posicaoEscola])
-        });
-
-        translate.on('translateend', function (evt) {
-            var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-            $("#reglat").val(parseFloat(lat).toFixed(10));
-            $("#reglon").val(parseFloat(lon).toFixed(10));
-        }, posicaoEscola);
-
-        mapaOL.addInteraction(translate);
-    } else {
-        posicaoEscola.getGeometry().setCoordinates(evt.coordinate);
+    if (posicaoEscola != null) {
+        try {
+            vectorSource.removeFeature(posicaoEscola);
+        } catch (err) {
+            console.log(err);
+        }
     }
+    
+    posicaoEscola = new ol.Feature(
+        new ol.geom.Point(evt.coordinate)
+    );
+    posicaoEscola.setStyle(new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [25, 50],
+            anchorXUnits: 'pixels',
+            anchorYUnits: 'pixels',
+            opacity: 1,
+            src: "img/icones/escola-marker.png"
+        })
+    }));
+    vectorSource.addFeature(posicaoEscola);
+
+    var translate = new ol.interaction.Translate({
+        features: new ol.Collection([posicaoEscola])
+    });
+
+    translate.on('translateend', function (evt) {
+        var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
+        $("#reglat").val(parseFloat(lat).toFixed(10));
+        $("#reglon").val(parseFloat(lon).toFixed(10));
+    }, posicaoEscola);
+
+    mapaOL.addInteraction(translate);
 
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
     $("#reglat").val(parseFloat(lat).toFixed(10));
