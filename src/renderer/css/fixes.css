@@ -903,3 +903,7 @@ select option {
     padding-bottom: 0px;
     text-align: center;
 }
+
+.filterlabel {
+    padding-left: 20px;
+}

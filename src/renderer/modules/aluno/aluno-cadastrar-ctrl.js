@@ -75,6 +75,9 @@ var validadorFormulario = $("#wizardCadastrarAlunoForm").validate({
             required: true,
             lettersonly: true
         },
+        areaUrbana: {
+            required: true,
+        },
         regnomeresp: {
             required: true,
             lettersonly: true
@@ -230,11 +233,29 @@ $("#salvaraluno").click(() => {
                         showConfirmButton: true
                     })
                     .then(() => {
-                        $("#content").load("./dashboard.html");
+                        navigateDashboard("./modules/aluno/aluno-listar-view.html");
                     });
                 })
                 .catch((err) => {
                     errorFn("Erro ao inserir o aluno na escola!", err);
+                });
+            } else {
+                Swal2.fire({
+                    title: "Aluno salvo com sucesso",
+                    text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
+                          "Clique abaixo para retornar ao painel.",
+                    type: "success",
+                    icon: "success",
+                    showCancelButton: false,
+                    confirmButtonClass: "btn-success",
+                    confirmButtonText: "Retornar ao painel",
+                    closeOnConfirm: false,
+                    closeOnClickOutside: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                })
+                .then(() => {
+                    navigateDashboard("./modules/aluno/aluno-listar-view.html");
                 });
             }
         })
@@ -249,8 +270,8 @@ $("#salvaraluno").click(() => {
 if (action == "editarAluno") {
     PopulateAlunoFromState(estadoAluno); 
     posicaoAluno = new ol.Feature(
-        new ol.geom.Point(ol.proj.fromLonLat([estadoEscola["LOC_LONGITUDE"],
-                                              estadoEscola["LOC_LATITUDE"]]))
+        new ol.geom.Point(ol.proj.fromLonLat([estadoAluno["LOC_LONGITUDE"],
+                                              estadoAluno["LOC_LATITUDE"]]))
     );
     posicaoAluno.setStyle(new ol.style.Style({
         image: new ol.style.Icon({
@@ -258,7 +279,7 @@ if (action == "editarAluno") {
             anchorXUnits: 'pixels',
             anchorYUnits: 'pixels',
             opacity: 1,
-            src: "img/icones/escola-marker.png"
+            src: "img/icones/casamarker.png"
         })
     }));
     vectorSource.addFeature(posicaoAluno);

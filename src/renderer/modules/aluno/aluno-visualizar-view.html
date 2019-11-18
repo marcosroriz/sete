@@ -1,0 +1,137 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/aluno-cadastro.svg">
+        <p class="pageTitle">Visualizar Alunos Cadastrados</p>
+    </div>
+
+    <div class="row">
+        <div class="mt-3 col-md-11 ml-auto mr-auto">
+            <div class="card card-wizard wiz-fixes mb-3">
+                <div class="card-body mb-3">
+                    <ul class="nav nav-tabs singletab">
+                        <li class="nav-item col-12 tab-2-fix">
+                            <a class="nav-link active" href="#tab-vis-escola" data-toggle="tab" role="tab">
+                                <img src="./img/icones/rota-sugestao2.png" class="wiz-icon">
+                                Mapa de Alunos Atendidos
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane tab-wiz fade show active" id="tab-vis-escola">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="mb-3 control-label">
+                                        <b>Mostrar alunos:</b>
+                                    </label>
+                                    <div class="row">
+                                        <div class="optlabel filterlabel">
+                                            Nível
+                                        </div>
+                                        <div class="col-10">
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input id="infantil" name="infantil" value="1" type="checkbox"
+                                                        class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Infantil </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label from-check-inline">
+                                                    <input id="fundamental" name="fundamental" value="1"
+                                                        type="checkbox" class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Fundamental
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label from-check-inline">
+                                                    <input id="medio" name="medio" value="1" type="checkbox"
+                                                        class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Médio
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label from-check-inline">
+                                                    <input id="superior" name="superior" value="1" type="checkbox"
+                                                        class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Superior
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label from-check-inline">
+                                                    <input id="outro" name="outro" value="1" type="checkbox"
+                                                        class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Outro
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr class="filterHR" />
+                                    <div class="row">
+                                        <div class="optlabel filterlabel">
+                                            Turno
+                                        </div>
+                                        <div class="col-10">
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input id="manha" name="manha" value="1" type="checkbox"
+                                                        class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Manhã </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label from-check-inline">
+                                                    <input id="tarde" name="tarde" value="1"
+                                                        type="checkbox" class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Tarde
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label from-check-inline">
+                                                    <input id="integral" name="integral" value="1" type="checkbox"
+                                                        class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Integral
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label from-check-inline">
+                                                    <input id="noite" name="noite" value="1" type="checkbox"
+                                                        class="form-check-input" checked>
+                                                    <span class="form-check-sign"></span>
+                                                    Noite
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" id="mapaCanvas">
+                                <div id="mapVizAlunos" class="mb-2 mapawiz" style="width: 100%; height: 400px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12 text-center">
+                            <button type="button" id="btnVoltar" class="btn btn-info m-2">
+                                Voltar
+                            </button>
+                            <button type="button" id="btnExpJPEG" class="btn btnSalvar m-2">
+                                Exportar Imagem (JPEG)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./modules/escola/escola-model.js" type="text/javascript"></script>
+<script src="./modules/aluno/aluno-model.js" type="text/javascript"></script>
+<script src="./modules/aluno/aluno-visualizar-ctrl.js" type="text/javascript"></script>

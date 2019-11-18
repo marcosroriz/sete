@@ -259,7 +259,7 @@ var onSaveCallBack = (err, result) => {
             showConfirmButton: true
         })
         .then(() => {
-            $("#content").load("./dashboard.html");
+            navigateDashboard("./modules/escola/escola-listar-view.html");
         });
     }
 };

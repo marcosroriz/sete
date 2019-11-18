@@ -126,10 +126,6 @@ module.exports = class RoutingGraph {
             spatialiteDB.get(sqlQuery, (err, row) => {
                 let cost = row["Cost"];
                 let dist = row["dist"];
-                if (cost == 0) {
-                    console.log("aqui aqui");
-                    console.log(sqlQuery);
-                }
                 c.get("spatialDistEdges").set(d.get("key"), dist);
                 c.get("spatialCostEdges").set(d.get("key"), cost);
                 resolve();

@@ -20,10 +20,11 @@ firebase.initializeApp(dbconfig);
 // Base de dados Firestore
 var remotedb = firebase.firestore();
 
+const dbPath = path.join(__dirname, "..", "db", "local.db");
 const knex = require("knex")({
     client: "sqlite3",
     connection: {
-        filename: path.join(__dirname, "..", "db", "local.db"),
+        filename: dbPath,
     },
     useNullAsDefault: true,
     pool: {
@@ -31,7 +32,8 @@ const knex = require("knex")({
     }
 });
 
-knex.on('query', console.log);
+const spatialite = require("spatialite");
+const spatialiteDB = new spatialite.Database(dbPath);
 
 // Dados da cidade
 // FIXME: Parametrizar isso!

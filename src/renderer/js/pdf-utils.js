@@ -25,6 +25,7 @@ function getBase64Image(imgName, imgURI, outputFormat, callback) {
 
 // getBase64Image("logo", "./img/icones/tempo-rota.svg", "image/svg+xml", saveImgCallback);
 getBase64Image("logo", "./img/icones/casamarker.png", "image/png", saveImgCallback);
+getBase64Image("logosete", "./img/icones/setelogopreto.png", "image/png", saveImgCallback);
 
 
 function docReport(doc) {
@@ -45,7 +46,7 @@ function docReport(doc) {
     }
 
     doc.images = doc.images || {};
-    doc.images["logo"] = baseImages.get("logo");
+    doc.images["logo"] = baseImages.get("logosete");
     doc.content.splice(1, 0, {
         alignment: 'center',
         margin: [0, 0, 0, 12],

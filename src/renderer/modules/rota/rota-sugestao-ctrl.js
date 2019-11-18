@@ -232,7 +232,7 @@ function drawRoutes(routesJSON) {
             styles.push(new ol.style.Style({
                 geometry: new ol.geom.Point(end),
                 image: new ol.style.Icon({
-                    src: 'https://openlayers.org/en/latest/examples/data/arrow.png',
+                    src: 'img/icones/arrow.png',
                     anchor: [0.75, 0.5],
                     rotateWithView: true,
                     rotation: -rotation
@@ -358,13 +358,12 @@ function startAnimation() {
 // Popup
 ///////////////////////////////////////////////////////////////////////////////
 mapaRotaGerada["map"].addInteraction(selectRoute);
-let popup = new ol.Overlay.PopupFeature({
+var popup = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectRoute,
     closeBox: true,
     onshow: () => {
         // pickedRoute = 130;
-
     },
     template: {
         title: (elem) => {

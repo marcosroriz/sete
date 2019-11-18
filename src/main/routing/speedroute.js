@@ -9,17 +9,12 @@ module.exports = class SpeedRoute {
         this.graph = new Graph();
         let n = 0;
         for (let i in inputData["alunos"]) {
-            console.log("tou aqui");
-            console.log(i);
             this.graph.addVertex(i, inputData["alunos"][i][0], inputData["alunos"][i][1]);
             n++;
         }
         let k = 0;
         while (k < 50) {
-            JSON.parse("oi");
             for (let i in inputData["alunos"]) {
-                console.log("tou aqui");
-                console.log(i);
                 let r = Math.random() - Math.random();
                 this.graph.addVertex(n + parseInt(i), inputData["alunos"][i][0] + r, inputData["alunos"][i][1] + r);
                 n++;
@@ -27,6 +22,5 @@ module.exports = class SpeedRoute {
             k++;
         }
         this.graph.createDistMatrix();
-        // console.log(inputData);
     }
 }

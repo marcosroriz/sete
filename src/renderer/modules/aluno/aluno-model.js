@@ -4,12 +4,13 @@ function GetAlunoFromForm() {
         "LOC_LONGITUDE": $("#reglon").val(), // real
         "LOC_ENDERECO": $("#regend").val(), // string
         "LOC_CEP": $("#regcep").val(), // string
+        "MEC_TP_LOCALIZACAO": $("input[name='areaUrbana']:checked").val(), // int
         "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
         "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
         "DA_COLCHETE": $("#temColchete").is(":checked"), // bool
         "DA_ATOLEIRO": $("#temAtoleiro").is(":checked"), // bool
         "DA_PONTERUSTICA": $("#temPonte").is(":checked"), // bool
-        
+
         "NOME": $("#regnome").val(), // string
         "CPF": $("#regcpf").val(), // number
         "DATA_NASCIMENTO": $("#regdata").val(), // string
@@ -28,12 +29,142 @@ function GetAlunoFromForm() {
     };
 }
 
+function PopulateAlunoFromState(estadoAlunoJSON) {
+    $(".pageTitle").html("Atualizar Aluno");
+    $("#reglat").val(estadoAlunoJSON["LOC_LATITUDE"]);
+    $("#reglon").val(estadoAlunoJSON["LOC_LONGITUDE"]);
+    $("#regend").val(estadoAlunoJSON["LOC_ENDERECO"]);
+    $("#regcep").val(estadoAlunoJSON["LOC_CEP"]);
+
+    $("input[name='areaUrbana']").filter(`[value="${estadoAlunoJSON["MEC_TP_LOCALIZACAO"]}"]`).prop("checked", true);
+    $("#temPorteira").prop("checked", estadoAlunoJSON["DA_PORTEIRA"]);
+    $("#temMataBurro").prop("checked", estadoAlunoJSON["DA_MATABURRO"]);
+    $("#temColchete").prop("checked", estadoAlunoJSON["DA_COLCHETE"]);
+    $("#temAtoleiro").prop("checked", estadoAlunoJSON["DA_ATOLEIRO"]);
+    $("#temPonte").prop("checked", estadoAlunoJSON["DA_PONTERUSTICA"]);
+
+    $("#regnome").val(estadoAlunoJSON["NOME"]);
+    $("#regcpf").val(estadoAlunoJSON["CPF"]);
+    $("#regdata").val(estadoAlunoJSON["DATA_NASCIMENTO"]);
+    $("#regnomeresp").val(estadoAlunoJSON["NOME_RESPONSAVEL"]);
+    $("#regtelresp").val(estadoAlunoJSON["TELEFONE_RESPONSAVEL"]);
+    $("#listareggrauresp").val(estadoAlunoJSON["GRAU_RESPONSAVEL"]);
+    $("input[name='modoSexo']").val([estadoAlunoJSON["SEXO"]]);
+    $("input[name='corAluno']").val([estadoAlunoJSON["COR"]]);
+    $("#temDeCaminhar").prop("checked", estadoAlunoJSON["DEF_CAMINHAR"]);
+    $("#temDeOuvir").prop("checked", estadoAlunoJSON["DEF_OUVIR"]);
+    $("#temDeEnxergar").prop("checked", estadoAlunoJSON["DEF_ENXERGAR"]);
+    $("#temDefMental").prop("checked", estadoAlunoJSON["DEF_MENTAL"]);
+
+    $("input[name='turnoAluno']").val([estadoAlunoJSON["TURNO"]]);
+    $("input[name='nivelAluno']").val([estadoAlunoJSON["NIVEL"]]);
+    $("#listaescola").val(estadoAlunoJSON["ID_ESCOLA"]);
+}
+
+// Transformar linha do DB para JSON
+var parseAlunoDB = function (alunoRaw) {
+    var alunoJSON = Object.assign({}, alunoRaw);
+    alunoJSON["ESCOLA"] = "Aluno sem escola";
+    alunoJSON["ID_ESCOLA"] = 0;
+
+    switch (alunoRaw["MEC_TP_LOCALIZACAO"]) {
+        case 1:
+            alunoJSON["LOCALIZACAO"] = "Urbana";
+            break;
+        case 2:
+            alunoJSON["LOCALIZACAO"] = "Rural";
+            break;
+        default:
+            alunoJSON["LOCALIZACAO"] = "Urbana";
+    }
+
+    switch (alunoRaw["TURNO"]) {
+        case 1:
+            alunoJSON["TURNOSTR"] = "Manhã";
+            break;
+        case 2:
+            alunoJSON["TURNOSTR"] = "Tarde";
+            break;
+        case 3:
+            alunoJSON["TURNOSTR"] = "Integral";
+            break;
+        case 4:
+            alunoJSON["TURNOSTR"] = "Noturno";
+            break;
+        default:
+            alunoJSON["TURNOSTR"] = "Manhã";
+    }
+
+    switch (alunoRaw["NIVEL"]) {
+        case 1:
+            alunoJSON["NIVELSTR"] = "Infantil (Creche)";
+            break;
+        case 2:
+            alunoJSON["NIVELSTR"] = "Fundamental";
+            break;
+        case 3:
+            alunoJSON["NIVELSTR"] = "Médio";
+            break;
+        case 4:
+            alunoJSON["NIVELSTR"] = "Superior";
+            break;
+        case 5:
+            alunoJSON["NIVELSTR"] = "Outro";
+            break;
+        default:
+            alunoJSON["NIVELSTR"] = "Fundamental";
+    }
+
+    return alunoJSON;
+};
+
 function InserirAlunoPromise(alunoJSON) {
     return knex("Alunos").insert(alunoJSON);
 }
 
 function InserirAlunoEscolaPromise(alunoJSON) {
     return knex("Alunos").insert(alunoJSON);
+}
+
+function BuscarTodosAlunosPromise() {
+    return knex("Alunos").select()
+}
+
+function BuscarTodosAlunos(callbackFn) {
+    return BuscarTodosAlunosPromise()
+        .then((res) => {
+            callbackFn(false, res);
+        })
+        .catch((err) => {
+            callbackFn(err);
+        });
+}
+
+function ListarEscolasDeAlunosPromise() {
+    return knex("Escolas")
+          .join("EscolaTemAlunos", "Escolas.ID_ESCOLA", "=", "EscolaTemAlunos.ID_ESCOLA")
+}
+
+function ListarEscolasDeAlunos(callbackFn) {
+    return ListarEscolasDeAlunosPromise()
+        .then((res) => {
+            callbackFn(false, res);
+        })
+        .catch((err) => {
+            callbackFn(err);
+        });
+}
+
+function RemoverAluno(idAluno, callbackFn) {
+    knex("Alunos")
+        .where("ID_ALUNO", idAluno)
+        .del()
+        .then((res) => {
+            callbackFn(false, res);
+        })
+        .catch((err) => {
+            callbackFn(err);
+        })
 }
 
 function GetAlunoForm() {
@@ -82,7 +213,7 @@ function InserirAluno(aluno) {
         const alunos = [aluno];
         knex('Aluno').insert(alunos).then(() => { SuccessAluno(); })
             .catch((err) => { console.log(err); throw err })
-            .finally(() => {});
+            .finally(() => { });
     }
 }
 
@@ -91,7 +222,7 @@ function AtualizarAluno(aluno) {
         .where('ID_ALUNO', '=', aluno.ID_ALUNO)
         .update(aluno).then(() => { SuccessAluno(); })
         .catch((err) => { console.log(err); throw err })
-        .finally(() => {});
+        .finally(() => { });
 }
 
 function DeleteAluno(row, id) {
@@ -99,5 +230,5 @@ function DeleteAluno(row, id) {
         .where('ID_ALUNO', '=', id)
         .del().then(() => { DeleteRow(row); })
         .catch((err) => { console.log(err); throw err })
-        .finally(() => {});
+        .finally(() => { });
 }

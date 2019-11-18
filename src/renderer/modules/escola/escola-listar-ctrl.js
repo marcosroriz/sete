@@ -219,9 +219,7 @@ var listaNumAlunosCB = (err, result) => {
         listaDeEscolas.forEach((escola) => {
             dataTableEscolas.row.add(escola);
         });
-        for (let [k, v] of listaDeEscolas) {
-            dataTableEscolas
-        }
+
         dataTableEscolas.draw();
     }
 };

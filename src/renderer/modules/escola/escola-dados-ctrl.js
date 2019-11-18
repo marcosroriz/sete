@@ -5,7 +5,7 @@ var mapaDetalhe = novoMapaOpenLayers("mapDetalheEscola", elat, elng);
 mapaDetalhe["activateImageLayerSwitcher"]();
 
 window.onresize = function () {
-    setTimeout(function () { 
+    setTimeout(function () {
         if (mapaDetalhe != null) { mapaDetalhe["map"].updateSize(); }
     }, 200);
 }
@@ -43,7 +43,7 @@ var dataTableInstitucional = $("#dataTableInstitucional").DataTable({
         {
             text: "Voltar",
             className: "btn-info",
-            action: function(e, dt, node, config) {
+            action: function (e, dt, node, config) {
                 navigateDashboard(lastPage);
             }
         },
@@ -78,30 +78,50 @@ var dataTableInstitucional = $("#dataTableInstitucional").DataTable({
         {
             text: "Modificar",
             className: "btnMoficar",
-            action: function(e, dt, node, config) {
-                alert("Modificar");
+            action: function (e, dt, node, config) {
+                action = "editarEscola";
+                navigateDashboard("./modules/escola/escola-cadastrar-view.html");
             }
         },
         {
             text: "Apagar",
             className: "btnApagar",
-            action: function(e, dt, node, config) {
-                alert("Apagar");
+            action: function (e, dt, node, config) {
+                action = "apagarEscola";
+                Swal2.fire({
+                    title: 'Remover essa escola?',
+                    text: "Ao remover uma escola os alunos remanescentes da mesma deverão ser alocados novamente a outra(s) escola(s).",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    cancelButtonText: "Cancelar",
+                    confirmButtonText: 'Sim, remover'
+                }).then((result) => {
+                    if (result.value) {
+                        RemoverEscola(estadoEscola["ID_ESCOLA"], (err, result) => {
+                            if (result) {
+                                Swal2.fire({
+                                    type: 'success',
+                                    title: "Sucesso!",
+                                    text: "Escola removida com sucesso!",
+                                    confirmButtonText: 'Retornar a página de administração'
+                                })
+                                .then(() => {
+                                    navigateDashboard("./modules/escola/escola-listar-view.html");
+                                });
+                            } else {
+                                Swal2.fire({
+                                    type: 'error',
+                                    title: 'Oops...',
+                                    text: 'Tivemos algum problema. Por favor, reinicie o software!',
+                                });
+                            }
+                        })
+                    }
+                })
             }
-        },
-        // { 
-        //     text: "Salvar Mapa",
-        //     action: function (e, dt, node, config) {
-        //         alert('Button activated');
-        //         htmlToImage.toPng(document.getElementById("mapaCanvas"))
-        //             .then(function (dataUrl) {
-        //                 var link = document.createElement('a');
-        //                 link.download = 'my-image-name.jpeg';
-        //                 link.href = dataUrl;
-        //                 link.click();
-        //             });
-        //     }
-        // },
+        }
     ]
 });
 
@@ -164,7 +184,7 @@ var popularTabelaInstitucional = () => {
 popularTabelaInstitucional();
 
 // Tabela Lista de Alunos
-var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable( {
+var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable({
     columns: [
         { data: 'NOME', width: "40%" },
         { data: 'DATA_NASCIMENTO', width: "300px" },
@@ -186,7 +206,7 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable( {
     bAutoWidth: false,
     lengthMenu: [[10, 50, -1], [10, 50, "Todos"]],
     pagingType: "full_numbers",
-    order: [[ 0, "asc" ]],
+    order: [[0, "asc"]],
     language: {
         "search": "_INPUT_",
         "searchPlaceholder": "Procurar alunos",
@@ -196,10 +216,10 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable( {
         "infoEmpty": "Sem registros disponíveis",
         "infoFiltered": "(Alunos filtrados a partir do total de _MAX_ alunos)",
         "paginate": {
-            "first":      "Primeira",
-            "last":       "Última",
-            "next":       "Próxima",
-            "previous":   "Anterior"
+            "first": "Primeira",
+            "last": "Última",
+            "next": "Próxima",
+            "previous": "Anterior"
         },
     },
     dom: 't<"detalheToolBar"B>',
@@ -207,7 +227,7 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable( {
         {
             text: "Voltar",
             className: "btn-info",
-            action: function(e, dt, node, config) {
+            action: function (e, dt, node, config) {
                 navigateDashboard(lastPage);
             }
         },
@@ -239,7 +259,7 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable( {
             }
         },
     ]
-} );
+});
 
 ListaDeAlunosPorEscola(estadoEscola["ID_ESCOLA"], (err, result) => {
     result.forEach((v) => {
@@ -251,7 +271,7 @@ ListaDeAlunosPorEscola(estadoEscola["ID_ESCOLA"], (err, result) => {
 $("#detalheInitBtn").click();
 $("#detalheMapa").on('click', (evt) => {
     console.log("cheogu aqui");
-    setTimeout(function () { 
+    setTimeout(function () {
         mapaDetalhe["map"].updateSize();
     }, 200);
 });
