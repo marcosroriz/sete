@@ -279,3 +279,4 @@ $("#btnExpJPEG").click(() => {
 })
 
 
+action = "visualizarAluno";

@@ -39,7 +39,7 @@ var dataTablesAlunos = $("#datatables").DataTable({
     bAutoWidth: false,
     lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
     pagingType: "full_numbers",
-    order: [[0, "desc"]],
+    order: [[0, "asc"]],
     language: {
         "search": "_INPUT_",
         "searchPlaceholder": "Procurar alunos",
@@ -193,3 +193,5 @@ var listaInicialCB = (err, result) => {
 };
 
 BuscarTodosAlunos(listaInicialCB);
+
+action = "listarAluno";

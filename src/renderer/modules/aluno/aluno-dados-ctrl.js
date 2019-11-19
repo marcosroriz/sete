@@ -314,3 +314,5 @@ $("#detalheMapa").on('click', (evt) => {
         mapaDetalhe["map"].updateSize();
     }, 200);
 });
+
+action = "detalharAluno";

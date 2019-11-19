@@ -1,0 +1,102 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/importacao.png">
+        <p class="pageTitle">Importar Alunos</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 ml-auto mr-auto">
+            <div class="card card-wizard wiz-fixes">
+                <div class="card-body ">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item col-6 tab-2-fix">
+                            <a class="nav-link active" href="#tab-rota-malha-atual" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-xls.png" class="wiz-icon">
+                                Planilha
+                            </a>
+                        </li>
+                        <li class="nav-item col-6 tab-2-fix">
+                            <a class="nav-link" href="#tab-rota-malha-enviar" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-processamento2.png" class="wiz-icon">
+                                Importação
+                            </a>
+                        </li>
+                        <!-- <li class="nav-item">
+                            <a class="nav-link" href="#tab-rota-malha-enviar" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-processamento2.png" class="wiz-icon">
+                                Processamento
+                            </a>
+                        </li> -->
+                    </ul>
+
+                    <!-- Abas -->
+                    <div class="tab-content">
+                        <div class="tab-pane tab-wiz fade show active" id="tab-rota-malha-atual" role="tabpanel">
+                            <div class="row justify-content-center">
+                                <h6 class="mb-4 mt-1 text-center text-space">
+                                    Essa ferramenta possibilita importar vários alunos para o sistema de uma vez a partir de dados existentes.
+                                    <br>
+                                    Para tal, por favor baixe a planilha exemplo que deverá ser preenchida com as seguintes colunas:
+                                </h6>
+                                <div class="col-12">
+                                    <img src="./img/icones/exemplo-importacao.png" class="col-12"/> 
+                                </div>
+                                  
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>
+                                            <b>Planilha Exemplo:</b>
+                                            <star>*</star>
+                                        </label>
+
+                                        <button id="baixarPlanilha" class="col-7 ml-2 mr-2 btn">
+                                            <i class="fa fa-download"></i> Baixar Planilha
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane tab-wiz fade" id="tab-rota-malha-enviar" role="tabpanel">
+                            <h6 class="mb-4 text-center text-space">
+                                Por favor envie a planilha XLXS contendo a descrição dos alunos que serão importados para o sistema.
+                            </h6>
+                            <div class="row justify-content-center">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>
+                                            <b>Planilha:</b>
+                                            <star>*</star>
+                                        </label>
+                                        <input type="file" accept=".xlsx" class="file-input" id="arqPlanilha">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-center">
+                        <button type="button" class="btn btn-default btn-wd btn-back pull-left">
+                            Voltar
+                        </button>
+                        <button type="button" class="btn btn-info btn-wd btn-next pull-right">
+                            Próximo
+                        </button>
+                        <button type="button" id="importarAlunos"
+                            class="btn btn-info btn-wd btn-finish pull-right">
+                            Salvar
+                        </button>
+                        <div class="clearfix"></div>
+                        <!-- Fim footer -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</div>
+
+<script src="./modules/aluno/aluno-model.js" type="text/javascript"></script>
+<script src="./modules/aluno/aluno-importar-ctrl.js" type="text/javascript"></script>

@@ -1,12 +1,12 @@
 // Imports Principais
-const electron = require('electron');
-const { ipcRenderer, remote } = electron;
-const app = remote.app;
-const dialog = remote.dialog;
-const win = remote.getCurrentWindow();
+var electron = require('electron');
+var { ipcRenderer, remote } = electron;
+var app = remote.app;
+var dialog = remote.dialog;
+var win = remote.getCurrentWindow();
 
 // Caminhos Comuns
-const userDataDir = app.getPath('userData');
+var userDataDir = app.getPath('userData');
 
 // Bibliotecas Básicas do JS
 window.$ = window.jQuery = require("jquery");
@@ -15,16 +15,16 @@ window.Bootstrap = require("bootstrap");
 require("jquery-validation");
 require("jquery-mask-plugin");
 require("moment");
-const swal = require("sweetalert");
-const Swal2 = require("sweetalert2");
-const htmlToImage = require("html-to-image");
+var swal = require("sweetalert");
+var Swal2 = require("sweetalert2");
+var htmlToImage = require("html-to-image");
 
 // Variáveis Basicas
-const appTitle = "SETE - Software de Gestão do Transporte Escolar"
+var appTitle = "SETE - Software de Gestão do Transporte Escolar"
 
 // Arquivo de configuração local
-const Store = require("electron-store");
-const userconfig = new Store();
+var Store = require("electron-store");
+var userconfig = new Store();
 
 // Variáveis globais utilizadas para navegação
 var lastPage = "./dashboard-main.html";
@@ -36,6 +36,7 @@ var errorFn = (msg, err) => {
         title: "Ops... tivemos um problema!",
         text: msg + " Feche e abra o software novamente. \n" + err,
         icon: "error",
+        type: "error",
         button: "Fechar"
     });
 }
