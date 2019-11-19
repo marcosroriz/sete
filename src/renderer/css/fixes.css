@@ -912,3 +912,7 @@ select option {
 .activeLink {
     background: #6592ca !important;
 }
+
+.pageDoubleTitle {
+    margin-right: 20px;
+}

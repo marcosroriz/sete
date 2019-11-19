@@ -1,13 +1,13 @@
-const path = require("path");
+var path = require("path");
 
 // Google Firebase
-const firebase = require("firebase/app");
+var firebase = require("firebase/app");
 require("firebase/auth");
 require("firebase/database");
 require("firebase/firestore");
 
 // Init Firebase
-let dbconfig = {
+var dbconfig = {
     apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
     authDomain: "softwareter.firebaseapp.com",
     databaseURL: "https://softwareter.firebaseio.com",
@@ -20,8 +20,8 @@ firebase.initializeApp(dbconfig);
 // Base de dados Firestore
 var remotedb = firebase.firestore();
 
-const dbPath = path.join(__dirname, "..", "db", "local.db");
-const knex = require("knex")({
+var dbPath = path.join(__dirname, "..", "db", "local.db");
+var knex = require("knex")({
     client: "sqlite3",
     connection: {
         filename: dbPath,
@@ -31,9 +31,12 @@ const knex = require("knex")({
         afterCreate: (conn, cb) => conn.run('PRAGMA foreign_keys = ON', cb)
     }
 });
+knex.on( 'query', function( queryData ) {
+    console.log( queryData );
+});
 
-const spatialite = require("spatialite");
-const spatialiteDB = new spatialite.Database(dbPath);
+var spatialite = require("spatialite");
+var spatialiteDB = new spatialite.Database(dbPath);
 
 // Dados da cidade
 // FIXME: Parametrizar isso!
@@ -43,6 +46,56 @@ var codCidade = "5201405";
 var codEstado = "52";
 var minZoom = 15;
 
+// Funções comuns do banco de dados
+function InserirPromise(table, data) {
+    return knex(table).insert(data);
+}
+
+function Inserir(table, data, cb) {
+    InserirPromise(table, data)
+    .then(res => cb(false, res))
+    .catch(err => cb(err));
+}
+
+function AtualizarPromise(table, data, column, id) {
+    return knex(table).where(column, '=', id).update(data);
+}
+
+function Atualizar(table, column, data, id, cb) {
+    AtualizarPromise(table, column, data, id)
+    .then(res => cb(false, res))
+    .catch(err => cb(err));
+}
+
+function RemoverPromise(table, column, id) {
+    return knex(table).where(column, "=", id).del();
+}
+
+function Remover(table, column, id, cb) {
+    RemoverPromise(table, column, id)
+    .then(res => cb(false, res))
+    .catch(err => cb(err));
+}
+
+function BuscarTodosDadosPromise(table) {
+    return knex.select('*').from(table);
+}
+
+function BuscarTodosDados(table, cb) {
+    BuscarTodosDadosPromise(table)
+    .then(res => cb(false, res))
+    .catch(err => cb(err));
+}
+
+function BuscarDadoEspecificoPromise(table, column, id) {
+    return knex.select('*').where(column, '=', id).from(table);
+}
+
+function BuscarDadoEspecifico(table, column, id, cb) {
+    BuscarDadoEspecificoPromise(table, column, id)
+    .then(res => cb(false, res))
+    .catch(err => cb(err));
+}
 
 const bookshelf = require("bookshelf")(knex);
 

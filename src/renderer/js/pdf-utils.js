@@ -25,8 +25,7 @@ function getBase64Image(imgName, imgURI, outputFormat, callback) {
 
 // getBase64Image("logo", "./img/icones/tempo-rota.svg", "image/svg+xml", saveImgCallback);
 getBase64Image("logo", "./img/icones/casamarker.png", "image/png", saveImgCallback);
-getBase64Image("logosete", "./img/icones/setelogopreto.png", "image/png", saveImgCallback);
-
+getBase64Image("logosete", "./img/icones/setelogopequeno.png", "image/png", saveImgCallback);
 
 function docReport(doc) {
     doc.styles = doc.styles || {};

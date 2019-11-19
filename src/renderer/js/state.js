@@ -1,6 +1,7 @@
 // Variáveis globais utilizadas no dashboard
 var action = "";
 
-// Variáveis globais -> Escola
-var estadoEscola;
+// Variáveis globais
 var estadoAluno;
+var estadoEscola;
+var estadoMotorista;

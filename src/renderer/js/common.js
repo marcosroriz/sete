@@ -1,6 +1,6 @@
 // Imports Principais
 var electron = require('electron');
-var { ipcRenderer, remote } = electron;
+var { ipcRenderer, remote, shell } = electron;
 var app = remote.app;
 var dialog = remote.dialog;
 var win = remote.getCurrentWindow();
@@ -14,7 +14,7 @@ window.Tether = require("tether");
 window.Bootstrap = require("bootstrap");
 require("jquery-validation");
 require("jquery-mask-plugin");
-require("moment");
+var moment = require('moment');
 var swal = require("sweetalert");
 var Swal2 = require("sweetalert2");
 var htmlToImage = require("html-to-image");

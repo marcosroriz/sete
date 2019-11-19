@@ -1,0 +1,333 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/motorista-cadastro.png">
+        <p class="pageTitle">Cadastro de Motorista</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 ml-auto mr-auto">
+            <form id="wizardCadastrarMotoristaForm" method="" action="">
+                <div class="card card-wizard wiz-fixes">
+                    <div class="card-body ">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item col-6 tab-2-fix">
+                                <a class="nav-link" href="#tab-dados-pessoais" data-toggle="tab" role="tab"
+                                    aria-controls="tab2">
+                                    <img src="./img/icones/tab-dadospessoais.svg" class="wiz-icon">
+                                    Dados Pessoais
+                                </a>
+                            </li>
+                            <li class="nav-item col-6 tab-2-fix">
+                                <a class="nav-link" href="#tab-dados-transporte" data-toggle="tab" role="tab"
+                                    aria-controls="tab3">
+                                    <img src="./img/icones/tab-carteira.png" class="wiz-icon">
+                                    Dados de Transporte
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane tab-wiz fade" id="tab-dados-pessoais" role="tabpanel">
+                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do
+                                    aluno sendo cadastrado.</h6>
+                                <div class="row justify-content-center">
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Nome do Motorista</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regnome" name="regnome" type="text"
+                                                        placeholder="Informe o nome do motorista:" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    CPF do Motorista
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regcpf" name="regcpf" type="text"
+                                                        placeholder="Informe o CPF do motorista:"
+                                                        class="form-control cpfmask">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Data de Nascimento</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regdata" name="regdata" type="text"
+                                                        placeholder="Informe a data de nascimento do motorista"
+                                                        class="form-control datanasc">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Telefone
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regtelresp" name="regtelresp" type="text"
+                                                        placeholder="Telefone do motorista"
+                                                        class="form-control telmask">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="control-label">
+                                                    <b>Sexo do Motorista:</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="modoSexo"
+                                                                value="1">
+                                                            <span class="form-check-sign"></span>
+                                                            Masculino
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="modoSexo"
+                                                                value="2">
+                                                            <span class="form-check-sign"></span>
+                                                            Feminino
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="modoSexo"
+                                                                value="3">
+                                                            <span class="form-check-sign"></span>
+                                                            Não Informado
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Número do documento de antecendentes criminais
+                                                </label>
+                                                <div class="col-6 mt-2">
+                                                    <input id="regantecedentes" name="regantecedentes" type="text"
+                                                        placeholder="Número do documento"
+                                                        class="form-control antecendentes">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Anexar PDF com documentos pessoais
+                                                </label>
+                                                <div class="col-6 mt-2">
+                                                    <input id="regdocpessoaispdf" name="regdocpessoaispdf" type="file"
+                                                           placeholder="Documento PDF" class="file-input form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fim aba dados de transporte -->
+
+                            <div class="tab-pane tab-wiz fade" id="tab-dados-transporte" role="tabpanel">
+                                <h6 class="text-center">A respeito dos dados de transporte do motorista, informe:</h6>
+                                <br />
+                                <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Carteira Nacional de Habilitação (CNH)</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6 mt-2">
+                                                    <input id="regcnh" name="regcnh" type="text"
+                                                        placeholder="Informe o número de registro da CNH do motorista"
+                                                        class="form-control cnh">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="col-12 mb-3">
+                                                <label class="control-label">
+                                                    <b>O motorista está habilitado a dirigir quais categorias de
+                                                        veículos?</b>
+                                                    <star>*</star>
+                                                </label>
+                                            </div>
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <div class="col-10">
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label">
+                                                            <input id="cnhA" name="habilitado[]" value="1" type="checkbox"
+                                                                class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            A </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="cnhB" name="habilitado[]" value="1" type="checkbox"
+                                                                class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            B
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="cnhC" name="habilitado[]" value="1" type="checkbox"
+                                                                class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            C
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="cnhD" name="habilitado[]" value="1" type="checkbox"
+                                                                class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            D
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="cnhE" name="habilitado[]" value="1" type="checkbox"
+                                                                class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            E
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-6 control-label">
+                                                    <b>Qual o turno de trabalho do motorista?</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-4 mt-2">
+                                                    <div class="row">
+                                                        <div class="form-check form-check-inline">
+                                                            <label class="form-check-label from-check-inline">
+                                                                <input id="temHorarioManha" name="temHorario[]"
+                                                                    type="checkbox" class="form-check-input" value="1">
+                                                                <span class="form-check-sign"></span>
+                                                                Manhã
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <label class="form-check-label from-check-inline">
+                                                                <input id="temHorarioTarde" name="temHorario[]"
+                                                                    type="checkbox" class="form-check-input" value="2">
+                                                                <span class="form-check-sign"></span>
+                                                                Tarde
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <label class="form-check-label from-check-inline">
+                                                                <input id="temHorarioNoite" name="temHorario[]"
+                                                                    type="checkbox" class="form-check-input" value="3">
+                                                                <span class="form-check-sign"></span>
+                                                                Noite
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <span class="ml-3 hint">Marque todos que se aplique</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Fim aba dados escolares -->
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button type="button" id="cancelarAcao"
+                                class="btn btn-default btn-wd btnApagar pull-left">Cancelar Edição</button>
+                            <button type="button" class="btn btn-default btn-wd btn-back pull-left">Voltar</button>
+                            <button type="button" class="btn btn-info btn-wd btn-next pull-right">Próximo</button>
+                            <button type="button" class="btn btn-info btn-wd btn-finish pull-right"
+                                id="salvarmotorista">Concluir</button>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="./modules/motorista/motorista-model.js" type="text/javascript"></script>
+<script src="./modules/motorista/motorista-cadastrar-ctrl.js" type="text/javascript"></script>
