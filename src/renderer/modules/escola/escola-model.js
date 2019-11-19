@@ -131,7 +131,6 @@ function NumeroDeEscolasAtendidasPromise() {
     return knex("EscolaTemAlunos").countDistinct("ID_ESCOLA AS NUMESCOLAS");
 }
 
-
 function RemoverEscolaPromise(idEscola) {
     return knex("Escolas")
         .where("ID_ESCOLA", idEscola)

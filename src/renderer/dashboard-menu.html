@@ -277,6 +277,7 @@
     $(document).ready(function () {
         // Logo
         $("#logosete").click(() => {
+            $(".activeLink").removeClass("activeLink");
             action = "dashboard";
             $("#content").load("./dashboard-main.html");
         });

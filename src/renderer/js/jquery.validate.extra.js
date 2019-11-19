@@ -76,6 +76,11 @@ window.$.validator.addMethod("datanasc", function (value, element) {
     return moment(value,"DD/MM/YYYY").isValid();
 }, "Informe uma data de nascimento válida");
 
+// Validar campo com CNH
+window.$.validator.addMethod("cnh", function (value, element) {
+    return jsbrasil.validateBr.cnh(value);
+}, "Informe uma CNH válida");
+
 // Validar campos que só podem ter letras
 window.$.validator.addMethod("lettersonly", function (value, element) {
     return this.optional(element) || /^[a-z áàäéêëíïóõôöúûüùçñ]+$/i.test(value);
