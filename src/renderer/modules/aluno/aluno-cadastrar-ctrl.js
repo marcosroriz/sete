@@ -196,6 +196,25 @@ BuscarTodasEscolas((err, result) => {
     $("#totalNumAlunos").text($("#alunosAtendidos option").length);
 });
 
+var completeForm = () => {
+    Swal2.fire({
+        title: "Aluno salvo com sucesso",
+        text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
+            "Clique abaixo para retornar ao painel.",
+        type: "success",
+        icon: "success",
+        showCancelButton: false,
+        confirmButtonClass: "btn-success",
+        confirmButtonText: "Retornar ao painel",
+        closeOnConfirm: false,
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+        showConfirmButton: true
+    })
+    .then(() => {
+        navigateDashboard("./modules/aluno/aluno-listar-view.html");
+    });
+}
 
 $("#salvaraluno").click(() => {
     $("[name='turnoAluno']").valid();
@@ -211,57 +230,34 @@ $("#salvaraluno").click(() => {
     if (!$valid) {
         return false;
     } else {
-        InserirAlunoPromise(alunoJSON)
-        .then((res) => {
-            console.log(res);
-            if (idEscola != 0) {
-                var idAluno = res[0];
-                AdicionaAlunoEscola(idAluno, idEscola)
+        if (action == "editarAluno") {
+            AtualizarEscolaPromise(estadoAluno["ID_ALUNO"], alunoJSON)
+            .then((res) => {
+                completeForm();
+            })
+            .catch((err) => {
+                errorFn("Erro ao inserir o aluno na escola!", err);
+            });
+        } else {
+            InserirAlunoPromise(alunoJSON)
                 .then((res) => {
-                    Swal2.fire({
-                        title: "Aluno salvo com sucesso",
-                        text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
-                              "Clique abaixo para retornar ao painel.",
-                        type: "success",
-                        icon: "success",
-                        showCancelButton: false,
-                        confirmButtonClass: "btn-success",
-                        confirmButtonText: "Retornar ao painel",
-                        closeOnConfirm: false,
-                        closeOnClickOutside: false,
-                        allowOutsideClick: false,
-                        showConfirmButton: true
-                    })
-                    .then(() => {
-                        navigateDashboard("./modules/aluno/aluno-listar-view.html");
-                    });
+                    if (idEscola != 0) {
+                        var idAluno = res[0];
+                        AdicionaAlunoEscola(idAluno, idEscola)
+                            .then((res) => {
+                                completeForm();
+                            })
+                            .catch((err) => {
+                                errorFn("Erro ao inserir o aluno na escola!", err);
+                            });
+                    } else {
+                        completeForm();
+                    }
                 })
                 .catch((err) => {
-                    errorFn("Erro ao inserir o aluno na escola!", err);
+                    errorFn("Erro ao salvar o aluno!", err);
                 });
-            } else {
-                Swal2.fire({
-                    title: "Aluno salvo com sucesso",
-                    text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
-                          "Clique abaixo para retornar ao painel.",
-                    type: "success",
-                    icon: "success",
-                    showCancelButton: false,
-                    confirmButtonClass: "btn-success",
-                    confirmButtonText: "Retornar ao painel",
-                    closeOnConfirm: false,
-                    closeOnClickOutside: false,
-                    allowOutsideClick: false,
-                    showConfirmButton: true
-                })
-                .then(() => {
-                    navigateDashboard("./modules/aluno/aluno-listar-view.html");
-                });
-            }
-        })
-        .catch((err) => {
-            errorFn("Erro ao salvar o aluno!", err);
-        });
+        }
     }
 });
 
@@ -299,5 +295,4 @@ if (action == "editarAluno") {
             }
         })
     });
-    
 }

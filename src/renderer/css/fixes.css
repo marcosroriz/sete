@@ -908,3 +908,7 @@ select option {
 .filterlabel {
     padding-left: 20px;
 }
+
+.activeLink {
+    background: #6592ca !important;
+}

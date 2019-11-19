@@ -54,11 +54,21 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#temHorarioNoite").prop("checked", estadoEscolaJSON["HORARIO_NOTURNO"]);
 }
 
-
-
 function InserirEscola(escolaJSON, onSaveCallBack) {
     knex("Escolas")
         .insert(escolaJSON)
+        .then((res) => {
+            onSaveCallBack(false, res);
+        })
+        .catch((err) => {
+            onSaveCallBack(err);
+        });
+}
+
+function AtualizarEscola(idEscola, escolaJSON, onSaveCallBack) {
+    knex("Escolas")
+        .where('ID_ESCOLA', '=', idEscola)
+        .update(escolaJSON)
         .then((res) => {
             onSaveCallBack(false, res);
         })
@@ -115,6 +125,17 @@ function ListaDeAlunosNaoAtendidosPorEscola(idEscola, callbackFn) {
         .catch((err) => {
             callbackFn(err);
         })
+}
+
+function NumeroDeEscolasAtendidasPromise() {
+    return knex("EscolaTemAlunos").countDistinct("ID_ESCOLA AS NUMESCOLAS");
+}
+
+
+function RemoverEscolaPromise(idEscola) {
+    return knex("Escolas")
+        .where("ID_ESCOLA", idEscola)
+        .del()
 }
 
 function RemoverEscola(idEscola, callbackFn) {

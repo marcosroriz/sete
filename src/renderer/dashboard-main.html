@@ -7,7 +7,7 @@
     <div class="row m-2">
         <div class="col-lg-4 col-sm-6">
             <div class="card card-stats card-atalho">
-                <a href="#">
+                <a name="aluno/aluno-cadastrar-view" class="link-dash" href="#">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-3">
@@ -25,7 +25,7 @@
         </div>
         <div class="col-lg-4 col-sm-6">
             <div class="card card-stats card-atalho">
-                <a href="#">
+                <a name="aluno/aluno-listar-view" class="link-dash" href="#">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-3">
@@ -34,7 +34,7 @@
                                 </div>
                             </div>
                             <div class="col-9 nopadding">
-                                <h4 class="card-titlev2">PESUISA DE ALUNOS</h4>
+                                <h4 class="card-titlev2">PESQUISA DE ALUNOS</h4>
                             </div>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
 
     <div class="row justify-content-center mb-2">
         <img id="pageIcon" src="./img/icones/informacaoGeral.svg">
-        <p class="pageTitle">Informação Geral</p>
+        <p class="pageTitle">Informações Gerais</p>
     </div>
 
     <div class="row mr-2 ml-2">
@@ -72,9 +72,9 @@
                 <div class="card-body pb-2">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <p class="card-category atalho-title">Alunos Atendidos</p>
+                            <p class="card-category atalho-title">Alunos <br /> Atendidos</p>
                             <img src="./img/icones/numero-aluno.svg" class="m-2 svg-icon">
-                            <h4 class="card-title card-title-atalho">959</h4>
+                            <h4 class="card-title card-title-atalho" id="alunosAtendidos"></h4>
                         </div>
                     </div>
                 </div>
@@ -85,9 +85,9 @@
                 <div class="card-body pb-2">
                     <div class="row">
                         <div class="col-12 text-center">
-                            <p class="card-category atalho-title">Escolas Atendidas</p>
+                            <p class="card-category atalho-title">Escolas <br /> Atendidas</p>
                             <img src="./img/icones/escola-cadastrada.svg" class="m-2 svg-icon">
-                            <h4 class="card-title card-title-atalho">30</h4>
+                            <h4 class="card-title card-title-atalho" id="escolasAtendidas"></h4>
                         </div>
                     </div>
                 </div>
@@ -176,3 +176,7 @@
         </div>
     </div>
 </div>
+
+<script src="./modules/escola/escola-model.js" type="text/javascript"></script>
+<script src="./modules/aluno/aluno-model.js" type="text/javascript"></script>
+<script src="./dashboard-ctrl.js" type="text/javascript"></script>

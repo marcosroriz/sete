@@ -1,6 +1,6 @@
 <div class="sidebar-wrapper">
     <div class="logoimg">
-        <a href="#dashlogo">
+        <a id="logosete" href="#">
             <img src="img/icones/logosete.png" />
         </a>
     </div>
@@ -70,12 +70,12 @@
                             <span class="sidebar-normal">Visualizar</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a id="gerenciar_aluno" name="gerenciar_aluno" class="nav-link" href="#">
                             <span class="sidebar-mini">-</span>
                             <span class="sidebar-normal">Gerenciar</span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
         </li>
@@ -275,7 +275,16 @@
 
 <script>
     $(document).ready(function () {
+        // Logo
+        $("#logosete").click(() => {
+            action = "dashboard";
+            $("#content").load("./dashboard-main.html");
+        });
+        
+        // Links
         $(".link-menu").click(function () {
+            $(".activeLink").removeClass("activeLink");
+            $(this.parentElement).addClass("activeLink");
             navigateDashboard("./modules/" + $(this).attr("name") + ".html");
         });
 

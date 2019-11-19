@@ -310,8 +310,11 @@ $("#salvarescola").click(() => {
         return false;
     } else {
         var schoolJSON = GetEscolaFromForm();
-        InserirEscola(schoolJSON, onSaveCallBack);
-        console.log(schoolJSON);
+        if (action == "editarEscola") {
+            AtualizarEscola(estadoEscola["ID_ESCOLA"], schoolJSON, onSaveCallBack);
+        } else {
+            InserirEscola(schoolJSON, onSaveCallBack);
+        }
         return true;
     }
 });

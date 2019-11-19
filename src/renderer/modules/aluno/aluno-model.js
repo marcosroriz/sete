@@ -140,6 +140,10 @@ function BuscarTodosAlunos(callbackFn) {
         });
 }
 
+function NumeroDeAlunosAtendidosPromise() {
+    return knex("EscolaTemAlunos").count("ID_ALUNO AS NUMALUNOS");
+}
+
 function ListarEscolasDeAlunosPromise() {
     return knex("Escolas")
           .join("EscolaTemAlunos", "Escolas.ID_ESCOLA", "=", "EscolaTemAlunos.ID_ESCOLA")
@@ -166,6 +170,13 @@ function RemoverAluno(idAluno, callbackFn) {
             callbackFn(err);
         })
 }
+
+function AtualizarEscolaPromise(idAluno, alunoJSON) {
+    return knex("Alunos")
+           .where('ID_ALUNO', '=', idAluno)
+           .update(alunoJSON)
+}
+
 
 function GetAlunoForm() {
     return {
