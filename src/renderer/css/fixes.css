@@ -910,9 +910,27 @@ select option {
 }
 
 .activeLink {
-    background: #6592ca !important;
+    background: #ecb24a !important;
+}
+
+.activeLink span {
+    font-weight: 600;
 }
 
 .pageDoubleTitle {
     margin-right: 20px;
+}
+
+.placa {
+    text-transform:uppercase;
+}
+
+.totalText {
+    padding-bottom: 10px;
+    border-bottom-style: solid;
+    border-bottom-color: #e49824;
+    margin-bottom: 20px;
+    font-weight: 500;
+    font-size: 1.3em;
+    font-family: "Roboto Condensed";
 }

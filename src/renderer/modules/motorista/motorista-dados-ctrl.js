@@ -1,3 +1,5 @@
+var idMotorista = estadoMotorista["ID_MOTORISTA"];
+
 // Tira o btn group do datatable
 $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons';
 

@@ -5,3 +5,4 @@ var action = "";
 var estadoAluno;
 var estadoEscola;
 var estadoMotorista;
+var estadoVeiculo;

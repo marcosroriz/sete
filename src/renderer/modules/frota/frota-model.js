@@ -1,121 +1,106 @@
-function GetAlunoFromForm() {
+function GetVeiculoFromForm() {
     return {
-        "LOC_LATITUDE": $("#reglat").val(), // real
-        "LOC_LONGITUDE": $("#reglon").val(), // real
-        "LOC_ENDERECO": $("#regend").val(), // string
-        "LOC_CEP": $("#regcep").val(), // string
-        "MEC_TP_LOCALIZACAO": $("input[name='areaUrbana']:checked").val(), // int
-        "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
-        "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
-        "DA_COLCHETE": $("#temColchete").is(":checked"), // bool
-        "DA_ATOLEIRO": $("#temAtoleiro").is(":checked"), // bool
-        "DA_PONTERUSTICA": $("#temPonte").is(":checked"), // bool
+        "MODO": $("input[name='tipoModal']:checked").val(), // boolean
+        "MARCA": $("input[name='marca']:checked").val(), // boolean
+        "TIPO": $("#tipoVeiculo").val(), // int
+        "MODELO": $("#listamodelo").val(),
+        "ANO": $("#reganoaquisicao").val(),
+        "ORIGEM": $("input[name='origemVeiculo']:checked").val(),
 
-        "NOME": $("#regnome").val(), // string
-        "CPF": $("#regcpf").val(), // number
-        "DATA_NASCIMENTO": $("#regdata").val(), // string
-        "NOME_RESPONSAVEL": $("#regnomeresp").val(), // string
-        "TELEFONE_RESPONSAVEL": $("#regtelresp").val(), // string
-        "GRAU_RESPONSAVEL": $("#listareggrauresp").val(),
-        "SEXO": $("input[name='modoSexo']:checked").val(), // int
-        "COR": $("input[name='corAluno']:checked").val(), // int
-        "DEF_CAMINHAR": $("#temDeCaminhar").is(":checked"), // bool
-        "DEF_OUVIR": $("#temDeOuvir").is(":checked"), // bool
-        "DEF_ENXERGAR": $("#temDeEnxergar").is(":checked"), // bool
-        "DEF_MENTAL": $("#temDefMental").is(":checked"), // bool
-
-        "TURNO": $("input[name='turnoAluno']:checked").val(), // int
-        "NIVEL": $("input[name='nivelAluno']:checked").val(), // int
+        "PLACA": $("#regplaca").val().toUpperCase(),
+        "RENAVAM": $("#regrenavam").val(),
+        "KM_INICIAL": $("#regkm").val(),
+        "KM_ATUAL": $("#regkm").val(),
+        "CAPACIDADE": $("#capacidade").val(),
+        "MANUTENCAO": $("input[name='manutencao']:checked").val(), // boolean
     };
 }
 
-function PopulateAlunoFromState(estadoAlunoJSON) {
-    $(".pageTitle").html("Atualizar Aluno");
-    $("#reglat").val(estadoAlunoJSON["LOC_LATITUDE"]);
-    $("#reglon").val(estadoAlunoJSON["LOC_LONGITUDE"]);
-    $("#regend").val(estadoAlunoJSON["LOC_ENDERECO"]);
-    $("#regcep").val(estadoAlunoJSON["LOC_CEP"]);
+function PopulateVeiculoFromState(estadoVeiculoJSON) {
+    $(".pageTitle").html("Atualizar Veículo");
+    $(".tipoNeutro").hide();
 
-    $("input[name='areaUrbana']").filter(`[value="${estadoAlunoJSON["MEC_TP_LOCALIZACAO"]}"]`).prop("checked", true);
-    $("#temPorteira").prop("checked", estadoAlunoJSON["DA_PORTEIRA"]);
-    $("#temMataBurro").prop("checked", estadoAlunoJSON["DA_MATABURRO"]);
-    $("#temColchete").prop("checked", estadoAlunoJSON["DA_COLCHETE"]);
-    $("#temAtoleiro").prop("checked", estadoAlunoJSON["DA_ATOLEIRO"]);
-    $("#temPonte").prop("checked", estadoAlunoJSON["DA_PONTERUSTICA"]);
+    $("input[name='tipoModal'").val([estadoVeiculoJSON["MODO"]]);
+    $("input[name='marca'").val([estadoVeiculoJSON["MARCA"]]);
 
-    $("#regnome").val(estadoAlunoJSON["NOME"]);
-    $("#regcpf").val(estadoAlunoJSON["CPF"]);
-    $("#regdata").val(estadoAlunoJSON["DATA_NASCIMENTO"]);
-    $("#regnomeresp").val(estadoAlunoJSON["NOME_RESPONSAVEL"]);
-    $("#regtelresp").val(estadoAlunoJSON["TELEFONE_RESPONSAVEL"]);
-    $("#listareggrauresp").val(estadoAlunoJSON["GRAU_RESPONSAVEL"]);
-    $("input[name='modoSexo']").val([estadoAlunoJSON["SEXO"]]);
-    $("input[name='corAluno']").val([estadoAlunoJSON["COR"]]);
-    $("#temDeCaminhar").prop("checked", estadoAlunoJSON["DEF_CAMINHAR"]);
-    $("#temDeOuvir").prop("checked", estadoAlunoJSON["DEF_OUVIR"]);
-    $("#temDeEnxergar").prop("checked", estadoAlunoJSON["DEF_ENXERGAR"]);
-    $("#temDefMental").prop("checked", estadoAlunoJSON["DEF_MENTAL"]);
+    if (estadoVeiculoJSON["MODO"] == false) {
+        $(".tipoAqua").hide();
+        $(".tipoRodo").show();
+    } else {
+        $(".tipoRodo").hide();
+        $(".tipoAqua").show();
+    }
+    
 
-    $("input[name='turnoAluno']").val([estadoAlunoJSON["TURNO"]]);
-    $("input[name='nivelAluno']").val([estadoAlunoJSON["NIVEL"]]);
-    $("#listaescola").val(estadoAlunoJSON["ID_ESCOLA"]);
+    $("#tipoVeiculo").val(estadoVeiculoJSON["TIPO"]);
+    $("#listamodelo").val(estadoVeiculoJSON["MODELO"]);
+    $("#reganoaquisicao").val(estadoVeiculoJSON["ANO"]);
+    $("input[name='origemVeiculo']").val([estadoVeiculoJSON["ORIGEM"]]);
+
+    $("#regplaca").val(estadoVeiculoJSON["PLACA"]);
+    $("#regrenavam").val(estadoVeiculoJSON["RENAVAM"]);
+    $("#regkm").val(estadoVeiculoJSON["KM_INICIAL"]);
+    $("#capacidade").val(estadoVeiculoJSON["CAPACIDADE"]);
+    $("input[name='manutencao']").val([estadoVeiculoJSON["MANUTENCAO"]]);
 }
 
 // Transformar linha do DB para JSON
-var parseAlunoDB = function (alunoRaw) {
-    var alunoJSON = Object.assign({}, alunoRaw);
-    alunoJSON["ESCOLA"] = "Aluno sem escola";
-    alunoJSON["ID_ESCOLA"] = 0;
+var parseVeiculoDB = function (veiculoRaw) {
+    var veiculoJSON = Object.assign({}, veiculoRaw);
+    veiculoJSON["CAPACIDADE_ATUAL"] = 0;
 
-    switch (alunoRaw["MEC_TP_LOCALIZACAO"]) {
-        case 1:
-            alunoJSON["LOCALIZACAO"] = "Urbana";
-            break;
-        case 2:
-            alunoJSON["LOCALIZACAO"] = "Rural";
-            break;
-        default:
-            alunoJSON["LOCALIZACAO"] = "Urbana";
+    if (veiculoJSON["MANUTENCAO"]) {
+        veiculoJSON["ESTADO"] = "Manutenção";
+    } else {
+        veiculoJSON["ESTADO"] = "Operação";
     }
 
-    switch (alunoRaw["TURNO"]) {
-        case 1:
-            alunoJSON["TURNOSTR"] = "Manhã";
-            break;
-        case 2:
-            alunoJSON["TURNOSTR"] = "Tarde";
-            break;
-        case 3:
-            alunoJSON["TURNOSTR"] = "Integral";
-            break;
-        case 4:
-            alunoJSON["TURNOSTR"] = "Noturno";
-            break;
-        default:
-            alunoJSON["TURNOSTR"] = "Manhã";
+    if (veiculoJSON["ORIGEM"] == "1") {
+        veiculoJSON["ORIGEMSTR"] = "Frota própria";
+    } else {
+        veiculoJSON["ORIGEMSTR"] = "Frota terceirizadas";
     }
 
-    switch (alunoRaw["NIVEL"]) {
-        case 1:
-            alunoJSON["NIVELSTR"] = "Infantil (Creche)";
-            break;
-        case 2:
-            alunoJSON["NIVELSTR"] = "Fundamental";
-            break;
-        case 3:
-            alunoJSON["NIVELSTR"] = "Médio";
-            break;
-        case 4:
-            alunoJSON["NIVELSTR"] = "Superior";
-            break;
-        case 5:
-            alunoJSON["NIVELSTR"] = "Outro";
-            break;
-        default:
-            alunoJSON["NIVELSTR"] = "Fundamental";
+
+    switch (veiculoRaw["TIPO"]) {
+        case 1: veiculoJSON["TIPOSTR"] = "Ônibus"; break;
+        case 2: veiculoJSON["TIPOSTR"] = "Micro-ônibus"; break;
+        case 3: veiculoJSON["TIPOSTR"] = "Van"; break;
+        case 4: veiculoJSON["TIPOSTR"] = "Kombi"; break;
+        case 5: veiculoJSON["TIPOSTR"] = "Caminhão"; break;
+        case 6: veiculoJSON["TIPOSTR"] = "Caminhonete"; break;
+        case 7: veiculoJSON["TIPOSTR"] = "Motocicleta"; break;
+        case 8: veiculoJSON["TIPOSTR"] = "Animal de tração"; break;
+        case 9: veiculoJSON["TIPOSTR"] = "Lancha/Voadeira"; break;
+        case 10: veiculoJSON["TIPOSTR"] = "Barco de madeira"; break;
+        case 11: veiculoJSON["TIPOSTR"] = "Barco de alumínio"; break;
+        case 12: veiculoJSON["TIPOSTR"] = "Canoa motorizada"; break;
+        case 13: veiculoJSON["TIPOSTR"] = "Canoa a remo"; break;
+        default: veiculoJSON["TIPOSTR"] = "Ônibus";
     }
 
-    return alunoJSON;
+    switch (parseInt(veiculoRaw["MARCA"])) {
+        case 1: veiculoJSON["MARCASTR"] = "IVECO"; break;
+        case 2: veiculoJSON["MARCASTR"] = "MERCEDES-BENZ"; break;
+        case 3: veiculoJSON["MARCASTR"] = "VOLKSWAGEN"; break;
+        case 4: veiculoJSON["MARCASTR"] = "VOLARE"; break;
+        case 5: veiculoJSON["MARCASTR"] = "OUTRA"; break;
+        default: veiculoJSON["MODELOSTR"] = "OUTRA";
+    }
+
+    switch (parseInt(veiculoRaw["MODELO"])) {
+        case 1: veiculoJSON["MODELOSTR"] = "ORE 1"; break;
+        case 2: veiculoJSON["MODELOSTR"] = "ORE 1 (4x4)"; break;
+        case 3: veiculoJSON["MODELOSTR"] = "ORE 2"; break;
+        case 4: veiculoJSON["MODELOSTR"] = "ORE 3"; break;
+        case 5: veiculoJSON["MODELOSTR"] = "ORE 4"; break;
+        case 6: veiculoJSON["MODELOSTR"] = "ONUREA"; break;
+        case 7: veiculoJSON["MODELOSTR"] = "Lancha a Gasolina"; break;
+        case 8: veiculoJSON["MODELOSTR"] = "Lancha a Diesel"; break;
+        default: veiculoJSON["MODELOSTR"] = "Não se aplica";
+    }
+
+    return veiculoJSON;
 };
 
 function InserirAlunoPromise(alunoJSON) {

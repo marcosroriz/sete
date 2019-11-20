@@ -76,10 +76,26 @@ window.$.validator.addMethod("datanasc", function (value, element) {
     return moment(value,"DD/MM/YYYY").isValid();
 }, "Informe uma data de nascimento válida");
 
+// Validar ano
+window.$.validator.addMethod("ano", function (value, element) {
+    return moment(value,"YYYY").isValid();
+}, "Informe um ano válido");
+
 // Validar campo com CNH
 window.$.validator.addMethod("cnh", function (value, element) {
     return jsbrasil.validateBr.cnh(value);
 }, "Informe uma CNH válida");
+
+// Validar placa
+window.$.validator.addMethod("placa", function (value, element) {
+    return jsbrasil.validateBr.placa(value);
+}, "Informe uma placa válida");
+
+// Validar placa
+window.$.validator.addMethod("renavam", function (value, element) {
+    return jsbrasil.validateBr.renavam(value);
+}, "Informe um RENAVAM válido");
+
 
 // Validar campos que só podem ter letras
 window.$.validator.addMethod("lettersonly", function (value, element) {

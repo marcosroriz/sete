@@ -221,10 +221,7 @@ $("#salvaraluno").click(() => {
     $("[name='nivelAluno']").valid();
     
     var alunoJSON = GetAlunoFromForm();
-    console.log(alunoJSON);
-
     var idEscola = $("#listaescola").val();
-    console.log(idEscola);
 
     var $valid = $('#wizardCadastrarAlunoForm').valid();
     if (!$valid) {

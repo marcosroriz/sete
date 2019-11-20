@@ -124,7 +124,7 @@
                             <span class="sidebar-normal">Cadastrar</span>
                         </a>
                     </li>
-                     <li class="nav-item ">
+                    <li class="nav-item ">
                         <a name="motorista/motorista-listar-view" class="link-menu nav-link" href="#">
                             <span class="sidebar-normal">Gerenciar</span>
                         </a>
@@ -172,6 +172,16 @@
                     <li class="nav-item ">
                         <a name="frota/frota-cadastrar-view" class="link-menu nav-link" href="#">
                             <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a name="frota/garagem-visualizar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Garagem</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a name="frota/frota-listar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Gerenciar</span>
                         </a>
                     </li>
                     <li class="nav-item ">
@@ -278,7 +288,7 @@
             action = "dashboard";
             $("#content").load("./dashboard-main.html");
         });
-        
+
         // Links
         $(".link-menu").click(function () {
             $(".activeLink").removeClass("activeLink");

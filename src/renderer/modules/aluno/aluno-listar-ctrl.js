@@ -183,6 +183,8 @@ var listaInicialCB = (err, result) => {
     if (err) {
         errorFnAlunos(err);
     } else {
+        $("#totalNumAlunos").text(result.length);
+
         for (let alunoRaw of result) {
             let alunoJSON = parseAlunoDB(alunoRaw);
             listaDeAlunos.set(alunoJSON["ID_ALUNO"], alunoJSON);

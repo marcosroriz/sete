@@ -229,6 +229,7 @@ var listaInicialCB = (err, result) => {
     if (err) {
         errorFnEscolas(err);
     } else {
+        $("#totalNumEscolas").text(result.length);
         for (let escolaRaw of result) {
             let escolaJSON = parseEscolaDB(escolaRaw);
             listaDeEscolas.set(escolaJSON["ID_ESCOLA"], escolaJSON);

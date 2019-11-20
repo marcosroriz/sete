@@ -1,125 +1,61 @@
 // Máscaras
-$('.cep').mask('00000-000');
-$(".cpfmask").mask('000.000.000-00', { reverse: true });
+$('.cep').mask("00000-000");
+$(".cpfmask").mask("000.000.000-00", { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
+$(".anoaquisicao").mask("0000");
+$(".placa").mask("SSS-0000");
+$(".renavam").mask("0000000000-0");
+$(".kmmask").mask("0000,00", { reverse: true });
 
-// Posição do Aluno (Mapa)
-var posicaoAluno;
-var mapa = novoMapaOpenLayers("mapCadastroAluno", cidadeLatitude, cidadeLongitude);
+// Esconde tipo de veículo
+$(".tipoRodo").hide();
+$(".tipoAqua").hide();
+$("input[name='tipoModal']").on("change", (evt) => {
+    $(".tipoNeutro").hide();
+    if (evt.currentTarget.value == "0") {
+        $(".tipoAqua").hide();
+        $(".tipoRodo").show();
 
-var vectorSource = mapa["vectorSource"];
-var vectorLayer = mapa["vectorLayer"];
-var mapaOL = mapa["map"];
+        $("#tipoVeiculo").val($('.tipoRodo')[0].value);
+    } else {
+        $(".tipoRodo").hide();
+        $(".tipoAqua").show();
 
-// Ativa busca
-mapa["activateGeocoder"]();
-
-// Ativa camadas
-mapa["activateImageLayerSwitcher"]();
-
-mapaOL.on('singleclick', function (evt) {
-    if (evt.originalEvent.path.length > 21) {
-        return;
+        $("#tipoVeiculo").val($('.tipoAqua')[0].value);
     }
-
-    if (posicaoAluno != null) {
-        try {
-            vectorSource.removeFeature(posicaoAluno);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
-    posicaoAluno = new ol.Feature(
-        new ol.geom.Point(evt.coordinate)
-    );
-    posicaoAluno.setStyle(new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [25, 50],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            opacity: 1,
-            src: "img/icones/casamarker.png"
-        })
-    }));
-    vectorSource.addFeature(posicaoAluno);
-
-    var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-    $("#reglat").val(lat);
-    $("#reglon").val(lon);
-    $("#reglat").valid();
-    $("#reglon").valid();
 });
 
-
-// Máscaras
-$(".datanasc").mask('00/00/0000');
-$('.cep').mask('00000-000');
-$(".telmask").mask(telmaskbehaviour, teloptions);
-
-var validadorFormulario = $("#wizardCadastrarAlunoForm").validate({
+var validadorFormulario = $("#wizardCadastrarVeiculoForm").validate({
     rules: {
-        reglat: {
-            required: true,
-            posicao: true
-        },
-        reglon: {
-            required: true,
-            posicao: true
-        },
-        regdata: {
-            required: true,
-            datanasc: true
-        },
-        regnome: {
-            required: true,
-            lettersonly: true
-        },
-        areaUrbana: {
-            required: true,
-        },
-        regnomeresp: {
-            required: true,
-            lettersonly: true
-        },
-        listareggrauresp: {
-            required: true,
-            pickselect: true
-        },
-        modoSexo: {
+        tipoModal: {
             required: true
         },
-        corAluno: {
+        tipoVeiculo: {
             required: true
         },
-        listaescola: {
+        reganoaquisicao: {
             required: true,
+            ano: true,
         },
-        turnoAluno: {
+        marca: {
             required: true
         },
-        nivelAluno: {
+        origemVeiculo: {
             required: true
-        }
-    },
-    messages: {
-        reglat: {
-            required: "Por favor selecione ou digite a latitude da casa do aluno"
         },
-        reglon: {
-            required: "Por favor selecione ou digite a longitude da casa do aluno",
+        regplaca: {
+            required: true,
+            placa: true
         },
-        regdata: {
-            required: "Por favor digite a data de nascimento do aluno"
+        regrenavam: {
+            required: true,
+            renavam: true
         },
-        regnome: {
-            required: "Por favor digite um nome válido"
+        capacidade: {
+            required: true
         },
-        regnomeresp: {
-            required: "Por favor digite um nome válido"
-        },
-        listareggrauresp: {
-            required: "Selecione o grau de parentesco"
+        manutencao: {
+            required: true
         }
     },
     highlight: function (element) {
@@ -137,14 +73,13 @@ var validadorFormulario = $("#wizardCadastrarAlunoForm").validate({
     }
 });
 
-
 $('.card-wizard').bootstrapWizard({
     'tabClass': 'nav nav-pills',
     'nextSelector': '.btn-next',
     'previousSelector': '.btn-back',
 
     onNext: function (tab, navigation, index) {
-        var $valid = $('#wizardCadastrarAlunoForm').valid();
+        var $valid = $('#wizardCadastrarVeiculoForm').valid();
         if (!$valid) {
             validadorFormulario.focusInvalid();
             return false;
@@ -154,7 +89,7 @@ $('.card-wizard').bootstrapWizard({
     },
 
     onTabClick: function (tab, navigation, index) {
-        var $valid = $('#wizardCadastrarAlunoForm').valid();
+        var $valid = $('#wizardCadastrarVeiculoForm').valid();
         if (!$valid) {
             return false;
         } else {
@@ -178,7 +113,7 @@ $('.card-wizard').bootstrapWizard({
             $($wizard).find('.btn-finish').hide();
         }
 
-        if (action == "editarAluno") {
+        if (action == "editarVeiculo") {
             $($wizard).find('#cancelarAcao').show();
         } else {
             $($wizard).find('#cancelarAcao').hide();
@@ -187,20 +122,10 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
-BuscarTodasEscolas((err, result) => {
-    result.forEach((escola) => {
-        var eID = escola["ID_ESCOLA"];
-        var eNome = escola["NOME"];
-        $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
-    });
-    $("#totalNumAlunos").text($("#alunosAtendidos option").length);
-});
-
 var completeForm = () => {
     Swal2.fire({
-        title: "Aluno salvo com sucesso",
-        text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
-            "Clique abaixo para retornar ao painel.",
+        title: "Veículo salvo com sucesso",
+        text: "Clique abaixo para retornar ao painel.",
         type: "success",
         icon: "success",
         showCancelButton: false,
@@ -212,76 +137,49 @@ var completeForm = () => {
         showConfirmButton: true
     })
     .then(() => {
-        navigateDashboard("./modules/aluno/aluno-listar-view.html");
+        navigateDashboard("./modules/frota/frota-listar-view.html");
     });
 }
 
-$("#salvaraluno").click(() => {
-    $("[name='turnoAluno']").valid();
-    $("[name='nivelAluno']").valid();
-    
-    var alunoJSON = GetAlunoFromForm();
-    console.log(alunoJSON);
+$("#salvarveiculo").click(() => {
+    $("#regplaca").valid();
+    $("#regrenavam").valid();
+    $("#capacidade").valid();
+    $("[name='manutencao']").valid();
 
-    var idEscola = $("#listaescola").val();
-    console.log(idEscola);
+    var veiculoJSON = GetVeiculoFromForm();
 
-    var $valid = $('#wizardCadastrarAlunoForm').valid();
+    var $valid = $('#wizardCadastrarVeiculoForm').valid();
     if (!$valid) {
         return false;
     } else {
-        if (action == "editarAluno") {
-            AtualizarEscolaPromise(estadoAluno["ID_ALUNO"], alunoJSON)
+        if (action == "editarVeiculo") {
+            AtualizarPromise("Veiculos", veiculoJSON, "ID_VEICULO", estadoVeiculo["ID_VEICULO"])
             .then((res) => {
                 completeForm();
             })
             .catch((err) => {
-                errorFn("Erro ao inserir o aluno na escola!", err);
+                errorFn("Erro ao atualizar o motorista!", err);
             });
         } else {
-            InserirAlunoPromise(alunoJSON)
-                .then((res) => {
-                    if (idEscola != 0) {
-                        var idAluno = res[0];
-                        AdicionaAlunoEscola(idAluno, idEscola)
-                            .then((res) => {
-                                completeForm();
-                            })
-                            .catch((err) => {
-                                errorFn("Erro ao inserir o aluno na escola!", err);
-                            });
-                    } else {
-                        completeForm();
-                    }
-                })
-                .catch((err) => {
-                    errorFn("Erro ao salvar o aluno!", err);
-                });
+            InserirPromise("Veiculos", veiculoJSON)
+            .then((res) => {
+                completeForm();
+            })
+            .catch((err) => {
+                errorFn("Erro ao salvar o motorista!", err);
+            });
         }
     }
 });
 
 
-if (action == "editarAluno") {
-    PopulateAlunoFromState(estadoAluno); 
-    posicaoAluno = new ol.Feature(
-        new ol.geom.Point(ol.proj.fromLonLat([estadoAluno["LOC_LONGITUDE"],
-                                              estadoAluno["LOC_LATITUDE"]]))
-    );
-    posicaoAluno.setStyle(new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [25, 40],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            opacity: 1,
-            src: "img/icones/casamarker.png"
-        })
-    }));
-    vectorSource.addFeature(posicaoAluno);
+if (action == "editarVeiculo") {
+    PopulateVeiculoFromState(estadoVeiculo);
     $("#cancelarAcao").click(() => {
         Swal2.fire({
             title: 'Cancelar Edição?',
-            text: "Se você cancelar nenhum alteração será feita nos dados do aluno.",
+            text: "Se você cancelar nenhum alteração será feita nos dados do veículo.",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',

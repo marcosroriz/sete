@@ -123,6 +123,8 @@ var listaInicialCB = (err, result) => {
     if (err) {
         errorFn("Erro ao listar os motoristas", err);
     } else {
+        $("#totalNumMotoristas").text(result.length);
+
         for (let motoristaRaw of result) {
             let motoristaJSON = parseMotoristaDB(motoristaRaw);
             listaDeMotoristas.set(motoristaJSON["ID_MOTORISTA"], motoristaJSON);

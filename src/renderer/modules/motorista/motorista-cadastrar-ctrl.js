@@ -128,8 +128,6 @@ $("#salvarmotorista").click(() => {
     $("[name='temHorario[]']").valid();
     
     var motoristaJSON = GetMotoristaFromForm();
-    var idEscola = $("#listaescola").val();
-    console.log(idEscola);
 
     var $valid = $('#wizardCadastrarMotoristaForm').valid();
     if (!$valid) {
