@@ -6,3 +6,4 @@ var estadoAluno;
 var estadoEscola;
 var estadoMotorista;
 var estadoVeiculo;
+var estadoRota;

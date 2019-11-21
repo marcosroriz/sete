@@ -934,3 +934,29 @@ select option {
     font-size: 1.3em;
     font-family: "Roboto Condensed";
 }
+
+
+.bootstrap-select button {
+    background-color: #FFFFFF;
+    border: 2px solid #E3E3E3;
+    color: #565656;
+    line-height: 1em;
+    height: 42px;
+}
+
+
+.bootstrap-select span {
+    font-size: 14px;
+}
+
+span.nc-icon.nc-check-2.check-mark {
+    font-size: 16px;
+}
+
+.tituloCampo {
+    color: #66696f;
+    padding-top: 14px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+}

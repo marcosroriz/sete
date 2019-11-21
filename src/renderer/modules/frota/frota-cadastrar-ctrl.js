@@ -17,11 +17,13 @@ $("input[name='tipoModal']").on("change", (evt) => {
         $(".tipoRodo").show();
 
         $("#tipoVeiculo").val($('.tipoRodo')[0].value);
+        $("#tipoMarca").val($('.tipoRodo')[0].value);
     } else {
         $(".tipoRodo").hide();
         $(".tipoAqua").show();
 
         $("#tipoVeiculo").val($('.tipoAqua')[0].value);
+        $("#tipoMarca").val($('.tipoAqua')[0].value);
     }
 });
 

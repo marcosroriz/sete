@@ -1,3 +1,25 @@
+function GetRotaFromForm() {
+    return {
+        "NOME": $("#regnome").val(), // string
+        "HORA_IDA_INICIO": $("#reginicioida").val(), // text
+        "HORA_IDA_TERMINO": $("#regterminoida").val(), // text
+        "HORA_VOLTA_INICIO": $("#reginiciovolta").val(), // text
+        "HORA_VOLTA_TERMINO": $("#regterminovolta").val(), // text
+        "KM": $("#regkm").val(), // text
+
+        "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
+        "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
+        "DA_COLCHETE": $("#temColchete").is(":checked"), // bool
+        "DA_ATOLEIRO": $("#temAtoleiro").is(":checked"), // bool
+        "DA_PONTERUSTICA": $("#temPonte").is(":checked"), // bool
+
+        "TURNO_MATUTINO": $("#temHorarioManha").is(":checked"), // bool
+        "TURNO_VESPERTINO": $("#temHorarioTarde").is(":checked"), // bool
+        "TURNO_NOTURNO": $("#temHorarioNoite").is(":checked"), // bool
+    }
+}
+
+
 function GetForm() {
     var data = new Date();
     return {
@@ -42,7 +64,17 @@ function OnForm(data) {
     ShowCadastro();
 }
 
+function ListarTodasAsEscolasPromise() {
+    return knex("Escolas AS E")
+           .select("R.ID_ROTA", "E.*")
+           .leftJoin("RotaPassaPorEscolas AS R", "E.ID_ESCOLA", "=", "R.ID_ESCOLA")
+}
 
+function ListarTodosOsAlunosPromise() {
+    return knex("Alunos AS A")
+           .select("R.ID_ROTA", "A.*")
+           .leftJoin("RotaAtendeAluno AS R", "A.ID_ALUNO", "=", "R.ID_ALUNO")
+}
 
 function ContactFuncionamento() {
     var result = "";

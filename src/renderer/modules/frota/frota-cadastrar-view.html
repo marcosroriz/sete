@@ -99,60 +99,33 @@
 
                                     <div class="col-12">
                                         <div class="form-group obr">
-                                            <div class="col-12 mb-3">
-                                                <label class="control-label">
-                                                    <b>Qual a marca do veículo?</b>
-                                                    <star>*</star>
-                                                </label>
-                                            </div>
                                             <div class="row">
                                                 <div class="obrlabel">
                                                     Obrigatório
                                                 </div>
-                                                <div class="form-check form-check-radio">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="radio" name="marca"
-                                                            value="1">
-                                                        <span class="form-check-sign"></span>
-                                                        Iveco
-                                                    </label>
-                                                </div>
-                                                <div class="form-check form-check-radio">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="radio" name="marca"
-                                                            value="2">
-                                                        <span class="form-check-sign"></span>
-                                                        Mercedes-Benz
-                                                    </label>
-                                                </div>
-                                                <div class="form-check form-check-radio">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="radio" name="marca"
-                                                            value="3">
-                                                        <span class="form-check-sign"></span>
-                                                        Volkswagen
-                                                    </label>
-                                                </div>
-                                                <div class="form-check form-check-radio">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="radio" name="marca"
-                                                            value="4">
-                                                        <span class="form-check-sign"></span>
-                                                        Volare
-                                                    </label>
-                                                </div>
-
-                                                <div class="form-check form-check-radio">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="radio" name="marca"
-                                                            value="5">
-                                                        <span class="form-check-sign"></span>
-                                                        Outra
-                                                    </label>
+                                                <label class="control-label">
+                                                    <b>Qual a marca do veículo?</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-7 mt-1">
+                                                    <select id="tipoMarca" name="tipoMarca" class="form-control">
+                                                        <option class="tipoNeutro" value="0">Selecione o modal primeiro</option>
+                                                        <option class="tipoRodo" value="1">Iveco</option>
+                                                        <option class="tipoRodo" value="2">Micro-ônibus</option>
+                                                        <option class="tipoRodo" value="3">Mercedes-Benz</option>
+                                                        <option class="tipoRodo" value="4">Renault</option>
+                                                        <option class="tipoRodo" value="5">Volkswagen</option>
+                                                        <option class="tipoRodo" value="6">Volare</option>
+                                                        <option class="tipoAqua" value="7">EMGEPRON (Empresa Gerencial de Projetos Navais)</option>
+                                                        <option class="tipoAqua" value="8">ESTALEIRO B3</option>
+                                                        <option class="tipoAqua" value="9">Yamanha</option>
+                                                        <option value="10">Outra</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="col-12">
                                         <div class="form-group">
                                             <div class="row">

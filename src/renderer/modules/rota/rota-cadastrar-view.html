@@ -1,0 +1,451 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/rota-cadastrar.png">
+        <p class="pageTitle">Cadastro de Rota</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 ml-auto mr-auto">
+            <form id="wizardCadastrarRotaForm" method="" action="">
+                <div class="card card-wizard wiz-fixes">
+                    <div class="card-body ">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#tab-dados-basicos" data-toggle="tab" role="tab">
+                                    <img src="./img/icones/tab-rota-basico.png" class="wiz-icon">
+                                    Dados Básicos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#tab-dados-escolares" data-toggle="tab" role="tab">
+                                    <img src="./img/icones/tab-dadosescolares.svg" class="wiz-icon">
+                                    Escolas Atendidas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#tab-dados-alunos" data-toggle="tab" role="tab">
+                                    <img src="./img/icones/tab-aluno.png" class="wiz-icon">
+                                    Alunos Atendidos
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane tab-wiz fade" id="tab-dados-basicos" role="tabpanel">
+                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do
+                                    aluno sendo cadastrado.</h6>
+                                <div class="row justify-content-center">
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Nome da Rota</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regnome" name="regnome" type="text"
+                                                        placeholder="Exemplo: Rota Gávea-Tijuca" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-5 control-label">
+                                                    Informe o veículo (e placa) utilizado para realizar essa rota:
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-5 mt-2">
+                                                    <select id="tipoVeiculo" name="tipoVeiculo" class="form-control">
+                                                        <option value=" ">Cadastre pelo menos um veículo antes</option>
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-5 control-label">
+                                                    Informe os motoristas responsáveis por essa rota:
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-5">
+                                                    <select id="tipoMotorista" name="tipoMotorista" class="selectpicker"
+                                                        multiple>
+                                                        <option value=" ">Cadastre pelo menos um veículo antes</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-6"></div>
+                                                <span class="ml-5 hint">Marque todos que se aplique</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-6 control-label">
+                                                    <b>Em relação ao horário de funcionamento, <br> a rota funciona no
+                                                        período da:</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-4 mt-2">
+                                                    <div class="row">
+                                                        <div class="form-check form-check-inline">
+                                                            <label class="form-check-label from-check-inline">
+                                                                <input id="temHorarioManha" name="temHorario[]"
+                                                                    type="checkbox" class="form-check-input" value="1">
+                                                                <span class="form-check-sign"></span>
+                                                                Manhã
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <label class="form-check-label from-check-inline">
+                                                                <input id="temHorarioTarde" name="temHorario[]"
+                                                                    type="checkbox" class="form-check-input" value="2">
+                                                                <span class="form-check-sign"></span>
+                                                                Tarde
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <label class="form-check-label from-check-inline">
+                                                                <input id="temHorarioNoite" name="temHorario[]"
+                                                                    type="checkbox" class="form-check-input" value="3">
+                                                                <span class="form-check-sign"></span>
+                                                                Noite
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <span class="ml-3 hint">Marque todos que se aplique</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Informe a quilometragem estimada para essa rota:
+                                                </label>
+                                                <div class="input-group col-6 mt-2">
+                                                    <input id="regkm" name="regkm" type="text"
+                                                        placeholder="Quilometragem estimada:"
+                                                        class="form-control kmmask">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">km</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="mb-3 control-label">
+                                                <b>A rota passa por algum local de difícil acesso? Se sim, marque as
+                                                    dificuldades:</b>
+                                            </label>
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <div class="col-10">
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label">
+                                                            <input id="temPorteira" name="temPorteira" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Porteira </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temMataBurro" name="temMataBurro" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Mata-Burro
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temColchete" name="temColchete" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Colchete
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temAtoleiro" name="temAtoleiro" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Atoleiro
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temPonte" name="temPonte" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Ponte Rústica
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-1">
+                                        <div class="form-group">
+                                            <div class="row text-center">
+                                                <div class="col-12 tituloCampo mb-1">
+                                                    Informe o horário de início e término da viagem de
+                                                    <span class="badge badge-success badge-total">IDA</span>
+                                                </div>
+                                            </div>
+                                            <div class="row justify-content-center">
+                                                <div class="col-6 ">
+                                                    <div class="row">
+                                                        <div class="optlabel">
+                                                            Optativo
+                                                        </div>
+                                                        <label class="col-5 control-label latlon-label">
+                                                            <b>Horário de Início <br />da Rota de Ida</b>
+                                                            <star>*</star>
+                                                        </label>
+                                                        <div class="col-4 mt-3">
+                                                            <input class="form-control horamask" type="text"
+                                                                id="reginicioida" placeholder="09:00" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="row">
+                                                        <label class="col-6 control-label latlon-label">
+                                                            <b>Horário de Término<br /> da Rota de Ida</b>
+                                                            <star>*</star>
+                                                        </label>
+                                                        <div class="col-4 mt-3">
+                                                            <input class="form-control horamask" type="text"
+                                                                id="regterminoida" placeholder="12:15" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-1">
+                                        <div class="form-group">
+                                            <div class="row text-center">
+                                                <div class="col-12 tituloCampo mb-1">
+                                                    Informe o horário de início e término da viagem de
+                                                    <span class="badge badge-danger badge-total">Volta</span>
+                                                </div>
+                                            </div>
+                                            <div class="row justify-content-center">
+                                                <div class="col-6 ">
+                                                    <div class="row">
+                                                        <div class="optlabel">
+                                                            Optativo
+                                                        </div>
+                                                        <label class="col-5 control-label latlon-label">
+                                                            <b>Horário de Início <br />da Rota de Volta</b>
+                                                            <star>*</star>
+                                                        </label>
+                                                        <div class="col-4 mt-3">
+                                                            <input class="form-control horamask" type="text"
+                                                                id="reginiciovolta" placeholder="09:00" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="row">
+                                                        <label class="col-6 control-label latlon-label">
+                                                            <b>Horário de Término<br /> da Rota de Volta</b>
+                                                            <star>*</star>
+                                                        </label>
+                                                        <div class="col-4 mt-3">
+                                                            <input class="form-control horamask" type="text" id="regterminovolta"
+                                                                name="regterminovolta" placeholder="12:15" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                            <!-- Fim aba dados da rota -->
+
+                            <div class="tab-pane tab-wiz fade" id="tab-dados-escolares" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-12 tituloSecao">
+                                        <span class="mb-3">Escolas Atendidas</span>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-2">
+                                    <ul class="fa-ul ul-dica">
+                                        <li><span class="fa-li"><i class="fa fa-check-square"></i></span>Para associar
+                                            uma escola a essa rota selecione a escola e clique no ícone <i
+                                                class="fa fa-arrow-right"></i>
+                                        </li>
+                                        <li><span class="fa-li"><i class="fa fa-check-square"></i></span>Para
+                                            desassociar uma escola dessa rota selecione a escola e clique no ícone <i
+                                                class="fa fa-arrow-left"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-5">
+                                        <h3 class="listaSelect">Lista de Escolas</h3>
+                                        <input id="filtroEscolasNaoAtendidas" type="text" placeholder="Filtro"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-2">
+
+                                    </div>
+                                    <div class="col-5">
+                                        <h3 class="listaSelect">Escolas Atendidas pela Rota <span id="totalNumEscolas"
+                                                class="badge badge-success badge-total">0</span></h3>
+                                        <input id="filtroEscolasAtendidas" type="text" placeholder="Filtro"
+                                            class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="row mt-1 mb-3">
+                                    <div class="col-5">
+                                        <select id="escolasNaoAtendidas" class="unselected form-control dual-list"
+                                            multiple="">
+                                        </select>
+                                    </div>
+                                    <div class="col-2 mt-auto mb-auto">
+                                        <div class="row m-2">
+                                            <button id="colocarEscola" class="btn col-12 btn-outline">
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                        <div class="row m-2">
+                                            <button id="tirarEscola" class="btn col-12 btn-outline">
+                                                <i class="fa fa-arrow-left"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <select id="escolasAtentidas" name="escolasAtentidas"
+                                            class="unselected form-control dual-list" multiple="">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fim do tab de dados escolas -->
+
+                            <div class="tab-pane tab-wiz fade" id="tab-dados-alunos" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-12 tituloSecao">
+                                        <span class="mb-3">Alunos Atendidos</span>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-2">
+                                    <ul class="fa-ul ul-dica">
+                                        <li><span class="fa-li"><i class="fa fa-check-square"></i></span>
+                                            Para associar um aluno a uma rota selecione o mesmo e clique no ícone
+                                            <i class="fa fa-arrow-right"></i>
+                                        </li>
+                                        <li><span class="fa-li"><i class="fa fa-check-square"></i></span>
+                                            Para desassociar um aluno da rota selecione o mesmo e clique no ícone
+                                            <i class="fa fa-arrow-left"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-5">
+                                        <h3 class="listaSelect">Lista de Alunos</h3>
+                                        <input id="filtroAlunosNaoAtendidos" type="text" placeholder="Filtro"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-2">
+
+                                    </div>
+                                    <div class="col-5">
+                                        <h3 class="listaSelect">Alunos Atendidos pela Rota <span id="totalNumAlunos"
+                                                class="badge badge-success badge-total">0</span></h3>
+                                        <input id="filtroAlunosAtendidos" type="text" placeholder="Filtro"
+                                            class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="row mt-1 mb-3">
+                                    <div class="col-5">
+                                        <select id="alunosNaoAtendidos" class="unselected form-control dual-list"
+                                            multiple="">
+                                        </select>
+                                    </div>
+                                    <div class="col-2 mt-auto mb-auto">
+                                        <div class="row m-2">
+                                            <button id="colocarAluno" class="btn col-12 btn-outline">
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                        <div class="row m-2">
+                                            <button id="tirarAluno" class="btn col-12 btn-outline">
+                                                <i class="fa fa-arrow-left"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <select id="alunosAtendidos" name="alunosAtendidos"
+                                            class="unselected form-control dual-list" multiple="">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button type="button" id="cancelarAcao"
+                                class="btn btn-default btn-wd btnApagar pull-left">Cancelar Edição</button>
+                            <button type="button" class="btn btn-default btn-wd btn-back pull-left">Voltar</button>
+                            <button type="button" class="btn btn-info btn-wd btn-next pull-right">Próximo</button>
+                            <button type="button" class="btn btn-info btn-wd btn-finish pull-right"
+                                id="salvarrota">Concluir</button>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="./modules/aluno/aluno-model.js" type="text/javascript"></script>
+<script src="./modules/escola/escola-model.js" type="text/javascript"></script>
+<script src="./modules/motorista/motorista-model.js" type="text/javascript"></script>
+<script src="./modules/frota/frota-model.js" type="text/javascript"></script>
+<script src="./modules/rota/rota-model.js" type="text/javascript"></script>
+<script src="./modules/rota/rota-cadastrar-ctrl.js" type="text/javascript"></script>

@@ -1,7 +1,7 @@
 function GetVeiculoFromForm() {
     return {
         "MODO": $("input[name='tipoModal']:checked").val(), // boolean
-        "MARCA": $("input[name='marca']:checked").val(), // boolean
+        "MARCA": $("#tipoMarca").val(), // boolean
         "TIPO": $("#tipoVeiculo").val(), // int
         "MODELO": $("#listamodelo").val(),
         "ANO": $("#reganoaquisicao").val(),
@@ -20,8 +20,7 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
     $(".pageTitle").html("Atualizar Veículo");
     $(".tipoNeutro").hide();
 
-    $("input[name='tipoModal'").val([estadoVeiculoJSON["MODO"]]);
-    $("input[name='marca'").val([estadoVeiculoJSON["MARCA"]]);
+    $("input[name='tipoModal']").val([estadoVeiculoJSON["MODO"]]);
 
     if (estadoVeiculoJSON["MODO"] == false) {
         $(".tipoAqua").hide();
@@ -31,8 +30,9 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
         $(".tipoAqua").show();
     }
     
-
     $("#tipoVeiculo").val(estadoVeiculoJSON["TIPO"]);
+    $("#tipoMarca").val(estadoVeiculoJSON["MARCA"]);
+
     $("#listamodelo").val(estadoVeiculoJSON["MODELO"]);
     $("#reganoaquisicao").val(estadoVeiculoJSON["ANO"]);
     $("input[name='origemVeiculo']").val([estadoVeiculoJSON["ORIGEM"]]);
