@@ -61,8 +61,10 @@ function novoMapaOpenLayers(target, latitude, longitude) {
     mapa["addLayer"] = function (lname) {
         let vs = new ol.source.Vector();
         let vl = new ol.layer.Vector({
-            source: vs
+            source: vs,
+            "displayInLayerSwitcher": false
         });
+        vl.set("name", lname);
 
         let lyr = {
             "name": lname,
@@ -185,3 +187,20 @@ var mapPNGExportOptions = {
         return element.className ? element.className.indexOf('ol-control') === -1 : true;
     }
 };
+
+var gerarMarcador = (lat, lng, icon) => {
+    let p = new ol.Feature({
+        "geometry": new ol.geom.Point(ol.proj.fromLonLat([lng, lat]))
+    });
+    p.setStyle(new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [12, 37],
+            anchorXUnits: 'pixels',
+            anchorYUnits: 'pixels',
+            opacity: 1,
+            src: icon
+        })
+    }));
+
+    return p;
+}

@@ -34,6 +34,45 @@
                                 <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do
                                     aluno sendo cadastrado.</h6>
                                 <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Tipo da Rota</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio"
+                                                                name="tipoRota" value="1">
+                                                            <span class="form-check-sign"></span>
+                                                            Rodoviária
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio"
+                                                                name="tipoRota" value="2">
+                                                            <span class="form-check-sign"></span>
+                                                            Aquaviária
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio"
+                                                                name="tipoRota" value="3">
+                                                            <span class="form-check-sign"></span>
+                                                            Mista
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div class="col-12">
                                         <div class="form-group obr">
@@ -145,27 +184,6 @@
 
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <div class="row">
-                                                <div class="optlabel">
-                                                    Optativo
-                                                </div>
-                                                <label class="col-4 control-label">
-                                                    Informe a quilometragem estimada para essa rota:
-                                                </label>
-                                                <div class="input-group col-6 mt-2">
-                                                    <input id="regkm" name="regkm" type="text"
-                                                        placeholder="Quilometragem estimada:"
-                                                        class="form-control kmmask">
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text">km</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="form-group">
                                             <label class="mb-3 control-label">
                                                 <b>A rota passa por algum local de difícil acesso? Se sim, marque as
                                                     dificuldades:</b>
@@ -218,6 +236,48 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="col-12 km">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Informe a quilometragem estimada para essa rota:
+                                                </label>
+                                                <div class="input-group col-6 mt-2">
+                                                    <input id="regkm" name="regkm" type="text"
+                                                        placeholder="Quilometragem estimada:"
+                                                        class="form-control kmmask">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">km</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 tempo">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Informe o tempo estimado para essa rota:
+                                                </label>
+                                                <div class="input-group col-6 mt-2">
+                                                    <input id="regtempo" name="regtempo" type="text"
+                                                        placeholder="Tempo estimado:" class="form-control kmmask">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">min</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-12 mt-1">
                                         <div class="form-group">
                                             <div class="row text-center">
@@ -288,8 +348,9 @@
                                                             <star>*</star>
                                                         </label>
                                                         <div class="col-4 mt-3">
-                                                            <input class="form-control horamask" type="text" id="regterminovolta"
-                                                                name="regterminovolta" placeholder="12:15" />
+                                                            <input class="form-control horamask" type="text"
+                                                                id="regterminovolta" name="regterminovolta"
+                                                                placeholder="12:15" />
                                                         </div>
                                                     </div>
                                                 </div>

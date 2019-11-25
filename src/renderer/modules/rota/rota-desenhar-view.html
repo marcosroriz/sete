@@ -1,84 +1,164 @@
 <div class="container-fluid">
     <div class="row justify-content-center mb-3">
-        <img id="pageIcon" src="./img/icones/rota-sugestao2.png">
+        <img id="pageIcon" src="./img/icones/tab-rota-desenhar.png">
         <p class="pageTitle">Desenhar Rotas</p>
     </div>
 
     <div class="row">
-        <div class="col-md-10 ml-auto mr-auto">
-            <form id="wizardSugestaoRotaForm" method="" action="">
-                <div class="card card-wizard wiz-fixes">
-                    <div class="card-body ">
-                        <ul class="nav nav-tabs">
-                            <li class="nav-item col-12 tab-2-fix">
-                                <a class="nav-link active" href="#tab-rota-desenhar" data-toggle="tab" role="tab"
-                                    aria-controls="tab-rota-desenhar" aria-selected="true">
-                                    <img src="./img/icones/tab-config.png" class="wiz-icon">
-                                    Desenhar
-                                </a>
-                            </li>
-                        </ul>
+        <div class="mt-3 col-12 ml-auto mr-auto">
+            <div class="card data-tables">
+                <div class="card-body">
+                    <div class="ml-1 mr-1 form-group">
+                        <label>
+                            <b>Escolher a rota que deseja realizar o traçado</b>
+                            <star>*</star>
+                        </label>
+                        <select id="listarotas" name="listarotas" class="form-control">
+                            <option value="">Selecione uma opção</option>
+                        </select>
+                    </div>
 
-                        <!-- Abas -->
-                        <div class="tab-content">
-                            <div class="tab-pane tab-wiz fade show active" id="tab-rota-desenhar"
-                                role="tabpanel">
-                                <div class="row justify-content-center">
-                                    <h6 class="mb-4 mt-1 text-center text-space">
-                                        Essa ferramenta possibilita desenhar as rotas otimizadas para os(as) alunos(as) de
-                                        cada
-                                        turno.
-                                        <br>
-                                        Para tal, por favor especifique o público alvo e o tempo máximo e distância
-                                        máxima
-                                        das rotas a serem geradas.
-                                    </h6>
-
-                                    <div class="form-group">
-                                        <label>
-                                            <b>Escolher a rota</b>
-                                            <star>*</star>
-                                        </label>
-                                        <select id="listareggrauresp" name="listareggrauresp" class="form-control">
-                                            <option value="">Selecione uma opção</option>
-                                            <option value="0">R0</option>
-                                            <option value="1">R1</option>
-                                            <option value="2">R2</option>
-                                            <option value="3">R3</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="control-label">
-                                            <b>Mapa para desenho</b>
-                                            <star>*</star>
-                                        </label>
-                                        <div class="row">
-                                            <div id="mapaDesenho" class="mb-2 mapawiz"
-                                                style="width: 100%; height: 400px;"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col-10">
+                            <label class="control-label">
+                                <b>Mapa para desenho</b>
+                                <star>*</star>
+                            </label>
+                            <div class="row">
+                                <div id="mapDesenhoRota" class="mb-2 mapawiz" style="width: 100%; height: 400px;"></div>
                             </div>
 
                         </div>
-
-                        <div class="card-footer text-center">
-                            <button type="button" id="rota-desenhar-salvar"
-                                class="btn btn-info btn-wd btn-next pull-right">
-                                Salvar
-                            </button>
-                            <div class="clearfix"></div>
-                            <!-- Fim footer -->
+                        <div class="col-2">
+                            <div class="row">
+                                <label class="control-label toolsMenu">
+                                    <b>Ferramentas</b>
+                                </label>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample">
+                                    <button class="ol-zoom-in" type="button" title="Zoom in">+</button></div>
+                                <div class="dica">
+                                    <span>Aumentar o Zoom</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample">
+                                    <button class="ol-zoom-out" type="button" title="Zoom out">−</button>
+                                </div>
+                                <div class="dica">
+                                    <span>Diminuir o Zoom</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample"><button type="button" title="Select"><i
+                                            class="fas fa-hand-pointer"></i></button></div>
+                                <div class="dica">
+                                    <span>Selecionar Elemento</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample"><button type="button" title="Select"><i
+                                            class="fa fa-times"></i></button></div>
+                                <div class="dica">
+                                    <span>Excluir Elemento</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample"><button type="button" title="Select"><i
+                                            class="fas fa-road"></i></button></div>
+                                <div class="dica">
+                                    <span>Desenhar Via Urbana</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample"><button type="button" title="Point"><img
+                                            class="ctrlIcon" src="./img/icones/icone-naopavimentada2.png"></button>
+                                </div>
+                                <div class="dica">
+                                    <span>Desenhar Via Rural</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample"><button type="button" title="Point"><img
+                                            class="ctrlIcon" src="./img/icones/icone-aqua2.png"></button>
+                                </div>
+                                <div class="dica">
+                                    <span>Desenhar Hidrovia</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample"><button type="button" title="Point"><img
+                                            class="ctrlIcon" src="./img/icones/icone-inicio.png"></button>
+                                </div>
+                                <div class="dica">
+                                    <span>Adicionar Início da Rota</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample"><button type="button" title="Point"><img
+                                            class="ctrlIcon" src="./img/icones/icone-mataburro.png"></button>
+                                </div>
+                                <div class="dica">
+                                    <span>Adicionar Mata-Burro</span>
+                                </div>
+                            </div>
+                            <div class="row toolItem">
+                                <div class="ol-control toolExample"><button type="button" title="Point"><img
+                                            class="ctrlIcon" src="./img/icones/icone-porteira.png"></button>
+                                </div>
+                                <div class="dica">
+                                    <span>Adicionar Porteira</span>
+                                </div>
+                            </div>
+                            <div class="row km">
+                                <label class="control-label toolsMenu">
+                                    <b>Quilometragem</b>
+                                </label>
+                            </div>
+                            <div class="row km">
+                                <div class="input-group mr-4">
+                                    <input id="regkm" name="regkm" type="text" placeholder=""
+                                        class="form-control kmmask">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">km</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row tempo">
+                                <label class="control-label toolsMenu">
+                                    <b>Tempo</b>
+                                </label>
+                            </div>
+                            <div class="row tempo">
+                                <div class="input-group mr-4">
+                                    <input id="regtempo" name="regtempo" type="text" placeholder=""
+                                        class="form-control kmmask">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">min</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-            </form>
+                </div>
+                <div class="card-footer text-center">
+                    <button type="button" id="cancelarAcao" class="btn btn-default mr-2 btn-wd btnApagar pull-left">
+                        Cancelar Edição
+                    </button>
+
+                    <button type="button" id="rota-malha-salvarNovaMalha"
+                        class="btn btn-success btn-wd btn-finish ml-2 pull-right">
+                        Salvar Rota
+                    </button>
+                    <div class="clearfix"></div>
+                    <!-- Fim footer -->
+                </div>
+            </div>
         </div>
-
     </div>
-
-</div>
-</div>
 </div>
 
+<script src="./modules/escola/escola-model.js" type="text/javascript"></script>
+<script src="./modules/rota/rota-model.js" type="text/javascript"></script>
 <script src="./modules/rota/rota-desenhar-ctrl.js" type="text/javascript"></script>

@@ -21,7 +21,6 @@ ListaDeAlunosPorEscola(estadoEscola["ID_ESCOLA"], (err, result) => {
     $("#totalNumAlunos").text($("#alunosAtendidos option").length);
 });
 
-
 ListaDeAlunosNaoAtendidosPorEscola(estadoEscola["ID_ESCOLA"], (err, result) => {
     result.forEach((a) => {
         var aID = a["ID_ALUNO"];

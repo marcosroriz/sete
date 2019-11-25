@@ -201,15 +201,11 @@ var completeForm = () => {
         title: "Aluno salvo com sucesso",
         text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
             "Clique abaixo para retornar ao painel.",
-        type: "success",
-        icon: "success",
+        type: "info",
+        icon: "info",
         showCancelButton: false,
-        confirmButtonClass: "btn-success",
-        confirmButtonText: "Retornar ao painel",
         closeOnConfirm: false,
-        closeOnClickOutside: false,
         allowOutsideClick: false,
-        showConfirmButton: true
     })
     .then(() => {
         navigateDashboard("./modules/aluno/aluno-listar-view.html");

@@ -18,6 +18,8 @@ $('#alunosNaoAtendidos').textFilter($('#filtroAlunosNaoAtendidos'));
 $('#alunosAtendidos').textFilter($('#filtroAlunosAtendidos'));
 
 // Máscaras
+$(".km").hide();
+$(".tempo").hide();
 $('.horamask').mask('00:00');
 $('.cep').mask('00000-000');
 $(".cpfmask").mask('000.000.000-00', { reverse: true });
@@ -27,6 +29,9 @@ $('.cnh').mask('000000000-00', { reverse: true });
 
 var validadorFormulario = $("#wizardCadastrarRotaForm").validate({
     rules: {
+        tipoRota: {
+            required: true
+        },
         regnome: {
             required: true
         },
@@ -98,33 +103,13 @@ $('.card-wizard').bootstrapWizard({
             $($wizard).find('.btn-finish').hide();
         }
 
-        if (action == "editarMotorista") {
+        if (action == "editarRota") {
             $($wizard).find('#cancelarAcao').show();
         } else {
             $($wizard).find('#cancelarAcao').hide();
         }
     }
 });
-
-var completeForm = () => {
-    Swal2.fire({
-        title: "Motorista salvo com sucesso",
-        text: "O motorista " + $("#regnome").val() + " foi salvo com sucesso. " +
-            "Clique abaixo para retornar ao painel.",
-        type: "success",
-        icon: "success",
-        showCancelButton: false,
-        confirmButtonClass: "btn-success",
-        confirmButtonText: "Retornar ao painel",
-        closeOnConfirm: false,
-        closeOnClickOutside: false,
-        allowOutsideClick: false,
-        showConfirmButton: true
-    })
-        .then(() => {
-            navigateDashboard("./modules/motorista/motorista-listar-view.html");
-        });
-}
 
 var completeForm = () => {
     Swal2.fire({
@@ -145,7 +130,6 @@ var completeForm = () => {
         navigateDashboard("./modules/rota/rota-listar-view.html");
     });
 }
-
 
 $("#salvarrota").click(() => {
     var rotasJSON = GetRotaFromForm();
@@ -184,7 +168,7 @@ $("#salvarrota").click(() => {
     }
 });
 
-if (action == "editarMotorista") {
+if (action == "editarRota") {
     PopulateMotoristaFromState(estadoMotorista);
     $("#cancelarAcao").click(() => {
         Swal2.fire({
@@ -208,7 +192,6 @@ var veiculosPromise = BuscarTodosDadosPromise("Veiculos");
 var motoristaPromise = BuscarTodosDadosPromise("Motoristas");
 var escolasPromise = ListarTodasAsEscolasPromise();
 var alunosPromise = ListarTodosOsAlunosPromise();
-
 
 Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise])
 .then((res) => {
@@ -241,8 +224,8 @@ Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise])
     if (action != "editarRota") {
         for (let escolaRaw of escolasResult) {
             listaDeEscolas.set(escolaRaw["ID_ESCOLA"], escolaRaw);
-            antEscolas.add(parseInt(escolaRaw["ID_ESCOLA"]));
-            novasEscolas.add(parseInt(escolaRaw["ID_ESCOLA"]));
+            // antEscolas.add(parseInt(escolaRaw["ID_ESCOLA"]));
+            // novasEscolas.add(parseInt(escolaRaw["ID_ESCOLA"]));
             $('#escolasNaoAtendidas').append(`<option value="${escolaRaw["ID_ESCOLA"]}">${escolaRaw["NOME"]}</option>`);
         }
     } 
@@ -252,14 +235,36 @@ Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise])
     if (action != "editarRota") {
         for (let alunoRaw of alunosResult) {
             listaDeAlunos.set(alunoRaw["ID_ALUNO"], alunoRaw);
-            antAlunos.add(parseInt(alunoRaw["ID_ALUNO"]));
-            novosAlunos.add(parseInt(alunoRaw["ID_ALUNO"]));
-            $('#alunosNaoAtendidos').append(`<option value="${alunoRaw["ID_ALUNO"]}">${alunoRaw["NOME"]}</option>`);
+            // antAlunos.add(parseInt(alunoRaw["ID_ALUNO"]));
+            // novosAlunos.add(parseInt(alunoRaw["ID_ALUNO"]));
+            $('#alunosNaoAtendidos').append(`<option value="${alunoRaw["ID_ALUNO"]}">${alunoRaw["NOME"]} (${alunoRaw["DATA_NASCIMENTO"]})</option>`);
         }
     } 
 });
 
 // Custom Triggers
+$("input[name='tipoRota']").change((evt) => {
+    var modalType = parseInt(evt.currentTarget.value);
+    switch (modalType) {
+        case 1:
+            $(".tempo").hide();
+            $(".km").show();
+            break;
+        case 2:
+            $(".tempo").show();
+            $(".km").hide();
+            break;
+        case 3:
+            $(".tempo").show();
+            $(".km").show();
+            break;
+        default:
+            $(".tempo").hide();
+            $(".km").show();
+
+    }
+})
+
 $("#colocarEscola").click(() => {
     for (var eID of $("#escolasNaoAtendidas").val()) {
         var eNome = $(`#escolasNaoAtendidas option[value=${eID}]`).text();

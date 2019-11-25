@@ -1,11 +1,13 @@
 function GetRotaFromForm() {
     return {
+        "TIPO": $("input[name='tipoRota']:checked").val(), // int
         "NOME": $("#regnome").val(), // string
         "HORA_IDA_INICIO": $("#reginicioida").val(), // text
         "HORA_IDA_TERMINO": $("#regterminoida").val(), // text
         "HORA_VOLTA_INICIO": $("#reginiciovolta").val(), // text
         "HORA_VOLTA_TERMINO": $("#regterminovolta").val(), // text
         "KM": $("#regkm").val(), // text
+        "TEMPO": $("#regtempo").val(), // text
 
         "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
         "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
@@ -18,7 +20,6 @@ function GetRotaFromForm() {
         "TURNO_NOTURNO": $("#temHorarioNoite").is(":checked"), // bool
     }
 }
-
 
 function GetForm() {
     var data = new Date();
@@ -70,10 +71,20 @@ function ListarTodasAsEscolasPromise() {
            .leftJoin("RotaPassaPorEscolas AS R", "E.ID_ESCOLA", "=", "R.ID_ESCOLA")
 }
 
+function ListarTodasAsEscolasAtendidasPorRotaPromise(idRota) {
+    return ListarTodasAsEscolasPromise()
+           .where("R.ID_ROTA", idRota)
+}
+
 function ListarTodosOsAlunosPromise() {
     return knex("Alunos AS A")
            .select("R.ID_ROTA", "A.*")
            .leftJoin("RotaAtendeAluno AS R", "A.ID_ALUNO", "=", "R.ID_ALUNO")
+}
+
+function ListarTodosOsAlunosAtendidosPorRotaPromise(idRota) {
+    return ListarTodosOsAlunosPromise()
+           .where("R.ID_ROTA", idRota)
 }
 
 function ContactFuncionamento() {
