@@ -152,11 +152,13 @@ $("#salvarrota").click(() => {
                 var idRota = res[0];
                 var promiseArray = new Array();
                 
-                alunosAdicionar.forEach((aID) => promiseArray.push(
-                    InserirPromise("RotaAtendeAluno", { "ID_ROTA": idRota, "ID_ALUNO": aID })));
-                escolasAdicionar.forEach((eID) => promiseArray.push(
-                    InserirPromise("RotaPassaPorEscolas", { "ID_ROTA": idRota, "ID_ESCOLA": eID })));
-
+                alunosAdicionar.forEach((aID) => 
+                    promiseArray.push(InserirPromise("RotaAtendeAluno", { "ID_ROTA": idRota, "ID_ALUNO": aID })));
+                escolasAdicionar.forEach((eID) => 
+                    promiseArray.push(InserirPromise("RotaPassaPorEscolas", { "ID_ROTA": idRota, "ID_ESCOLA": eID })));
+                alunosRemover.forEach((aID) => 
+                    promiseArray.push(RemoverPromise("RotaAtendeAluno", "ID_ALUNO", aID )));
+    
                 Promise.all(promiseArray)
                 .then(() => completeForm())
                 .catch((err) => errorFn("Erro ao vincular rota com alunos e escolas", err));

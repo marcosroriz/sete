@@ -21,6 +21,42 @@ function GetRotaFromForm() {
     }
 }
 
+function PopulateRotaFromState(estadoRotaJSON) {
+    $(".pageTitle").html("Atualizar Motorista");
+    $("#regnome").val(estadoRotaJSON["NOME"]);
+    $("input[name='tipoRota']").val([estadoRotaJSON["TIPO"]]);
+    $("#reginicioida").val(estadoRotaJSON["HORA_IDA_INICIO"]);
+    $("#regterminoida").val(estadoRotaJSON["HORA_IDA_TERMINO"]);
+    $("#reginiciovolta").val(estadoRotaJSON["HORA_VOLTA_INICIO"]);
+    $("#regterminovolta").val(estadoRotaJSON["HORA_VOLTA_TERMINO"]);
+    $("#regkm").val(estadoRotaJSON["KM"]);
+    $("#regtempo").val(estadoRotaJSON["TEMPO"]);
+
+    $("#temPorteira").prop("checked", estadoRotaJSON["DA_PORTEIRA"]);
+    $("#temMataBurro").prop("checked", estadoRotaJSON["DA_MATABURRO"]);
+    $("#temColchete").prop("checked", estadoRotaJSON["DA_COLCHETE"]);
+    $("#temAtoleiro").prop("checked", estadoRotaJSON["DA_ATOLEIRO"]);
+    $("#temPonte").prop("checked", estadoRotaJSON["DA_PONTERUSTICA"]);
+
+    $("#temHorarioManha").prop("checked", estadoRotaJSON["TURNO_MANHA"]);
+    $("#temHorarioTarde").prop("checked", estadoRotaJSON["TURNO_TARDE"]);
+    $("#temHorarioNoite").prop("checked", estadoRotaJSON["TURNO_NOITE"]);
+}
+
+// Transformar linha do DB para JSON
+var parseRotaDB = function (rotaRaw) {
+    var rotaJSON = Object.assign({}, rotaRaw);
+    rotaJSON["ROTAS"] = 0;
+
+    var turno = new Array();
+    if (rotaRaw["TURNO_MANHA"]) turno.push("Manhã");
+    if (rotaRaw["TURNO_TARDE"]) turno.push("Tarde");
+    if (rotaRaw["TURNO_NOITE"]) turno.push("Noite");
+    rotaJSON["TURNOSTR"] = turno.join(", ");
+
+    return rotaJSON;
+};
+
 function GetForm() {
     var data = new Date();
     return {
@@ -67,24 +103,31 @@ function OnForm(data) {
 
 function ListarTodasAsEscolasPromise() {
     return knex("Escolas AS E")
-           .select("R.ID_ROTA", "E.*")
-           .leftJoin("RotaPassaPorEscolas AS R", "E.ID_ESCOLA", "=", "R.ID_ESCOLA")
+        .select("R.ID_ROTA", "E.*")
+        .leftJoin("RotaPassaPorEscolas AS R", "E.ID_ESCOLA", "=", "R.ID_ESCOLA")
 }
 
 function ListarTodasAsEscolasAtendidasPorRotaPromise(idRota) {
     return ListarTodasAsEscolasPromise()
-           .where("R.ID_ROTA", idRota)
+        .where("R.ID_ROTA", idRota)
 }
 
 function ListarTodosOsAlunosPromise() {
     return knex("Alunos AS A")
-           .select("R.ID_ROTA", "A.*")
-           .leftJoin("RotaAtendeAluno AS R", "A.ID_ALUNO", "=", "R.ID_ALUNO")
+        .select("R.ID_ROTA", "A.*")
+        .leftJoin("RotaAtendeAluno AS R", "A.ID_ALUNO", "=", "R.ID_ALUNO")
 }
 
 function ListarTodosOsAlunosAtendidosPorRotaPromise(idRota) {
     return ListarTodosOsAlunosPromise()
-           .where("R.ID_ROTA", idRota)
+        .where("R.ID_ROTA", idRota)
+}
+
+function RemoverRotaRelacaoPromise(table, c1, id1, c2, id2) {
+    return knex(table)
+    .where(c1, "=", id1)
+    .where(c2, "=", id2)
+    .del();
 }
 
 function ContactFuncionamento() {
@@ -132,7 +175,7 @@ function ObterAlunosVinculados(rota_id) {
 
 function ObterAlunosNaoVinculados() {
     return knex.select('*')
-        .from('Aluno').whereNotExists(function() {
+        .from('Aluno').whereNotExists(function () {
             this.select('*').from('RelacaoRotaAluno').whereRaw('RelacaoRotaAluno.aluno_id = Aluno.ID_ALUNO');
         })
 }
@@ -146,7 +189,7 @@ function ObterEscolasVinculados(rota_id) {
 
 function ObterEscolasNaoVinculados(rota_id) {
     return knex.select('*')
-        .from('Escolas').whereNotExists(function() {
+        .from('Escolas').whereNotExists(function () {
             this.select('*').from('RelacaoRotaEscola')
                 .whereRaw('RelacaoRotaEscola.escola_id = Escolas.ID_ESCOLA and RelacaoRotaEscola.rota_id = ' + rota_id);
         })
