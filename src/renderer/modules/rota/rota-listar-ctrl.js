@@ -5,8 +5,8 @@ var listaDeRotas = new Map();
 var dataTablesRotas = $("#datatables").DataTable({
     columns: [
         { data: 'NOME', width: "40%" },
-        { data: 'TELEFONE', width: "25%" },
-        { data: 'TURNOSTR', width: "300px" },
+        { data: 'NUMALUNOS', width: "25%" },
+        { data: 'NUMESCOLAS', width: "25%" },
         {
             data: "ACOES",
             width: "110px",
@@ -139,16 +139,40 @@ var listaInicialCB = (err, result) => {
         listaDeRotas.forEach((rota) => {
             promiseArray.push(ListarTodasAsEscolasAtendidasPorRotaPromise(rota["ID_ROTA"]))
             promiseArray.push(ListarTodosOsAlunosAtendidosPorRotaPromise(rota["ID_ROTA"]))
-            // dataTablesRotas.row.add(rota);
         });
 
         Promise.all(promiseArray)
         .then((res) => {
-            console.log(res);
-            console.log("OI");
+            var handleEscolasAtendidas = new Array();
+            var handleAlunosAtendidos = new Array();
+            for (let i = 0; i < res.length; i++) {
+                if (i % 2 == 0) {
+                    handleEscolasAtendidas.push(res[i]);
+                } else {
+                    handleAlunosAtendidos.push(res[i]);
+                }
+            }
+
+            handleEscolasAtendidas.forEach((e) => {
+                if (e != null && e != undefined) {
+                    let rotaJSON = listaDeRotas.get(e[0]["ID_ROTA"]);
+                    rotaJSON["NUMESCOLAS"] = e.length;
+                }
+            });
+            
+            handleAlunosAtendidos.forEach((a) => {
+                if (a != null && a != undefined) {
+                    let rotaJSON = listaDeRotas.get(a[0]["ID_ROTA"]);
+                    rotaJSON["NUMALUNOS"] = a.length;
+                }
+            });
+            listaDeRotas.forEach((rota) => {
+                dataTablesRotas.row.add(rota);
+            });
+
+            dataTablesRotas.draw();
         });
 
-        dataTablesRotas.draw();
     }
 };
 
