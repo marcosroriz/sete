@@ -87,6 +87,16 @@ function BuscarTodosDados(table, cb) {
     .catch(err => cb(err));
 }
 
+function BuscarDadoDiferentePromise(table, column, id) {
+    return knex.select('*').where(column, '<>', id).from(table);
+}
+
+function BuscarDadoDiferente(table, column, id, cb) {
+    BuscarDadoDiferentePromise(table, column, id)
+    .then(res => cb(false, res))
+    .catch(err => cb(err));
+}
+
 function BuscarDadoEspecificoPromise(table, column, id) {
     return knex.select('*').where(column, '=', id).from(table);
 }

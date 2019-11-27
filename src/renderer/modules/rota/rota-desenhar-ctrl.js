@@ -733,3 +733,5 @@ $("#cancelarAcao").click(() => {
         }
     })
 });
+
+action = "desenharRota"

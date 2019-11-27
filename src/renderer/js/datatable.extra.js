@@ -7,10 +7,10 @@ var dtLanguage = {
     "infoEmpty": "Sem registros disponíveis",
     "infoFiltered": "(Escolas filtradas a partir do total de _MAX_ escolas)",
     "paginate": {
-        "first":      "Primeira",
-        "last":       "Última",
-        "next":       "Próxima",
-        "previous":   "Anterior"
+        "first": "Primeira",
+        "last": "Última",
+        "next": "Próxima",
+        "previous": "Anterior"
     }
 }
 

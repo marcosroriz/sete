@@ -288,7 +288,7 @@ div#content {
     color: #808590;
     height: 95px;
     padding-top: 20px;
-    font-size: 18px;
+    font-size: 17px;
 }
 
 .card-wizard .nav-tabs .nav-item .nav-link.active {
@@ -399,11 +399,20 @@ img#pageIcon {
     padding-top: 0px !important;
     margin-top: -26px !important;
     color: #485f8e;
+    padding-left: 2px;
 }
 
-.tab-2-fix {
+.tab-2-fix, .tab-3-fix {
     padding-left: 0px;
     padding-right: 0px;
+}
+
+.tab-3-fix a {
+    font-size: 12px
+}
+
+.tab-3-fix img.wiz-icon {
+    height: 40px;
 }
 
 .input-group-append {
@@ -1020,4 +1029,14 @@ img.ctrlIcon {
 .dica {
     margin-top: 2px;
     margin-left: 4px;
+}
+
+.tab-3-fix a.nav-link {
+    font-size: 13px !important;
+    font-family: "Roboto Condensed";
+    padding-top: 15px !important;
+    min-height: 20px !important;
+}
+.card-wizard .nav-tabs .tab-3-fix .nav-link {
+    height: 80px;
 }

@@ -61,7 +61,6 @@ var parseVeiculoDB = function (veiculoRaw) {
         veiculoJSON["ORIGEMSTR"] = "Frota terceirizadas";
     }
 
-
     switch (veiculoRaw["TIPO"]) {
         case 1: veiculoJSON["TIPOSTR"] = "Ônibus"; break;
         case 2: veiculoJSON["TIPOSTR"] = "Micro-ônibus"; break;
@@ -85,7 +84,7 @@ var parseVeiculoDB = function (veiculoRaw) {
         case 3: veiculoJSON["MARCASTR"] = "VOLKSWAGEN"; break;
         case 4: veiculoJSON["MARCASTR"] = "VOLARE"; break;
         case 5: veiculoJSON["MARCASTR"] = "OUTRA"; break;
-        default: veiculoJSON["MODELOSTR"] = "OUTRA";
+        default: veiculoJSON["MARCASTR"] = "OUTRA";
     }
 
     switch (parseInt(veiculoRaw["MODELO"])) {

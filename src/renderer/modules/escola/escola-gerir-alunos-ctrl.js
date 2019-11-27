@@ -7,7 +7,6 @@ var naoAtendidosPorNenhuma = new Set();
 $('#alunosOutros').textFilter($('#filtroOutrosAlunos'));
 $('#alunosAtendidos').textFilter($('#filtroTxtAtendidos'));
 
-
 $(".tituloSecao span").text(estadoEscola["NOME"]);
 
 ListaDeAlunosPorEscola(estadoEscola["ID_ESCOLA"], (err, result) => {

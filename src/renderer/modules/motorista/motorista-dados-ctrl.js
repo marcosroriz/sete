@@ -76,8 +76,6 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
                     if (result.value) {
                         RemoverPromise("Motoristas", "ID_MOTORISTA", idMotorista)
                         .then(() => {
-                            dataTablesMotoristas.row($tr).remove();
-                            dataTablesMotoristas.draw();
                             Swal2.fire({
                                 type: 'success',
                                 title: "Sucesso!",

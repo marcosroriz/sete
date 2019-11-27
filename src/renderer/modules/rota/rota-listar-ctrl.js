@@ -4,9 +4,11 @@ var listaDeRotas = new Map();
 // DataTables
 var dataTablesRotas = $("#datatables").DataTable({
     columns: [
-        { data: 'NOME', width: "40%" },
-        { data: 'NUMALUNOS', width: "25%" },
-        { data: 'NUMESCOLAS', width: "25%" },
+        { data: 'NOME', width: "30%" },
+        { data: 'TURNOSTR', width: "20%" },
+        { data: 'KMSTR', width: "20%" },
+        { data: 'NUMALUNOS', width: "15%" },
+        { data: 'NUMESCOLAS', width: "15%" },
         {
             data: "ACOES",
             width: "110px",
@@ -154,14 +156,14 @@ var listaInicialCB = (err, result) => {
             }
 
             handleEscolasAtendidas.forEach((e) => {
-                if (e != null && e != undefined) {
+                if (e != null && e != undefined && e.length != 0) {
                     let rotaJSON = listaDeRotas.get(e[0]["ID_ROTA"]);
                     rotaJSON["NUMESCOLAS"] = e.length;
                 }
             });
             
             handleAlunosAtendidos.forEach((a) => {
-                if (a != null && a != undefined) {
+                if (a != null && a != undefined && a.length != 0) {
                     let rotaJSON = listaDeRotas.get(a[0]["ID_ROTA"]);
                     rotaJSON["NUMALUNOS"] = a.length;
                 }

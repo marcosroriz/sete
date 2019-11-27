@@ -189,18 +189,6 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable({
         { data: 'NOME', width: "40%" },
         { data: 'DATA_NASCIMENTO', width: "300px" },
         { data: 'NOME_RESPONSAVEL', width: "250px" },
-        // {
-        //     data: "ACOES",
-        //     width: "200px",
-        //     sortable: false,
-        //     defaultContent: '<a href="#" class="btn btn-link btn-primary alunoView"><i class="fa fa-search"></i></a>' +
-        //                     '<a href="#" class="btn btn-link btn-warning alunoEdit"><i class="fa fa-edit"></i></a>' +
-        //                     '<a href="#" class="btn btn-link btn-danger alunoRemove"><i class="fa fa-times"></i></a>'
-        // },
-        // { data: 'TELEFONE_RESPONSAVEL' },
-        // { data: 'GRAU_RESPONSAVEL' },
-        // { data: 'ENDERECO' },
-        // { data: 'TURNO' },
     ],
     autoWidth: false,
     bAutoWidth: false,

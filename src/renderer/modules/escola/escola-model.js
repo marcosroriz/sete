@@ -54,6 +54,62 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#temHorarioNoite").prop("checked", estadoEscolaJSON["HORARIO_NOTURNO"]);
 }
 
+// Transformar linha do DB para JSON
+var parseEscolaDB = function (escolaRaw) {
+    var escolaJSON = Object.assign({}, escolaRaw);
+    escolaJSON["NOME"] = escolaJSON["NOME"];
+    switch (escolaRaw["MEC_TP_LOCALIZACAO"]) {
+        case 1:
+            escolaJSON["LOCALIZACAO"] = "Urbana";
+            break;
+        case 2:
+            escolaJSON["LOCALIZACAO"] = "Rural";
+            break;
+        default:
+            escolaJSON["LOCALIZACAO"] = "Urbana";
+    }
+
+    switch (escolaRaw["TP_DEPENDENCIA"]) {
+        case 1:
+            escolaJSON["DEPENDENCIA"] = "Federal";
+            break;
+        case 2:
+            escolaJSON["DEPENDENCIA"] = "Estadual";
+            break;
+        case 3:
+            escolaJSON["DEPENDENCIA"] = "Municipal";
+            break;
+        case 4:
+            escolaJSON["DEPENDENCIA"] = "Privada";
+            break;
+        default:
+            escolaJSON["DEPENDENCIA"] = "Municipal";
+    }
+    
+    var tipoEnsino = new Array();
+    if (escolaRaw["ENSINO_FUNDAMENTAL"]) tipoEnsino.push("Fundamental");
+    if (escolaRaw["ENSINO_MEDIO"]) tipoEnsino.push("Médio");
+    if (escolaRaw["ENSINO_SUPERIOR"]) tipoEnsino.push("Superior");
+    escolaJSON["ENSINO"] = tipoEnsino.join(", ");
+    
+    var horarioEnsino = new Array();
+    if (escolaRaw["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
+    if (escolaRaw["HORARIO_NOTURNO"]) horarioEnsino.push("Tarde");
+    if (escolaRaw["HORARIO_VESPERTINO"]) horarioEnsino.push("Noite");
+    escolaJSON["HORARIO"] = horarioEnsino.join(", ");
+
+    var regimeEnsino = new Array();
+    if (escolaRaw["MEC_IN_REGULAR"]) regimeEnsino.push("Regular");
+    if (escolaRaw["MEC_IN_EJA"]) regimeEnsino.push("EJA");
+    if (escolaRaw["MEC_IN_PROFISSIONALIZANTE"]) regimeEnsino.push("Profissionalizante");
+    escolaJSON["REGIME"] = regimeEnsino.join(", ");
+
+
+    escolaJSON["NUM_ALUNOS"] = 0;
+
+    return escolaJSON;
+};
+
 function InserirEscola(escolaJSON, onSaveCallBack) {
     knex("Escolas")
         .insert(escolaJSON)

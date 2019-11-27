@@ -3813,8 +3813,8 @@ fieldset[disabled] .form-control {
 
 .form-check .form-check-sign::before,
 .form-check .form-check-sign::after {
-    font-family: 'FontAwesome';
-    content: "\f096";
+    font-family: "Font Awesome 5 Free";
+    content: "\f0c8";
     color: #888888;
     display: inline-block;
     position: absolute;
@@ -3831,8 +3831,8 @@ fieldset[disabled] .form-control {
 }
 
 .form-check .form-check-sign::after {
-    font-family: 'FontAwesome';
-    content: "\f046";
+    font-family: "Font Awesome 5 Free";
+    content: "\f14a";
     text-align: center;
     opacity: 0;
     color: #23CCEF;
@@ -3907,8 +3907,8 @@ fieldset[disabled] .form-control {
 }
 
 .form-check-radio .form-check-sign::before {
-    font-family: 'FontAwesome';
-    content: "\f10c";
+    font-family: "Font Awesome 5 Free";
+    content: "\f111";
     font-size: 18px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -3933,7 +3933,7 @@ fieldset[disabled] .form-control {
 }
 
 .form-check-radio input[type="radio"]:checked+.form-check-sign::after {
-    font-family: 'FontAwesome';
+    font-family: "Font Awesome 5 Free";
     content: "\f192";
     position: absolute;
     left: 5.3px;
@@ -4630,7 +4630,7 @@ fieldset[disabled] .form-control {
 
 .bootstrap-tagsinput .tagsinput-add:before {
     content: "\f067";
-    font-family: "FontAwesome";
+    font-family: "Font Awesome 5 Free";
 }
 
 .bootstrap-tagsinput .badge-remove-link {
@@ -4654,7 +4654,7 @@ fieldset[disabled] .form-control {
 
 .bootstrap-tagsinput .badge-remove-link:before {
     content: "\f00d";
-    font-family: "FontAwesome";
+    font-family: "Font Awesome 5 Free";
     color: #23CCEF;
 }
 
@@ -9892,10 +9892,10 @@ table.dataTable thead .sorting_desc:after,
 table.dataTable thead .sorting_asc_disabled:after,
 table.dataTable thead .sorting_desc_disabled:after {
     position: relative;
-    display: inline-block;
+    display: inline-block;  
     bottom: 0px;
     right: -7px;
-    font-family: 'FontAwesome';
+    font-family: "Font Awesome 5 Free";
     opacity: 0.8;
 }
 
