@@ -11,9 +11,9 @@ var mapMalhas = {};
 var mapa = novoMapaOpenLayers("mapDesenhoRota", cidadeLatitude, cidadeLongitude);
 
 // Malha
-var malha = mapa["addLayer"]("Malha");
-var malhaSource = malha["source"];
-var malhaLayer = malha["layer"];
+var mapaAluno = mapa["addLayer"]("Malha");
+var mapaSource = mapaAluno["source"];
+var mapaLayer = mapaAluno["layer"];
 
 var estilos = {}
 estilos["Pavimentada"] = new ol.style.Stroke({ color: "#00cca7", width: 4 })
@@ -67,7 +67,7 @@ var getGeomStyle = function (feature) {
 }
 
 
-malhaLayer.setStyle((feature) => {
+mapaLayer.setStyle((feature) => {
     if (feature.getGeometry() instanceof ol.geom.LineString) {
         feature.setStyle(getGeomStyle(feature));
     } else if (feature.getGeometry() instanceof ol.geom.Point) {
@@ -109,7 +109,7 @@ var pointerMoveHandler = function (evt) {
 var formatLengthAll = () => {
     var length = 0;
     var output = 0;
-    malhaSource.getFeatures().forEach((f) => {
+    mapaSource.getFeatures().forEach((f) => {
         if (f.getGeometry() instanceof ol.geom.LineString) {
             length = length + ol.sphere.getLength(f.getGeometry());
         }
@@ -175,7 +175,7 @@ var clearInteractions = () => {
 }
 
 var drawInicioRota = new ol.interaction.Draw({
-    source: malhaSource,
+    source: mapaSource,
     type: 'Point',
     style: new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/icone-inicio-small.png")
@@ -183,9 +183,9 @@ var drawInicioRota = new ol.interaction.Draw({
 })
 
 drawInicioRota.on('drawend', function (drawEndEvent) {
-    var oldInicio = malhaSource.getFeatureById("inicio");
+    var oldInicio = mapaSource.getFeatureById("inicio");
     if (oldInicio != null || oldInicio != undefined) {
-        malhaSource.removeFeature(oldInicio);
+        mapaSource.removeFeature(oldInicio);
     }
     var inicioFeature = drawEndEvent.feature;
     inicioFeature.setId("inicio");
@@ -196,7 +196,7 @@ drawInicioRota.on('drawend', function (drawEndEvent) {
 });
 
 var drawMataBurro = new ol.interaction.Draw({
-    source: malhaSource,
+    source: mapaSource,
     type: 'Point',
     style: new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/icone-mataburro-small.png")
@@ -212,7 +212,7 @@ drawMataBurro.on('drawend', function (drawEndEvent) {
 });
 
 var drawColchete = new ol.interaction.Draw({
-    source: malhaSource,
+    source: mapaSource,
     type: 'Point',
     style: new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/icone-porteira-small.png")
@@ -228,7 +228,7 @@ drawColchete.on('drawend', function (drawEndEvent) {
 });
 
 var draw = new ol.interaction.Draw({
-    source: malhaSource,
+    source: mapaSource,
     type: 'LineString',
     style: new ol.style.Style({
         stroke: new ol.style.Stroke({
@@ -246,12 +246,12 @@ var draw = new ol.interaction.Draw({
 });
 
 var snap = new ol.interaction.Snap({
-    source: malhaSource,
+    source: mapaSource,
     pixelTolerance: 20
 });
 
 var modify = new ol.interaction.Modify({
-    source: malhaSource
+    source: mapaSource
 });
 
 var select = new ol.interaction.Select({
@@ -382,7 +382,7 @@ mapaOL.addInteraction(snap);
 
 var ol3Parser = new jsts.io.OL3Parser();
 function mergeLineString(currentFeature) {
-    var features = malhaSource.getFeatures();
+    var features = mapaSource.getFeatures();
     var feature, currentGeo, featureGeo, union, i;
 
     // style array
@@ -404,7 +404,7 @@ function mergeLineString(currentFeature) {
             // set the new geometry to the last feature added
             currentFeature.setGeometry(ol3Parser.write(union));
             // remove the feature which was merged
-            malhaSource.removeFeature(feature);
+            mapaSource.removeFeature(feature);
         }
     }
 
@@ -463,7 +463,7 @@ var removeCtrl = new ol.control.Button({
     handleClick: function () {
         if (selectedFeatures.length != 0) {
             for (var i = 0; i < selectedFeatures.length; i++) {
-                malhaSource.removeFeature(selectedFeatures[i]);
+                mapaSource.removeFeature(selectedFeatures[i]);
             }
             select.getFeatures().clear();
         } else {
@@ -616,11 +616,11 @@ $("#listarotas").on("change", (evt) => {
 
         // Limpando dados do mapa
         vectorSource.clear();
-        malhaSource.clear();
+        mapaSource.clear();
 
         // Acrescentando rota existente
         if (rotaSelect["SHAPE"] != "" && rotaSelect["SHAPE"] != undefined) {
-            malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(rotaSelect["SHAPE"]))
+            mapaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(rotaSelect["SHAPE"]))
         }
 
         // Tipo de Modal
@@ -705,7 +705,7 @@ $("#rota-malha-salvarNovaMalha").click(() => {
         var rotasJSON = { "ID_ROTA": idRotaSelecionada };
         rotasJSON["KM"] = $("#regkm").val();
         rotasJSON["TEMPO"] = $("#regtempo").val();
-        rotasJSON["SHAPE"] = new ol.format.GeoJSON().writeFeatures(malhaSource.getFeatures());
+        rotasJSON["SHAPE"] = new ol.format.GeoJSON().writeFeatures(mapaSource.getFeatures());
 
         AtualizarPromise("Rotas", rotasJSON, "ID_ROTA", idRotaSelecionada)
             .then((res) => {

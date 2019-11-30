@@ -5,16 +5,16 @@ var listaDeEscolas = new Map();
 var dataTableEscolas = $("#datatables").DataTable({
     // fixedHeader: true,
     columns: [
-        { data: 'NOME', width: "55%" },
+        { data: 'NOME', width: "40%" },
         { data: 'LOCALIZACAO',  width: "15%" },
         { data: 'ENSINO', width: "15%" },
-        { data: 'HORARIO', width: "25%" },
-        { data: 'NUM_ALUNOS', width: "150px" },
+        { data: 'HORARIO', width: "30%" },
+        { data: 'NUM_ALUNOS', width: "300px" },
         {
             data: "ACOES",
             width: "110px",
             sortable: false,
-            defaultContent: '<a href="#" class="btn btn-link btn-info escolaStudent"><i class="fa fa-user-graduate"></i></a>' +
+            defaultContent: '<a href="#" class="btn btn-link btn-info escolaStudent"><i class="fas fa-user-graduate"></i></a>' +
                             '<a href="#" class="btn btn-link btn-primary escolaView"><i class="fa fa-search"></i></a>' +
                             '<a href="#" class="btn btn-link btn-warning escolaEdit"><i class="fa fa-edit"></i></a>' +
                             '<a href="#" class="btn btn-link btn-danger escolaRemove"><i class="fa fa-times"></i></a>'

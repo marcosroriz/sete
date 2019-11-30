@@ -405,7 +405,10 @@ Promise.all([buscarEscolasPromise, buscarAlunosPromise])
         for (let alunoRaw of alunosResult) {
             plotarAluno(alunoRaw);
         }
-        mapa["map"].getView().fit(malhaSource.getExtent());
+
+        if (res[0].length != 0 || res[1].length != 0) {
+            mapa["map"].getView().fit(malhaSource.getExtent());
+        }
         mapa["map"].updateSize();
     })
     .catch((err) => errorFn("Erro ao buscar os detalhes da Rota ", err))
@@ -419,7 +422,9 @@ if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != undefined) {
 $("#detalheMapa").click(() => {
     setTimeout(function () {
         if (mapa != null) {
-            mapa["map"].getView().fit(malhaSource.getExtent());
+            if (malhaSource.getFeatures().length != 0) {
+                mapa["map"].getView().fit(malhaSource.getExtent());
+            }
             mapa["map"].updateSize();
         }
     }, 200);

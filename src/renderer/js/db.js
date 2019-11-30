@@ -1,24 +1,24 @@
 var path = require("path");
 
-// Google Firebase
-var firebase = require("firebase/app");
-require("firebase/auth");
-require("firebase/database");
-require("firebase/firestore");
+// // Google Firebase
+// var firebase = require("firebase/app");
+// require("firebase/auth");
+// require("firebase/database");
+// require("firebase/firestore");
 
-// Init Firebase
-var dbconfig = {
-    apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
-    authDomain: "softwareter.firebaseapp.com",
-    databaseURL: "https://softwareter.firebaseio.com",
-    projectId: "softwareter",
-    storageBucket: "softwareter.appspot.com",
-    messagingSenderId: "881352897273"
-};
-firebase.initializeApp(dbconfig);
+// // Init Firebase
+// var dbconfig = {
+//     apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
+//     authDomain: "softwareter.firebaseapp.com",
+//     databaseURL: "https://softwareter.firebaseio.com",
+//     projectId: "softwareter",
+//     storageBucket: "softwareter.appspot.com",
+//     messagingSenderId: "881352897273"
+// };
+// firebase.initializeApp(dbconfig);
 
-// Base de dados Firestore
-var remotedb = firebase.firestore();
+// // Base de dados Firestore
+// var remotedb = firebase.firestore();
 
 var dbPath = path.join(__dirname, "..", "db", "local.db");
 var knex = require("knex")({
@@ -66,6 +66,12 @@ function Atualizar(table, column, data, id, cb) {
     .then(res => cb(false, res))
     .catch(err => cb(err));
 }
+
+function RemoverComposedPromise(table, c1, id1, c2, id2) {
+    return knex(table).where(c1, id1).andWhere(c2, id2).del();
+}
+
+
 
 function RemoverPromise(table, column, id) {
     return knex(table).where(column, "=", id).del();

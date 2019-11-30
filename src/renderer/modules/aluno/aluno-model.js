@@ -64,7 +64,8 @@ function PopulateAlunoFromState(estadoAlunoJSON) {
 // Transformar linha do DB para JSON
 var parseAlunoDB = function (alunoRaw) {
     var alunoJSON = Object.assign({}, alunoRaw);
-    alunoJSON["ESCOLA"] = "Aluno sem escola";
+    alunoJSON["ESCOLA"] = "Aluno sem escola cadastrada";
+    alunoJSON["ROTA"] = "Aluno sem rota cadastrada";
     alunoJSON["ID_ESCOLA"] = 0;
 
     switch (alunoRaw["MEC_TP_LOCALIZACAO"]) {
@@ -148,6 +149,12 @@ function ListarEscolasDeAlunosPromise() {
     return knex("Escolas")
           .join("EscolaTemAlunos", "Escolas.ID_ESCOLA", "=", "EscolaTemAlunos.ID_ESCOLA")
 }
+
+function ListarRotasDeAlunosPromise() {
+    return knex("Rotas AS R")
+        .join("RotaAtendeAluno AS RA", "R.ID_ROTA", "=", "RA.ID_ROTA")
+}
+
 
 function ListarEscolasDeAlunos(callbackFn) {
     return ListarEscolasDeAlunosPromise()

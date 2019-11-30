@@ -7,6 +7,7 @@ var dataTablesAlunos = $("#datatables").DataTable({
     columns: [
         { data: 'NOME', width: "25%" },
         { data: 'LOCALIZACAO', width: "15%" },
+        { data: 'ROTA', width: "15%" },
         { data: 'ESCOLA', width: "25%" },
         { data: 'NIVELSTR', width: "200px" },
         { data: 'TURNOSTR', width: "200px" },
@@ -170,11 +171,22 @@ var listarEscolasAlunosCB = (err, result) => {
             listaDeAlunos.set(aID, alunoJSON);
         }
 
-        listaDeAlunos.forEach((aluno) => {
-            dataTablesAlunos.row.add(aluno);
-        });
+        ListarRotasDeAlunosPromise()
+        .then((res) => {
+            res.forEach((a) => {
+                let aID = a["ID_ALUNO"];
+                let alunoJSON =  listaDeAlunos.get(aID);
+                
+                alunoJSON["ROTA"] = a["NOME"];
+                listaDeAlunos.set(aID, alunoJSON);
+            })
 
-        dataTablesAlunos.draw();
+            listaDeAlunos.forEach((aluno) => {
+                dataTablesAlunos.row.add(aluno);
+            });
+
+            dataTablesAlunos.draw();
+        })
     }
 };
 

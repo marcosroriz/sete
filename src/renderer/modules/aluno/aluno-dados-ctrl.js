@@ -1,7 +1,7 @@
 // Cria mapa
 var alat = estadoAluno["LOC_LATITUDE"];
 var alng = estadoAluno["LOC_LONGITUDE"]
-var mapaDetalhe = novoMapaOpenLayers("mapDetalheAluno", alat, alng);
+var mapaDetalhe = novoMapaOpenLayers("mapDetalheAluno", cidadeLatitude, cidadeLongitude);
 mapaDetalhe["activateImageLayerSwitcher"]();
 
 window.onresize = function () {
@@ -13,6 +13,21 @@ window.onresize = function () {
 // Desenha marcador
 var posicaoAluno = new ol.Feature({
     "geometry": new ol.geom.Point(ol.proj.fromLonLat([alng, alat]))
+});
+posicaoAluno.setStyle(new ol.style.Style({
+    image: new ol.style.Icon({
+        anchor: [12, 37],
+        anchorXUnits: 'pixels',
+        anchorYUnits: 'pixels',
+        opacity: 1,
+        src: "img/icones/aluno-marcador.png"
+    })
+}));
+mapaDetalhe["vectorSource"].addFeature(posicaoAluno);
+
+// Desenha marcador
+posicaoAluno = new ol.Feature({
+    "geometry": new ol.geom.Point(ol.proj.fromLonLat([alat, alng]))
 });
 posicaoAluno.setStyle(new ol.style.Style({
     image: new ol.style.Icon({
@@ -165,17 +180,17 @@ var popularTabelaAluno = () => {
             break;
     }
 
-    if (estadoAluno["CPF"] != "") {
+    if (estadoAluno["CPF"] != undefined && estadoAluno["CPF"] != "") {
         dataTableAluno.row.add(["CPF", estadoAluno["CPF"]]);
     } else {
         dataTableAluno.row.add(["CPF", "CPF não informado"]);
     }
 
     var listaDeficiencia = new Array();
-    if (estadoAluno["DEF_CAMINHAR"] != "") { listaDeficiencia.push("Locomotora"); }
-    if (estadoAluno["DEF_OUVIR"] != "")    { listaDeficiencia.push("Auditiva"); }
-    if (estadoAluno["DEF_ENXERGAR"] != "") { listaDeficiencia.push("Visual"); }
-    if (estadoAluno["DEF_MENTAL"] != "")   { listaDeficiencia.push("Mental"); }
+    if (estadoAluno["DEF_CAMINHAR"] != 0) { listaDeficiencia.push("Locomotora"); }
+    if (estadoAluno["DEF_OUVIR"] != 0)    { listaDeficiencia.push("Auditiva"); }
+    if (estadoAluno["DEF_ENXERGAR"] != 0) { listaDeficiencia.push("Visual"); }
+    if (estadoAluno["DEF_MENTAL"] != 0)   { listaDeficiencia.push("Mental"); }
 
     if (listaDeficiencia.length != 0) {
         dataTableAluno.row.add(["Possui alguma deficiência?", listaDeficiencia.join(", ")]);
@@ -183,7 +198,7 @@ var popularTabelaAluno = () => {
         dataTableAluno.row.add(["Possui alguma deficiência?", "Não"]);
     }
 
-    if (estadoAluno["NOME_RESPONSAVEL"] != "") {
+    if (estadoAluno["NOME_RESPONSAVEL"] != undefined) {
         dataTableAluno.row.add(["Nome do responsável", estadoAluno["NOME_RESPONSAVEL"]]);
     } else {
         dataTableAluno.row.add(["Nome do responsável", "Contato não informado"]);
@@ -210,30 +225,30 @@ var popularTabelaAluno = () => {
             break;
     }
 
-    if (estadoAluno["TELEFONE_RESPONSAVEL"] != "") {
+    if (estadoAluno["TELEFONE_RESPONSAVEL"] != undefined && estadoAluno["TELEFONE_RESPONSAVEL"] != "") {
         dataTableAluno.row.add(["Telefone do responsável", estadoAluno["TELEFONE_RESPONSAVEL"]]);
     } else {
         dataTableAluno.row.add(["Telefone do responsável", "Telefone de contato não informado"]);
     }
   
-    if (estadoAluno["LOC_ENDERECO"] != "") {
+    if (estadoAluno["LOC_ENDERECO"] != undefined && estadoAluno["LOC_ENDERECO"] != "") {
         dataTableAluno.row.add(["Endereço do aluno", estadoAluno["LOC_ENDERECO"]]);
     } else {
         dataTableAluno.row.add(["Endereço do aluno", "Endereço não informado"]);
     }
 
-    if (estadoAluno["LOC_CEP"] != "") {
+    if (estadoAluno["LOC_CEP"] != undefined && estadoAluno["LOC_CEP"] != "") {
         dataTableAluno.row.add(["CEP da residência", estadoAluno["LOC_CEP"]]);
     } else {
         dataTableAluno.row.add(["CEP da residência", "CEP não informado"]);
     }
 
     var dificuldadesAcesso = new Array();
-    if (estadoAluno["DA_PORTEIRA"] != "")     { dificuldadesAcesso.push("Porteira"); }
-    if (estadoAluno["DA_MATABURRO"] != "")    { dificuldadesAcesso.push("Mata-Burro"); }
-    if (estadoAluno["DA_COLCHETE"] != "")     { dificuldadesAcesso.push("Colchete"); }
-    if (estadoAluno["DA_ATOLEIRO"] != "")     { dificuldadesAcesso.push("Atoleiro"); }
-    if (estadoAluno["DA_PONTERUSTICA"] != "") { dificuldadesAcesso.push("Ponte Rústica"); }
+    if (estadoAluno["DA_PORTEIRA"] != 0)     { dificuldadesAcesso.push("Porteira"); }
+    if (estadoAluno["DA_MATABURRO"] != 0)    { dificuldadesAcesso.push("Mata-Burro"); }
+    if (estadoAluno["DA_COLCHETE"] != 0)     { dificuldadesAcesso.push("Colchete"); }
+    if (estadoAluno["DA_ATOLEIRO"] != 0)     { dificuldadesAcesso.push("Atoleiro"); }
+    if (estadoAluno["DA_PONTERUSTICA"] != 0) { dificuldadesAcesso.push("Ponte Rústica"); }
 
     if (dificuldadesAcesso.length != 0) {
         dataTableAluno.row.add(["Dificuldade de acesso", dificuldadesAcesso.join(", ")]);
@@ -257,7 +272,7 @@ var popularTabelaAluno = () => {
                 dataTableAluno.row.add(["Localização", "Área Urbana"]);
         }
     
-        if (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != "") {
+        if (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != undefined && estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != "") {
             switch (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"]) {
                 case 1:
                     dataTableAluno.row.add(["Localização diferenciada", "Área de assentamento"]);
@@ -273,20 +288,20 @@ var popularTabelaAluno = () => {
             }
         }
 
-        if (estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"] != "") {
+        if (estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"] != undefined && estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"] != "") {
             dataTableAluno.row.add(["Contato da Escola", estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"]]);
         } else {
             dataTableAluno.row.add(["Contato da Escola", "Contato da escola não informado"]);
         }
     
-        if (estadoAluno["ESCOLA_CONTATO_TELEFONE"] != "") {
+        if (estadoAluno["ESCOLA_CONTATO_TELEFONE"] != undefined && estadoAluno["ESCOLA_CONTATO_TELEFONE"] != "") {
             dataTableAluno.row.add(["Telefone de Contato", estadoAluno["ESCOLA_CONTATO_TELEFONE"]]);
         } else {
             dataTableAluno.row.add(["Telefone de Contato", "Telefone de contato não informado"]);
         }
 
         var elat = estadoAluno["ESCOLA_LOC_LATITUDE"];
-        var elng = estadoAluno["ESCOLA_LOC_LONGITUDE"]
+        var elng = estadoAluno["ESCOLA_LOC_LONGITUDE"];
         // Desenha marcador da Escola
         var posicaoEscola = new ol.Feature({
             "geometry": new ol.geom.Point(ol.proj.fromLonLat([elng, elat]))
@@ -300,7 +315,9 @@ var popularTabelaAluno = () => {
                 src: "img/icones/escola-marcador.png"
             })
         }));
-        mapaDetalhe["vectorSource"].addFeature(posicaoEscola);
+        mapaDetalhe["vectorSource"].addFeature(posicaoEscola);  
+        mapaDetalhe["map"].getView().fit(mapaDetalhe["vectorSource"].getExtent());
+        mapaDetalhe["map"].updateSize();
     }
 
     dataTableAluno.draw();

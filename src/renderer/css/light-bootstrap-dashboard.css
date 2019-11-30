@@ -3813,8 +3813,8 @@ fieldset[disabled] .form-control {
 
 .form-check .form-check-sign::before,
 .form-check .form-check-sign::after {
-    font-family: "Font Awesome 5 Free";
-    content: "\f0c8";
+    font-family: 'FontAwesome';
+    content: "\f096";
     color: #888888;
     display: inline-block;
     position: absolute;
@@ -3831,8 +3831,8 @@ fieldset[disabled] .form-control {
 }
 
 .form-check .form-check-sign::after {
-    font-family: "Font Awesome 5 Free";
-    content: "\f14a";
+    font-family: 'FontAwesome';
+    content: "\f046";
     text-align: center;
     opacity: 0;
     color: #23CCEF;
@@ -3907,8 +3907,8 @@ fieldset[disabled] .form-control {
 }
 
 .form-check-radio .form-check-sign::before {
-    font-family: "Font Awesome 5 Free";
-    content: "\f111";
+    font-family: 'FontAwesome';
+    content: "\f10c";
     font-size: 18px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -3933,7 +3933,7 @@ fieldset[disabled] .form-control {
 }
 
 .form-check-radio input[type="radio"]:checked+.form-check-sign::after {
-    font-family: "Font Awesome 5 Free";
+    font-family: 'FontAwesome';
     content: "\f192";
     position: absolute;
     left: 5.3px;
@@ -4630,7 +4630,7 @@ fieldset[disabled] .form-control {
 
 .bootstrap-tagsinput .tagsinput-add:before {
     content: "\f067";
-    font-family: "Font Awesome 5 Free";
+    font-family: "FontAwesome";
 }
 
 .bootstrap-tagsinput .badge-remove-link {
@@ -4654,7 +4654,7 @@ fieldset[disabled] .form-control {
 
 .bootstrap-tagsinput .badge-remove-link:before {
     content: "\f00d";
-    font-family: "Font Awesome 5 Free";
+    font-family: "FontAwesome";
     color: #23CCEF;
 }
 
@@ -9895,7 +9895,7 @@ table.dataTable thead .sorting_desc_disabled:after {
     display: inline-block;  
     bottom: 0px;
     right: -7px;
-    font-family: "Font Awesome 5 Free";
+    font-family: "FontAwesome";
     opacity: 0.8;
 }
 

@@ -131,10 +131,12 @@ function ListarTodasAsEscolasAtendidasPorRotaPromise(idRota) {
 }
 
 function ListarTodasAsEscolasNaoAtendidasPorRotaPromise(idRota) {
+    // select ID_ESCOLA FROM `RotaPassaPorEscolas` WHERE ID_ROTA = 21
+    var subquery = knex("RotaPassaPorEscolas").select("ID_ESCOLA").where("ID_ROTA", "=", idRota)
     return knex("Escolas AS E")
         .select("E.*")
         .leftJoin("RotaPassaPorEscolas AS R", "E.ID_ESCOLA", "=", "R.ID_ESCOLA")
-        .where("R.ID_ROTA", "<>", idRota)
+        .whereNotIn("E.ID_ESCOLA", subquery)
         .orWhereNull("R.ID_ROTA")
 }
 

@@ -148,6 +148,15 @@ $("#salvarrota").click(() => {
         alunosAdicionar.forEach((aID) => prePromessas.push(RemoverPromise("RotaAtendeAluno", "ID_ALUNO", aID )));
         alunosRemover.forEach((aID) => prePromessas.push(RemoverPromise("RotaAtendeAluno", "ID_ALUNO", aID )));
 
+        if (action == "editarRota") {
+            for (var mID of $("#tipoMotorista").val()) {
+                prePromessas.push(RemoverPromise("RotaDirigidaPorMotorista", "ID_ROTA", estadoRota["ID_ROTA"]));
+            }
+            escolasRemover.forEach((eID) => {
+                prePromessas.push(RemoverComposedPromise("RotaPassaPorEscolas", "ID_ESCOLA", eID, "ID_ROTA", estadoRota["ID_ROTA"]));
+            });
+        }
+
         Promise.all(prePromessas)
         .then(() => {
             var promessaPrincipal;
@@ -159,6 +168,10 @@ $("#salvarrota").click(() => {
 
             promessaPrincipal.then((res) => {
                 var idRota = res[0];
+                if (action == "editarRota") {
+                    idRota = estadoRota["ID_ROTA"];
+                }
+
                 var promessasFinais = new Array();
                 
                 alunosAdicionar.forEach((aID) => 
@@ -167,7 +180,11 @@ $("#salvarrota").click(() => {
                     promessasFinais.push(InserirPromise("RotaPassaPorEscolas", { "ID_ROTA": idRota, "ID_ESCOLA": eID })));
     
                 var placaVeiculo = $("#tipoVeiculo").val();
-                promessasFinais.push(InserirPromise("RotaPossuiVeiculo",  { "ID_ROTA": idRota, "ID_VEICULO": placaVeiculo }));
+                if (action == "editarRota") {
+                    promessasFinais.push(AtualizarPromise("RotaPossuiVeiculo",  { "ID_ROTA": idRota, "ID_VEICULO": placaVeiculo }, "ID_ROTA", idRota));
+                } else {
+                    promessasFinais.push(InserirPromise("RotaPossuiVeiculo",  { "ID_ROTA": idRota, "ID_VEICULO": placaVeiculo }));
+                }
 
                 for (var mID of $("#tipoMotorista").val()) {
                     promessasFinais.push(InserirPromise("RotaDirigidaPorMotorista",  { "ID_ROTA": idRota, "ID_MOTORISTA": mID }));
@@ -226,8 +243,8 @@ if (action == "editarRota") {
         PopulateRotaFromState(estadoRota);
 
         var promiseArray = new Array();
-        promiseArray.push(ListarTodasAsEscolasAtendidasPorRotaPromise(estadoRota["ID_ROTA"]))
         promiseArray.push(ListarTodasAsEscolasNaoAtendidasPorRotaPromise(estadoRota["ID_ROTA"]))
+        promiseArray.push(ListarTodasAsEscolasAtendidasPorRotaPromise(estadoRota["ID_ROTA"]))
         promiseArray.push(ListaDeAlunosNaoAtendidosPorRotaPromise(estadoRota["ID_ROTA"]))
         promiseArray.push(ListarTodosOsAlunosAtendidosPorRotaPromise(estadoRota["ID_ROTA"]))
         
@@ -378,4 +395,3 @@ $('#tipoMotorista').change(() => {
     $('#tipoMotorista').valid();
 })
 
-action = "cadastrarRota"
