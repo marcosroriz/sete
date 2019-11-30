@@ -71,8 +71,6 @@ function RemoverComposedPromise(table, c1, id1, c2, id2) {
     return knex(table).where(c1, id1).andWhere(c2, id2).del();
 }
 
-
-
 function RemoverPromise(table, column, id) {
     return knex(table).where(column, "=", id).del();
 }

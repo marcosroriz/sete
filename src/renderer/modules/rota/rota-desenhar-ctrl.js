@@ -40,6 +40,9 @@ var gerarMarcadorIcone = (imgPath) => {
 
 var getGeomStyle = function (feature) {
     var tipoLinha = feature.get("estilo");
+    if (tipoLinha == undefined) {
+        tipoLinha = "Pavimentada";
+    }
     var styles = new Array();
 
     if (feature.getGeometry() instanceof ol.geom.LineString) {
@@ -47,10 +50,23 @@ var getGeomStyle = function (feature) {
             stroke: estilos[tipoLinha]
         }));
 
+        var numFeatures = feature.getGeometry().getCoordinates().length;
+        var simplify = false;
+        if (numFeatures > 100) {
+            simplify = true;
+        }
+
         feature.getGeometry().forEachSegment(function (start, end) {
+            var rnd = Math.floor(Math.random() * 10 + 1);
+
             var dx = end[0] - start[0];
             var dy = end[1] - start[1];
             var rotation = Math.atan2(dy, dx);
+
+            if (simplify && rnd <= 9) {
+                return;
+            }
+
             // arrows
             styles.push(new ol.style.Style({
                 geometry: new ol.geom.Point(end),
@@ -444,7 +460,7 @@ var editbar = new ol.control.Bar({
 var selectBar = new ol.control.Bar();
 
 var selectCtrl = new ol.control.Toggle({
-    html: '<i class="fas fa-hand-pointer"></i>',
+    html: '<i class="fa fa-hand-pointer-o"></i>',
     title: "Select",
     onToggle: function (active) {
         clearInteractions();
@@ -493,8 +509,8 @@ editbar.addControl(modificarCtrl);
 
 
 var pavimentadaCtrl = new ol.control.Toggle({
-    html: '<i class="fas fa-road"></i>',
-    title: 'Point',
+    html: '<i class="fa fa-road"></i>',
+    title: 'Via Pavimentada',
     onToggle: function (active) {
         clearInteractions();
         if (active) {
@@ -509,7 +525,7 @@ editbar.addControl(pavimentadaCtrl);
 
 var naoPavimentadaCtrl = new ol.control.Toggle({
     html: '<img class="ctrlIcon" src="./img/icones/icone-naopavimentada2.png">',
-    title: 'Point',
+    title: 'Via Não-Pavimentada',
     onToggle: function (active) {
         clearInteractions();
         if (active) {
@@ -523,7 +539,7 @@ editbar.addControl(naoPavimentadaCtrl);
 
 var hidroviaCtrl = new ol.control.Toggle({
     html: '<img class="ctrlIcon" src="./img/icones/icone-aqua2.png">',
-    title: 'Point',
+    title: 'Hidrovia',
     onToggle: function (active) {
         clearInteractions();
         if (active) {
@@ -537,7 +553,7 @@ editbar.addControl(hidroviaCtrl);
 
 var inicioRotaCtrl = new ol.control.Toggle({
     html: '<img class="ctrlIcon" src="./img/icones/icone-inicio.png">',
-    title: 'Point',
+    title: 'Início da Rota',
     onToggle: function (active) {
         clearInteractions();
         if (active) {
@@ -550,7 +566,7 @@ editbar.addControl(inicioRotaCtrl);
 
 var mataBurroCtrl = new ol.control.Toggle({
     html: '<img class="ctrlIcon" src="./img/icones/icone-mataburro.png">',
-    title: 'Point',
+    title: 'Mata-burro',
     onToggle: function (active) {
         clearInteractions();
         if (active) {
@@ -563,7 +579,7 @@ editbar.addControl(mataBurroCtrl);
 
 var colcheteCtrl = new ol.control.Toggle({
     html: '<img class="ctrlIcon" src="./img/icones/icone-porteira.png">',
-    title: 'Point',
+    title: 'Colchete',
     onToggle: function (active) {
         clearInteractions();
         if (active) {
@@ -664,7 +680,7 @@ $("#listarotas").on("change", (evt) => {
                 for (let alunoRaw of alunosResult) {
                     plotarAluno(alunoRaw);
                 }
-                mapaOL.getView().fit(vectorSource.getExtent());
+                mapaOL.getView().fit(mapaSource.getExtent());
                 Swal2.close();
             })
             .catch((err) => errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, err))

@@ -14,7 +14,7 @@ var dataTableEscolas = $("#datatables").DataTable({
             data: "ACOES",
             width: "110px",
             sortable: false,
-            defaultContent: '<a href="#" class="btn btn-link btn-info escolaStudent"><i class="fas fa-user-graduate"></i></a>' +
+            defaultContent: '<a href="#" class="btn btn-link btn-info escolaStudent"><i class="fa fa-user"></i></a>' +
                             '<a href="#" class="btn btn-link btn-primary escolaView"><i class="fa fa-search"></i></a>' +
                             '<a href="#" class="btn btn-link btn-warning escolaEdit"><i class="fa fa-edit"></i></a>' +
                             '<a href="#" class="btn btn-link btn-danger escolaRemove"><i class="fa fa-times"></i></a>'
