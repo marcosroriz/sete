@@ -191,6 +191,7 @@ div#legendPlace {
 
 div#legendPlace span {
     padding-right: 20px;
+    font-size: 12px;
 }
 
 .card-title-relatorio {
@@ -198,3 +199,35 @@ div#legendPlace span {
     text-align: center;
     padding-bottom: 10px;
 }
+
+.totalChart {
+    text-align: center;
+    background: #1DC7EA;
+    margin-left: 85px;
+    margin-right: 85px;
+    border: #1DC7EA;
+    border-style: solid;
+    height: 300px;
+    border-radius: 50%;
+    padding-top: 90px;
+}
+
+.totalChart span {
+    vertical-align: middle;
+    font-size: 65px;
+    color: white;
+    font-weight: bold;
+}
+
+
+.card .datatable-relatorio tbody td:last-child, 
+.card .datatable-relatorio thead th:last-child {
+    min-width: 100px;
+}
+
+.datatable-relatorio a {
+    padding: 5px;
+    padding-top: 10px;
+    vertical-align: middle;
+}
+ 

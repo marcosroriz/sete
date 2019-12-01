@@ -41,6 +41,8 @@ function plotGraphic(target, option) {
         Chartist.Pie(target, option["SERIE"], chart["pizza"]);
     } else if (option["TIPO"] == "barra") {
         Chartist.Bar(target, option["SERIE"], chart["barra"]);
+    } else if (option["TIPO"] == "total") { 
+        $(target).append(`<div class='totalChart'><span>${option["SERIE"]["series"][0]}</sṕan></div>`)
     }
 }
 
@@ -48,6 +50,12 @@ function plotLegend(target, labels, isLong) {
     for (let i = 0; i < labels.length; i++) {
         $(target).append(`<i class="fa fa-circle ct-color-${categories[i % categories.length]}"></i> <span>${labels[i]}</span>`);
         if (isLong && i != 0 && i % 2 == 0) $(target).append("<br>");
+    }
+}
+
+function SetMainFilterMenu(selectID, items) {
+    for (let i in items) {
+        $(selectID).append(`<option value="${i}">${items[i]["TXTMENU"]}</option>`);
     }
 }
 
@@ -81,14 +89,14 @@ function GetTemplateDataTableConfig() {
                 "previous": "Anterior"
             },
         },
-        dom: 'lfrtipB',
+        dom: 'rtlpB',
         buttons: [
             {
                 extend: 'excel',
                 className: 'btnExcel',
                 filename: "Relatorio",
                 title: appTitle,
-                text: 'Exportar para Excel/LibreOffice',
+                text: 'Exportar para Planilha',
                 customize: function (xlsx) {
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
                     $('row c[r^="A"]', sheet).attr('s', '2');

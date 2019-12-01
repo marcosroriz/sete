@@ -1,16 +1,71 @@
 // Preenchimento da Tabela via SQL
 var listaDeAlunos = new Map();
+var totalNumEscolas = 0;
+var totalNumRotas = 0;
 
 // Dados para serem plotados
 var dataEscola = { series: [], labels: [] };
-var dataAtendimento = { series: [], labels: ["Sem atendimento", "Atendidos"] };
+var dataEscolaFilter = { series: [], labels: [] };
+var dataAtendimento = { series: [], labels: ["Sem rota cadastrada", "Com rota cadastrada"] };
 var dataRota = { series: [], labels: [] };
+var dataRotaFilter = { series: [], labels: [] };
 var dataNivel = { series: [], labels: ["Creche", "Fundamental", "Médio", "Superior", "Outro"] };
 var dataTurno = { series: [], labels: ["Manhã", "Tarde", "Integral", "Noturno"] };
 var dataResidencia = { series: [], labels: ["Área Urbana", "Área Rural"] };
 var dataCor = { series: [], labels: ["Amarelo", "Branco", "Indígena", "Pardo", "Preto"] };
-var dataGenero = { series: [], labels: ["Masculino", "Feminino"] };
+var dataGenero = { series: [], labels: ["Masculino", "Feminino", "Não Informado"] };
 var dataResponsavel = { series: [], labels: ["Pai, Mãe, Padrasto ou Madrasta", "Avô ou Avó", "Irmão ou Irmã", "Outrou Parente"] };
+
+
+// DataTables
+var defaultTableConfig = GetTemplateDataTableConfig();
+defaultTableConfig["columns"] = [
+    { data: 'NOME', width: "20%" },
+    { data: 'SEXOSTR' },
+    { data: 'CORSTR' },
+    { data: 'NOME_RESPONSAVEL' },
+    { data: 'GRAUSTR' },
+    { data: 'LOCALIZACAO', width: "15%" },
+    { data: 'ESCOLA', width: "20%" },
+    { data: 'NIVELSTR', width: "140px" },
+    { data: 'TURNOSTR', width: "140px" },
+    { data: 'ROTA', width: "200px" },
+    {
+        data: "ACOES",
+        width: "120px",
+        sortable: false,
+        defaultContent: '<a href="#" class="btn btn-link btn-primary alunoView"><i class="fa fa-search"></i></a>' +
+            '<a href="#" class="btn btn-link btn-warning alunoEdit"><i class="fa fa-edit"></i></a>' +
+            '<a href="#" class="btn btn-link btn-danger alunoRemove"><i class="fa fa-times"></i></a>'
+    }
+]
+
+defaultTableConfig["columnDefs"] = [
+    {
+        "targets": [1, 2, 3, 4],
+        "visible": false,
+        "searchable": true
+    },
+    {
+        targets: 0,
+        render: function (data, type, row) {
+            return data.length > 50 ?
+                data.substr(0, 50) + '…' :
+                data;
+        }
+    },
+    {
+        targets: 5,
+        render: function (data, type, row) {
+            return data.length > 50 ?
+                data.substr(0, 50) + '…' :
+                data;
+        }
+    }
+];
+
+var dataTablesRelatorio = $("#datatables").DataTable(defaultTableConfig)
+
 
 function CalcularEstatisticas() {
     var totalAlunos = listaDeAlunos.size;
@@ -47,10 +102,19 @@ function CalcularEstatisticas() {
         statEscolas[aluno["ESCOLA"]] = statEscolas[aluno["ESCOLA"]] + 1;
     })
 
-    for (let i in statEscolas) {
-        dataEscola["series"].push(statEscolas[i]);
-        dataEscola["labels"].push(i);
+    for (let i in statRotas) {
+        dataRotaFilter["series"].push(statRotas[i]);
+        dataRotaFilter["labels"].push(i);
     }
+    dataRota["series"].push(statNumAtendidos / totalNumRotas);
+    dataRota["labels"].push("Número médio de alunos transportados por rota");
+
+    for (let i in statEscolas) {
+        dataEscolaFilter["series"].push(statEscolas[i]);
+        dataEscolaFilter["labels"].push(i);
+    }
+    dataEscola["series"].push(statNumAtendidos / totalNumEscolas);
+    dataEscola["labels"].push("Número médio de alunos transportados por escola");
 
     dataAtendimento["series"] = [(totalAlunos - statNumAtendidos), statNumAtendidos]
     dataNivel["series"] = [statNivel[1], statNivel[2], statNivel[3], statNivel[4], statNivel[5]]
@@ -59,44 +123,78 @@ function CalcularEstatisticas() {
     dataCor["series"] = [statCor[1], statCor[2], statCor[3], statCor[4], statCor[5]]
     dataGenero["series"] = [statGenero[1], statGenero[2], statGenero[3]]
     dataResponsavel["series"] = [statResponsavel[0], statResponsavel[1], statResponsavel[2], statResponsavel[4]]
+
+
+    $("#listaTipoRelatorio").val("atendimento").trigger("change");
+    $("#menuRelatorio :first-child").click();
+}
+
+function filtroAtendimento() {
+    $("#listaFiltroRelatorio").append(`<option value="Sem rota cadastrada">Sem Atendimento</option>`);
+    $("#listaFiltroRelatorio").append(`<option value="ROTA">Com Atendimento</option>`);
+}
+
+function filtroEscola() {
+    var labels = dataEscolaFilter["labels"];
+    for (let i = 0; i < labels.length; i++) {
+        $("#listaFiltroRelatorio").append(`<option value="${labels[i]}">${labels[i]}</option>`);
+    }
+}
+
+function filtroRota() {
+    var labels = dataRotaFilter["labels"];
+    for (let i = 0; i < labels.length; i++) {
+        $("#listaFiltroRelatorio").append(`<option value="${labels[i]}">${labels[i]}</option>`);
+    }
 }
 
 var listaDeOpcoesRelatorio = {
     "atendimento": {
         TXTMENU: "Atendimento",
         SERIE: dataAtendimento,
-        TITULO: "Número de Alunos Atendidos (Cadastrados no Sistema)",
+        TITULO: "Número de Alunos Atendidos (cadastrados no sistema)",
         TIPO: "pizza",
-        FILTER: "ESCOLA"
+        FILTRO: "ESCOLA",
+        CUSTOM: true,
+        CUSTOMFN: filtroAtendimento
     },
     "escolas": {
         TXTMENU: "Escolas",
         SERIE: dataEscola,
         TITULO: "Número de Alunos por Escola",
-        TIPO: "barra"
+        TIPO: "total",
+        FILTRO: "ESCOLA",
+        CUSTOM: true,
+        CUSTOMFN: filtroEscola
     },
     "rota": {
         TXTMENU: "Rota",
         SERIE: dataRota,
         TITULO: "Número de Alunos por Rota",
-        TIPO: "barra"
+        TIPO: "barra",
+        FILTRO: "ROTA",
+        CUSTOM: true,
+        CUSTOMFN: filtroRota
     },
     "nivel": {
         TXTMENU: "Nível de Escolaridade",
         SERIE: dataNivel,
         TITULO: "Distribuição de Alunos por Nível de Escolaridade",
-        TIPO: "barra"
+        TIPO: "barra",
+        FILTRO: "NIVELSTR"
     },
     "turno": {
         TXTMENU: "Turno de Aula",
         SERIE: dataTurno,
         TITULO: "Distribuição de Alunos por Turno de Ensino",
+        FILTRO: "TURNOSTR",
         TIPO: "pizza"
     },
     "residencia": {
         TXTMENU: "Área de Residência",
         SERIE: dataResidencia,
-        TITULO: "Númedro de Alunos por Localização",
+        TITULO: "Número de Alunos por Localização",
+        FILTRO: "LOCALIZACAO",
         TIPO: "pizza"
     },
     "cor": {
@@ -120,92 +218,90 @@ var listaDeOpcoesRelatorio = {
     },
 }
 
-GetTemplateMenu("#menuRelatorio", listaDeOpcoesRelatorio)
+GetTemplateMenu("#menuRelatorio", listaDeOpcoesRelatorio);
+SetMainFilterMenu("#listaTipoRelatorio", listaDeOpcoesRelatorio);
 
-$("#menuRelatorio a.list-group-item").click((e) => {
-    e.preventDefault()
+$("#listaTipoRelatorio").change((e) => {
     var $that = $(e.target);
-    $($that).parent().find('a').removeClass('active');
-    $that.addClass('active');
-
-    var optName = $that.attr('name');
+    var optName = $that.val();
     var opt = listaDeOpcoesRelatorio[optName];
 
-    // Titulo
-    $(".card-title").html(opt["TITULO"]);
+    $("#listaFiltroRelatorio").empty();
+    $("#listaFiltroRelatorio").append(`<option value="">Selecione uma opção ...</option>`);
+    var labels = opt["SERIE"]["labels"];
 
-    // Grafico
-    plotGraphic("#grafico", opt);
-
-    // Legenda
-    $("#legendPlace").empty();
-    var isLong = false;
-    if (opt["LEGENDA_GRANDE"]) isLong = true;
-    if (opt["TIPO"] == "pizza") {
-        plotLegend("#legendPlace", opt["SERIE"]["labels"], isLong)
+    if (opt["CUSTOM"]) {
+        opt["CUSTOMFN"]();
+    } else {
+        for (let i = 0; i < labels.length; i++) {
+            $("#listaFiltroRelatorio").append(`<option value="${labels[i]}">${labels[i]}</option>`);
+        }
     }
+
+    dataTablesRelatorio.search("", false, true, false).draw();
+    $("#totalNumAlunos").html(dataTablesRelatorio.page.info().recordsDisplay);
+
+    $("#listaFiltroRelatorio").change((e) => {
+        var filtroValue = $(e.currentTarget).val();
+        var optValue = listaDeOpcoesRelatorio[$("#listaTipoRelatorio").val()];
+
+        if (optValue["CUSTOM"]) {
+            dataTablesRelatorio.search(filtroValue).draw();
+        } else {
+            dataTablesRelatorio.search(filtroValue, false, true, false).draw();
+        }
+        $("#totalNumAlunos").html(dataTablesRelatorio.page.info().recordsDisplay);
+    })
+})
+
+$("#menuRelatorio a.list-group-item").click((e) => {
+    $(".card-report").fadeOut(300, () => {
+        e.preventDefault()
+        var $that = $(e.target);
+        $($that).parent().find('a').removeClass('active');
+        $that.addClass('active');
+
+        var optName = $that.attr('name');
+        var opt = listaDeOpcoesRelatorio[optName];
+
+        // Titulo
+        $(".card-title").html(opt["TITULO"]);
+
+        // Grafico
+        $("#grafico").empty();
+        plotGraphic("#grafico", opt);
+
+        // Legenda
+        $("#legendPlace").empty();
+        var isLong = false;
+        if (opt["LEGENDA_GRANDE"]) isLong = true;
+        if (opt["TIPO"] != "barra") {
+            plotLegend("#legendPlace", opt["SERIE"]["labels"], isLong)
+        }
+        $(".card-report").fadeIn(300);
+    });
 });
 
-// DataTables
-var defaultTableConfig = GetTemplateDataTableConfig();
-defaultTableConfig["columns"] = [
-    { data: 'NOME', width: "25%" },
-    { data: 'LOCALIZACAO', width: "18%" },
-    { data: 'ROTA', width: "15%" },
-    { data: 'ESCOLA', width: "20%" },
-    { data: 'NIVELSTR', width: "200px" },
-    { data: 'TURNOSTR', width: "200px" },
-    // {
-    //     data: "ACOES",
-    //     width: "200px !important",
-    //     sortable: false,
-    //     defaultContent: '<a href="#" class="btn btn-link btn-primary alunoView"><i class="fa fa-search"></i></a>' +
-    //         '<a href="#" class="btn btn-link btn-warning alunoEdit"><i class="fa fa-edit"></i></a>' +
-    //         '<a href="#" class="btn btn-link btn-danger alunoRemove"><i class="fa fa-times"></i></a>'
-    // }
-]
-
-defaultTableConfig["columnDefs"] = [
-    {
-        targets: 0,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    },
-    {
-        targets: 2,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    }
-];
-
-var dataTablesAlunos = $("#datatables").DataTable(defaultTableConfig)
-
-dataTablesAlunos.on('click', '.alunoView', function () {
+dataTablesRelatorio.on('click', '.alunoView', function () {
     var $tr = getRowOnClick(this);
 
-    estadoAluno = dataTablesAlunos.row($tr).data();
+    estadoAluno = dataTablesRelatorio.row($tr).data();
     action = "visualizarAluno";
     navigateDashboard("./modules/aluno/aluno-dados-view.html");
 });
 
-dataTablesAlunos.on('click', '.alunoEdit', function () {
+dataTablesRelatorio.on('click', '.alunoEdit', function () {
     var $tr = getRowOnClick(this);
 
-    estadoAluno = dataTablesAlunos.row($tr).data();
+    estadoAluno = dataTablesRelatorio.row($tr).data();
     action = "editarAluno";
     navigateDashboard("./modules/aluno/aluno-cadastrar-view.html");
 });
 
-dataTablesAlunos.on('click', '.alunoRemove', function () {
+dataTablesRelatorio.on('click', '.alunoRemove', function () {
     var $tr = getRowOnClick(this);
 
-    estadoAluno = dataTablesAlunos.row($tr).data();
+    estadoAluno = dataTablesRelatorio.row($tr).data();
     action = "apagarAluno";
     Swal2.fire({
         title: 'Remover esse aluno?',
@@ -220,8 +316,8 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
         if (result.value) {
             RemoverAluno(estadoAluno["ID_ALUNO"], (err, result) => {
                 if (result) {
-                    dataTablesAlunos.row($tr).remove();
-                    dataTablesAlunos.draw();
+                    dataTablesRelatorio.row($tr).remove();
+                    dataTablesRelatorio.draw();
                     Swal2.fire({
                         type: 'success',
                         title: "Sucesso!",
@@ -280,16 +376,15 @@ var listarEscolasAlunosCB = (err, result) => {
                 res.forEach((a) => {
                     let aID = a["ID_ALUNO"];
                     let alunoJSON = listaDeAlunos.get(aID);
-
-                    alunoJSON["ROTA"] = a["NOME"];
+                    alunoJSON["ROTA"] = "ROTA " + a["NOME"];
                     listaDeAlunos.set(aID, alunoJSON);
                 })
 
                 listaDeAlunos.forEach((aluno) => {
-                    dataTablesAlunos.row.add(aluno);
+                    dataTablesRelatorio.row.add(aluno);
                 });
 
-                dataTablesAlunos.draw();
+                dataTablesRelatorio.draw();
                 CalcularEstatisticas();
             })
     }
@@ -304,6 +399,7 @@ var listaInicialCB = (err, result) => {
 
         for (let alunoRaw of result) {
             let alunoJSON = parseAlunoDB(alunoRaw);
+            alunoJSON["LOCALIZACAO"] = "Área " + alunoJSON["LOCALIZACAO"];
             listaDeAlunos.set(alunoJSON["ID_ALUNO"], alunoJSON);
         }
 
@@ -311,6 +407,14 @@ var listaInicialCB = (err, result) => {
     }
 };
 
-BuscarTodosAlunos(listaInicialCB);
+var buscarTotalNumEscolasPromise = BuscarTodosDadosPromise("Escolas");
+var buscarTotalNumRotasPromise = BuscarTodosDadosPromise("Rotas");
+
+Promise.all([buscarTotalNumEscolasPromise, buscarTotalNumRotasPromise])
+    .then((res) => {
+        totalNumEscolas = res[0].length;
+        totalNumRotas = res[1].length;
+        BuscarTodosAlunos(listaInicialCB);
+    })
 
 action = "relatorioAluno";

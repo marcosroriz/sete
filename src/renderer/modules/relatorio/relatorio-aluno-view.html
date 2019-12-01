@@ -26,16 +26,6 @@
                     <!-- Abas -->
                     <div class="tab-content">
                         <div class="tab-pane tab-wiz fade show active" id="tab-resumo" role="tabpanel">
-                            <!-- <div class="row justify-content-center">
-                                <h6 class="mb-4 mt-1 text-center text-space">
-                                    Essa ferramenta possibilita importar vários alunos para o sistema de uma vez a
-                                    partir de dados existentes.
-                                    <br>
-                                    Para tal, por favor baixe a planilha exemplo que deverá ser preenchida com as
-                                    seguintes colunas:
-                                </h6>
-                            </div> -->
-
                             <div class="row">
                                 <div class="col-4">
                                     <div class="row">
@@ -74,11 +64,10 @@
 
                             <div class="row">
                                 <div class="col-4">
-                                    <label class="relLabel" id="relLabel">Filtro</label>
+                                    <label class="relLabel" id="relLabel">Filtrar alunos por:</label>
                                 </div>
-                                <div class="col-1"></div>
-                                <div class="col-4 d-none">
-                                    <label class="filtroLabel" id="filtroLabel">Opção</label>
+                                <div class="ml-1 col-4">
+                                    <label class="filtroLabel" id="filtroLabel">Opções</label>
                                 </div>
                             </div>
 
@@ -86,26 +75,29 @@
                                 <div class="col-4">
                                     <select id="listaTipoRelatorio" class="form-control"></select>
                                 </div>
-                                <div class="col-1"></div>
-                                <div class="col-4 d-none">
+                                <div class="ml-1 col-4">
                                     <select id="listaFiltroRelatorio" class="form-control"></select>
                                 </div>
                             </div>
-                            
+
                             <div class="filterDiv"></div>
 
-                            <div class="fresh-datatables">
+                            <div class="fresh-datatables datatable-relatorio">
                                 <table id="datatables" class="table table-striped table-no-bordered table-hover"
                                     cellspacing="0" width="100%" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>Nome</th>
+                                            <th>Sexo</th>
+                                            <th>Cor/Raça</th>
+                                            <th>Nome do Responsável</th>
+                                            <th>Grau Responsável</th>
                                             <th>Localização do Aluno</th>
-                                            <th>Rota</th>
                                             <th>Escola</th>
                                             <th>Nível</th>
                                             <th>Turno</th>
-                                            <!-- <th class="disabled-sorting text-center">Ações</th> -->
+                                            <th>Rota</th>
+                                            <th class="disabled-sorting text-center">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -116,17 +108,6 @@
                     </div>
 
                     <div class="card-footer text-center">
-                        <button type="button" class="btn btn-default btn-wd btn-back pull-left">
-                            Voltar
-                        </button>
-                        <button type="button" class="btn btn-info btn-wd btn-next pull-right">
-                            Próximo
-                        </button>
-                        <button type="button" id="importarAlunos" class="btn btn-info btn-wd btn-finish pull-right">
-                            Salvar
-                        </button>
-                        <div class="clearfix"></div>
-                        <!-- Fim footer -->
                     </div>
                 </div>
             </div>

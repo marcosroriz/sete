@@ -79,6 +79,59 @@ var parseAlunoDB = function (alunoRaw) {
             alunoJSON["LOCALIZACAO"] = "Urbana";
     }
 
+    switch (alunoRaw["SEXO"]) {
+        case 1:
+            alunoJSON["SEXOSTR"] = "Masculino";
+            break;
+        case 2:
+            alunoJSON["SEXOSTR"] = "Feminino";
+            break;
+        default:
+            alunoJSON["SEXOSTR"] = "Não Informado";
+    }
+
+    switch (alunoRaw["COR"]) {
+        case 1:
+            alunoJSON["CORSTR"] = "Amarelo";
+            break;
+        case 2:
+            alunoJSON["CORSTR"] = "Branco";
+            break;
+        case 3:
+            alunoJSON["CORSTR"] = "Indígena";
+            break;
+        case 4:
+            alunoJSON["CORSTR"] = "Pardo";
+            break;
+        case 5:
+            alunoJSON["CORSTR"] = "Preto";
+            break;
+        default:
+            alunoJSON["CORSTR"] = "Não informado";
+            break;
+    }
+
+    switch (alunoRaw["GRAU_RESPONSAVEL"]) {
+        case 0:
+            alunoJSON["GRAUSTR"] = "Pai, Mãe, Padrasto ou Madrasta";
+            break;
+        case 1:
+            alunoJSON["GRAUSTR"] = "Avô ou Avó";
+            break;
+        case 2:
+            alunoJSON["GRAUSTR"] = "Irmão ou Irmã";
+            break;
+        case 3:
+            alunoJSON["GRAUSTR"] = "Outro Parente";
+            break;
+        case 4:
+            alunoJSON["GRAUSTR"] = "Outro Parente";
+            break;
+        default:
+            alunoJSON["GRAUSTR"] = "Não informado";
+            break;
+    }
+
     switch (alunoRaw["TURNO"]) {
         case 1:
             alunoJSON["TURNOSTR"] = "Manhã";
@@ -147,7 +200,7 @@ function NumeroDeAlunosAtendidosPromise() {
 
 function ListarEscolasDeAlunosPromise() {
     return knex("Escolas")
-          .join("EscolaTemAlunos", "Escolas.ID_ESCOLA", "=", "EscolaTemAlunos.ID_ESCOLA")
+        .join("EscolaTemAlunos", "Escolas.ID_ESCOLA", "=", "EscolaTemAlunos.ID_ESCOLA")
 }
 
 function ListarRotasDeAlunosPromise() {
@@ -180,8 +233,8 @@ function RemoverAluno(idAluno, callbackFn) {
 
 function AtualizarEscolaPromise(idAluno, alunoJSON) {
     return knex("Alunos")
-           .where('ID_ALUNO', '=', idAluno)
-           .update(alunoJSON)
+        .where('ID_ALUNO', '=', idAluno)
+        .update(alunoJSON)
 }
 
 

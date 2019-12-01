@@ -1048,15 +1048,19 @@ img.ctrlIcon {
     height: 80px;
 }
 
+.datatable-relatorio div#datatables_length {
+    float: none;
+    text-align: center;
+    margin: 20px;
+}
 
-div#datatables_length {
-    float: left;
+.datatable-relatorio ul.pagination {
+    float: right;
 }
 
 div#datatables_filter {
     margin-bottom: 20px;
 }
-
 
 .filterDiv {
     padding-bottom: 10px;
@@ -1064,4 +1068,10 @@ div#datatables_filter {
     border-bottom-style: solid;
     border-bottom-color: #e49824;
     margin-bottom: 50px;
+}
+
+#menuRelatorio .list-group-item.active {
+    background: #1bafce;
+    border: #1bafce;
+    font-weight: 600;
 }
