@@ -46,7 +46,7 @@ var dataTablesRotas = $("#datatables").DataTable({
             "previous": "Anterior"
         },
     },
-    dom: 'frtipB',
+    dom: 'lfrtipB',
     buttons: [
         {
             extend: 'pdfHtml5',

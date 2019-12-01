@@ -51,7 +51,9 @@ span.sidebar-mini {
 
 b.caret {
     margin-right: 20px;
-}* {
+}
+
+* {
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
@@ -803,8 +805,13 @@ td.text-left.detalheValor {
 .card .dataTable tbody td:last-child,
 .card .dataTable thead th:last-child {
     /* padding-right: 15px; */
-    display: table-cell;
-    min-width: 110px;
+    /* display: table-cell; */
+    min-width: 150px;
+    text-align: center;
+}
+
+th.disabled-sorting.text-center.sorting_disabled {
+    display: table-cell !important;
 }
 
 .dataTables_wrapper .pagination .paginate_button.page-item.first .page-link,
@@ -1036,6 +1043,25 @@ img.ctrlIcon {
     padding-top: 15px !important;
     min-height: 20px !important;
 }
+
 .card-wizard .nav-tabs .tab-3-fix .nav-link {
     height: 80px;
+}
+
+
+div#datatables_length {
+    float: left;
+}
+
+div#datatables_filter {
+    margin-bottom: 20px;
+}
+
+
+.filterDiv {
+    padding-bottom: 10px;
+    margin-top: 20px;
+    border-bottom-style: solid;
+    border-bottom-color: #e49824;
+    margin-bottom: 50px;
 }

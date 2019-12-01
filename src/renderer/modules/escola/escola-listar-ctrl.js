@@ -48,7 +48,7 @@ var dataTableEscolas = $("#datatables").DataTable({
             "previous":   "Anterior"
         },
     },
-    dom: 'frtipB',
+    dom: 'lfrtipB',
     buttons: [
         {
             extend: 'pdfHtml5',

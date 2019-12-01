@@ -30,7 +30,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
     }],
     autoWidth: false,
     bAutoWidth: false,
-    lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
+    lengthMenu: [[10, 50, -1], [10, 50, "Todos"]],
     pagingType: "full_numbers",
     order: [[0, "asc"]],
     language: {
@@ -48,7 +48,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
             "previous": "Anterior"
         },
     },
-    dom: 'frtipB',
+    dom: 'lfrtipB',
     buttons: [
         {
             extend: 'pdfHtml5',

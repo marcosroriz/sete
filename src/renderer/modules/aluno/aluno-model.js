@@ -64,8 +64,8 @@ function PopulateAlunoFromState(estadoAlunoJSON) {
 // Transformar linha do DB para JSON
 var parseAlunoDB = function (alunoRaw) {
     var alunoJSON = Object.assign({}, alunoRaw);
-    alunoJSON["ESCOLA"] = "Aluno sem escola cadastrada";
-    alunoJSON["ROTA"] = "Aluno sem rota cadastrada";
+    alunoJSON["ESCOLA"] = "Sem escola cadastrada";
+    alunoJSON["ROTA"] = "Sem rota cadastrada";
     alunoJSON["ID_ESCOLA"] = 0;
 
     switch (alunoRaw["MEC_TP_LOCALIZACAO"]) {

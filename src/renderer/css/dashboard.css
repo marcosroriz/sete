@@ -108,7 +108,93 @@ img.menu-icon {
     font-weight: 500;
 }
 
-
 .profile-dropdown span {
     font-family: "Roboto Condensed", "Roboto";
+}
+
+.card-report {
+    box-shadow: none;
+    border: none;
+}
+
+#menuRelatorio a {
+    font-size: 14px;
+    height: 45px;
+}
+
+.ct-series .ct-bar {
+    stroke-width: 40px;
+}
+.ct-color-a {
+    color: #1DC7EA;
+}
+
+.ct-color-b {
+    color: #FB404B;
+}
+
+
+.ct-color-c {
+    color: #FFA534;
+}
+.ct-color-d {
+    color: #9368E9;
+}
+.ct-color-e {
+    color: #87CB16;
+}
+
+.ct-color-f {
+    color: #1F77D0;
+}
+.ct-color-g {
+    color: #5e5e5e;
+}
+
+.ct-color-h {
+    color: #dd4b39;
+}
+
+.ct-color-i {
+    color: #35465c;
+}
+
+.ct-color-j {
+    color: #e52d27;
+}
+
+
+.ct-color-k {
+    color: #55acee;
+}
+
+.ct-color-l {
+    color: #cc2127;
+}
+
+.ct-color-m {
+    color: #1769ff;
+}
+
+.ct-color-n {
+    color: #6188e2;
+}
+
+.ct-color-o {
+    color: #a748ca;
+}
+
+div#legendPlace {
+    font-size: 14px;
+    text-align: center;
+}
+
+div#legendPlace span {
+    padding-right: 20px;
+}
+
+.card-title-relatorio {
+    font-size: 16px;
+    text-align: center;
+    padding-bottom: 10px;
 }
