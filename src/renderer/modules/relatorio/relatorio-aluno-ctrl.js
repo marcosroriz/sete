@@ -152,7 +152,7 @@ var listaDeOpcoesRelatorio = {
     "atendimento": {
         TXTMENU: "Atendimento",
         SERIE: dataAtendimento,
-        TITULO: "Número de Alunos Atendidos (cadastrados no sistema)",
+        TITULO: "Porcentagem de Alunos Atendidos (cadastrados no sistema)",
         TIPO: "pizza",
         FILTRO: "ESCOLA",
         CUSTOM: true,
@@ -161,7 +161,7 @@ var listaDeOpcoesRelatorio = {
     "escolas": {
         TXTMENU: "Escolas",
         SERIE: dataEscola,
-        TITULO: "Número de Alunos por Escola",
+        TITULO: "Número Médio de Alunos por Escola",
         TIPO: "total",
         FILTRO: "ESCOLA",
         CUSTOM: true,
@@ -170,8 +170,8 @@ var listaDeOpcoesRelatorio = {
     "rota": {
         TXTMENU: "Rota",
         SERIE: dataRota,
-        TITULO: "Número de Alunos por Rota",
-        TIPO: "barra",
+        TITULO: "Número Médio de Alunos por Rota",
+        TIPO: "total",
         FILTRO: "ROTA",
         CUSTOM: true,
         CUSTOMFN: filtroRota
@@ -193,26 +193,26 @@ var listaDeOpcoesRelatorio = {
     "residencia": {
         TXTMENU: "Área de Residência",
         SERIE: dataResidencia,
-        TITULO: "Número de Alunos por Localização",
+        TITULO: "Porcentagem de Alunos por Localização",
         FILTRO: "LOCALIZACAO",
         TIPO: "pizza"
     },
     "cor": {
         TXTMENU: "Cor",
         SERIE: dataCor,
-        TITULO: "Número de Alunos por Cor/Raça",
+        TITULO: "Porcentagem de Alunos por Cor/Raça",
         TIPO: "pizza"
     },
     "genero": {
         TXTMENU: "Gênero",
-        TITULO: "Número de Alunos por Sexo",
+        TITULO: "Porcentagem de Alunos por Sexo",
         SERIE: dataGenero,
         TIPO: "pizza"
     },
     "responsavel": {
         TXTMENU: "Responsável",
         SERIE: dataResponsavel,
-        TITULO: "Número de Alunos por Categoria de Responsável",
+        TITULO: "Porcentagem de Alunos por Categoria de Responsável",
         TIPO: "pizza",
         LEGENDA_GRANDE: true
     },

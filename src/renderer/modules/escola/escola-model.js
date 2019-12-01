@@ -85,13 +85,13 @@ var parseEscolaDB = function (escolaRaw) {
         default:
             escolaJSON["DEPENDENCIA"] = "Municipal";
     }
-    
+
     var tipoEnsino = new Array();
     if (escolaRaw["ENSINO_FUNDAMENTAL"]) tipoEnsino.push("Fundamental");
     if (escolaRaw["ENSINO_MEDIO"]) tipoEnsino.push("Médio");
     if (escolaRaw["ENSINO_SUPERIOR"]) tipoEnsino.push("Superior");
     escolaJSON["ENSINO"] = tipoEnsino.join(", ");
-    
+
     var horarioEnsino = new Array();
     if (escolaRaw["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
     if (escolaRaw["HORARIO_NOTURNO"]) horarioEnsino.push("Tarde");
@@ -187,6 +187,15 @@ function NumeroDeEscolasAtendidasPromise() {
     return knex("EscolaTemAlunos").countDistinct("ID_ESCOLA AS NUMESCOLAS");
 }
 
+function ListarTodasAsRotasAtendidasPorEscolaPromise() {
+    return knex("Escolas AS E")
+        .leftJoin("RotaPassaPorEscolas AS R", "E.ID_ESCOLA", "=", "R.ID_ESCOLA")
+        .select("E.ID_ESCOLA")
+        .count("R.ID_ROTA as NUM_ROTAS")
+        .groupBy("E.ID_ESCOLA")
+}
+
+
 function RemoverEscolaPromise(idEscola) {
     return knex("Escolas")
         .where("ID_ESCOLA", idEscola)
@@ -207,11 +216,11 @@ function RemoverEscola(idEscola, callbackFn) {
 
 function AdicionaAlunoEscola(idAluno, idEscola) {
     return knex("EscolaTemAlunos")
-           .insert({ "ID_ESCOLA": idEscola, "ID_ALUNO": idAluno });
+        .insert({ "ID_ESCOLA": idEscola, "ID_ALUNO": idAluno });
 }
 
 function RemoveAlunoEscola(idAluno) {
     return knex("EscolaTemAlunos")
-           .where("ID_ALUNO", idAluno)
-           .del()
+        .where("ID_ALUNO", idAluno)
+        .del()
 }

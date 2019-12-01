@@ -231,3 +231,6 @@ div#legendPlace span {
     vertical-align: middle;
 }
  
+span.ct-label.ct-horizontal.ct-end {
+    font-size: 12px !important;
+}
