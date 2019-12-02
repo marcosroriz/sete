@@ -1,7 +1,8 @@
 <div class="container-fluid">
     <div class="row justify-content-center mb-3">
-        <img id="pageIcon" src="./img/icones/aluno-listar.png">
-        <p class="pageTitle">Relatório de Alunos</p>
+        <img id="pageIcon" src="./img/icones/frota-onibus.png">
+        <p class="pageTitle pageDoubleTitle">Relatório da Frota</p>
+        <img id="pageIcon" src="./img/icones/frota-lancha.png">
     </div>
 
     <div class="row">
@@ -29,7 +30,7 @@
                             <div class="row">
                                 <div class="col-4">
                                     <div class="row">
-                                        <h6 class="mb-2">Resumo de alunos atendidos por:</h6>
+                                        <h6 class="mb-2">Resumo da frota por:</h6>
                                     </div>
                                     <div id="menuRelatorio" class="row list-group">
                                     </div>
@@ -64,7 +65,7 @@
                             <div class="row">
                                 <div class="col-12 text-center">
                                     <div class="totalText">
-                                        Alunos correspondentes
+                                        Veículos correspondentes
                                         <span id="totalNumAlunos" class="badge badge-success badge-total"></span>
                                     </div>
                                 </div>
@@ -72,7 +73,7 @@
 
                             <div class="row">
                                 <div class="col-4">
-                                    <label class="relLabel" id="relLabel">Filtrar alunos por:</label>
+                                    <label class="relLabel" id="relLabel">Filtrar frota por:</label>
                                 </div>
                                 <div class="ml-1 col-4">
                                     <label class="filtroLabel" id="filtroLabel">Opções</label>
@@ -95,16 +96,13 @@
                                     cellspacing="0" width="100%" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>Nome</th>
-                                            <th>Sexo</th>
-                                            <th>Cor/Raça</th>
-                                            <th>Nome do Responsável</th>
-                                            <th>Grau Responsável</th>
-                                            <th>Localização do Aluno</th>
-                                            <th>Escola</th>
-                                            <th>Nível</th>
-                                            <th>Turno</th>
-                                            <th>Rota</th>
+                                            <th>Placa</th>
+                                            <th>Tipo</th>
+                                            <th>Marca</th>
+                                            <th>Modelo</th>
+                                            <th>Capacidade Máxima</th>
+                                            <th>Capacidade Atual</th>
+                                            <th>Estado</th>
                                             <th class="disabled-sorting text-center">Ações</th>
                                         </tr>
                                     </thead>
@@ -128,5 +126,6 @@
 
 <script src="./modules/escola/escola-model.js" type="text/javascript"></script>
 <script src="./modules/aluno/aluno-model.js" type="text/javascript"></script>
+<script src="./modules/frota/frota-model.js" type="text/javascript"></script>
 <script src="./modules/relatorio/relatorio-ctrl.js" type="text/javascript"></script>
-<script src="./modules/relatorio/relatorio-aluno-ctrl.js" type="text/javascript"></script>
+<script src="./modules/relatorio/relatorio-frota-ctrl.js" type="text/javascript"></script>

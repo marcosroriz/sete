@@ -29,7 +29,7 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
         $(".tipoRodo").hide();
         $(".tipoAqua").show();
     }
-    
+
     $("#tipoVeiculo").val(estadoVeiculoJSON["TIPO"]);
     $("#tipoMarca").val(estadoVeiculoJSON["MARCA"]);
 
@@ -130,7 +130,7 @@ function NumeroDeAlunosAtendidosPromise() {
 
 function ListarEscolasDeAlunosPromise() {
     return knex("Escolas")
-          .join("EscolaTemAlunos", "Escolas.ID_ESCOLA", "=", "EscolaTemAlunos.ID_ESCOLA")
+        .join("EscolaTemAlunos", "Escolas.ID_ESCOLA", "=", "EscolaTemAlunos.ID_ESCOLA")
 }
 
 function ListarEscolasDeAlunos(callbackFn) {
@@ -157,10 +157,17 @@ function RemoverAluno(idAluno, callbackFn) {
 
 function AtualizarEscolaPromise(idAluno, alunoJSON) {
     return knex("Alunos")
-           .where('ID_ALUNO', '=', idAluno)
-           .update(alunoJSON)
+        .where('ID_ALUNO', '=', idAluno)
+        .update(alunoJSON)
 }
 
+function PegarCapacidadeAtualPromise() {
+    return knex.raw(`Select COUNT(RA.ID_ALUNO) AS NUM_ALUNOS, RP.ID_VEICULO AS ID_VEICULO
+    FROM RotaPossuiVeiculo AS RP
+    JOIN RotaAtendeAluno AS RA ON RA.ID_ROTA = RP.ID_ROTA
+    GROUP BY RP.ID_VEICULO 
+     `);
+}
 
 function GetAlunoForm() {
     return {

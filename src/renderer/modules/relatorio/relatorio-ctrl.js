@@ -5,7 +5,11 @@ var sum = function (a, b) { return a + b };
 var chart = {
     "pizza": {
         labelInterpolationFnc: function (value, idx) {
-            return Math.round(pickedSeries[idx] / pickedSeries.reduce(sum) * 100) + '%';
+            if (pickedSeries[idx] == 0) {
+                return "";
+            } else {
+                return Math.round(pickedSeries[idx] / pickedSeries.reduce(sum) * 100) + '%';
+            }
         },
         height: 300,
         showLabel: true,
@@ -41,7 +45,7 @@ function plotGraphic(target, option) {
         Chartist.Pie(target, option["SERIE"], chart["pizza"]);
     } else if (option["TIPO"] == "barra") {
         Chartist.Bar(target, option["SERIE"], chart["barra"]);
-    } else if (option["TIPO"] == "total") { 
+    } else if (option["TIPO"] == "total") {
         $(target).append(`<div class='totalChart'><span>${option["SERIE"]["series"][0]}</sṕan></div>`)
     }
 }
@@ -55,7 +59,9 @@ function plotLegend(target, labels, isLong) {
 
 function SetMainFilterMenu(selectID, items) {
     for (let i in items) {
-        $(selectID).append(`<option value="${i}">${items[i]["TXTMENU"]}</option>`);
+        if (items[i]["FILTRO"] != "") {
+            $(selectID).append(`<option value="${i}">${items[i]["TXTMENU"]}</option>`);
+        }
     }
 }
 
@@ -126,3 +132,27 @@ function GetTemplateDataTableConfig() {
         ]
     }
 }
+
+
+$("#btnExpJPEG").click(() => {
+    Swal2.fire({
+        title: "Exportando imagem...",
+        imageUrl: "img/icones/processing.gif",
+        icon: "img/icones/processing.gif",
+        showCancelButton: false,
+        closeOnConfirm: false,
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+        showConfirmButton: false
+    });
+
+    htmlToImage.toPng(document.getElementsByClassName("card-report")[0])
+        .then(function (dataUrl) {
+            var link = document.createElement('a');
+            link.download = 'mapa-relatorio.jpeg';
+            link.href = dataUrl;
+            link.click();
+            Swal2.close();
+        });
+})
+
