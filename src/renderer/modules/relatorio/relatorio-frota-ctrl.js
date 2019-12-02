@@ -1,5 +1,3 @@
-import { stat } from "fs";
-
 // Preenchimento da Tabela via SQL
 var listaDeVeiculos = new Map();
 var totalNumAlunosAtendidos = 0;

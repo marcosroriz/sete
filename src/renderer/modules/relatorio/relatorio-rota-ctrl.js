@@ -1,7 +1,6 @@
-import { stat } from "fs";
-
 // Preenchimento da Tabela via SQL
-var listaDeVeiculos = new Map();
+var listaDeRotas = new Map();
+var totalNumRotas = 0;
 var totalNumAlunosAtendidos = 0;
 
 // Dados para serem plotados
@@ -27,20 +26,18 @@ var dataLotacaoVeiculo = { series: [], labels: [] };
 // DataTables
 var defaultTableConfig = GetTemplateDataTableConfig();
 defaultTableConfig["columns"] = [
-    { data: 'PLACA', width: "12%" },
-    { data: 'TIPOSTR', width: "14%" },
-    { data: 'MARCASTR', width: "14%" },
-    { data: 'MODELOSTR', width: "14%" },
-    { data: 'CAPACIDADE', width: "400px" },
-    { data: 'CAPACIDADE_ATUAL', width: "400px" },
-    { data: 'ESTADO', width: "200px" },
+    { data: 'NOME', width: "30%" },
+    { data: 'TURNOSTR', width: "20%" },
+    { data: 'KMSTR', width: "20%" },
+    { data: 'NUMALUNOS', width: "15%" },
+    { data: 'NUMESCOLAS', width: "15%" },
     {
         data: "ACOES",
         width: "110px",
         sortable: false,
-        defaultContent: '<a href="#" class="btn btn-link btn-primary frotaView"><i class="fa fa-search"></i></a>' +
-            '<a href="#" class="btn btn-link btn-warning frotaEdit"><i class="fa fa-edit"></i></a>' +
-            '<a href="#" class="btn btn-link btn-danger frotaRemove"><i class="fa fa-times"></i></a>'
+        defaultContent: '<a href="#" class="btn btn-link btn-primary rotaView"><i class="fa fa-search"></i></a>' +
+            '<a href="#" class="btn btn-link btn-warning rotaEdit"><i class="fa fa-edit"></i></a>' +
+            '<a href="#" class="btn btn-link btn-danger rotaRemove"><i class="fa fa-times"></i></a>'
     }
 ]
 
@@ -58,7 +55,7 @@ defaultTableConfig["columnDefs"] = [
 var dataTablesRelatorio = $("#datatables").DataTable(defaultTableConfig);
 
 function CalcularEstatisticas() {
-    var totalVeiculos = listaDeVeiculos.size;
+    var totalVeiculos = listaDeRotas.size;
     var totalIdadeVeiculo = 0;
     var totalCapacidadeVeiculo = 0;
 
@@ -67,7 +64,7 @@ function CalcularEstatisticas() {
     var statModelo = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
     var statOrigem = { 1: 0, 2: 0 };
 
-    listaDeVeiculos.forEach((veiculo) => {
+    listaDeRotas.forEach((veiculo) => {
         statTipo[parseInt(veiculo["TIPO"])] = statTipo[parseInt(veiculo["TIPO"])] + 1;
         statMarca[parseInt(veiculo["MARCA"])] = statMarca[parseInt(veiculo["MARCA"])] + 1;
         statModelo[parseInt(veiculo["MODELO"])] = statModelo[parseInt(veiculo["MODELO"])] + 1;
@@ -223,31 +220,31 @@ $("#menuRelatorio a.list-group-item").click((e) => {
     });
 });
 
-dataTablesRelatorio.on('click', '.frotaView', function () {
+dataTablesRelatorio.on('click', '.rotaView', function () {
     var $tr = getRowOnClick(this);
 
-    estadoVeiculo = dataTablesRelatorio.row($tr).data();
-    action = "visualizarVeiculo";
-    navigateDashboard("./modules/frota/frota-dados-view.html");
+    estadoRota = dataTablesRelatorio.row($tr).data();
+    action = "visualizarRota";
+    navigateDashboard("./modules/rota/rota-dados-view.html");
 });
 
-dataTablesRelatorio.on('click', '.frotaEdit', function () {
+dataTablesRelatorio.on('click', '.rotaEdit', function () {
     var $tr = getRowOnClick(this);
 
-    estadoVeiculo = dataTablesRelatorio.row($tr).data();
-    action = "editarVeiculo";
-    navigateDashboard("./modules/frota/frota-cadastrar-view.html");
+    estadoRota = dataTablesRelatorio.row($tr).data();
+    action = "editarRota";
+    navigateDashboard("./modules/rota/rota-cadastrar-view.html");
 });
 
-dataTablesRelatorio.on('click', '.frotaRemove', function () {
+dataTablesRelatorio.on('click', '.rotaRemove', function () {
     var $tr = getRowOnClick(this);
-    estadoVeiculo = dataTablesRelatorio.row($tr).data();
-    var idVeiculo = estadoVeiculo["ID_VEICULO"];
+    estadoRota = dataTablesRelatorio.row($tr).data();
+    var idRota = estadoRota["ID_ROTA"];
 
-    action = "apagarVeiculo";
+    action = "apagarMotorista";
     Swal2.fire({
-        title: 'Remover esse veículo?',
-        text: "Ao remover esse veículo ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
+        title: 'Remover essa rota?',
+        text: "Ao remover essa rota ela será retirado do sistema e os alunos e escolas que possuir vínculo deverão ser rearranjados novamente.",
         type: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -256,18 +253,18 @@ dataTablesRelatorio.on('click', '.frotaRemove', function () {
         confirmButtonText: 'Sim, remover'
     }).then((result) => {
         if (result.value) {
-            RemoverPromise("Veiculos", "ID_VEICULO", idVeiculo)
+            RemoverPromise("Rotas", "ID_ROTA", idRota)
                 .then(() => {
                     dataTablesRelatorio.row($tr).remove();
                     dataTablesRelatorio.draw();
                     Swal2.fire({
                         type: 'success',
                         title: "Sucesso!",
-                        text: "Veículo removido com sucesso!",
+                        text: "Rota removida com sucesso!",
                         confirmButtonText: 'Retornar a página de administração'
                     });
                 })
-                .catch((err) => errorFn("Erro ao remover o veículo. ", err));
+                .catch((err) => errorFn("Erro ao remover a rota. ", err));
         }
     })
 });
@@ -275,31 +272,60 @@ dataTablesRelatorio.on('click', '.frotaRemove', function () {
 // Callback para pegar dados inicia da escolas
 var listaInicialCB = (err, result) => {
     if (err) {
-        errorFn("Erro ao listar os veículo", err);
+        errorFn("Erro ao listar as rotas", err);
     } else {
-        $("#totalNumVeiculos").text(result.length);
+        totalNumRotas = result.length;
 
-        for (let veiculoRaw of result) {
-            let veiculoJSON = parseVeiculoDB(veiculoRaw);
-            listaDeVeiculos.set(veiculoJSON["ID_VEICULO"], veiculoJSON);
+        for (let rotaRaw of result) {
+            let rotaJSON = parseRotaDB(rotaRaw);
+            rotaJSON["STRESCOLAS"] = "Não cadastrado"
+            rotaJSON["STRALUNOS"] = "Não cadastrado"
+            rotaJSON["NUMESCOLAS"] = 0
+            rotaJSON["NUMALUNOS"] = 0
+            listaDeRotas.set(rotaJSON["ID_ROTA"], rotaJSON);
         }
 
-        PegarCapacidadeAtualPromise()
-            .then((res) => {
-                res.forEach((v) => {
-                    totalNumAlunosAtendidos = totalNumAlunosAtendidos + parseInt(v["NUM_ALUNOS"]);
-                    listaDeVeiculos.get(parseInt(v["ID_VEICULO"]))["CAPACIDADE_ATUAL"] = parseInt(v["NUM_ALUNOS"]);
-                })
-                CalcularEstatisticas();
+        var promiseArray = new Array();
 
-                listaDeVeiculos.forEach((veiculo) => {
-                    dataTablesRelatorio.row.add(veiculo);
+        listaDeRotas.forEach((rota) => {
+            promiseArray.push(ListarTodasAsEscolasAtendidasPorRotaPromise(rota["ID_ROTA"]))
+            promiseArray.push(ListarTodosOsAlunosAtendidosPorRotaPromise(rota["ID_ROTA"]))
+        });
+
+        Promise.all(promiseArray)
+            .then((res) => {
+                var handleEscolasAtendidas = new Array();
+                var handleAlunosAtendidos = new Array();
+                for (let i = 0; i < res.length; i++) {
+                    if (i % 2 == 0) {
+                        handleEscolasAtendidas.push(res[i]);
+                    } else {
+                        handleAlunosAtendidos.push(res[i]);
+                    }
+                }
+
+                handleEscolasAtendidas.forEach((e) => {
+                    if (e != null && e != undefined && e.length != 0) {
+                        let rotaJSON = listaDeRotas.get(e[0]["ID_ROTA"]);
+                        rotaJSON["NUMESCOLAS"] = e.length;
+                    }
+                });
+
+                handleAlunosAtendidos.forEach((a) => {
+                    if (a != null && a != undefined && a.length != 0) {
+                        let rotaJSON = listaDeRotas.get(a[0]["ID_ROTA"]);
+                        rotaJSON["NUMALUNOS"] = a.length;
+                    }
+                });
+                listaDeRotas.forEach((rota) => {
+                    dataTablesRelatorio.row.add(rota);
                 });
                 dataTablesRelatorio.draw();
-            })
+            });
+
     }
 };
-BuscarTodosDados("Veiculos", listaInicialCB);
 
+BuscarTodosDados("Rotas", listaInicialCB);
 
-action = "relatorioFrota";
+action = "relatorioRota";

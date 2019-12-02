@@ -108,7 +108,7 @@ window.$.validator.addMethod("placa", function (value, element) {
     return jsbrasil.validateBr.placa(value);
 }, "Informe uma placa válida");
 
-// Validar placa
+// Validar renavam
 window.$.validator.addMethod("renavam", function (value, element) {
     return jsbrasil.validateBr.renavam(value);
 }, "Informe um RENAVAM válido");
