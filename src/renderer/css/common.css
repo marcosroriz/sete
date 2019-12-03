@@ -33,7 +33,8 @@
 .nav-text .nav-item .nav-link,
 .nav-icons .nav-item .nav-link {
     color: #ffffff;
-    font-variant: small-caps;
+    text-transform: uppercase;
+    font-weight: 600;
 }
 
 .nav-text .nav-item .nav-link.active,

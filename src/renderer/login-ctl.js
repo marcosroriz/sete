@@ -187,32 +187,30 @@ $(document).ready(function () {
             });
 
             firebase.auth().signInWithEmailAndPassword(email, password).then((firebaseUser) => {
-                    // Set local config 
-                    if (loginlembrar) {
-                        userconfig.set("LEMBRAR", true);
-                        userconfig.set("EMAIL", email);
-                        userconfig.set("PASSWORD", password);
-                    } else {
-                        userconfig.delete("LEMBRAR");
-                        userconfig.delete("EMAIL");
-                        userconfig.delete("PASSWORD");
-                    }
-                    userconfig.set("ID", firebaseUser.user.uid);
+                // Set local config 
+                if (loginlembrar) {
+                    userconfig.set("LEMBRAR", true);
+                    userconfig.set("EMAIL", email);
+                    userconfig.set("PASSWORD", password);
+                } else {
+                    userconfig.delete("LEMBRAR");
+                    userconfig.delete("EMAIL");
+                    userconfig.delete("PASSWORD");
+                }
+                userconfig.set("ID", firebaseUser.user.uid);
 
-                    // Checar se o usuário já fez a configuração inicial
-                    RecuperarUsuario(firebaseUser.user.uid).then((userData) => {
-                        var hasInit = JSON.parse(userData[0]["INIT"]);
-                        var urldestino = "./initconfig.html";
-                        if (hasInit) {
-                            urldestino = "./dashboard.html";
-                            // urldestino = "./cadastrar_escola.html";
-                        }
-                        document.location.href = urldestino;
-                    });
-                })
+                // Checar se o usuário já fez a configuração inicial
+                RecuperarUsuario(firebaseUser.user.uid).then((userData) => {
+                    var hasInit = JSON.parse(userData[0]["INIT"]);
+                    var urldestino = "./initconfig.html";
+                    if (hasInit) {
+                        urldestino = "./dashboard.html";
+                    }
+                    document.location.href = urldestino;
+                });
+            })
                 .catch((err) => {
                     if (err != null) {
-                        // TODO: Fazer alertas com as mensagens
                         console.log(err.message);
                         swal({
                             title: "Ops... tivemos um problema!",
@@ -229,7 +227,6 @@ $(document).ready(function () {
     // recoversubmit
     $("#recoversubmit").click(() => {
         var email = $("#recoveremail").val();
-
         $("#recoveryform").validate();
 
         if ($("#recoveryform").valid()) {
@@ -306,6 +303,8 @@ $(document).ready(function () {
                             button: "Fechar"
                         });
 
+                        $("#loginemail").val($("#regemail").val());
+                        $("#loginpassword").val($("#regpassword").val());
                         $("#login-tab").click();
                     });
                 })
@@ -329,8 +328,6 @@ $(document).ready(function () {
                         return;
                     }
                 });
-        } else {
-            alert("Algum erro no formulário");
         }
     });
 });

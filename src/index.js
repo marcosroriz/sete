@@ -43,17 +43,17 @@ const createEntryWindow = () => {
     // appWindow.setMenuBarVisibility(false);
 
     // and load the entry.html of the app.
-    //entryWindow.loadURL(`file://${__dirname}/entry.html`);
-    appWindow.loadURL(`file://${__dirname}/renderer/dashboard.html`);
+    appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
 
     // Open the DevTools.
     appWindow.webContents.openDevTools();
 
     // Prevent External Navigation
     appWindow.webContents.on("will-navigate", (e, url) => {
-        console.log(e);
-        console.log(url);
-        e.preventDefault();
+        console.log("WILL-NAVIGATE", url);
+        if (!(url.includes("file:"))) {
+            e.preventDefault();
+        }
     });
 
     appWindow.on("ready-to-show", () => {

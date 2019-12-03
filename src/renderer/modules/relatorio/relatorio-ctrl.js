@@ -38,6 +38,10 @@ var chart = {
     }
 }
 
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2") + "e-2");
+}
+
 function plotGraphic(target, option) {
     pickedSeries = option["SERIE"]["series"];
 
@@ -46,7 +50,9 @@ function plotGraphic(target, option) {
     } else if (option["TIPO"] == "barra") {
         Chartist.Bar(target, option["SERIE"], chart["barra"]);
     } else if (option["TIPO"] == "total") {
-        $(target).append(`<div class='totalChart'><span>${option["SERIE"]["series"][0]}</sṕan></div>`)
+        $(target).append(`<div class='totalChart'>
+            <span>${roundToTwo(option["SERIE"]["series"][0])}</sṕan>
+        </div>`)
     }
 }
 
