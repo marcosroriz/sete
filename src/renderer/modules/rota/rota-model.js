@@ -161,9 +161,9 @@ function ListaDeAlunosNaoAtendidosPorRotaPromise(idRota) {
 
 function RemoverRotaRelacaoPromise(table, c1, id1, c2, id2) {
     return knex(table)
-    .where(c1, "=", id1)
-    .where(c2, "=", id2)
-    .del();
+        .where(c1, "=", id1)
+        .where(c2, "=", id2)
+        .del();
 }
 
 function ContactFuncionamento() {

@@ -7,18 +7,6 @@ let processingModalWin;
 // Localização do Usuário
 let localizacao;
 
-// Callback a ser chamado quando o Firebase detectar o usuário logado
-let firebaseUser;
-
-firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-        firebaseUser = user;
-    } else {
-        // User not logged in or has just logged out.
-        document.location.href = "./entry.html"
-    }
-});
-
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {

@@ -124,8 +124,12 @@ function BuscarTodosAlunos(callbackFn) {
         });
 }
 
-function NumeroDeAlunosAtendidosPromise() {
-    return knex("EscolaTemAlunos").count("ID_ALUNO AS NUMALUNOS");
+function NumeroDeVeiculosFuncionamentoPromise() {
+    return knex("Veiculos").count("ID_VEICULO AS NUMVEICULOS").where("MANUTENCAO", 0);
+}
+
+function NumeroDeVeiculosEmManutencaoPromise() {
+    return knex("Veiculos").count("ID_VEICULO AS NUMVEICULOS").where("MANUTENCAO", 1);
 }
 
 function ListarEscolasDeAlunosPromise() {

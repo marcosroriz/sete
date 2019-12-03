@@ -202,7 +202,7 @@ $(document).ready(function () {
                 // Checar se o usuário já fez a configuração inicial
                 RecuperarUsuario(firebaseUser.user.uid).then((userData) => {
                     var hasInit = JSON.parse(userData[0]["INIT"]);
-                    var urldestino = "./initconfig.html";
+                    var urldestino = "./initconfig-view.html";
                     if (hasInit) {
                         urldestino = "./dashboard.html";
                     }

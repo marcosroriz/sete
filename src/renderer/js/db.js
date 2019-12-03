@@ -12,6 +12,9 @@ var dbconfig = {
 };
 firebase.initializeApp(dbconfig);
 
+// Usuário do Firebase
+var firebaseUser;
+
 // Base de dados Firestore
 var remotedb = firebase.firestore();
 
@@ -26,8 +29,8 @@ var knex = require("knex")({
         afterCreate: (conn, cb) => conn.run('PRAGMA foreign_keys = ON', cb)
     }
 });
-knex.on( 'query', function( queryData ) {
-    console.log( queryData );
+knex.on('query', function (queryData) {
+    console.log(queryData);
 });
 
 var spatialite = require("spatialite");
@@ -48,8 +51,8 @@ function InserirPromise(table, data) {
 
 function Inserir(table, data, cb) {
     InserirPromise(table, data)
-    .then(res => cb(false, res))
-    .catch(err => cb(err));
+        .then(res => cb(false, res))
+        .catch(err => cb(err));
 }
 
 function AtualizarPromise(table, data, column, id) {
@@ -58,8 +61,8 @@ function AtualizarPromise(table, data, column, id) {
 
 function Atualizar(table, column, data, id, cb) {
     AtualizarPromise(table, column, data, id)
-    .then(res => cb(false, res))
-    .catch(err => cb(err));
+        .then(res => cb(false, res))
+        .catch(err => cb(err));
 }
 
 function RemoverComposedPromise(table, c1, id1, c2, id2) {
@@ -72,8 +75,8 @@ function RemoverPromise(table, column, id) {
 
 function Remover(table, column, id, cb) {
     RemoverPromise(table, column, id)
-    .then(res => cb(false, res))
-    .catch(err => cb(err));
+        .then(res => cb(false, res))
+        .catch(err => cb(err));
 }
 
 function BuscarTodosDadosPromise(table) {
@@ -82,8 +85,8 @@ function BuscarTodosDadosPromise(table) {
 
 function BuscarTodosDados(table, cb) {
     BuscarTodosDadosPromise(table)
-    .then(res => cb(false, res))
-    .catch(err => cb(err));
+        .then(res => cb(false, res))
+        .catch(err => cb(err));
 }
 
 function BuscarDadoDiferentePromise(table, column, id) {
@@ -92,8 +95,8 @@ function BuscarDadoDiferentePromise(table, column, id) {
 
 function BuscarDadoDiferente(table, column, id, cb) {
     BuscarDadoDiferentePromise(table, column, id)
-    .then(res => cb(false, res))
-    .catch(err => cb(err));
+        .then(res => cb(false, res))
+        .catch(err => cb(err));
 }
 
 function BuscarDadoEspecificoPromise(table, column, id) {
@@ -102,8 +105,8 @@ function BuscarDadoEspecificoPromise(table, column, id) {
 
 function BuscarDadoEspecifico(table, column, id, cb) {
     BuscarDadoEspecificoPromise(table, column, id)
-    .then(res => cb(false, res))
-    .catch(err => cb(err));
+        .then(res => cb(false, res))
+        .catch(err => cb(err));
 }
 
 const bookshelf = require("bookshelf")(knex);

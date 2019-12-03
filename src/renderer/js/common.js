@@ -20,7 +20,8 @@ var Swal2 = require("sweetalert2");
 var htmlToImage = require("html-to-image");
 
 // Variáveis Basicas
-var appTitle = "SETE - Software de Gestão do Transporte Escolar"
+var appTitle = "SETE - Software Eletrônico de Gestão do Transporte Escolar"
+var userData = {};
 
 // Arquivo de configuração local
 var Store = require("electron-store");
