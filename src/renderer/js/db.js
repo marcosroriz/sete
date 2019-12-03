@@ -1,24 +1,19 @@
 var path = require("path");
 
-// // Google Firebase
-// var firebase = require("firebase/app");
-// require("firebase/auth");
-// require("firebase/database");
-// require("firebase/firestore");
+// Google Firebase
+// Init Firebase
+var dbconfig = {
+    apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
+    authDomain: "softwareter.firebaseapp.com",
+    databaseURL: "https://softwareter.firebaseio.com",
+    projectId: "softwareter",
+    storageBucket: "softwareter.appspot.com",
+    messagingSenderId: "881352897273"
+};
+firebase.initializeApp(dbconfig);
 
-// // Init Firebase
-// var dbconfig = {
-//     apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
-//     authDomain: "softwareter.firebaseapp.com",
-//     databaseURL: "https://softwareter.firebaseio.com",
-//     projectId: "softwareter",
-//     storageBucket: "softwareter.appspot.com",
-//     messagingSenderId: "881352897273"
-// };
-// firebase.initializeApp(dbconfig);
-
-// // Base de dados Firestore
-// var remotedb = firebase.firestore();
+// Base de dados Firestore
+var remotedb = firebase.firestore();
 
 var dbPath = path.join(__dirname, "..", "db", "local.db");
 var knex = require("knex")({
