@@ -1,6 +1,17 @@
 // Localização do Usuário
 var localizacao;
 
+function errorFn(msg) {
+    Swal2.fire({
+        icon: 'error',
+        type: 'error',
+        title: 'Oops...',
+        text: msg,
+        confirmButtonClass: "btn btn-danger",
+        buttonsStyling: false
+    })
+}
+
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {
@@ -129,7 +140,7 @@ $(document).ready(function () {
                 required: "Por favor digite seu endereço de e-mail",
             },
             regcpf: {
-                required: "Por favor digite sua senha"
+                required: "Por favor digite um CPF válido"
             },
             regtel: {
                 required: "Por favor digite um telefone válido com DDD"
@@ -179,11 +190,15 @@ $(document).ready(function () {
         $("#loginform").validate();
 
         if ($("#loginform").valid()) {
-            var loadingWin = swal({
+            Swal2.fire({
                 title: "Carregando...",
                 text: "Fazendo login...",
-                icon: "info",
-                buttons: false
+                type: "info",
+                icon: 'info',
+                buttons: false,
+                closeOnClickOutside: false,
+                allowOutsideClick: false,
+                showConfirmButton: false
             });
 
             firebase.auth().signInWithEmailAndPassword(email, password).then((firebaseUser) => {
@@ -212,12 +227,7 @@ $(document).ready(function () {
                 .catch((err) => {
                     if (err != null) {
                         console.log(err.message);
-                        swal({
-                            title: "Ops... tivemos um problema!",
-                            text: "Login inválido!" + err,
-                            icon: "error",
-                            button: "Fechar"
-                        });
+                        errorFn(`Login inválido! ${err}`)
                         return;
                     }
                 });
@@ -230,27 +240,25 @@ $(document).ready(function () {
         $("#recoveryform").validate();
 
         if ($("#recoveryform").valid()) {
+            console.log("email valido")
             firebase.auth().sendPasswordResetEmail(email)
                 .then(() => {
-                    swal({
+                    Swal2.fire({
                         title: "E-mail enviado!",
                         text: "Enviamos um e-mail para o endereço " + email + " contendo um link para modificar sua senha",
+                        type: "success",
                         icon: "success",
-                        button: "Fechar"
-                    });
+                        confirmButtonClass: "btn-success",
+                        confirmButtonText: "Retornar ao sistema",
+                    })
                 })
                 .catch((err) => {
                     if (err != null) {
-                        console.log(err.message);
-                        swal({
-                            title: "Ops... tivemos um problema!",
-                            text: err.message,
-                            icon: "error",
-                            button: "Fechar"
-                        });
-                        return;
+                        errorFn(`Tivemos um problema ao tentar recupear o e-mail ${email}`)
                     }
                 });
+        } else {
+            errorFn(`O e-mail ${email} não foi encontrado`)
         }
     });
 
@@ -260,11 +268,17 @@ $(document).ready(function () {
         $("#registerform").validate();
 
         if ($("#registerform").valid()) {
-            var processingModalWin = swal({
-                title: "Processando...",
+
+            Swal2.fire({
+                title: "Cadastrando...",
                 text: "Espere um minutinho...",
-                icon: "info",
-                buttons: false
+                imageUrl: "img/icones/processing.gif",
+                icon: "img/icones/processing.gif",
+                buttons: false,
+                showSpinner: true,
+                closeOnClickOutside: false,
+                allowOutsideClick: false,
+                showConfirmButton: false
             });
 
             var email = $("#regemail").val();
@@ -295,11 +309,12 @@ $(document).ready(function () {
                     var localUser = InserirUsuario(userData);
 
                     Promise.all([localUser, remoteUser, remoteUserData]).then(() => {
-                        swal.close();
-                        swal({
+                        Swal2.close();
+                        Swal2.fire({
                             title: "Parabéns!",
                             text: "Sua conta foi criada com sucesso. Você já pode fazer o login.",
                             icon: "success",
+                            type: "success",
                             button: "Fechar"
                         });
 
@@ -310,7 +325,6 @@ $(document).ready(function () {
                 })
                 .catch((err) => {
                     console.log(err);
-
                     if (err != null) {
                         var errmsg = err.message;
                         if (err.code == "auth/email-already-in-use") {
@@ -318,17 +332,19 @@ $(document).ready(function () {
                         } else if (err.code == "auth/network-request-failed") {
                             errmsg = "Erro de conexão com a Internet."
                         }
-                        swal({
-                            title: "Ops... tivemos um problema!",
-                            text: errmsg,
-                            icon: "error",
-                            button: "Fechar"
-                        });
-
+                        errorFn(errmsg)
                         return;
                     }
                 });
         }
     });
+
+    $("#regpassword").change(() => {
+        $("#regpassword").valid();
+    })
+
+    $("#regpasswordrepeat").change(() => {
+        $("#regpasswordrepeat").valid();
+    })
 });
 

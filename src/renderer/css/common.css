@@ -1,5 +1,5 @@
 .bgentry {
-    background: url("../img/entry-bg.jpg") fixed no-repeat bottom center;
+    /* background: url("../img/entry-bg.jpg") fixed no-repeat bottom center; */
     background-size: cover;
     min-height: 100vh;
 }
@@ -74,6 +74,7 @@
 
 .footer {
     height: 100%;
+    background: white !important;
     border-top: 5px solid orange
 }
 
@@ -84,4 +85,11 @@
 
 .entry-logo {
     width: 250px;
+}
+
+.logo-text {
+    font-family: "Roboto Condensed";
+    font-weight: 600;
+    font-size: 1.5em;
+    font-variant: all-small-caps;
 }

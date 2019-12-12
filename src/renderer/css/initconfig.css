@@ -39,3 +39,38 @@ button.btn.btn-default.btn-wd.btn-back.pull-left.disabled {
 .entry-logo {
     width: 200px;
 }
+
+.nav-front i {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+.nav-front a.active * {
+    font-weight: 600;
+    color: gold;
+}
+
+
+div.regadditionalinfo {
+    text-align: right;
+    
+}
+
+div.regadditionalinfo span {
+    font-size: 14px;
+    font-variant: all-petite-caps;
+    
+}
+
+
+.reg-group {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.form-group.reg-group.has-error {
+    text-align: center;
+}
