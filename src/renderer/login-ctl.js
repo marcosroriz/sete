@@ -345,6 +345,6 @@ $(document).ready(function () {
 
     $("#regpasswordrepeat").change(() => {
         $("#regpasswordrepeat").valid();
-    })
-});
+    });
 
+});

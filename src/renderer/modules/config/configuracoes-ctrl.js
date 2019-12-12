@@ -2,21 +2,18 @@
 var http = require('http');
 var fs = require('fs');
 
-// Variável armazendo o estado do formulário
-let validadorFormulario;
+var cidadesAtuais = new Map();
+var cidadesNovas = new Map();
 
-// Janela modular de processamento (ao término do formulário)
-let processingModalWin;
+// Variável armazendo o estado do formulário
+var validadorFormulario;
 
 // Localização do Usuário
-let localizacao;
+var localizacao;
 
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {
-    // Carrega o rodapé
-    $("#footer").load("./footer.html");
-
     // Inicia o campo de estados/cidade na aba de registro
     localizacao = new dgCidadesEstados({
         cidade: document.getElementById('regcidade'),
@@ -28,12 +25,8 @@ $(document).ready(function () {
         estado: document.getElementsByName('novoestado')[0]
     });
 
-    // Inicia máscaras de telefone e cpf do registro
-    $(".telmask").mask(telmaskbehaviour, teloptions);
-    $(".cpfmask").mask('000.000.000-00', { reverse: true });
-
     // Carrega dados da base local
-    let userID = userconfig.get("ID");
+    var userID = userconfig.get("ID");
 
     BuscarDadoEspecificoPromise("Usuarios", "ID", userID).then((userData) => {
         $("#regnome").val(userData[0]["NOME"]);
@@ -46,8 +39,37 @@ $(document).ready(function () {
         $("#regcidade").trigger("change");
     });
 
+    BuscarDadoEspecificoPromise("Municipios", "ID_USUARIO", userID).then((userData) => {
+        $("#temRodoviario").prop("checked", userData[0]["TEM_RODOVIARIO"]);
+        $("#temAquaviario").prop("checked", userData[0]["TEM_AQUAVIARIO"]);
+        $("input[name='temBicicleta'][value='" + Boolean(userData[0]["TEM_BICICLETA"]) + "']").prop('checked', true);
+        $("input[name='temMonitor'][value='" + Boolean(userData[0]["TEM_MONITOR"]) + "']").prop('checked', true);
+        $("input[name='temOutrasCidades'][value='" + Boolean(userData[0]["TEM_OUTRAS_CIDADES"]) + "']").prop('checked', true);
+        $("input[name='distMinima']").val([userData[0]["DIST_MINIMA"]]);
+
+        if (userData[0]["TEM_OUTRAS_CIDADES"]) {
+            $("#possuiOutrasCidades").trigger("change");
+        }
+    });
+
+    BuscarDadoEspecificoPromise("FazTransporte", "ID_USUARIO", userData["ID"]).then((cidadesData) => {
+        cidadesData.forEach((cidade) => {
+            if (cidade["COD_CIDADE_DESTINO"] != userData["COD_CIDADE"]) {
+                var cidadeDestino = cidade["COD_CIDADE_DESTINO"];
+                var estadoDestino = cidade["COD_ESTADO_DESTINO"];
+                addRowDirect(estadoDestino, cidadeDestino);
+            
+                cidadesAtuais.set(cidadeDestino.toString(), cidade);
+            }
+        });
+    });
+
+    // Inicia máscaras de telefone e cpf do registro
+    $(".telmask").mask(telmaskbehaviour, teloptions);
+    $(".cpfmask").mask('000.000.000-00', { reverse: true });
+
     // Especifica o validador
-    validadorFormulario = $("#wizardForm").validate({
+    validadorFormulario = $("#wizardConfigForm").validate({
         rules: {
             regnome: {
                 required: true,
@@ -90,15 +112,6 @@ $(document).ready(function () {
                 required: true,
                 outros: true
             },
-            importarDados: {
-                required: true
-            },
-            ano: {
-                required: true,
-                digits: true,
-                minlength: 4,
-                maxlength: 4
-            }
         },
         messages: {
             regnome: {
@@ -136,15 +149,6 @@ $(document).ready(function () {
             temOutrasCidades: {
                 required: "Por favor informe se o município transporta alunos para outras cidades"
             },
-            importarDados: {
-                required: "Por favor preencha se deseja importar os dados do CENSO escolar"
-            },
-            ano: {
-                required: "Por favor digite um ano válido",
-                digits: "Por favor digite um ano válido",
-                minlength: "Por favor digite um ano válido",
-                maxlength: "Por favor digite um ano válido",
-            }
         },
         highlight: function (element) {
             $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
@@ -167,7 +171,7 @@ $(document).ready(function () {
         'previousSelector': '.btn-back',
 
         onNext: function (tab, navigation, index) {
-            var $valid = $('#wizardForm').valid();
+            var $valid = $('#wizardConfigForm').valid();
             if (!$valid) {
                 validadorFormulario.focusInvalid();
                 return false;
@@ -175,7 +179,7 @@ $(document).ready(function () {
         },
 
         onTabClick: function (tab, navigation, index) {
-            var $valid = $('#wizardForm').valid();
+            var $valid = $('#wizardConfigForm').valid();
             if (!$valid) {
                 return false;
             } else {
@@ -198,27 +202,6 @@ $(document).ready(function () {
 
                 $($wizard).find('.btn-finish').hide();
             }
-
-            let button_text = navigation.find('li:nth-child(' + $current + ') a').html();
-
-            setTimeout(function () {
-                $('.moving-tab').text(button_text);
-            }, 150);
-
-            var checkbox = $('.footer-checkbox');
-
-            if (!index == 0) {
-                $(checkbox).css({
-                    'opacity': '0',
-                    'visibility': 'hidden',
-                    'position': 'absolute'
-                });
-            } else {
-                $(checkbox).css({
-                    'opacity': '1',
-                    'visibility': 'visible'
-                });
-            }
         }
     });
 
@@ -236,19 +219,19 @@ $(document).ready(function () {
 
 // Validação de Outros Municípios
 window.$.validator.addMethod("outros", function (value, element) {
-    let possuiOutros = $("input[name=temOutrasCidades]:checked").val() == "true";
-    let valid = true;
+    var possuiOutros = $("input[name=temOutrasCidades]:checked").val() == "true";
+    var valid = true;
 
     if (possuiOutros) {
-        let linhas = $("tr.novodado");
-        let numlinhas = linhas.length;
+        var linhas = $("tr.novodado");
+        var numlinhas = linhas.length;
 
         // Verifica todas as linhas
-        for (let i = 0; i < numlinhas; i++) {
-            let adicionouLinha = $($("tr.novodado")[i]).find("img")[0].src.includes("remove");
+        for (var i = 0; i < numlinhas; i++) {
+            var adicionouLinha = $($("tr.novodado")[i]).find("img")[0].src.includes("remove");
 
             if (adicionouLinha) {
-                let campos = $($("tr.novodado")[i]).find("select").filter((e, h) => h.name.includes("novoestado") || h.name.includes("novomunicipio"));
+                var campos = $($("tr.novodado")[i]).find("select").filter((e, h) => h.name.includes("novoestado") || h.name.includes("novomunicipio"));
                 campos.each(function (_, e) {
                     if (e.value == " " || e.value == "") {
                         valid = false;
@@ -261,7 +244,7 @@ window.$.validator.addMethod("outros", function (value, element) {
 }, "Informe Municípios válidos");
 
 // Funções para adicionar/remover municipios adicionais para o qual os alunos são transportados
-let munAdicionais = 0;
+var munAdicionais = 0;
 
 var addtr = jQuery.parseHTML(`
 <tr class="novodado">
@@ -279,36 +262,62 @@ var addtr = jQuery.parseHTML(`
 </tr>
 `);
 
+
+function addRowDirect(codEstado, codCidade) {
+    munAdicionais++;
+
+    var newrow = $(addtr).clone();
+    newrow.find("select[name=novoestado]").attr("name", "novoestado" + munAdicionais);
+    newrow.find("select[name=novomunicipio]").attr("name", "novomunicipio" + munAdicionais);
+    newrow.find("a").attr("onclick", "rmrow(this); return false;");
+    newrow.find("img").attr("src", "./img/icones/remove.png");
+
+    $("table").find("tbody").prepend(newrow);
+    new dgCidadesEstados({
+        cidade: document.getElementsByName('novomunicipio' + munAdicionais)[0],
+        estado: document.getElementsByName('novoestado' + munAdicionais)[0]
+    });
+
+    $("select[name=novoestado" + munAdicionais + "]").val([codEstado]);
+    $("select[name=novoestado" + munAdicionais + "]").trigger("change");
+
+    $("select[name=novomunicipio" + munAdicionais + "]").val([codCidade]);
+    $("select[name=novomunicipio" + munAdicionais + "]").trigger("change");
+}
+
+
+
 // Função para adicionar uma linha na tabela de municípios
 function addrow(element) {
-    let row = $(element.parentElement.parentElement);
+    var row = $(element.parentElement.parentElement);
 
-    let htmlEstado = row.find("select").filter((e, h) => h.name.includes("novoestado"));
-    let htmlMunicipio = row.find("select").filter((e, h) => h.name.includes("novomunicipio"));
+    var htmlEstado = row.find("select").filter((e, h) => h.name.includes("novoestado"));
+    var htmlMunicipio = row.find("select").filter((e, h) => h.name.includes("novomunicipio"));
 
-    let pEstado = htmlEstado.find("option:selected");
-    let codEstado = pEstado.val();
-    let strEstado = pEstado.text();
+    var pEstado = htmlEstado.find("option:selected");
+    var codEstado = pEstado.val();
+    var strEstado = pEstado.text();
 
-    let pMunicipio = htmlMunicipio.find("option:selected");
-    let codMunicipio = pMunicipio.val();
-    let strMunicipio = pMunicipio.text();
+    var pMunicipio = htmlMunicipio.find("option:selected");
+    var codMunicipio = pMunicipio.val();
+    var strMunicipio = pMunicipio.text();
 
     if (strEstado == " " || strEstado == "" || strMunicipio == " " || strMunicipio == "") {
-        swal({
+        Swal2.fire({
             title: "Ops... tivemos um problema!",
             text: "Selecione um Estado/Cidade válido",
             icon: "error",
+            type: "error",
             button: "Fechar"
         });
         return;
     } else {
         munAdicionais++;
-
-        $(element).attr("onclick", "rmrow(this); return false;");
+        
+        $(element).attr("onclick", "rmrow(this)");
         $(element.children).attr("src", "./img/icones/remove.png");
 
-        let newrow = $(addtr).clone();
+        var newrow = $(addtr).clone();
         newrow.find("select[name=novoestado]").attr("name", "novoestado" + munAdicionais);
         newrow.find("select[name=novomunicipio]").attr("name", "novomunicipio" + munAdicionais);
         $("table").find("tbody").append(newrow);
@@ -318,22 +327,25 @@ function addrow(element) {
             estado: document.getElementsByName('novoestado' + munAdicionais)[0]
         });
     }
+    return false;
 }
 
 // Função para remover uma linha na tabela de municípios
 function rmrow(element) {
-    let row = $(element.parentElement.parentElement);
+    var row = $(element.parentElement.parentElement);
     $(row).remove();
+
+    return false;
 }
 
 function pegarOutrasCidades() {
-    let cidadeOrigem = $(localizacao.cidade).find("option:selected").text();
-    let codCidadeOrigem = localizacao.cidade.value;
-    let estadoOrigem = $(localizacao.estado).find("option:selected").text();
-    let codEstadoOrigem = localizacao.estado.value;
+    var cidadeOrigem = $(localizacao.cidade).find("option:selected").text();
+    var codCidadeOrigem = localizacao.cidade.value;
+    var estadoOrigem = $(localizacao.estado).find("option:selected").text();
+    var codEstadoOrigem = localizacao.estado.value;
 
     // Por padrão a cidade faz transporte dentro dela mesmo
-    let cidades = [
+    var cidades = [
         {
             "ID_USUARIO": userconfig.get("ID"),
             "COD_CIDADE_ORIGEM": codCidadeOrigem,
@@ -346,16 +358,16 @@ function pegarOutrasCidades() {
             "ESTADO_DESTINO": estadoOrigem
         }
     ]
-    let linhas = $("tr.novodado");
-    let numlinhas = linhas.length;
+    var linhas = $("tr.novodado");
+    var numlinhas = linhas.length;
 
     // Verifica todas as linhas de cidades adicionadas
-    for (let i = 0; i < numlinhas; i++) {
-        let adicionouLinha = $($("tr.novodado")[i]).find("img")[0].src.includes("remove");
+    for (var i = 0; i < numlinhas; i++) {
+        var adicionouLinha = $($("tr.novodado")[i]).find("img")[0].src.includes("remove");
 
         if (adicionouLinha) {
-            let campoCidade = $($($("tr.novodado")[i]).find("select")[1]).find("option:selected");
-            let campoEstado = $($($("tr.novodado")[i]).find("select")[0]).find("option:selected");
+            var campoCidade = $($($("tr.novodado")[i]).find("select")[1]).find("option:selected");
+            var campoEstado = $($($("tr.novodado")[i]).find("select")[0]).find("option:selected");
 
             cidades.push({
                 "ID_USUARIO": userconfig.get("ID"),
@@ -375,7 +387,7 @@ function pegarOutrasCidades() {
 }
 
 function processConfig(promisseArray) {
-    let dadosPessoais = {
+    var dadosPessoais = {
         "ID": userconfig.get("ID"),
         "NOME": $("#regnome").val(),
         "EMAIL": $("#regemail").val(),
@@ -388,7 +400,7 @@ function processConfig(promisseArray) {
         "INIT": 1
     };
 
-    let dadosMunicipio = {
+    var dadosMunicipio = {
         "ID_USUARIO": userconfig.get("ID"),
         "COD_CIDADE": localizacao.cidade.value,
         "TEM_RODOVIARIO": $("#temRodoviario").is(":checked"),
@@ -399,7 +411,7 @@ function processConfig(promisseArray) {
         "TEM_OUTRAS_CIDADES": JSON.parse($("input[name='temOutrasCidades']:checked").val()),
     };
 
-    let dadosDestinosTransportes = pegarOutrasCidades();
+    var dadosDestinosTransportes = pegarOutrasCidades();
 
     // Armazena algumas variáveis localmente
     userconfig.set(dadosPessoais);
@@ -407,25 +419,15 @@ function processConfig(promisseArray) {
 
     // Salva na base sqlite
     promisseArray.push(AtualizarPromise("Usuarios", dadosPessoais, "ID", userconfig.get("ID")));
-    promisseArray.push(InserirPromise("Municipios", dadosMunicipio));
+    promisseArray.push(AtualizarPromise("Municipios", dadosMunicipio, "ID", userconfig.get("ID")));
     dadosDestinosTransportes.forEach((cidadeData) => {
-        promisseArray.push(InserirPromise("FazTransporte", cidadeData));
+        promisseArray.push(ReplaceTransportePromise("FazTransporte", cidadeData));
     });
 
     Promise.all(promisseArray)
         .then(() => {
-            Swal2.fire({
-                title: "Sucesso!",
-                text: "Perfil configurado com sucesso. Entrando no painel de gestão.",
-                icon: "success",
-                type: "success",
-                showConfirmButton: false,
-                closeOnClickOutside: false,
-                allowOutsideClick: false,
-            })
-            setTimeout(() => {
-                document.location.href = "./dashboard.html";
-            }, 1000)
+            console.log("OK");
+            document.location.href = "./dashboard.html";
         });
 }
 
@@ -433,7 +435,7 @@ function baixarMalha() {
     return new Promise((resolve, reject) => {
         knex("IBGE_Municipios")
             .select()
-            .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+            .where("codigo_ibge", $("#regcidade").val())
             .then(res => {
                 var latitude = res[0]["latitude"];
                 var longitude = res[0]["longitude"];
@@ -471,16 +473,16 @@ function baixarMalha() {
 // Função de conclusão do formulário
 $("#finishconfig").click(() => {
     // Verifica se está válido
-    let valido = validadorFormulario.valid();
+    var valido = validadorFormulario.valid();
 
     if (valido) {
         // Ler Variáveis Básicas do Formulário
-        let codEstado = localizacao.estado.value;
-        let codCidade = localizacao.cidade.value;
+        var codEstado = localizacao.estado.value;
+        var codCidade = localizacao.cidade.value;
 
         // Verifica se precisamos importar dados
-        let importarOpt = JSON.parse($("input[name='importarDados']:checked").val());
-        let baixarOpt = JSON.parse($("input[name='baixarMalha']:checked").val());
+        var importarOpt = JSON.parse($("input[name='importarDados']:checked").val());
+        var baixarOpt = JSON.parse($("input[name='baixarMalha']:checked").val());
 
         Swal2.fire({
             title: "Terminando o cadastro...",
@@ -496,9 +498,7 @@ $("#finishconfig").click(() => {
 
         var promisseArray = new Array();
 
-        if (baixarOpt) { promisseArray.push(baixarMalha()) }
+        promisseArray.push(baixarMalha());
         processConfig(promisseArray);
     }
 });
-
-$("#ano").val(new Date().getYear() + 1900)

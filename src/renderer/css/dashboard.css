@@ -234,3 +234,11 @@ div#legendPlace span {
 span.ct-label.ct-horizontal.ct-end {
     font-size: 12px !important;
 }
+
+i.tab-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    vertical-align: middle;
+    margin-right: 10px;
+}

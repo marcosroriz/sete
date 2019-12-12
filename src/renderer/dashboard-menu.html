@@ -17,16 +17,23 @@
             <div class="collapse" id="collapseExample">
                 <ul class="nav">
                     <li>
-                        <a class="profile-dropdown" href="#pablo">
-                            <span class="sidebar-mini">MP</span>
-                            <span class="sidebar-normal">My Profile</span>
+                        <a name="config/configuracoes-view" class="mt-2 link-menu profile-dropdown" href="#">
+                            <i class="ml-1 fa fa-cog menu-icon" aria-hidden="true"></i>
+                            <span class="sidebar-normal">Configurações</span>
                         </a>
                     </li>
                     <li>
-                        <a class="profile-dropdown" href="#pablo">
-                            <span class="sidebar-mini">EP</span>
-                            <span class="sidebar-normal">Edit Profile</span>
+                        <a name="config/sync" class="profile-dropdown" href="#">
+                            <i class="ml-1 fa fa-refresh menu-icon" aria-hidden="true"></i>
+                            <span class="sidebar-normal">Sincronizar</span>
                         </a>
+                    </li>
+                    <li>
+                        <a id="sairBtn" name="config/configuracoes-view" class="profile-dropdown" href="#">
+                            <i class="ml-1 fa fa-sign-out menu-icon" aria-hidden="true"></i>
+                            <span class="sidebar-normal">Sair</span>
+                        </a>
+                    </li>
                 </ul>
                 </li>
             </div>
@@ -39,7 +46,6 @@
                 <p>Visão Geral</p>
             </a>
         </li> -->
-
         <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#alunoMenu">
                 <img src="./img/icones/aluno.svg" class="menu-icon">
@@ -70,12 +76,6 @@
                             <span class="sidebar-normal">Visualizar</span>
                         </a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a id="gerenciar_aluno" name="gerenciar_aluno" class="nav-link" href="#">
-                            <span class="sidebar-mini">-</span>
-                            <span class="sidebar-normal">Gerenciar</span>
-                        </a>
-                    </li> -->
                 </ul>
             </div>
         </li>
@@ -126,32 +126,6 @@
                     </li>
                     <li class="nav-item ">
                         <a name="motorista/motorista-listar-view" class="link-menu nav-link" href="#">
-                            <span class="sidebar-normal">Gerenciar</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#servidorMenu">
-                <img src="./img/icones/servidores.svg" class="menu-icon">
-                <p>
-                    Servidores
-                    <b class="caret"></b>
-                </p>
-            </a>
-            <div class="collapse " id="servidorMenu">
-                <ul class="nav">
-                    <li class="nav-item ">
-                        <a id="servidor_form" name="servidor-form" class="nav-link" href="#">
-                            <span class="sidebar-mini"></span>
-                            <span class="sidebar-normal">Cadastrar</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a id="servidor_view" name="servidor/servidor-view" class="nav-link" href="#">
-                            <span class="sidebar-mini"></span>
                             <span class="sidebar-normal">Gerenciar</span>
                         </a>
                     </li>
@@ -252,12 +226,6 @@
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a id="cadastrar_rota" name="cadastrar_rota" class="nav-link" href="#">
-                            <span class="sidebar-mini"></span>
-                            <span class="sidebar-normal">Gerenciar</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
                         <a id="rota-malha" name="rota-malha" class="nav-link" href="#">
                             <span class="sidebar-mini"></span>
                             <span class="sidebar-normal">Malha Viária</span>
@@ -318,6 +286,23 @@
             $("#content").load("./dashboard-main.html");
         });
 
+        // Menu
+        $("#sairBtn").click(() => {
+            Swal2.fire({
+                title: "Saindo do sistema...",
+                text: "Espere um minutinho...",
+                imageUrl: "img/icones/sair.png",
+                icon: "img/icones/sair.png",
+                buttons: false,
+                showSpinner: true,
+                closeOnClickOutside: false,
+                allowOutsideClick: false,
+                showConfirmButton: false
+            });
+            setTimeout(() => {
+                document.location.href = "./login-view.html";
+            }, 1000)
+        });
         // Links
         $(".link-menu").click(function () {
             $(".activeLink").removeClass("activeLink");
@@ -339,12 +324,6 @@
         });
         $("#gerenciar_motorista_rota").click(function () {
             $("#content").load("./modules/motorista/rota/motorista-rota-view.html");
-        });
-
-
-        //modules/garagem
-        $("#cadastrar_garagem").click(function () {
-            $("#content").load("./modules/garagem/garagem.html");
         });
 
         // Módulo / Garagem

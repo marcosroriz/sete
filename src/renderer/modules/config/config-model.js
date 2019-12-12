@@ -1,0 +1,2 @@
+function ReplaceTransportePromise(table, data) {
+}

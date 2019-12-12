@@ -9,23 +9,24 @@
 
     <title>SETE Software de Gestão do Transporte Escolar</title>
 
-    <!-- Node CSS -->
+    <!-- Font CSS -->
     <link rel="stylesheet" href="../../node_modules/typeface-poppins/index.css" />
     <link rel="stylesheet" href="../../node_modules/typeface-roboto/index.css" />
     <link rel="stylesheet" href="../../node_modules/typeface-roboto-condensed/index.css" />
     <link rel="stylesheet" href="../../node_modules/typeface-montserrat/index.css" />
     <link rel="stylesheet" href="../../node_modules/typeface-patrick-hand/index.css" />
     <link rel="stylesheet" href="../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/font-awesome.css" />
 
     <!-- Template CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/light-bootstrap-dashboard.css?v=2.0.1" />
     <link rel="stylesheet" href="css/common.css" />
     <link rel="stylesheet" href="css/initconfig.css" />
 
     <!-- Icons -->
-    <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
-    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/icones/setelogosmall.png">
+    <link rel="icon" type="image/png" href="img/icones/setelogosmall.png">
 </head>
 
 <body class="bgentry">
@@ -37,6 +38,9 @@
                         <div class="col-12">
                             <div class="text-center text-white">
                                 <img src="img/icones/logosete.png" class="entry-logo" />
+                            </div>
+                            <div class="text-center text-white logo-text mt-2">
+                                Sistema Eletrônico de Gestão do Transporte Escolar
                             </div>
                         </div>
                     </div>
@@ -338,8 +342,8 @@
                                                 <div class="row justify-content-center">
                                                     <div class="col-12">
                                                         <div class="form-group">
-                                                            <label>Você deseja importar os dados de cadastro das escolas
-                                                                do CENSO escolar (2019)?</label>
+                                                            <label>Você deseja importar os dados do sistema na
+                                                                nuvem?</label>
                                                             <br />
                                                             <div class="form-check form-check-radio">
                                                                 <label class="form-check-label">
@@ -361,13 +365,40 @@
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label>Você deseja baixar a malha viária do sistema para
+                                                                otimizar as rotas?</label>
+                                                            <br />
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="baixarMalha" type="checkbox"
+                                                                        value="true">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Sim
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-check-radio">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="baixarMalha" type="checkbox"
+                                                                        value="false">
+                                                                    <span class="form-check-sign"></span>
+                                                                    Não
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <div class="col-12">
                                                         <div class="form-group">
                                                             <label>Qual o ano letivo do município?</label>
                                                             <br />
                                                             <div class="form-group">
                                                                 <input class="form-control" type="text" id="ano"
-                                                                    name="ano" number="true" value="2019">
+                                                                    name="ano" number="true">
                                                             </div>
                                                         </div>
                                                     </div>
