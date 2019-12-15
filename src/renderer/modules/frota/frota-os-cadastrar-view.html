@@ -1,0 +1,147 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/os.png">
+        <p class="pageTitle">Cadastro de Ordem de Serviço</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 ml-auto mr-auto">
+            <form id="wizardCadastrarOSForm" method="" action="">
+                <div class="card card-wizard wiz-fixes">
+                    <div class="card-body ">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item col-12 tab-2-fix">
+                                <a class="nav-link" href="#tab-dados-os" data-toggle="tab" role="tab">
+                                    <img src="./img/icones/tab-addos.png" class="wiz-icon">
+                                    Dados da Ordem de Serviço
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane tab-wiz fade" id="tab-dados-os" role="tabpanel">
+                                <h6 class="mb-3 text-center text-space">
+                                    Forneça as informações básicas a respeito do
+                                    serviço previsto ou sendo prestado.
+                                </h6>
+                                <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Tipo de Serviço</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6 mt-1">
+                                                    <select id="tipoServico" name="tipoServico" class="form-control">
+                                                        <option value="1">Combustível</option>
+                                                        <option value="2">Lubrificantes</option>
+                                                        <option value="3">Pagamento de Seguro</option>
+                                                        <option value="4">Manutenção Preventiva</option>
+                                                        <option value="5">Manutenção</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Data do serviço</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regdata" name="regdata" type="text"
+                                                        placeholder="Informe a data em que o serviço será prestado"
+                                                        class="form-control datanasc">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-5 control-label">
+                                                    Informe qual o veículo associado a ordem de serviço
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-5 mt-2">
+                                                    <select id="tipoVeiculo" name="tipoVeiculo" class="form-control">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-5 control-label">
+                                                    Informe o fornecedor responsável por realizar o serviço
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-5 mt-2">
+                                                    <select id="tipoFornecedor" name="tipoFornecedor"
+                                                        class="form-control">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group opt">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Comentário a respeito do serviço (valor/descrição):</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6 mt-2">
+                                                    <div class="row">
+                                                        <textarea class="form-control commentArea" id="comentario"
+                                                            rows="5"></textarea>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button type="button" id="cancelarAcao"
+                                class="btn btn-default btn-wd btnApagar pull-left">Cancelar Edição</button>
+                            <button type="button" class="btn btn-default btn-wd btn-back pull-left">Voltar</button>
+                            <button type="button" class="btn btn-info btn-wd btn-next pull-right">Próximo</button>
+                            <button type="button" class="btn btn-info btn-wd btn-finish pull-right"
+                                id="salvaros">Concluir</button>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="./modules/frota/frota-model.js" type="text/javascript"></script>
+<script src="./modules/fornecedor/fornecedor-model.js" type="text/javascript"></script>
+<script src="./modules/frota/frota-os-cadastrar-ctrl.js" type="text/javascript"></script>

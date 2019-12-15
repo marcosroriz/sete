@@ -16,6 +16,25 @@ function GetVeiculoFromForm() {
     };
 }
 
+function GetOSFromForm() {
+    return {
+        "TIPO_SERVICO": $("#tipoServico").val(), // int
+        "DATA": $("#regdata").val(), // boolean
+        "ID_VEICULO": $("#tipoVeiculo").val(), // int
+        "ID_FORNECEDOR": $("#tipoFornecedor").val(), // int
+        "COMENTARIO": $("#comentario").val(),
+    };
+}
+
+function PopulateOSFromState(estadoOSJSON) {
+    $(".pageTitle").html("Atualizar Ordem de Serviço");
+    $("#tipoServico").val(estadoOSJSON["TIPO_SERVICO"]);
+    $("#regdata").val(estadoOSJSON["DATA"]);
+    $("#tipoVeiculo").val(estadoOSJSON["ID_VEICULO"]);
+    $("#tipoFornecedor").val(estadoOSJSON["ID_FORNECEDOR"]);
+    $("#comentario").val(estadoOSJSON["COMENTARIO"]);
+}
+
 function PopulateVeiculoFromState(estadoVeiculoJSON) {
     $(".pageTitle").html("Atualizar Veículo");
     $(".tipoNeutro").hide();
@@ -45,6 +64,26 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
 }
 
 // Transformar linha do DB para JSON
+var parseOSDB = function (osRaw) {
+    var osJSON = Object.assign({}, osRaw);
+    if (osJSON["TERMINO"]) {
+        osJSON["TERMINOSTR"] = "Sim";
+    } else {
+        osJSON["TERMINOSTR"] = "Não";
+    }
+
+    switch (osRaw["TIPO_SERVICO"]) {
+        case 1: osJSON["TIPOSTR"] = "Combustível"; break;
+        case 2: osJSON["TIPOSTR"] = "Óleo e lubrificantes"; break;
+        case 3: osJSON["TIPOSTR"] = "Seguro"; break;
+        case 4: osJSON["TIPOSTR"] = "Manutenção Preventiva"; break;
+        case 5: osJSON["TIPOSTR"] = "Manutenção"; break;
+        default: osJSON["TIPOSTR"] = "Combustível";
+    }
+
+    return osJSON;
+}
+
 var parseVeiculoDB = function (veiculoRaw) {
     var veiculoJSON = Object.assign({}, veiculoRaw);
     veiculoJSON["CAPACIDADE_ATUAL"] = 0;
@@ -101,6 +140,15 @@ var parseVeiculoDB = function (veiculoRaw) {
 
     return veiculoJSON;
 };
+
+function AtualizarOSPromise(table, data, c1, id1, c2, id2, c3, id3) {
+    return knex(table).where(c1, '=', id1).andWhere(c2, '=', id2).andWhere(c3, '=', id3).update(data);
+}
+
+function RemoverOSPromise(table, c1, id1, c2, id2, c3, id3) {
+    return knex(table).where(c1, id1).andWhere(c2, id2).andWhere(c3, '=', id3).del();
+}
+
 
 function InserirAlunoPromise(alunoJSON) {
     return knex("Alunos").insert(alunoJSON);

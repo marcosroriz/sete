@@ -1,7 +1,7 @@
 // Listas utilizadas para armazenar veículos, motoristas
 // e posteriormente vincular com a rota sendo cadastrada
-var listaDeRotas = new Map();
-var listaDeMotoristas = new Map();
+var listaDeVeiculos = new Map();
+var listaDeFornecedores = new Map();
 var listaDeEscolas = new Map();
 var listaDeAlunos = new Map();
 

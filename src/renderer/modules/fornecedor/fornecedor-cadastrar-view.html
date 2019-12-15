@@ -1,0 +1,242 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/fornecedor-cadastro.png">
+        <p class="pageTitle">Cadastro de Fornecedor</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 ml-auto mr-auto">
+            <form id="wizardCadastrarFornecedorForm" method="" action="">
+                <div class="card card-wizard wiz-fixes">
+                    <div class="card-body ">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item col-6 tab-2-fix">
+                                <a class="nav-link active" href="#tab-dados-localizacao" data-toggle="tab" role="tab"
+                                    aria-controls="tab-dados-localizacao" aria-selected="true">
+                                    <img src="./img/icones/tab-localizacao.svg" class="wiz-icon">
+                                    Localização
+                                </a>
+                            </li>
+                            <li class="nav-item col-6 tab-2-fix">
+                                <a class="nav-link" href="#tab-dados-basicos" data-toggle="tab" role="tab"
+                                    aria-controls="tab2">
+                                    <img src="./img/icones/tab-dadospessoais.svg" class="wiz-icon">
+                                    Dados Institucionais
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane tab-wiz fade show active" id="tab-dados-localizacao" role="tabpanel">
+                                <div class="row justify-content-center">
+                                    <h6 class="text-center mb-2">
+                                        Preencha os dados referentes a localização do fornecedor
+                                    </h6>
+                                    <div class="col-12 obr">
+                                        <label class="control-label">
+                                            <b>Localização do Fornecedor (clique no mapa)</b>
+                                            <star>*</star>
+                                        </label>
+                                        <div class="row">
+                                            <div id="mapCadastroFornecedor" class="mb-2 mapawiz"
+                                                style="width: 100%; height: 400px;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-1">
+                                        <div class="form-group">
+                                            <div class="row justify-content-center">
+                                                <div class="col-6 ">
+                                                    <div class="row">
+                                                        <div class="optlabel">
+                                                            Optativo
+                                                        </div>
+                                                        <label class="col-4 control-label latlon-label"><b>Latitude</b>
+                                                            <star>*</star>
+                                                        </label>
+                                                        <div class="col-5">
+                                                            <input class="form-control" type="text" id="reglat"
+                                                                name="reglat" placeholder="Latitude:" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="row">
+                                                        <label class="col-4 control-label latlon-label"><b>Longitude</b>
+                                                            <star>*</star>
+                                                        </label>
+                                                        <div class="col-5">
+                                                            <input class="form-control" type="text" id="reglon"
+                                                                name="reglon" placeholder="Longitude:" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-2 control-label">Endereço do Fornecedor</label>
+                                                <div class="col-8">
+                                                    <input id="regend" name="regend" type="text"
+                                                        placeholder="Rua A ...:" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-2 control-label">CEP do Fornecedor</label>
+                                                <div class="col-8">
+                                                    <input id="regcep" name="regcep" type="text"
+                                                        placeholder="Informe o CEP do Fornecedor:"
+                                                        class="form-control cep">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fim aba dados localizacao -->
+
+                            <div class="tab-pane tab-wiz fade" id="tab-dados-basicos" role="tabpanel">
+                                <h6 class="mb-3 text-center text-space">
+                                    Forneça as informações empresariais a respeito do fornecedor sendo cadastrado.
+                                </h6>
+                                <div class="row justify-content-center">
+
+
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Nome do Fornecedor</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regnome" name="regnome" type="text"
+                                                        placeholder="Informe o nome do fornecedor:"
+                                                        class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Telefone:
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regtel" name="regtel" type="text"
+                                                        placeholder="Telefone" class="form-control telmask">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>CPF ou CNPJ do Fornecedor:</b>
+                                                    <star>*</star>
+                                                </label>
+                                                <div class="col-6 mt-2">
+                                                    <input id="regcnpj" name="regcnpj" type="text"
+                                                        placeholder="Informe o CPF ou o CNPJ do fornecedor"
+                                                        class="form-control cnpj">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group obr">
+                                            <label class="control-label">
+                                                <b>Quais os tipos de serviços oferecidos pelo fornecedor?</b>
+                                            </label>
+                                            <div class="row mb-3">
+                                                <span class="ml-3 hint">Marque todos que se aplique</span>
+                                            </div>
+                                            <div class="row pt-3 pb-3">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
+                                                <div class="col-10">
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label">
+                                                            <input id="temMecanica" name="temServico[]" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Mecânica (reparo e revisão) </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temCombustivel" name="temServico[]" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Combustível e óleo
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label from-check-inline">
+                                                            <input id="temSeguro" name="temServico[]" value="1"
+                                                                type="checkbox" class="form-check-input">
+                                                            <span class="form-check-sign"></span>
+                                                            Seguros
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fim aba dados de empresa -->
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button type="button" id="cancelarAcao" class="btn btn-default btn-wd btnApagar pull-left">
+                            Cancelar Edição
+                        </button>
+                        <button type="button" class="btn btn-default btn-wd btn-back ">
+                            Voltar
+                        </button>
+                        <button type="button" class="btn btn-info btn-wd btn-next pull-right">
+                            Próximo
+                        </button>
+                        <button type="button" class="btn btn-info btn-wd btn-finish pull-right" id="salvarfornecedor">
+                            Concluir
+                        </button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="./modules/fornecedor/fornecedor-model.js" type="text/javascript"></script>
+<script src="./modules/fornecedor/fornecedor-cadastrar-ctrl.js" type="text/javascript"></script>

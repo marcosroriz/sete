@@ -242,3 +242,23 @@ i.tab-icon {
     vertical-align: middle;
     margin-right: 10px;
 }
+
+.obr .form-check-label {
+    text-transform: none;
+}
+
+.btn.disabled {
+    border: none !important;
+}
+
+.addOS, .single-page-table .dataTables_filter {
+    float: right !important;
+}
+
+.single-page-table div#datatables_length {
+    float: left;
+}
+
+.commentArea {
+    height: 100px;
+}

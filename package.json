@@ -17,7 +17,10 @@
   "build": {
     "extraResources": [
       "./bin/**"
-    ]
+    ],
+    "win": {
+      "icon": "./src/renderer/img/icones/setelogo.ico"
+    }
   },
   "config": {
     "forge": {
@@ -26,7 +29,8 @@
           "squirrel"
         ],
         "darwin": [
-          "zip"
+          "zip",
+          "dmg"
         ],
         "linux": [
           "deb",
@@ -37,8 +41,18 @@
         "packageManager": "yarn"
       },
       "electronWinstallerConfig": {
-        "name": "sete"
+        "name": "SETE",
+        "description": "SETE",
+        "authors": "CECATE UFG",
+        "version": "1.0.0",
+        "exe": "sete.exe",
+        "noMsi": false,
+        "iconUrl": "file:///home/marcos/Desenvolvimento/Electron/sete/src/renderer/img/icones/setelogo.ico",
+        "setupIcon": "file:///home/marcos/Desenvolvimento/Electron/sete/src/renderer/img/icones/instalador.ico",
+        "setupExe": "SETEEXE.exe",
+        "setupMsi": "SETEMSI.msi"
       },
+      "electronInstallerDMG": {},
       "electronInstallerDebian": {},
       "electronInstallerRedhat": {},
       "github_repository": {
@@ -52,6 +66,7 @@
     }
   },
   "dependencies": {
+    "@mapbox/togeojson": "^0.16.0",
     "bookshelf": "^0.14.2",
     "bootstrap": "^4.3.1",
     "electron-compile": "^6.4.4",

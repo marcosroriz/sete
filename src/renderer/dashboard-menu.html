@@ -134,14 +134,14 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#vaiculoMenu">
+            <a class="nav-link" data-toggle="collapse" href="#veiculoMenu">
                 <img src="./img/icones/frotas.svg" class="menu-icon">
                 <p>
-                    Frotas
+                    Frota
                     <b class="caret"></b>
                 </p>
             </a>
-            <div class="collapse " id="vaiculoMenu">
+            <div class="collapse " id="veiculoMenu">
                 <ul class="nav">
                     <li class="nav-item ">
                         <a name="frota/frota-cadastrar-view" class="link-menu nav-link" href="#">
@@ -159,15 +159,8 @@
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a id="cadastrar_veiculo" name="cadastrar_veiculo" class="nav-link" href="#">
-                            <span class="sidebar-mini"></span>
-                            <span class="sidebar-normal">Cadastrar</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a id="link-menu-veiculo" name="veiculo/veiculo-view" class="nav-link" href="#">
-                            <span class="sidebar-mini"></span>
-                            <span class="sidebar-normal">Gerenciar</span>
+                        <a name="frota/frota-os-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Ordens de Serviço</span>
                         </a>
                     </li>
                 </ul>
@@ -175,19 +168,23 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#garangemMenu">
+            <a class="nav-link" data-toggle="collapse" href="#fornecedorMenu">
                 <img src="./img/icones/fornecedores.svg" class="menu-icon">
                 <p>
                     Fornecedores
                     <b class="caret"></b>
                 </p>
             </a>
-            <div class="collapse " id="garangemMenu">
+            <div class="collapse " id="fornecedorMenu">
                 <ul class="nav">
                     <li class="nav-item ">
-                        <a id="cadastrar_garagem" name="cadastrar_veiculo" class="nav-link" href="#">
-                            <span class="sidebar-mini"></span>
-                            <span class="sidebar-normal">Gerênciar</span>
+                        <a name="fornecedor/fornecedor-cadastrar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a name="fornecedor/fornecedor-listar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Gerenciar</span>
                         </a>
                     </li>
                 </ul>
@@ -303,6 +300,7 @@
                 document.location.href = "./login-view.html";
             }, 1000)
         });
+        
         // Links
         $(".link-menu").click(function () {
             $(".activeLink").removeClass("activeLink");

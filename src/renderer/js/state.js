@@ -7,3 +7,5 @@ var estadoEscola;
 var estadoMotorista;
 var estadoVeiculo;
 var estadoRota;
+var estadoFornecedor;
+var estadoOS;
