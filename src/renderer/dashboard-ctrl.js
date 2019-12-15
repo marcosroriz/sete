@@ -10,7 +10,6 @@ firebase.auth().onAuthStateChanged((user) => {
     }
 });
 
-
 $(".link-dash").click(function () {
     navigateDashboard("./modules/" + $(this).attr("name") + ".html");
 });

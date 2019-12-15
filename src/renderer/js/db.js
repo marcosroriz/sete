@@ -33,16 +33,65 @@ knex.on('query', function (queryData) {
     console.log(queryData);
 });
 
-var spatialite = require("spatialite");
-var spatialiteDB = new spatialite.Database(dbPath);
+// Sync data with Firestore
+function fbSync() {
+    Swal2.fire({
+        title: "Sincronizando os dados com a nuvem...",
+        text: "Espere um minutinho...",
+        imageUrl: "img/icones/processing.gif",
+        icon: "img/icones/processing.gif",
+        buttons: false,
+        showSpinner: true,
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+        showConfirmButton: false
+    });
+
+    var dbs = ["alunos", "escolatemalunos", "escolas", "faztransporte", "fornecedores",
+        "garagem", "garagemtemveiculo", "motoristas", "municipios", "ordemdeservico",
+        "rotaatendealuno", "rotadirigidapormotorista", "rotapassaporescolas", "rotapossuiveiculo",
+        "rotas", "veiculos"]
+
+    var localPromisesArray = new Array();
+    dbs.forEach((db) => localPromisesArray.push(BuscarTodosDadosPromise(db)));
+
+    Promise.all(localPromisesArray)
+        .then((res) => {
+            var updateObj = {};
+            for (let i = 0; i < res.length; i++) {
+                updateObj[dbs[i]] = res[i];
+            }
+
+            remotedb.collection("data").doc(firebaseUser.uid).set(updateObj, { merge: true })
+                .then(() => {
+                    Swal2.fire({
+                        title: "Sucesso!",
+                        text: "Dados sincronizados com sucesso. Clique em OK para voltar ao painel de gestão.",
+                        icon: "success",
+                        type: "success",
+                        showConfirmButton: true,
+                        closeOnClickOutside: true,
+                        allowOutsideClick: false,
+                    })
+                });
+        });
+}
 
 // Dados da cidade
-// FIXME: Parametrizar isso!
 var cidadeLatitude = -16.8152409;
 var cidadeLongitude = -49.2756642;
-var codCidade = "5201405";
-var codEstado = "52";
+var codCidade = userconfig.get("COD_CIDADE");
+var codEstado = userconfig.get("COD_ESTADO");
 var minZoom = 15;
+
+knex("IBGE_Municipios")
+    .select()
+    .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+    .then(res => {
+        cidadeLatitude = res[0]["latitude"];
+        cidadeLongitude = res[0]["longitude"];
+
+    });
 
 // Funções comuns do banco de dados
 function InserirPromise(table, data) {
@@ -108,49 +157,3 @@ function BuscarDadoEspecifico(table, column, id, cb) {
         .then(res => cb(false, res))
         .catch(err => cb(err));
 }
-
-const bookshelf = require("bookshelf")(knex);
-
-const Users = bookshelf.Model.extend(
-    {
-        tableName: "Usuarios",
-        idAttribute: "ID"
-    });
-
-const Municipios = bookshelf.Model.extend(
-    {
-        tableName: "Municipios",
-        usuario: function () {
-            return this.hasOne(Users);
-        }
-    });
-
-const FazTransporte = bookshelf.Model.extend(
-    {
-        tableName: "FazTransporte"
-    },
-    {
-        cidades: function (cod_cidade_origem) {
-            return this.forge().query({ where: { COD_CIDADE_ORIGEM: cod_cidade_origem } }).fetch();
-        }
-    })
-
-const ColecaoFazTransporte = bookshelf.Collection.extend(
-    {
-        model: FazTransporte
-    });
-
-const Escolas = bookshelf.Model.extend(
-    {
-        tableName: "Escolas",
-        idAttribute: "ID_ESCOLA"
-    },
-    {
-        comTransporte: function () {
-            return this.forge().query({ where: { TEM_TRANSPORTE: 1 } }).fetch();
-        },
-        ativas: function () {
-            return this.forge().query({ where: { ATIVA: 1 } }).fetch();
-        }
-    }
-);

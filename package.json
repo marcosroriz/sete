@@ -67,7 +67,6 @@
   },
   "dependencies": {
     "@mapbox/togeojson": "^0.16.0",
-    "bookshelf": "^0.14.2",
     "bootstrap": "^4.3.1",
     "electron-compile": "^6.4.4",
     "electron-config": "^2.0.0",

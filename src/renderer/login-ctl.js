@@ -304,11 +304,18 @@ $(document).ready(function () {
                         "COD_ESTADO": localizacao.estado.value
                     };
 
-                    var remoteUser = remotedb.collection("users").doc(fbuser.user.uid).set(userData);
-                    var remoteUserData = remotedb.collection("data").doc(fbuser.user.uid).set({ "INIT": false });
-                    var localUser = InserirUsuario(userData);
+                    var promiseArray = new Array();
+                    promiseArray.push(remotedb.collection("users").doc(fbuser.user.uid).set(userData));
+                    promiseArray.push(remotedb.collection("data").doc(fbuser.user.uid).set({
+                        "alunos": [], "escolatemalunos": [], "escolas": [], "faztransporte": [], "fornecedores": [],
+                        "garagem": [], "garagemtemveiculo": [], "motoristas": [], "municipios": [], "ordemdeservico": [],
+                        "rotaatendealuno": [], "rotadirigidapormotorista": [], "rotapassaporescolas": [], "rotapossuiveiculo": [],
+                        "rotas": [], "veiculos": [],
+                        "INIT": false
+                    }));
+                    promiseArray.push(InserirUsuario(userData));
 
-                    Promise.all([localUser, remoteUser, remoteUserData]).then(() => {
+                    Promise.all(promiseArray).then(() => {
                         Swal2.close();
                         Swal2.fire({
                             title: "Parabéns!",

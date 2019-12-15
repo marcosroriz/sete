@@ -23,7 +23,7 @@
                         </a>
                     </li>
                     <li>
-                        <a name="config/sync" class="profile-dropdown" href="#">
+                        <a id="syncBtn" name="config/sync" class="profile-dropdown" href="#">
                             <i class="ml-1 fa fa-refresh menu-icon" aria-hidden="true"></i>
                             <span class="sidebar-normal">Sincronizar</span>
                         </a>
@@ -283,6 +283,11 @@
             $("#content").load("./dashboard-main.html");
         });
 
+        // Sync
+        $("#syncBtn").click(() => {
+            fbSync();
+        });
+
         // Menu
         $("#sairBtn").click(() => {
             Swal2.fire({
@@ -300,7 +305,7 @@
                 document.location.href = "./login-view.html";
             }, 1000)
         });
-        
+
         // Links
         $(".link-menu").click(function () {
             $(".activeLink").removeClass("activeLink");
