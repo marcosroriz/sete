@@ -13,7 +13,7 @@ var dbconfig = {
 firebase.initializeApp(dbconfig);
 
 // Usuário do Firebase
-var firebaseUser;
+var firebaseUser = null;
 
 // Base de dados Firestore
 var remotedb = firebase.firestore();
@@ -32,6 +32,19 @@ var knex = require("knex")({
 knex.on('query', function (queryData) {
     console.log(queryData);
 });
+
+// Clear database
+function clearDBPromises() {
+    var dbs = ["alunos", "escolas", "fornecedores", "faztransporte", "garagem",
+    "motoristas", "municipios", "rotas", "veiculos"]
+
+    var clearPromises = new Array();
+    for (let i = 0; i < dbs.length; i++) {
+        clearPromises.push(knex(dbs[i]).del());
+    }
+
+    return clearPromises;
+}
 
 // Sync data with Firestore
 function fbSync() {

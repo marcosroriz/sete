@@ -1,3 +1,10 @@
+// Firebase user
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        firebaseUser = user;
+    }
+});
+
 // Variáveis para baixar a malha
 var http = require('http');
 var fs = require('fs');
@@ -374,8 +381,8 @@ function pegarOutrasCidades() {
     return cidades;
 }
 
-function processConfig(promisseArray) {
-    let dadosPessoais = {
+function getDadosPessoais() {
+    return {
         "ID": userconfig.get("ID"),
         "NOME": $("#regnome").val(),
         "EMAIL": $("#regemail").val(),
@@ -387,8 +394,10 @@ function processConfig(promisseArray) {
         "COD_ESTADO": localizacao.estado.value,
         "INIT": 1
     };
+}
 
-    let dadosMunicipio = {
+function getDadosMunicipio() {
+    return {
         "ID_USUARIO": userconfig.get("ID"),
         "COD_CIDADE": localizacao.cidade.value,
         "TEM_RODOVIARIO": $("#temRodoviario").is(":checked"),
@@ -398,12 +407,32 @@ function processConfig(promisseArray) {
         "DIST_MINIMA": $("input[name='distMinima']:checked").val(),
         "TEM_OUTRAS_CIDADES": JSON.parse($("input[name='temOutrasCidades']:checked").val()),
     };
+}
 
-    let dadosDestinosTransportes = pegarOutrasCidades();
+function finishConfig() {
+    Swal2.fire({
+        title: "Sucesso!",
+        text: "Perfil configurado com sucesso. Entrando no painel de gestão.",
+        icon: "success",
+        type: "success",
+        showConfirmButton: false,
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+    })
+    setTimeout(() => {
+        document.location.href = "./dashboard.html";
+    }, 1000)
+}
+
+function processConfig(promisseArray) {
+    let dadosPessoais = getDadosPessoais();
+    let dadosMunicipio = getDadosMunicipio();
 
     // Armazena algumas variáveis localmente
     userconfig.set(dadosPessoais);
     userconfig.set(dadosMunicipio);
+
+    let dadosDestinosTransportes = pegarOutrasCidades();
 
     // Salva na base sqlite
     promisseArray.push(AtualizarPromise("Usuarios", dadosPessoais, "ID", userconfig.get("ID")));
@@ -412,28 +441,14 @@ function processConfig(promisseArray) {
         promisseArray.push(InserirPromise("FazTransporte", cidadeData));
     });
 
-    Promise.all(promisseArray)
-        .then(() => {
-            Swal2.fire({
-                title: "Sucesso!",
-                text: "Perfil configurado com sucesso. Entrando no painel de gestão.",
-                icon: "success",
-                type: "success",
-                showConfirmButton: false,
-                closeOnClickOutside: false,
-                allowOutsideClick: false,
-            })
-            setTimeout(() => {
-                document.location.href = "./dashboard.html";
-            }, 1000)
-        });
+    Promise.all(promisseArray).then(() => { finishConfig(); });
 }
 
 function baixarMalha() {
     return new Promise((resolve, reject) => {
         knex("IBGE_Municipios")
             .select()
-            .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+            .where("codigo_ibge", localizacao.cidade.value)
             .then(res => {
                 var latitude = res[0]["latitude"];
                 var longitude = res[0]["longitude"];
@@ -456,11 +471,11 @@ function baixarMalha() {
                 var file = fs.createWriteStream(arqOrigem);
                 http.get(url, function (response) {
                     if (response.statusCode != 200) {
-                        reject();
+                        console.log("ERRO AO BAIXAR MALHA")
                     } else {
                         response.pipe(file);
-                        resolve();
                     }
+                    resolve();
                 });
             })
     });
@@ -496,8 +511,63 @@ $("#finishconfig").click(() => {
 
         var promisseArray = new Array();
 
-        if (baixarOpt) { promisseArray.push(baixarMalha()) }
-        processConfig(promisseArray);
+        if (firebaseUser != null && importarOpt) {
+            promisseArray = clearDBPromises();
+            if (baixarOpt) { promisseArray.push(baixarMalha()) }
+            promisseArray.push(remotedb.collection("data").doc(firebaseUser.uid).get());
+
+            Promise.all(promisseArray)
+                .then((res) => {
+                    // Armazena algumas variáveis localmente
+                    userconfig.set(getDadosPessoais());
+                    userconfig.set(getDadosMunicipio());
+
+                    // Reconstrói o bd
+                    var remoteDocumento = res[res.length - 1].data();
+                    var basicDBs = ["alunos", "escolas", "fornecedores", "garagem",
+                        "motoristas", "municipios", "rotas", "veiculos"]
+                    var basicDBPromises = new Array();
+
+                    for (let i = 0; i < basicDBs.length; i++) {
+                        var dbname = basicDBs[i];
+                        var dbdata = remoteDocumento[dbname];
+
+                        dbdata.forEach(data => basicDBPromises.push(InserirPromise(dbname, data)))
+                    }
+
+                    Promise.all(basicDBPromises)
+                        .then(() => {
+                            console.log("DADOS BÁSICOS DO BANCO RECRIADOS");
+
+                            var relDBs = ["escolatemalunos", "faztransporte",
+                                "garagemtemveiculo", "ordemdeservico",
+                                "rotaatendealuno", "rotadirigidapormotorista",
+                                "rotapassaporescolas", "rotapossuiveiculo"]
+                            var relDBPromises = new Array();
+
+                            for (let i = 0; i < basicDBs.length; i++) {
+                                var dbname = relDBs[i];
+                                var dbdata = remoteDocumento[dbname];
+
+                                dbdata.forEach(data => relDBPromises.push(InserirPromise(dbname, data)))
+                            }
+
+                            Promise.all(relDBPromises)
+                                .then(() => {
+                                    console.log("RELAÇÕES DO BANCO RECRIADAS");
+                                    finishConfig();
+                                })
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            console.log("ERRO")
+                        })
+                })
+        } else {
+            if (baixarOpt) { promisseArray.push(baixarMalha()) }
+
+            processConfig(promisseArray);
+        }
     }
 });
 

@@ -201,29 +201,42 @@ $(document).ready(function () {
                 showConfirmButton: false
             });
 
-            firebase.auth().signInWithEmailAndPassword(email, password).then((firebaseUser) => {
-                // Set local config 
-                if (loginlembrar) {
-                    userconfig.set("LEMBRAR", true);
-                    userconfig.set("EMAIL", email);
-                    userconfig.set("PASSWORD", password);
-                } else {
-                    userconfig.delete("LEMBRAR");
-                    userconfig.delete("EMAIL");
-                    userconfig.delete("PASSWORD");
-                }
-                userconfig.set("ID", firebaseUser.user.uid);
-
-                // Checar se o usuário já fez a configuração inicial
-                RecuperarUsuario(firebaseUser.user.uid).then((userData) => {
-                    var hasInit = JSON.parse(userData[0]["INIT"]);
-                    var urldestino = "./initconfig-view.html";
-                    if (hasInit) {
-                        urldestino = "./dashboard.html";
+            firebase.auth()
+                .signInWithEmailAndPassword(email, password)
+                .then((firebaseUser) => {
+                    // Set local config 
+                    if (loginlembrar) {
+                        userconfig.set("LEMBRAR", true);
+                        userconfig.set("EMAIL", email);
+                        userconfig.set("PASSWORD", password);
+                    } else {
+                        userconfig.delete("LEMBRAR");
+                        userconfig.delete("EMAIL");
+                        userconfig.delete("PASSWORD");
                     }
-                    document.location.href = urldestino;
-                });
-            })
+                    userconfig.set("ID", firebaseUser.user.uid);
+
+                    // Checar se o usuário já fez a configuração inicial
+                    RecuperarUsuario(firebaseUser.user.uid).then((userData) => {
+                        if (userData.length == 0) {
+                            var remoteUserData = remotedb.collection("users").doc(firebaseUser.user.uid);
+                            remoteUserData.get().then((remoteDoc) => {
+                                var remoteData = remoteDoc.data();
+                                remoteData["INIT"] = false;
+                                InserirUsuario(remoteData).then(() => {
+                                    document.location.href = "./initconfig-view.html";
+                                });
+                            });
+                        } else {
+                            var hasInit = JSON.parse(userData[0]["INIT"]);
+                            var urldestino = "./initconfig-view.html";
+                            if (hasInit) {
+                                urldestino = "./dashboard.html";
+                            }
+                            document.location.href = urldestino;
+                        }
+                    });
+                })
                 .catch((err) => {
                     if (err != null) {
                         console.log(err.message);
