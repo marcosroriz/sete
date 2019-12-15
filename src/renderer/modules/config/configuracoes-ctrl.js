@@ -2,8 +2,8 @@
 var http = require('http');
 var fs = require('fs');
 
-var cidadesAtuais = new Map();
-var cidadesNovas = new Map();
+// Lista de cidades atuais
+var listaCidadesAtuais = new Array();
 
 // Variável armazendo o estado do formulário
 var validadorFormulario;
@@ -58,8 +58,8 @@ $(document).ready(function () {
                 var cidadeDestino = cidade["COD_CIDADE_DESTINO"];
                 var estadoDestino = cidade["COD_ESTADO_DESTINO"];
                 addRowDirect(estadoDestino, cidadeDestino);
-            
-                cidadesAtuais.set(cidadeDestino.toString(), cidade);
+
+                listaCidadesAtuais.push(cidadeDestino.toString());
             }
         });
     });
@@ -313,7 +313,7 @@ function addrow(element) {
         return;
     } else {
         munAdicionais++;
-        
+
         $(element).attr("onclick", "rmrow(this)");
         $(element.children).attr("src", "./img/icones/remove.png");
 
@@ -419,15 +419,22 @@ function processConfig(promisseArray) {
 
     // Salva na base sqlite
     promisseArray.push(AtualizarPromise("Usuarios", dadosPessoais, "ID", userconfig.get("ID")));
-    promisseArray.push(AtualizarPromise("Municipios", dadosMunicipio, "ID", userconfig.get("ID")));
+    promisseArray.push(AtualizarPromise("Municipios", dadosMunicipio, "ID_USUARIO", userconfig.get("ID")));
     dadosDestinosTransportes.forEach((cidadeData) => {
-        promisseArray.push(ReplaceTransportePromise("FazTransporte", cidadeData));
+        if (cidadeData["COD_CIDADE_DESTINO"] != localizacao.cidade.value) {
+            promisseArray.push(InserirPromise("FazTransporte", cidadeData));
+        }
     });
 
     Promise.all(promisseArray)
         .then(() => {
-            console.log("OK");
-            document.location.href = "./dashboard.html";
+            Swal2.fire(
+                'Pronto!',
+                'Estado da ordem de serviço atualizado com sucesso.',
+                'success'
+            ).then(() => {
+                navigateDashboard("./dashboard-main.html");
+            })
         });
 }
 
@@ -477,15 +484,10 @@ $("#finishconfig").click(() => {
 
     if (valido) {
         // Ler Variáveis Básicas do Formulário
-        var codEstado = localizacao.estado.value;
         var codCidade = localizacao.cidade.value;
 
-        // Verifica se precisamos importar dados
-        var importarOpt = JSON.parse($("input[name='importarDados']:checked").val());
-        var baixarOpt = JSON.parse($("input[name='baixarMalha']:checked").val());
-
         Swal2.fire({
-            title: "Terminando o cadastro...",
+            title: "Atualizando o cadastro...",
             text: "Espere um minutinho...",
             imageUrl: "img/icones/processing.gif",
             icon: "img/icones/processing.gif",
@@ -497,8 +499,14 @@ $("#finishconfig").click(() => {
         });
 
         var promisseArray = new Array();
+        if (localizacao.cidade.value != userconfig.get("COD_CIDADE")) {
+            promisseArray.push(baixarMalha());
+        }
 
-        promisseArray.push(baixarMalha());
+        listaCidadesAtuais.forEach((codCidade) => {
+            promisseArray.push(RemoverPromise("FazTransporte", "COD_CIDADE_DESTINO", codCidade))
+        })
+
         processConfig(promisseArray);
     }
 });
