@@ -36,7 +36,7 @@ knex.on('query', function (queryData) {
 // Clear database
 function clearDBPromises() {
     var dbs = ["alunos", "escolas", "fornecedores", "faztransporte", "garagem",
-    "motoristas", "municipios", "rotas", "veiculos"]
+        "motoristas", "municipios", "rotas", "veiculos"]
 
     var clearPromises = new Array();
     for (let i = 0; i < dbs.length; i++) {

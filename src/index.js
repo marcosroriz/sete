@@ -34,7 +34,7 @@ const createEntryWindow = () => {
     appWindow = new BrowserWindow({
         "width": 1250,
         "height": 650,
-        "minWidth": 1250,      
+        "minWidth": 1250,
         "minHeight": 650,
         "backgroundThrottling": false,
         "show": false
@@ -97,10 +97,7 @@ app.on('activate', () => {
 // Route Generation Algorithm
 ipcMain.on("start:route-generation", (event, routingArgs) => {
     new RouteOptimization(routingArgs, spatialiteDB).optimize().then((optRoutes) => {
-        console.log("aqui");
-        console.log("aqui");
-        console.log("aqui");
-        appWindow.webContents.send("end:route-generation", optRoutes);      
+        appWindow.webContents.send("end:route-generation", optRoutes);
     });
 })
 
@@ -109,7 +106,7 @@ ipcMain.on("start:malha-update", (event, newOSMFile) => {
     let malha = new MalhaUpdate(newOSMFile, dbPath, sqliteDB);
     malha.update()
         .then((updateData) => {
-            appWindow.webContents.send("end:malha-update", true);      
+            appWindow.webContents.send("end:malha-update", true);
         })
         .catch((err) => {
             appWindow.webContents.send("end:malha-update", false);
@@ -118,6 +115,5 @@ ipcMain.on("start:malha-update", (event, newOSMFile) => {
 
 // Send Answer Update
 app.on("finish-update", (event, arg) => {
-    console.log("cheguei aqui");
     console.log(arg);
 });

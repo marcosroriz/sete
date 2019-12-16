@@ -51,12 +51,19 @@ class BusRoute {
             let c = this.route[i];
             let d = this.route[i + 1];
             dist = dist + routingGraph.distance(c, d);
+            console.log("DIST", c, d, routingGraph.distance(c, d))
         }
 
         return dist;
     }
 
     toGeoJSON(c, d, spatialiteDB, route) {
+        if (c == undefined || d == undefined || c == null || d == null) {
+            console.log("deu merda")
+            console.log("deu merda")
+            console.log("deu merda")
+            console.log("deu merda")
+        }
         let cnodeID = c.get("dbNodeID");
         let dnodeID = d.get("dbNodeID");
         let sqlQuery = `SELECT AsGeoJSON(geometry) AS js
@@ -70,7 +77,7 @@ class BusRoute {
                     dkey: d.get("key"),
                     gjson: row["js"]
                 });
-            });
+            })
         });
     }
 
@@ -81,52 +88,69 @@ class BusRoute {
             routeJSON["numPassengers"] = this.numPassengers(routingGraph);
             routeJSON["travDistance"] = this.travDistance(routingGraph);
             routeJSON["path"] = new Array();
+            routeJSON["origPath"] = this.route;
             routeJSON["geojson"] = "";
-    
+
             // Promises for computing GeoJson distance in each pair of the path
             // Compute Path
             let promises = new Array();
-    
+
             for (let i = 0; i < this.route.length - 1; i++) {
                 let c = routingGraph.getVertex(this.route[i]);
                 let d = routingGraph.getVertex(this.route[i + 1]);
+
+                console.log("PUSHANDO", c.get("rawkey"), d.get("rawkey"))
                 routeJSON["path"].push({
                     id: c.get("rawkey"),
                     type: c.get("type")
                 });
+
+                if (i == this.route.length - 2) {
+                    routeJSON["path"].push({
+                        id: d.get("rawkey"),
+                        type: d.get("type")
+                    });
+                }
                 promises.push(this.toGeoJSON(c, d, spatialiteDB, this.route));
             }
 
-            Promise.all(promises).then((values) => {
-                let pathGeojson = JSON.parse(values[1].gjson);
-                for (let i = 2; i < values.length; i++) {
-                    let pairGeoJson = JSON.parse(values[i].gjson);
-                    for (let j = 1; j < pairGeoJson.coordinates.length; j++) {
-                        pathGeojson.coordinates.push(pairGeoJson.coordinates[j]);
+            Promise.all(promises)
+                .then((values) => {
+                    let pathGeojson = JSON.parse(values[1].gjson);
+                    for (let i = 2; i < values.length; i++) {
+                        let pairGeoJson = JSON.parse(values[i].gjson);
+                        for (let j = 1; j < pairGeoJson.coordinates.length; j++) {
+                            pathGeojson.coordinates.push(pairGeoJson.coordinates[j]);
+                        }
                     }
-                }
-                routeJSON["purejson"] = pathGeojson;
-                routeJSON["geojson"] = {
-                    "type": "Feature",
-                    "properties": {
-                        "numPassengers": routeJSON["numPassengers"],
-                        "travDistance": (routeJSON["travDistance"] / 1000).toFixed(2),
-                        // TODO: Colocar escolas
-                    },
-                    "geometry": {
-                        "type": pathGeojson.type,
-                        "coordinates": pathGeojson.coordinates,
+                    routeJSON["purejson"] = pathGeojson;
+                    routeJSON["geojson"] = {
+                        "type": "Feature",
+                        "properties": {
+                            "numPassengers": routeJSON["numPassengers"],
+                            "travDistance": (routeJSON["travDistance"] / 1000).toFixed(2),
+                            // TODO: Colocar escolas
+                        },
+                        "geometry": {
+                            "type": pathGeojson.type,
+                            "coordinates": pathGeojson.coordinates,
+                        }
                     }
-                }
-                resolve(routeJSON);
-            });
+                    console.log("CONSEGUI RESOLVER AQUI")
+                    console.log(routeJSON["path"])
+                    resolve(routeJSON);
+                })
+                .catch((err) => {
+                    console.log("ERRORRR");
+                    console.log(err);
+                });
         });
     }
 
     toLatLongRoute(routingGraph) {
         let routeSTR = "Route: " + this.busID + "\n"
-                     + "NumberPassengers: " + this.numPassengers(routingGraph) + "\n"
-                     + "TravDistance: " + this.travDistance(routingGraph);
+            + "NumberPassengers: " + this.numPassengers(routingGraph) + "\n"
+            + "TravDistance: " + this.travDistance(routingGraph);
         for (let i = 0; i < this.route.length; i++) {
             routeSTR += "\n" + this.route[i] + ":" + routingGraph.vertexToLatLon(this.route[i]);
         }

@@ -35,6 +35,28 @@ var chart = {
                 }
             })
         ],
+    },
+    "barraraw": {
+        distributeSeries: true,
+        showLabel: true,
+        height: 350,
+        axisY: {
+            onlyInteger: true
+        },
+        axisX: {
+            showGrid: false
+        },
+        plugins: [
+            Chartist.plugins.ctBarLabels({
+                labelOffset: {
+                    x: 0,
+                    y: -10
+                },
+                labelInterpolationFnc: function (value) {
+                    return roundToTwo(value);
+                }
+            })
+        ],
     }
 }
 
@@ -53,6 +75,8 @@ function plotGraphic(target, option) {
         $(target).append(`<div class='totalChart'>
             <span>${roundToTwo(option["SERIE"]["series"][0])}</sṕan>
         </div>`)
+    } else if (option["TIPO"] == "barraraw") {
+        Chartist.Bar(target, option["SERIE"], chart["barraraw"]);
     }
 }
 

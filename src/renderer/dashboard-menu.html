@@ -223,13 +223,13 @@
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a id="rota-malha" name="rota-malha" class="nav-link" href="#">
+                        <a name="rota/rota-malha-view" class="link-menu nav-link" href="#">
                             <span class="sidebar-mini"></span>
                             <span class="sidebar-normal">Malha Viária</span>
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a id="rota-sugestao" name="rota-sugestao" class="nav-link" href="#">
+                        <a name="rota/rota-sugestao-view" class="link-menu nav-link" href="#">
                             <span class="sidebar-mini"></span>
                             <span class="sidebar-normal">Sugerir</span>
                         </a>
@@ -311,67 +311,6 @@
             $(".activeLink").removeClass("activeLink");
             $(this.parentElement).addClass("activeLink");
             navigateDashboard("./modules/" + $(this).attr("name") + ".html");
-        });
-
-        // Módulo Escola
-        $("#cadastrar_escola").click(() => {
-            $("#content").load("./modules/escola/escola-cadastrar-view.html");
-        });
-
-        //motorista
-        $("#cadastrar_motorista").click(function () {
-            $("#content").load("./modules/motorista/motorista-form.html");
-        });
-        $("#gerenciar_motorista").click(function () {
-            $("#content").load("./modules/motorista/motorista-view.html");
-        });
-        $("#gerenciar_motorista_rota").click(function () {
-            $("#content").load("./modules/motorista/rota/motorista-rota-view.html");
-        });
-
-        // Módulo / Garagem
-        $("#gerenciar_rota").click(function () {
-            $("#content").load("./modules/rota/rota.html");
-        });
-        $("#cadastrar_rota").click(function () {
-            $("#content").load("./modules/rota/rota-form.html");
-        });
-
-        // Links de Rota
-        $("#rota-desenhar").click(function () {
-            $("#content").load("./modules/rota/rota-desenhar-view.html");
-        });
-
-        $("#rota-malha").click(function () {
-            $("#content").load("./modules/rota/rota-malha-view.html");
-        });
-
-        $("#rota-sugestao").click(function () {
-            $("#content").load("./modules/rota/rota-sugestao-view.html");
-        });
-
-        //aluno
-        $("#cadastrar_aluno").click(function () {
-            $("#content").load("./modules/aluno/aluno-cadastrar-view.html");
-        });
-        $("#gerenciar_aluno").click(function () {
-            $("#content").load("./modules/aluno/aluno-form.html");
-        });
-
-        //veiculo
-        $("#cadastrar_veiculo").click(function () {
-            $("#content").load("./modules/veiculo/veiculo-form.html");
-        });
-        $("#link-menu-veiculo").click(function () {
-            $("#content").load("./modules/" + $(this).attr("name") + ".html");
-        });
-
-        //SERIVOR
-        $("#servidor_form").click(function () {
-            $("#content").load("./modules/servidor/servidor-form.html");
-        });
-        $("#servidor_view").click(function () {
-            $("#content").load("./modules/servidor/servidor-view.html");
         });
     });
 </script>

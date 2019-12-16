@@ -15,16 +15,16 @@ module.exports = class TwoOpt {
 
         while (improved) {
             improved = false;
-    
+
             let pairs = this.generateAllPairs();
             for (let p of pairs) {
                 let i = p[0];
                 let j = p[1];
-                
-                let initPath  = bestPath.slice(0, i + 1);
+
+                let initPath = bestPath.slice(0, i + 1);
                 let splitPath = bestPath.slice(i + 1, j + 2).reverse();
                 let finalPath = bestPath.slice(j + 2, bestPath.length);
-                let newPath   = initPath.concat(splitPath, finalPath);
+                let newPath = initPath.concat(splitPath, finalPath);
 
                 let newRoute = new BusRoute({ path: newPath });
                 let newRouteCost = newRoute.travDistance(this.routingGraph);

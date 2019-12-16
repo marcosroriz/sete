@@ -29,14 +29,12 @@ module.exports = class SchoolBusKMeans {
                 }, (err, res) => {
                     if (err) {
                         console.error(err);
-                        // TODO: SEND ERROR TO SCREEN
                     }
                     else {
-                        console.log('%o', res);
                         resolve(res);
                     }
                 });
         });
-        
+
     }
 }

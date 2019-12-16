@@ -4,24 +4,16 @@ var totalNumRotas = 0;
 var totalNumAlunosAtendidos = 0;
 
 // Dados para serem plotados
-var dataIdadeVeiculo = { series: [], labels: [] };
-var dataTipoVeiculo = {
-    series: [], labels: ["Ônibus", "Micro-ônibus", "Van", "Kombi", "Caminhão",
-        "Caminhonete", "Motocicleta", "Animal de tração",
-        "Lancha/Voadeira", "Barco de madeira", "Barco de alumínio",
-        "Canoa motorizada", "Canoa a remo"]
+var dataTotalRotas = { series: [], labels: [] };
+var dataQuilometragem = { series: [], labels: ["Menor", "Média", "Maior"] };
+var dataQuilometragemTotal = { series: [], labels: [] };
+var dataTempo = { series: [], labels: ["Menor", "Média", "Maior"] };
+var dataTempoTotal = { series: [], labels: [] };
+var dataTurno = { series: [], labels: ["Manhã", "Tarde", "Noite"] };
+var dataDificuldade = {
+    series: [], labels: ["Porteira", "Mata-Burro", "Colchete",
+        "Atoleiro", "Ponte Rústica"]
 };
-var dataMarcaVeiculo = {
-    series: [], labels: ["Iveco", "Mercedes-Benz", "Renault", "Volkswagen", "Volare",
-        "EMGEPRON (Empresa Gerencial de Projetos Navais)", "ESTALEIRO B3", "Yamanha"]
-};
-var dataModeloVeiculo = {
-    series: [], labels: ["ORE 1", "ORE 1 (4x4)", "ORE 2", "ORE 3", "ORE 4",
-        "ONUREA", "Lancha a Gasolina", "Lancha a Diesel"]
-};
-var dataOrigemVeiculo = { series: [], labels: ["Veículo Próprio", "Veículo Terceirizado"] };
-var dataCapacidadeVeiculo = { series: [], labels: [] };
-var dataLotacaoVeiculo = { series: [], labels: [] };
 
 // DataTables
 var defaultTableConfig = GetTemplateDataTableConfig();
@@ -29,6 +21,7 @@ defaultTableConfig["columns"] = [
     { data: 'NOME', width: "30%" },
     { data: 'TURNOSTR', width: "20%" },
     { data: 'KMSTR', width: "20%" },
+    { data: "DIFICULDADESTR" },
     { data: 'NUMALUNOS', width: "15%" },
     { data: 'NUMESCOLAS', width: "15%" },
     {
@@ -43,6 +36,11 @@ defaultTableConfig["columns"] = [
 
 defaultTableConfig["columnDefs"] = [
     {
+        "targets": [3],
+        "visible": false,
+        "searchable": true
+    },
+    {
         targets: 0,
         render: function (data, type, row) {
             return data.length > 50 ?
@@ -55,100 +53,105 @@ defaultTableConfig["columnDefs"] = [
 var dataTablesRelatorio = $("#datatables").DataTable(defaultTableConfig);
 
 function CalcularEstatisticas() {
-    var totalVeiculos = listaDeRotas.size;
-    var totalIdadeVeiculo = 0;
-    var totalCapacidadeVeiculo = 0;
+    var totalRotas = listaDeRotas.size;
 
-    var statTipo = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0 };
-    var statMarca = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
-    var statModelo = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
-    var statOrigem = { 1: 0, 2: 0 };
+    var quilometragem = new Array();
+    var tempo = new Array();
+    var statTurno = { 1: 0, 2: 0, 3: 0 };
+    var statDificuldade = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
-    listaDeRotas.forEach((veiculo) => {
-        statTipo[parseInt(veiculo["TIPO"])] = statTipo[parseInt(veiculo["TIPO"])] + 1;
-        statMarca[parseInt(veiculo["MARCA"])] = statMarca[parseInt(veiculo["MARCA"])] + 1;
-        statModelo[parseInt(veiculo["MODELO"])] = statModelo[parseInt(veiculo["MODELO"])] + 1;
-        statOrigem[parseInt(veiculo["ORIGEM"])] = statOrigem[parseInt(veiculo["ORIGEM"])] + 1;
+    listaDeRotas.forEach((rota) => {
+        quilometragem.push(parseFloat(rota["KM"]))
+        tempo.push(parseFloat(rota["TEMPO"]))
 
-        totalIdadeVeiculo = totalIdadeVeiculo + parseInt(veiculo["ANO"]);
-        totalCapacidadeVeiculo = totalCapacidadeVeiculo + parseInt(veiculo["CAPACIDADE"]);
+        if (rota["TURNO_MATUTINO"]) statTurno[1] = statTurno[1] + 1;
+        if (rota["TURNO_VESPERTINO"]) statTurno[2] = statTurno[2] + 1;
+        if (rota["TURNO_NOTURNO"]) statTurno[3] = statTurno[3] + 1;
+
+        if (rota["DA_PORTEIRA"]) statDificuldade[1] = statDificuldade[1] + 1;
+        if (rota["DA_MATABURRO"]) statDificuldade[2] = statDificuldade[2] + 1;
+        if (rota["DA_COLCHETE"]) statDificuldade[3] = statDificuldade[3] + 1;
+        if (rota["DA_ATOLEIRO"]) statDificuldade[4] = statDificuldade[4] + 1;
+        if (rota["DA_PONTERUSTICA"]) statDificuldade[5] = statDificuldade[5] + 1;
     })
 
-    dataIdadeVeiculo["series"].push(Math.floor(totalIdadeVeiculo / totalVeiculos));
-    dataIdadeVeiculo["labels"].push("Ano médio dos veículos utilizados");
+    dataTotalRotas["series"].push(totalRotas);
+    dataTotalRotas["labels"].push("Número total de rotas cadastradas");
 
-    dataCapacidadeVeiculo["series"].push(totalCapacidadeVeiculo / totalVeiculos);
-    dataCapacidadeVeiculo["labels"].push("Média de Assentos Disponíveis por Veículos");
+    dataQuilometragemTotal["series"].push(quilometragem.reduce((a, b) => a + b));
+    dataQuilometragemTotal["labels"].push("Quilometragem total percorrida pelas rotas (km)")
 
-    dataLotacaoVeiculo["series"].push(totalNumAlunosAtendidos / totalVeiculos);
-    dataLotacaoVeiculo["labels"].push("Passageiros por Veículo");
+    dataTempoTotal["series"].push(tempo.reduce((a, b) => a + b));
+    dataTempoTotal["labels"].push("Tempo total percorrido pelas rotas (min)")
 
-    dataTipoVeiculo["series"] = [statTipo[1], statTipo[2], statTipo[3], statTipo[4], statTipo[5], statTipo[6], statTipo[7],
-    statTipo[8], statTipo[9], statTipo[10], statTipo[11], statTipo[12], statTipo[13]]
+    var kmMean = quilometragem.reduce((a, b) => a + b) / totalRotas;
+    var kmMax = Math.max(...quilometragem);
+    var kmMin = Math.min(...quilometragem);
+    dataQuilometragem["series"] = [kmMin, kmMean, kmMax]
 
-    dataMarcaVeiculo["series"] = [statMarca[1], statMarca[2], statMarca[3], statMarca[4],
-    statMarca[5], statMarca[6], statMarca[7], statMarca[8]]
+    var tempoMean = tempo.reduce((a, b) => a + b) / totalRotas;
+    var tempoMax = Math.max(...tempo);
+    var tempoMin = Math.min(...tempo);
+    dataTempo["series"] = [tempoMin, tempoMean, tempoMax]
 
-    dataModeloVeiculo["series"] = [statModelo[1], statModelo[2], statModelo[3], statModelo[4], statModelo[5],
-    statModelo[6], statModelo[7], statModelo[8]]
+    dataTurno["series"] = [statTurno[1], statTurno[2], statTurno[3]]
+    dataDificuldade["series"] = [statDificuldade[1], statDificuldade[2],
+    statDificuldade[3], statDificuldade[4], statDificuldade[5]]
 
-    dataOrigemVeiculo["series"] = [statOrigem[1], statOrigem[2]]
-
-    $("#listaTipoRelatorio").val("dependencia").trigger("change");
+    $("#listaTipoRelatorio").val("turno").trigger("change");
     $("#menuRelatorio :first-child").click();
 }
 
 var listaDeOpcoesRelatorio = {
-    "lotacao": {
-        TXTMENU: "Capacidade Atual",
-        SERIE: dataLotacaoVeiculo,
-        TITULO: "Média de passageiros transportados por veículo",
+    "total": {
+        TXTMENU: "Total",
+        SERIE: dataTotalRotas,
+        TITULO: "Número total de rotas",
         TIPO: "total",
         FILTRO: "",
     },
-    "capacidade": {
-        TXTMENU: "Capacidade Média",
-        SERIE: dataCapacidadeVeiculo,
-        TITULO: "Média da Capacidade Máxima dos Veículos",
+    "quilometragem": {
+        TXTMENU: "Quilometragem média",
+        SERIE: dataQuilometragem,
+        TITULO: "Valores da menor, média e maior quilometragem percorrida pelas rotas",
+        TIPO: "barraraw",
+        FILTRO: "",
+    },
+    "quilometragemtotal": {
+        TXTMENU: "Quilometragem total",
+        SERIE: dataQuilometragemTotal,
+        TITULO: "Quilometragem total percorrida pela rota",
         TIPO: "total",
         FILTRO: "",
     },
-    "dependencia": {
-        TXTMENU: "Categoria",
-        SERIE: dataTipoVeiculo,
-        TITULO: "Porcentagem de Veículos por Categoria",
-        TIPO: "pizza",
-        FILTRO: "TIPOSTR",
-        LEGENDA_GRANDE: true
+    "tempo": {
+        TXTMENU: "Tempo médio",
+        SERIE: dataTempo,
+        TITULO: "Valores do menor, médio e maior tempo gasto pelas rotas",
+        TIPO: "barraraw",
+        FILTRO: "",
     },
-    "idade": {
-        TXTMENU: "Idade",
-        SERIE: dataIdadeVeiculo,
-        TITULO: "Ano Médio dos Veículos Utilizados",
+    "tempototal": {
+        TXTMENU: "Tempo total",
+        SERIE: dataTempoTotal,
+        TITULO: "Tempo total gasto pelas rota",
         TIPO: "total",
-        FILTRO: "LOCALIZACAO",
+        FILTRO: "",
     },
-    "marca": {
-        TXTMENU: "Marca",
-        SERIE: dataMarcaVeiculo,
-        TITULO: "Porcentagem de Veículos por Marca",
-        TIPO: "pizza",
-        FILTRO: "MARCASTR",
+    "turno": {
+        TXTMENU: "Turno",
+        SERIE: dataTurno,
+        TITULO: "Distribuição de rotas por turno",
+        TIPO: "barra",
+        FILTRO: "TURNOSTR",
+    },
+    "dificuldade": {
+        TXTMENU: "Dificuldades atravessadas",
+        SERIE: dataDificuldade,
+        TITULO: "Quantiativo das dificuldades atravessadas pelas rotas",
+        TIPO: "barra",
+        FILTRO: "DIFICULDADESTR",
         LEGENDA_GRANDE: true
-    },
-    "modelo": {
-        TXTMENU: "Modelo",
-        SERIE: dataModeloVeiculo,
-        TITULO: "Porcentagem de Veículos por Modelo",
-        TIPO: "barra",
-        FILTRO: "MODELOSTR"
-    },
-    "origem": {
-        TXTMENU: "Origem",
-        SERIE: dataOrigemVeiculo,
-        TITULO: "Porcentagem de Veículos por Origem",
-        TIPO: "barra",
-        FILTRO: "ORIGEMSTR"
     },
 }
 
@@ -173,7 +176,7 @@ $("#listaTipoRelatorio").change((e) => {
     }
 
     dataTablesRelatorio.search("", false, true, false).draw();
-    $("#totalNumAlunos").html(dataTablesRelatorio.page.info().recordsDisplay);
+    $("#totalNumRotas").html(dataTablesRelatorio.page.info().recordsDisplay);
 
     $("#listaFiltroRelatorio").change((e) => {
         var filtroValue = $(e.currentTarget).val();
@@ -188,7 +191,7 @@ $("#listaTipoRelatorio").change((e) => {
         } else {
             dataTablesRelatorio.search(filtroValue, false, true, false).draw();
         }
-        $("#totalNumAlunos").html(dataTablesRelatorio.page.info().recordsDisplay);
+        $("#totalNumRotas").html(dataTablesRelatorio.page.info().recordsDisplay);
     })
 })
 
@@ -321,6 +324,7 @@ var listaInicialCB = (err, result) => {
                     dataTablesRelatorio.row.add(rota);
                 });
                 dataTablesRelatorio.draw();
+                CalcularEstatisticas();
             });
 
     }

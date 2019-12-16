@@ -5,7 +5,7 @@ var mapaDetalhe = novoMapaOpenLayers("mapDetalheAluno", cidadeLatitude, cidadeLo
 mapaDetalhe["activateImageLayerSwitcher"]();
 
 window.onresize = function () {
-    setTimeout(function () { 
+    setTimeout(function () {
         if (mapaDetalhe != null) { mapaDetalhe["map"].updateSize(); }
     }, 200);
 }
@@ -13,21 +13,6 @@ window.onresize = function () {
 // Desenha marcador
 var posicaoAluno = new ol.Feature({
     "geometry": new ol.geom.Point(ol.proj.fromLonLat([alng, alat]))
-});
-posicaoAluno.setStyle(new ol.style.Style({
-    image: new ol.style.Icon({
-        anchor: [12, 37],
-        anchorXUnits: 'pixels',
-        anchorYUnits: 'pixels',
-        opacity: 1,
-        src: "img/icones/aluno-marcador.png"
-    })
-}));
-mapaDetalhe["vectorSource"].addFeature(posicaoAluno);
-
-// Desenha marcador
-posicaoAluno = new ol.Feature({
-    "geometry": new ol.geom.Point(ol.proj.fromLonLat([alat, alng]))
 });
 posicaoAluno.setStyle(new ol.style.Style({
     image: new ol.style.Icon({
@@ -58,7 +43,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
         {
             text: "Voltar",
             className: "btn-info",
-            action: function(e, dt, node, config) {
+            action: function (e, dt, node, config) {
                 navigateDashboard(lastPage);
             }
         },
@@ -93,7 +78,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
         {
             text: "Modificar",
             className: "btnMoficar",
-            action: function(e, dt, node, config) {
+            action: function (e, dt, node, config) {
                 action = "editarAluno";
                 navigateDashboard("./modules/aluno/aluno-cadastrar-view.html");
             }
@@ -101,7 +86,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
         {
             text: "Apagar",
             className: "btnApagar",
-            action: function(e, dt, node, config) {
+            action: function (e, dt, node, config) {
                 action = "apagarAluno";
                 Swal2.fire({
                     title: 'Remover esse aluno?',
@@ -122,9 +107,9 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
                                     text: "Aluno removido com sucesso!",
                                     confirmButtonText: 'Retornar a página de administração'
                                 })
-                                .then(() => {
-                                    navigateDashboard("./modules/aluno/aluno-listar-view.html");
-                                });
+                                    .then(() => {
+                                        navigateDashboard("./modules/aluno/aluno-listar-view.html");
+                                    });
                             } else {
                                 Swal2.fire({
                                     type: 'error',
@@ -188,9 +173,9 @@ var popularTabelaAluno = () => {
 
     var listaDeficiencia = new Array();
     if (estadoAluno["DEF_CAMINHAR"] != 0) { listaDeficiencia.push("Locomotora"); }
-    if (estadoAluno["DEF_OUVIR"] != 0)    { listaDeficiencia.push("Auditiva"); }
+    if (estadoAluno["DEF_OUVIR"] != 0) { listaDeficiencia.push("Auditiva"); }
     if (estadoAluno["DEF_ENXERGAR"] != 0) { listaDeficiencia.push("Visual"); }
-    if (estadoAluno["DEF_MENTAL"] != 0)   { listaDeficiencia.push("Mental"); }
+    if (estadoAluno["DEF_MENTAL"] != 0) { listaDeficiencia.push("Mental"); }
 
     if (listaDeficiencia.length != 0) {
         dataTableAluno.row.add(["Possui alguma deficiência?", listaDeficiencia.join(", ")]);
@@ -230,7 +215,7 @@ var popularTabelaAluno = () => {
     } else {
         dataTableAluno.row.add(["Telefone do responsável", "Telefone de contato não informado"]);
     }
-  
+
     if (estadoAluno["LOC_ENDERECO"] != undefined && estadoAluno["LOC_ENDERECO"] != "") {
         dataTableAluno.row.add(["Endereço do aluno", estadoAluno["LOC_ENDERECO"]]);
     } else {
@@ -244,10 +229,10 @@ var popularTabelaAluno = () => {
     }
 
     var dificuldadesAcesso = new Array();
-    if (estadoAluno["DA_PORTEIRA"] != 0)     { dificuldadesAcesso.push("Porteira"); }
-    if (estadoAluno["DA_MATABURRO"] != 0)    { dificuldadesAcesso.push("Mata-Burro"); }
-    if (estadoAluno["DA_COLCHETE"] != 0)     { dificuldadesAcesso.push("Colchete"); }
-    if (estadoAluno["DA_ATOLEIRO"] != 0)     { dificuldadesAcesso.push("Atoleiro"); }
+    if (estadoAluno["DA_PORTEIRA"] != 0) { dificuldadesAcesso.push("Porteira"); }
+    if (estadoAluno["DA_MATABURRO"] != 0) { dificuldadesAcesso.push("Mata-Burro"); }
+    if (estadoAluno["DA_COLCHETE"] != 0) { dificuldadesAcesso.push("Colchete"); }
+    if (estadoAluno["DA_ATOLEIRO"] != 0) { dificuldadesAcesso.push("Atoleiro"); }
     if (estadoAluno["DA_PONTERUSTICA"] != 0) { dificuldadesAcesso.push("Ponte Rústica"); }
 
     if (dificuldadesAcesso.length != 0) {
@@ -255,7 +240,7 @@ var popularTabelaAluno = () => {
     } else {
         dataTableAluno.row.add(["Dificuldade de acesso", "Não informado"]);
     }
-    
+
     if (estadoAluno["ESCOLA"] == "Aluno sem escola") {
         dataTableAluno.row.add(["Escola", "Não informada no sistema"]);
     } else {
@@ -271,7 +256,7 @@ var popularTabelaAluno = () => {
             default:
                 dataTableAluno.row.add(["Localização", "Área Urbana"]);
         }
-    
+
         if (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != undefined && estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != "") {
             switch (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"]) {
                 case 1:
@@ -293,7 +278,7 @@ var popularTabelaAluno = () => {
         } else {
             dataTableAluno.row.add(["Contato da Escola", "Contato da escola não informado"]);
         }
-    
+
         if (estadoAluno["ESCOLA_CONTATO_TELEFONE"] != undefined && estadoAluno["ESCOLA_CONTATO_TELEFONE"] != "") {
             dataTableAluno.row.add(["Telefone de Contato", estadoAluno["ESCOLA_CONTATO_TELEFONE"]]);
         } else {
@@ -315,7 +300,7 @@ var popularTabelaAluno = () => {
                 src: "img/icones/escola-marcador.png"
             })
         }));
-        mapaDetalhe["vectorSource"].addFeature(posicaoEscola);  
+        mapaDetalhe["vectorSource"].addFeature(posicaoEscola);
         mapaDetalhe["map"].getView().fit(mapaDetalhe["vectorSource"].getExtent());
         mapaDetalhe["map"].updateSize();
     }
@@ -327,7 +312,7 @@ popularTabelaAluno();
 
 $("#detalheInitBtn").click();
 $("#detalheMapa").on('click', (evt) => {
-    setTimeout(function () { 
+    setTimeout(function () {
         mapaDetalhe["map"].updateSize();
     }, 200);
 });

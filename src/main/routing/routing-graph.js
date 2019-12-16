@@ -18,6 +18,10 @@ module.exports = class RoutingGraph {
         return this.addVertex(key, lat, lng, passengers, "stop", key);
     }
 
+    addSpecialSchoolVertex(key, lat, lng, passengers = 0) {
+        return this.addVertex("otherschool" + key, lat, lng, passengers, "otherschool", key);
+    }
+
     addSchoolVertex(key, lat, lng, passengers = 0) {
         return this.addVertex("school", lat, lng, passengers, "school", key);
     }
@@ -34,6 +38,10 @@ module.exports = class RoutingGraph {
         vertex.set("spatialDistEdges", new Map());
         vertex.set("savings", new Map());
         this.matrix.set(key, vertex);
+    }
+
+    setMatrix(mtx) {
+        this.matrix = mtx;
     }
 
     buildSpatialVertex() {
@@ -79,36 +87,39 @@ module.exports = class RoutingGraph {
         this.savingsList = new Heap((a, b) => a.compareTo(b));
 
         this.matrix.forEach(c => {
-            let ckey = c.get("key");
-            let cedges = this.useSpatialDistance ? c.get("spatialDistEdges")
-                                                : c.get("spatialCostEdges");
+            if (c.get("type") != "otherschool") {
+                let ckey = c.get("key");
+                let cedges = this.useSpatialDistance ? c.get("spatialDistEdges")
+                    : c.get("spatialCostEdges");
 
-            // For each neighbor d from c compute the saving Scd
-            this.matrix.forEach((d) => {
-                let dkey = d.get("key");
-                if (ckey != dkey && ckey != "garage" && dkey != "garage" &&
-                    ckey != "school" && dkey != "school") {
-                    let tgc = cedges.get("garage");
+                // For each neighbor d from c compute the saving Scd
+                this.matrix.forEach((d) => {
+                    let dkey = d.get("key");
+                    let dtype = d.get("type");
+                    if (ckey != dkey && ckey != "garage" && dkey != "garage" &&
+                        ckey != "school" && dkey != "school" && dtype != "otherschool") {
+                        let tgc = cedges.get("garage");
 
-                    // Check if we already computed the savings
-                    // If negative, compute, otherwise reuse the value
-                    if (!(d.get("savings").has(ckey))) {
-                        let tcs = cedges.get("school");
-                        let tcd = cedges.get(dkey);
-                        let tgd = this.useSpatialDistance 
+                        // Check if we already computed the savings
+                        // If negative, compute, otherwise reuse the value
+                        if (!(d.get("savings").has(ckey))) {
+                            let tcs = cedges.get("school");
+                            let tcd = cedges.get(dkey);
+                            let tgd = this.useSpatialDistance
                                 ? this.matrix.get("garage").get("spatialDistEdges").get(dkey)
                                 : this.matrix.get("garage").get("spatialCostEdges").get(dkey);
-                        let scd = tcs + tgd - tcd;
+                            let scd = tcs + tgd - tcd;
 
-                        c.get("savings").set(dkey, scd);
-                        this.savingsList.push(new Saving(ckey, dkey, scd, tgc));
-                    } else {
-                        let scd = d.get("savings").get(ckey);
-                        c.get("savings").set(dkey, scd);
-                        this.savingsList.push(new Saving(ckey, dkey, scd, tgc));
+                            c.get("savings").set(dkey, scd);
+                            this.savingsList.push(new Saving(ckey, dkey, scd, tgc));
+                        } else {
+                            let scd = d.get("savings").get(ckey);
+                            c.get("savings").set(dkey, scd);
+                            this.savingsList.push(new Saving(ckey, dkey, scd, tgc));
+                        }
                     }
-                }
-            });
+                });
+            }
         });
 
         return this.savingsList;
@@ -126,6 +137,7 @@ module.exports = class RoutingGraph {
             spatialiteDB.get(sqlQuery, (err, row) => {
                 let cost = row["Cost"];
                 let dist = row["dist"];
+                console.log(cnodeID, dnodeID, cost, dist)
                 c.get("spatialDistEdges").set(d.get("key"), dist);
                 c.get("spatialCostEdges").set(d.get("key"), cost);
                 resolve();
@@ -144,6 +156,7 @@ module.exports = class RoutingGraph {
                         LIMIT 1`;
         return new Promise((resolve, reject) => {
             spatialiteDB.get(sqlQuery, (err, row) => {
+                console.log("dbNodeID", c.get("key"), row["node_id"])
                 c.set("dbNodeID", row["node_id"]);
                 resolve();
             });
@@ -162,7 +175,7 @@ module.exports = class RoutingGraph {
         }
     }
 
-    savings(c, d)  {
+    savings(c, d) {
         if (this.matrix.get(c).get("savings").has(d)) {
             return this.matrix.get(c).get("savings").get(d);
         } else {
@@ -171,6 +184,10 @@ module.exports = class RoutingGraph {
     }
 
     passengers(c) {
+        if (c == null || c == undefined || this.matrix.get(c) == null || this.matrix.get(c) == undefined) {
+            console.log("Parar aqui!!!")
+        }
+        console.log("Pegando dados de ", c)
         return this.matrix.get(c).get("passengers");
     }
 

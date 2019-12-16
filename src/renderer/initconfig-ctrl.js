@@ -512,20 +512,26 @@ $("#finishconfig").click(() => {
         var promisseArray = new Array();
 
         if (firebaseUser != null && importarOpt) {
+            // Limpa db
             promisseArray = clearDBPromises();
+
+            // Armazena algumas variáveis localmente
+            userconfig.set(getDadosPessoais());
+            userconfig.set(getDadosMunicipio());
+            promisseArray.push(AtualizarPromise("Usuarios", getDadosPessoais(), "ID", userconfig.get("ID")));
+
+            // Baixa malha
             if (baixarOpt) { promisseArray.push(baixarMalha()) }
+
+            // Pega documento remoto
             promisseArray.push(remotedb.collection("data").doc(firebaseUser.uid).get());
 
             Promise.all(promisseArray)
                 .then((res) => {
-                    // Armazena algumas variáveis localmente
-                    userconfig.set(getDadosPessoais());
-                    userconfig.set(getDadosMunicipio());
-
                     // Reconstrói o bd
                     var remoteDocumento = res[res.length - 1].data();
                     var basicDBs = ["alunos", "escolas", "fornecedores", "garagem",
-                        "motoristas", "municipios", "rotas", "veiculos"]
+                        "motoristas", "rotas", "veiculos"]
                     var basicDBPromises = new Array();
 
                     for (let i = 0; i < basicDBs.length; i++) {
@@ -539,8 +545,8 @@ $("#finishconfig").click(() => {
                         .then(() => {
                             console.log("DADOS BÁSICOS DO BANCO RECRIADOS");
 
-                            var relDBs = ["escolatemalunos", "faztransporte",
-                                "garagemtemveiculo", "ordemdeservico",
+                            var relDBs = ["escolatemalunos", "municipios",
+                                "garagemtemveiculo", "ordemdeservico", "faztransporte",
                                 "rotaatendealuno", "rotadirigidapormotorista",
                                 "rotapassaporescolas", "rotapossuiveiculo"]
                             var relDBPromises = new Array();
@@ -549,7 +555,16 @@ $("#finishconfig").click(() => {
                                 var dbname = relDBs[i];
                                 var dbdata = remoteDocumento[dbname];
 
-                                dbdata.forEach(data => relDBPromises.push(InserirPromise(dbname, data)))
+
+                                if (dbname == "municipios" || dbname == "faztransporte") {
+                                    dbdata.forEach(data => {
+                                        if (data["ID_USUARIO"] == firebaseUser.uid) {
+                                            relDBPromises.push(InserirPromise(dbname, data))
+                                        }
+                                    })
+                                } else {
+                                    dbdata.forEach(data => relDBPromises.push(InserirPromise(dbname, data)))
+                                }
                             }
 
                             Promise.all(relDBPromises)

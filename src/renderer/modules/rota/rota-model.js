@@ -58,6 +58,15 @@ var parseRotaDB = function (rotaRaw) {
     if (rotaRaw["TURNO_NOTURNO"]) turno.push("Noite");
     rotaJSON["TURNOSTR"] = turno.join(", ");
 
+
+    var dificuldadesAcesso = new Array();
+    if (rotaRaw["DA_PORTEIRA"]) { dificuldadesAcesso.push("Porteira"); }
+    if (rotaRaw["DA_MATABURRO"]) { dificuldadesAcesso.push("Mata-Burro"); }
+    if (rotaRaw["DA_COLCHETE"]) { dificuldadesAcesso.push("Colchete"); }
+    if (rotaRaw["DA_ATOLEIRO"]) { dificuldadesAcesso.push("Atoleiro"); }
+    if (rotaRaw["DA_PONTERUSTICA"]) { dificuldadesAcesso.push("Ponte Rústica"); }
+    rotaJSON["DIFICULDADESTR"] = dificuldadesAcesso.join(", ");
+
     return rotaJSON;
 };
 
@@ -117,6 +126,14 @@ function BuscarDadosMotoristaRotaPromise(idRota) {
         .select("M.*")
         .leftJoin("Motoristas AS M", "R.ID_MOTORISTA", "=", "M.ID_MOTORISTA")
         .where("ID_ROTA", "=", idRota)
+}
+
+function ListarParesDeAlunoEscolasPromise() {
+    return knex("Alunos AS A")
+           .select("A.ID_ALUNO", "E.ID_ESCOLA", "A.LOC_LATITUDE AS ALAT", "A.LOC_LONGITUDE AS ALNG",
+                   "E.LOC_LATITUDE AS ELAT", "E.LOC_LONGITUDE AS ELNG")
+           .innerJoin("EscolaTemAlunos AS R", "R.ID_ALUNO", "=", "A.ID_ALUNO")
+           .innerJoin("Escolas AS E", "E.ID_ESCOLA", "=", "R.ID_ESCOLA")
 }
 
 function ListarTodasAsEscolasPromise() {

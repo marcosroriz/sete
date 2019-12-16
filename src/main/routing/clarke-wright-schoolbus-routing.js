@@ -8,6 +8,7 @@ const Heap = require("heap");
 const RoutingGraph = require("./routing-graph.js");
 const BusRoute = require("./busroute.js");
 const Saving = require("./saving.js");
+const haversine = require("haversine-distance");
 
 class ClarkeWrightSchoolBusRouting {
     constructor(inputData, spatialiteDB) {
@@ -17,10 +18,10 @@ class ClarkeWrightSchoolBusRouting {
         // Algorithm Parameters
         this.maxTravDist = inputData["maxTravDist"];
         this.maxTravTime = inputData["maxTravTime"];
-        this.optTarget   = inputData["optTarget"];
+        this.optTarget = inputData["optTarget"];
         this.numVehicles = inputData["numVehicles"];
         this.maxCapacity = inputData["maxCapacity"];
-        this.busSpeed    = 11.11; // 11.11 m/s ~= 40 km/h
+        this.busSpeed = 11.11; // 11.11 m/s ~= 40 km/h
 
         // Garage
         this.garage = inputData["garage"];
@@ -32,23 +33,31 @@ class ClarkeWrightSchoolBusRouting {
         this.schools = inputData["schools"];
 
         // Create and prepare the routing Graph
-        // FIXME: put argument in inputData
         this.graph = new RoutingGraph(this.spatialiteDB, true);
 
         // Add Garage to the Graph
-        // FIXME: Only using a single garage!
-        this.graph.addGarageVertex(this.garage["key"], this.garage["lat"], this.garage["lng"]);
+        this.graph.addGarageVertex(this.garage[0]["key"], this.garage[0]["lat"], this.garage[0]["lng"]);
 
-        // Add Stops
+        // Add Stops and get used schools
+        this.schoolsUsed = new Set();
         this.stops.forEach((s) => {
             this.graph.addStopVertex(s["key"], s["lat"], s["lng"], s["passengers"]);
+            this.schoolsUsed.add(s["school"]);
         });
 
-        // Get the distance to the first school
-        // FIXME: Fix this
+        // Add Meta School
+        var lat = 0;
+        var lng = 0;
         this.schools.forEach((s) => {
-            this.graph.addSchoolVertex(s["key"], s["lat"], s["lng"]);
-        });
+            if (this.schoolsUsed.has(s["key"])) {
+                lat = lat + parseFloat(s["lat"]);
+                lng = lng + parseFloat(s["lng"]);
+                this.graph.addSpecialSchoolVertex(s["key"], s["lat"], s["lng"]);
+            }
+        })
+        lat = lat / this.schoolsUsed.size;
+        lng = lng / this.schoolsUsed.size;
+        this.graph.addSchoolVertex("school", lat, lng);
 
         // Map of Bus Routes
         this.routes = new Map();
@@ -85,9 +94,9 @@ class ClarkeWrightSchoolBusRouting {
             // Check if it is possible to join the two routes
             if (cRoute.id != dRoute.id && cRoute.lastStop() == saving.c && dRoute.firstStop() == saving.d) {
                 // Create merge route
-                let firstPath  = cRoute.route.slice(0, cRoute.route.length - 1);
+                let firstPath = cRoute.route.slice(0, cRoute.route.length - 1);
                 let secondPath = dRoute.route.slice(1, dRoute.route.length);
-                let mergePath  = firstPath.concat(secondPath);
+                let mergePath = firstPath.concat(secondPath);
                 let mergeRoute = new BusRoute({ path: mergePath });
 
                 // Check if a merge violate constraints
@@ -99,17 +108,17 @@ class ClarkeWrightSchoolBusRouting {
                     // Delete old routes
                     this.routes.delete(cRoute.id);
                     this.routes.delete(dRoute.id);
-                    
+
                     // Put new route
                     this.routes.set(mergeRoute.id, mergeRoute);
                     for (let stopID = 1; stopID < mergePath.length - 1; stopID++) {
-                        this.setRoute(mergePath[stopID], mergeRoute);    
+                        this.setRoute(mergePath[stopID], mergeRoute);
                     }
                 }
             }
         }
     }
-    
+
     getRoute(stopID) {
         return this.routes.get(this.stopsToRouteMap.get(stopID));
     }
@@ -121,28 +130,54 @@ class ClarkeWrightSchoolBusRouting {
     spatialRoute() {
         // First, build spatial index
         return this.buildSpatialIndex()
-                  .then(() => this.buildSpatialMatrix()) // Second, build spatial matrix
-                  .then(() => {
-                      // Third, run clark
-                      return new Promise((resolve, reject) => {
-                          // Build initial rotes for each bus stop (or student)
-                          this.buildInitialRoute();
+            .then(() => this.buildSpatialMatrix()) // Second, build spatial matrix
+            .then(() => {
+                // Third, run clark
+                return new Promise((resolve, reject) => {
+                    // Build initial rotes for each bus stop (or student)
+                    this.buildInitialRoute();
 
-                          // Build savings and put it on a priority queue
-                          let savings = this.graph.buildSavings();
+                    // Build savings and put it on a priority queue
+                    let savings = this.graph.buildSavings();
 
-                          // Process savings
-                          this.processSavings(savings);
+                    // Process savings
+                    this.processSavings(savings);
 
-                          // Print Routes
-                          this.routes.forEach((r) => {
-                              console.log(r.toLatLongRoute(this.graph));
-                              console.log("-------")
-                          });
+                    // Add remainder schools to tail
+                    this.routes.forEach((r) => {
+                        var cuttedPath = r.route.slice(0, r.route.length - 1)
+                        var lastStopKey = cuttedPath[cuttedPath.length - 1]
+                        var lastStop = this.stops[Object.keys(this.stops).find(key => this.stops[key]["key"] == lastStopKey)];
 
-                          resolve(this.routes);
-                      });
-                  });
+                        this.otherSchools = new Map();
+                        this.schools.forEach((s) => {
+                            if (this.schoolsUsed.has(s["key"])) {
+                                var a = { "lat": s["lat"], "lng": s["lng"] }
+                                var b = { "lat": lastStop["lat"], "lon": lastStop["lng"] }
+                                var dist = haversine(a, b);
+                                this.otherSchools.set(dist, s);
+                            }
+                        });
+                        var closestSchoolsIndexes = [...this.otherSchools.keys()].sort();
+                        closestSchoolsIndexes.forEach((ci) => {
+                            cuttedPath.push("otherschool" + this.otherSchools.get(ci)["key"])
+                        });
+                        r.route = cuttedPath;
+                    })
+
+                    // Print Routes
+                    this.routes.forEach((r) => {
+                        console.log(r.toLatLongRoute(this.graph));
+                        console.log("-------")
+                    });
+
+                    resolve(this.routes);
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+                console.log("ERROR");
+            });
     }
 
     route() {
@@ -157,7 +192,7 @@ class ClarkeWrightSchoolBusRouting {
 
         // Process savings
         this.processSavings(savings);
-        
+
         // Print Routes
         this.routes.forEach((r) => {
             console.log(r.toLatLongRoute(this.graph));
