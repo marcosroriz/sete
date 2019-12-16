@@ -2,7 +2,7 @@
   "name": "sete",
   "productName": "sete",
   "version": "1.0.0",
-  "description": "SETE Software de Gestão do Transporte Escolar",
+  "description": "SETE Software Eletronico de Gestao do Transporte Escolar",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -53,8 +53,12 @@
         "setupMsi": "SETEMSI.msi"
       },
       "electronInstallerDMG": {},
-      "electronInstallerDebian": {},
-      "electronInstallerRedhat": {},
+      "electronInstallerDebian": {
+        "icon": "./src/renderer/img/icones/setelogosmall.png"
+      },
+      "electronInstallerRedhat": {
+        "icon": "./src/renderer/img/icones/setelogosmall.png"
+      },
       "github_repository": {
         "owner": "",
         "name": ""

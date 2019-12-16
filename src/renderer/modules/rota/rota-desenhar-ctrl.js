@@ -680,7 +680,11 @@ $("#listarotas").on("change", (evt) => {
                 for (let alunoRaw of alunosResult) {
                     plotarAluno(alunoRaw);
                 }
-                mapaOL.getView().fit(mapaSource.getExtent());
+
+                if (rotaSelect["SHAPE"] != "" && rotaSelect["SHAPE"] != undefined) {
+                    mapaOL.getView().fit(mapaSource.getExtent());
+                }
+
                 Swal2.close();
             })
             .catch((err) => errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, err))
