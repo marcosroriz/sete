@@ -1,0 +1,117 @@
+###############################################################
+#
+# the '#' char represents a comment marker:
+# any text until the next new-line (NL) char will
+# be ignored at all.
+#
+
+###############################################################
+#
+# NodingStrategy section
+#
+# - NodingStrategy:way-ends
+#   any Way end-point (both extremities) is assumed to represent
+#   a Node into the Graph [network] to be built.
+# - NodingStrategy:none
+#   any Way is assumed to directly represent an Arc into the Graph
+#   [network] to be built. No attempt to split and renode the
+#   Graph's Arcs will be performed.
+# - NodingStrategy:all
+#   any Way point is assumed to represent a Node into the Graph
+#   [network] to be built, if it's shared by two or more Ways.
+#
+
+# NodingStrategy:way-ends # default value
+# NodingStrategy:none
+NodingStrategy:all
+
+
+###############################################################
+#
+# OnewayStrategy section
+#
+# - OnewayStrategy:full
+#   the following OSM tags will be assumed to identify oneways:
+#   * oneway:1, oneway:true or oneway:yes [oneway, normal direction]
+#   * oneway:-1 or oneway:reverse [oneway, reverse direction]
+#   * junction:roundabout, highway:motorway or highway:motorway_link
+#   * [implicit oneway, normal direction]
+# - OnewayStrategy:none
+#   all Arcs will be assumed to be bidirectional (no oneway at all).
+# - OnewayStrategy:ignore-roundabout
+#   any junction:roundabout tag will not be assumed to mark an oneway.
+# - OnewayStrategy:ignore-motorway
+#   any highway:motorway or highway:motorway_link tag will not be 
+#   assumed to mark an oneway.
+# - OnewayStrategy:ignore-both-roundabout-and-motorway
+#   any junction:roundabout, highway:motorway or highway:motorway_link
+#   tag will not be assumed to mark an oneway.
+#
+
+OnewayStrategy:full # default value
+# OnewayStrategy:none
+# OnewayStrategy:ignore-roundabout
+# OnewayStrategy:ignore-motorway
+# OnewayStrategy:ignore-both-roundabout-and-motorway
+
+
+###############################################################
+#
+# ClassInclude section
+#
+# - tokens are delimited by colons ':'
+# - the second and third tokens represents a Class-name tag
+#   identifying the Arcs of the Graph: i.e. any Way exposing
+#   this tag will be processed.
+# - special case: suppressing the third token selects any
+#   generic main-class tag to be processed
+#
+
+ClassInclude:highway: # default value (all kind of highway)
+ClassInclude:rodovia: # default value (all kind of rodovia)
+ClassInclude:hidrovia: # default value (all kind of hidrovia)
+
+
+###############################################################
+#
+# ClassIgnore section
+#
+# - tokens are delimited by colons ':'
+# - the second and third tokens represents a Class-name tag
+#   identifying Ways to be completely ignored.
+#
+
+# ClassIgnore:highway:pedestrian
+# ClassIgnore:highway:track
+# ClassIgnore:highway:services
+# ClassIgnore:highway:bus_guideway
+# ClassIgnore:highway:path
+# ClassIgnore:highway:cycleway
+# ClassIgnore:highway:footway
+# ClassIgnore:highway:byway
+# ClassIgnore:highway:steps
+
+
+###############################################################
+#
+# SpeedClass section
+#
+# - tokens are delimited by colons ':'
+# - the second token represents the Road Class-name
+#   [no name, i.e. '::' identifies the defaul value
+#   to be applied when no specific class match is found]
+# - the third token represents the corresponding speed
+#   [expressed in Km/h]
+#
+
+SpeedClass::40.0 # default value
+SpeedClass:motorway:80.0
+SpeedClass:trunk:80.0
+SpeedClass:pavimentada:80.0
+SpeedClass:naopavimentada:40.0
+SpeedClass:primary:60.0
+SpeedClass:secondary:40.0
+SpeedClass:tertiary:30.0
+# SpeedClass:yet_anotherclass_1:1.0
+# SpeedClass:yet_anotherclass_2:2.0
+# SpeedClass:yet_anotherclass_3:3.0
