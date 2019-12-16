@@ -46,7 +46,7 @@ const createEntryWindow = () => {
     appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
 
     // Open the DevTools.
-    appWindow.webContents.openDevTools();
+    // appWindow.webContents.openDevTools();
 
     // Prevent External Navigation
     appWindow.webContents.on("will-navigate", (e, url) => {
