@@ -2,13 +2,22 @@
 const electron = require("electron");
 const { app, BrowserWindow, ipcMain } = electron;
 const path = require("path");
+const fs = require("fs-extra");
 
 // Installer Check
 const squirrel = require("./main/installer/squirrel.js");
 squirrel();
 
 // Database Creator
-const dbPath = path.join(__dirname, "db", "local.db");
+const dbPath = path.join(app.getPath('userData'), "db", "local.db");
+const rawDBPath = path.join(__dirname, "db", "local.db");
+
+if (!fs.existsSync(dbPath)) {
+    fs.copySync(rawDBPath, dbPath);
+    console.log("COPIANDO A BASE DE DADOS DE: ", rawDBPath)
+    console.log("PARA: ", dbPath)
+}
+
 const sqliteDB = require("knex")({
     client: "sqlite3",
     connection: {

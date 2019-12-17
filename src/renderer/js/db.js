@@ -18,7 +18,7 @@ var firebaseUser = null;
 // Base de dados Firestore
 var remotedb = firebase.firestore();
 
-var dbPath = path.join(__dirname, "..", "db", "local.db");
+var dbPath = path.join(userDataDir, "db", "local.db");
 var knex = require("knex")({
     client: "sqlite3",
     connection: {
