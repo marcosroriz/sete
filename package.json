@@ -90,7 +90,7 @@
     "jquery-validation": "^1.19.0",
     "jsts": "^2.1.0",
     "knex": "^0.16.5",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "node-kmeans": "^1.1.9",
     "ol": "^6.0.1",
