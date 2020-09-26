@@ -38,9 +38,10 @@ build_script:
   - set PATH=C:\projects\sete\node_modules\.bin;%PATH%
   - electron-forge make
 
+artifact:
+  - path: "out\sete-win32-x64"
+    name: bin
+
 on_finish:
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
-
-
 
