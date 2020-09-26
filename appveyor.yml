@@ -1,0 +1,14 @@
+image: Visual Studio 2017
+
+platform:
+  - x64
+
+environment:
+  nodejs_version: "12"
+
+# Install scripts
+install:
+  # Get the latest LTS version of Node.js 12
+  - ps: Install-Product node $env:nodejs_version
+  # Install Windows Build Tools
+  - dir "c:\Program Files (x86)\WiX Toolset"*
