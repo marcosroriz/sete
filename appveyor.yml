@@ -22,14 +22,18 @@ install:
   - npm config set msvs_version "2017"
   
   # Install SQLite from Source (Native Module)
-  - npm install sqlite3 --build-from-source --runtime=electron --target=8.3.0 --dist-url=https://electronjs.org/headers
+  #- npm install sqlite3 --build-from-source --runtime=electron --target=8.3.0 --dist-url=https://electronjs.org/headers
 
   # Install Remaining Packages
-  - npm install
+  #- npm install
 
 build_script:
   - set PATH=C:\projects\sete\node_modules\.bin;%PATH%
   - electron-forge make
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 
 
 
