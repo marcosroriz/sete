@@ -38,7 +38,7 @@ build_script:
   - set PATH=C:\projects\sete\node_modules\.bin;%PATH%
   - electron-forge make
 
-artifact:
+artifacts:
   - path: "out\\sete-win32-x64"
     name: bin
 
