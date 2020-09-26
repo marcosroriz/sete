@@ -39,7 +39,7 @@ build_script:
   - electron-forge make
 
 artifact:
-  - path: "out\sete-win32-x64"
+  - path: "out\\sete-win32-x64"
     name: bin
 
 on_finish:
