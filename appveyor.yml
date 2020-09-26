@@ -9,7 +9,7 @@ environment:
 # Install scripts
 install:
   # Get the latest LTS version of Node.js 12
-  - ps: Install-Product node $env:nodejs_version
+  - ps: Install-Product node $env:nodejs_version x64
   # Install Windows Build Tools
   - dir "c:\Program Files (x86)\WiX Toolset"*
   - set PATH="c:\Program Files (x86)\WiX Toolset v3.11\bin";%PATH%
