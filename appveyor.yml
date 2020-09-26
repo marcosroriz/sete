@@ -8,6 +8,8 @@ environment:
 
 # Install scripts
 install:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
   # Get the latest LTS version of Node.js 12
   - ps: Install-Product node $env:nodejs_version x64
 
@@ -28,3 +30,6 @@ install:
 build_script:
   - set PATH=C:\projects\sete\node_modules\.bin;%PATH%
   - electron-forge make
+
+
+
