@@ -10,7 +10,17 @@ environment:
 install:
   # Get the latest LTS version of Node.js 12
   - ps: Install-Product node $env:nodejs_version x64
-  # Install Windows Build Tools
+
+  # Install windows-build-tools
+  - npm install --global windows-build-tools
+  
+  # Set VS 2017
+  - npm config set msvs_version "2017"
+
+  # Set Python to Path
+  - dir "%USERPROFILE%\.windows-build-tools\python27\*"
+  
+  # Add Wix to Build Path
   - dir "c:\Program Files (x86)\WiX Toolset"*
   - set PATH="c:\Program Files (x86)\WiX Toolset v3.11\bin";%PATH%
   - echo %PATH%
