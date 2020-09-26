@@ -2,7 +2,7 @@
   "name": "sete",
   "productName": "sete",
   "version": "1.0.0",
-  "description": "SETE Software Eletronico de Gestao do Transporte Escolar",
+  "description": "SETE Software Eletrônico de Gestão do Transporte Escolar",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -12,8 +12,10 @@
     "lint": "eslint src --color"
   },
   "keywords": [],
-  "author": "CECATE UFG <cecate@fct.ufg.br>",
-  "license": "MIT",
+  "author": {
+    "name": "CECATE UFG",
+    "email": "cecate@fct.ufg.br"
+  },
   "build": {
     "extraResources": [
       "./bin/**"
@@ -22,93 +24,87 @@
       "icon": "./src/renderer/img/icones/setelogo.ico"
     }
   },
+  "license": "MIT",
   "config": {
     "forge": {
-      "make_targets": {
-        "win32": [
-          "squirrel"
-        ],
-        "darwin": [
-          "zip",
-          "dmg"
-        ],
-        "linux": [
-          "deb",
-          "rpm"
-        ]
-      },
-      "electronPackagerConfig": {
-        "packageManager": "yarn"
-      },
-      "electronWinstallerConfig": {
-        "name": "SETE",
-        "description": "SETE",
-        "authors": "CECATE UFG",
-        "version": "1.0.0",
-        "exe": "sete.exe",
-        "noMsi": false,
-        "iconUrl": "file:///home/marcos/Desenvolvimento/Electron/sete/src/renderer/img/icones/setelogo.ico",
-        "setupIcon": "file:///home/marcos/Desenvolvimento/Electron/sete/src/renderer/img/icones/instalador.ico",
-        "setupExe": "SETEEXE.exe",
-        "setupMsi": "SETEMSI.msi"
-      },
-      "electronInstallerDMG": {},
-      "electronInstallerDebian": {
-        "icon": "./src/renderer/img/icones/setelogosmall.png"
-      },
-      "electronInstallerRedhat": {
-        "icon": "./src/renderer/img/icones/setelogosmall.png"
-      },
-      "github_repository": {
-        "owner": "",
-        "name": ""
-      },
-      "windowsStoreConfig": {
-        "packageName": "",
-        "name": "sete"
-      }
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-wix",
+          "config": {
+            "name": "SETE",
+            "description": "SETE",
+            "authors": "CECATE UFG",
+            "version": "1.0.0",
+            "exe": "sete.exe",
+            "noMsi": false,
+            "iconUrl": "file://C:/Desenvolvimento/Javascript/sete/src/renderer/img/icones/setelogo.ico",
+            "setupIcon": "file://C:/Desenvolvimento/Javascript/sete/src/renderer/img/icones/instalador.ico",
+            "setupExe": "SETEEXE.exe",
+            "setupMsi": "SETEMSI.msi"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "sete"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
     }
   },
   "dependencies": {
     "@mapbox/togeojson": "^0.16.0",
-    "bootstrap": "^4.3.1",
+    "bootstrap": "^4.5.2",
     "electron-compile": "^6.4.4",
     "electron-config": "^2.0.0",
-    "electron-rebuild": "^1.8.4",
     "electron-squirrel-startup": "^1.0.0",
-    "electron-store": "^3.1.0",
-    "electron-wix-msi": "^2.1.1",
-    "fs-extra": "^8.1.0",
+    "electron-store": "^6.0.0",
+    "electron-wix-msi": "^3.0.3",
+    "fs-extra": "^9.0.1",
     "geojson": "^0.5.0",
-    "geojson-vt": "^3.2.1",
-    "geolib": "^3.0.4",
-    "haversine-distance": "^1.1.6",
+    "geolib": "^3.3.1",
+    "haversine-distance": "^1.2.1",
     "heap": "^0.2.6",
     "html-to-image": "^0.1.1",
-    "jquery": "^3.3.1",
-    "jquery-mask-plugin": "^1.14.15",
-    "jquery-validation": "^1.19.0",
-    "jsts": "^2.1.0",
-    "knex": "^0.16.5",
-    "lodash": "^4.17.15",
-    "moment": "^2.24.0",
+    "jquery": "^3.5.1",
+    "jquery-mask-plugin": "^1.14.16",
+    "jquery-validation": "^1.19.2",
+    "jsts": "^2.5.1",
+    "knex": "^0.21.5",
+    "lodash": "^4.17.20",
+    "moment": "^2.28.0",
     "node-kmeans": "^1.1.9",
-    "ol": "^6.0.1",
-    "ol-ext": "^3.1.6",
+    "ol": "^6.4.3",
+    "ol-ext": "^3.1.14",
     "ol-geocoder": "^4.0.0",
-    "ol-layerswitcher": "^3.4.0",
-    "osm-read": "^0.6.0",
-    "osmtogeojson": "^3.0.0-beta.3",
-    "papaparse": "^4.6.3",
-    "popper.js": "^1.14.7",
-    "read-excel-file": "^4.0.4",
+    "ol-layerswitcher": "^3.7.0",
+    "osm-read": "^0.7.0",
+    "osmtogeojson": "^3.0.0-beta.4",
+    "papaparse": "^5.3.0",
+    "popper.js": "^1.16.1",
+    "read-excel-file": "^4.0.7",
     "sidebar-v2": "^0.4.0",
     "spatialite": "^0.1.0",
-    "sqlite3": "^4.0.6",
+    "sqlite3": "^5.0.0",
     "sweetalert": "^2.1.2",
-    "sweetalert2": "^8.18.5",
-    "tether": "^1.4.5",
-    "typeface-montserrat": "0.0.54",
+    "sweetalert2": "^10.2.0",
+    "tether": "^1.4.7",
+    "typeface-montserrat": "0.0.75",
     "typeface-patrick-hand": "0.0.72",
     "typeface-poppins": "0.0.72",
     "typeface-roboto": "0.0.75",
@@ -116,18 +112,20 @@
     "zlibjs": "^0.3.1"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.11.2",
+    "@electron-forge/cli": "6.0.0-beta.53",
+    "@electron-forge/maker-deb": "6.0.0-beta.53",
+    "@electron-forge/maker-rpm": "6.0.0-beta.53",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.53",
+    "@electron-forge/maker-wix": "^6.0.0-beta.53",
+    "@electron-forge/maker-zip": "6.0.0-beta.53",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
     "devtron": "^1.4.0",
-    "electron-forge": "^5.2.4",
-    "electron-prebuilt-compile": "4.0.0",
-    "electron-winstaller": "^3.0.4",
-    "eslint": "^3",
-    "eslint-config-airbnb": "^15",
-    "eslint-plugin-import": "^2",
-    "eslint-plugin-jsx-a11y": "^5",
-    "eslint-plugin-react": "^7"
+    "electron": "10.1.2",
+    "electron-winstaller": "^4.0.1",
+    "eslint": "^7.9.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1"
   }
 }
