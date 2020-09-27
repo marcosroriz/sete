@@ -49,7 +49,8 @@ deploy:
   release: SETE-v$(APPVEYOR_BUILD_VERSION)
   description: 'SETE v1.0.0'
   provider: GitHub
-  auth_token: $env:github_token
+  auth_token: 
+    secure: o9FnGoA7kIQPmz6pI/uzpPbOrolyu2jgAzTVV7Ld6TdbmM3pSh60UR7PU2B9FzpF
   artifact: WinBinaries
   on:
     branch: master                 # release from master branch only
