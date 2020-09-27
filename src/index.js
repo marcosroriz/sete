@@ -16,6 +16,8 @@ if (!fs.existsSync(dbPath)) {
     fs.copySync(rawDBPath, dbPath);
     console.log("COPIANDO A BASE DE DADOS DE: ", rawDBPath)
     console.log("PARA: ", dbPath)
+} else {
+    console.log("USANDO BASE DE DADOS:", dbPath)
 }
 
 const sqliteDB = require("knex")({
@@ -46,7 +48,11 @@ const createEntryWindow = () => {
         "minWidth": 1250,
         "minHeight": 650,
         "backgroundThrottling": false,
-        "show": false
+        "show": false,
+        webPreferences: {
+            nodeIntegration: true,
+            enableRemoteModule: true
+        }
     });
 
     // appWindow.setMenuBarVisibility(false);
@@ -55,7 +61,7 @@ const createEntryWindow = () => {
     appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
 
     // Open the DevTools.
-    // appWindow.webContents.openDevTools();
+    appWindow.webContents.openDevTools();
 
     // Prevent External Navigation
     appWindow.webContents.on("will-navigate", (e, url) => {

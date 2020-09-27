@@ -1,7 +1,7 @@
 {
   "name": "sete",
-  "productName": "sete",
-  "version": "1.0.0",
+  "productName": "SETE",
+  "version": "1.0.1",
   "description": "SETE Software Eletrônico de Gestão do Transporte Escolar",
   "main": "src/index.js",
   "scripts": {
@@ -27,27 +27,24 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "packageManager": "npm",
+        "icon": "./src/renderer/img/icones/setelogo.ico"
+      },
       "makers": [
-        {
-          "name": "@electron-forge/maker-wix",
-          "config": {
-            "name": "SETE",
-            "description": "SETE",
-            "authors": "CECATE UFG",
-            "version": "1.0.0",
-            "exe": "sete.exe",
-            "noMsi": false,
-            "iconUrl": "file://C:/Desenvolvimento/Javascript/sete/src/renderer/img/icones/setelogo.ico",
-            "setupIcon": "file://C:/Desenvolvimento/Javascript/sete/src/renderer/img/icones/instalador.ico",
-            "setupExe": "SETEEXE.exe",
-            "setupMsi": "SETEMSI.msi"
-          }
-        },
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "sete"
+            "name": "SETE",
+            "description": "Software de Gestao do Transporte Escolar",
+            "authors": "CECATE UFG",
+            "version": "1.0.1",
+            "exe": "SETE.exe",
+            "noMsi": false,
+            "iconUrl": "https://wikiportes.com.br/setelogo.ico",
+            "setupIcon": "./src/renderer/img/icones/setelogo.ico",
+            "setupExe": "SETE-INSTALADOR-EXE.exe",
+            "setupMsi": "SETE-INSTALADOR-MSI.msi"
           }
         },
         {

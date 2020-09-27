@@ -2,6 +2,9 @@ const { app } = require("electron");
 const path = require("path");
 
 function handleSquirrelEvent() {
+    console.log("Dentro do Squirrel Event")
+    console.log("Argv", process.argv)
+
     // Handle creating/removing shortcuts on Windows when installing/uninstalling.
     if (require('electron-squirrel-startup')) {
         app.quit();
