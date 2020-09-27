@@ -42,15 +42,14 @@ build_script:
   - electron-forge make
 
 artifacts:
-  - path: "\\out\\make\\squirrel.windows\\x64"
+  - path: "\\out\\make\\squirrel.windows\\x64\\SETE-INSTALADOR*"
     name: WinBinaries
 
 deploy:
   release: SETE-v$(APPVEYOR_BUILD_VERSION)
   description: 'SETE v1.0.0'
   provider: GitHub
-  auth_token:
-    secure: $env:github_token
+  auth_token: $env:github_token
   artifact: WinBinaries
   on:
     branch: master                 # release from master branch only
