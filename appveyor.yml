@@ -4,10 +4,7 @@ platform:
   - x64
 
 environment:
-  app_version: 
   nodejs_version: "12"
-  github_token:
-    secure: o9FnGoA7kIQPmz6pI/uzpPbOrolyu2jgAzTVV7Ld6TdbmM3pSh60UR7PU2B9FzpF
 
 # Init (set x64 VC)
 init:
