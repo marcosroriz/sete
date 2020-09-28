@@ -1,6 +1,6 @@
 {
   "name": "sete",
-  "productName": "SETE",
+  "productName": "sete",
   "version": "1.0.1",
   "description": "SETE Software Eletrônico de Gestão do Transporte Escolar",
   "main": "src/index.js",
@@ -33,18 +33,21 @@
       },
       "makers": [
         {
-          "name": "@electron-forge/maker-squirrel",
+          "name": "@electron-forge/maker-wix",
           "config": {
+            "iconPath": "C:\\projects\\sete\\src\\renderer\\img\\icones\\setelogo.ico",
             "name": "SETE",
-            "description": "Software de Gestao do Transporte Escolar",
-            "authors": "CECATE UFG",
-            "version": "1.0.1",
-            "exe": "SETE.exe",
-            "noMsi": false,
-            "iconUrl": "https://wikiportes.com.br/setelogo.ico",
-            "setupIcon": "./src/renderer/img/icones/setelogo.ico",
-            "setupExe": "SETE-INSTALADOR-EXE.exe",
-            "setupMsi": "SETE-INSTALADOR-MSI.msi"
+            "ui": {
+              "enabled": true,
+              "chooseDirectory": true,
+              "images": {
+                "background": "C:\\projects\\sete\\src\\renderer\\img\\installer-bg.jpg",
+                "banner": "C:\\projects\\sete\\src\\renderer\\img\\top-bg.jpg"
+              }
+            },
+            "manufacturer": "CECATE UFG",
+            "language": 1046,
+            "cultures": "pt-BR"
           }
         },
         {
@@ -55,11 +58,14 @@
         },
         {
           "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
+          "config": {
+            "options": {
+              "categories": [
+                "Education"
+              ],
+              "icon": "./src/renderer/img/icones/setelogo.png"
+            }
+          }
         }
       ]
     }

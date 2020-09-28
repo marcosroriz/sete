@@ -1,46 +1,55 @@
-image: Visual Studio 2017
+image: 
+  - Visual Studio 2017
+  - Ubuntu
 
 platform:
   - x64
 
 environment:
+  APPVEYOR_YML_DISABLE_PS_LINUX: true
   nodejs_version: "12"
 
-# Init (set x64 VC)
+# Init (set x64 VC) on Windows
 init:
-  call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 # Install scripts
 install:
   # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
-  # Get the latest LTS version of Node.js 12
+  # Get the latest LTS version of Node.js in Windows
   - ps: Install-Product node $env:nodejs_version x64
 
-  # Add Wix to Build Path
-  - dir "c:\Program Files (x86)\WiX Toolset"*
-  - set PATH="c:\Program Files (x86)\WiX Toolset v3.11\bin";%PATH%
+  # Get the latest LTS version of Node.js in Ubuntu
+  - sh: nvm install $nodejs_version
+  - sh: nvm use $nodejs_version
 
-  # Set NPM to use Visual Studio 2017
-  - npm config set msvs_version "2017"
-  
-  # Set NPM to use Python x64
-  - npm config set python "C:\\Python27-x64\\pythonw.exe"
+  # Add Wix to Windows Build Path
+  - cmd: dir "c:\Program Files (x86)\WiX Toolset"*
+  - cmd: set PATH="c:\Program Files (x86)\WiX Toolset v3.11\bin";%PATH%
+
+  # Set NPM in Windows to use Visual Studio 2017 and Python x64
+  - cmd: npm config set msvs_version "2017"
+  - cmd: npm config set python "C:\\Python27-x64\\pythonw.exe"
   
   # Install Packages
-  - npm install
+  - cmd: npm install 
+  - sh: npm install --no-optional
 
   # Rebuild native packages
   # Install SQLite from Source (Native Module)
   - npm install sqlite3 --build-from-source --runtime=electron --target=10.1.2 --dist-url=https://electronjs.org/headers
   
 build_script:
-  - set PATH=C:\projects\sete\node_modules\.bin;%PATH%
-  - electron-forge make
+  - cmd: set PATH=C:\projects\sete\node_modules\.bin;%PATH%
+  - npm run make
 
 artifacts:
-  - path: "\\out\\make\\squirrel.windows\\x64\\SETE-INSTALADOR*"
+  - path: "\\out\\make\\wix\\x64\\sete.msi"
     name: WinBinaries
+
+  - path: "\\out\\make\\deb\\x64\\sete*"
+    name: UbuntuBinaries
 
 # deploy:
 #   release: SETE-v$(APPVEYOR_BUILD_VERSION)
@@ -54,6 +63,7 @@ artifacts:
 
 
 on_finish:
-  - ECHO Exiting...
+  - cmd: ECHO Exiting...
+  - sh: echo Exiting...
   # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 

@@ -25,21 +25,26 @@ O SETE utiliza bibliotecas nativas, a saber o SQLite, para possibilitar o uso e 
 
 Considerando estes fatores, para construir o **SETE** assume-se as seguintes dependências básicas:
 * Node.js v12 LTS (*e.g.*, Node.js v12.18.3)
+* Yarn v1.22. (utilizado pelo electron para empacotar os binários)
 * Python 2.7 (muitos módulos nativos ainda usam o Python 2)
+* fakeroot, dpkg e rpm para compilar pacotes para GNU/Linux
 * [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools) (para compilação dos módulos no Windows)
 * [Wix Toolset](https://wixtoolset.org) (para gerar binários .msi e .exe para o Windows)
 
 Para compilar o código execute os seguintes passos.
 
 ### 1: Instalação das dependências básicas
-Instale o NodeJS v12. Você pode utilizar os binários disponbilizados no site nodejs.org ou utilizar uma ferramenta de versionamento para instalação (_e.g._, [Node Version Manager - NVM](https://github.com/nvm-sh/nvm)).
+Instale o NodeJS v12. Você pode utilizar os binários disponbilizados no site [nodejs.org](nodejs.org) ou utilizar uma ferramenta de versionamento para instalação (_e.g._, [Node Version Manager - NVM](https://github.com/nvm-sh/nvm)).
 
-<!-- Caso queira compilar para o Windows, instale o Wix Toolset e coloque o diretório `bin` do mesmo na variável PATH. Por exemplo, adicionando `C:\Program Files (x86)\WiX Toolset v3.11\bin` a variável de ambiente PATH. -->
+Semelhantemente, instale o gerenciador de pacotes Yarn v1.22. Você pode utilizar os binários disponiblizados no site [https://yarnpkg.com/](https://yarnpkg.com/). O yarn é utilizado pelo electron-forge para gerar os binários.
 
-Em seguida, instale o electron-forge (que gerencia a execução e criação dos binários do projeto):
+Caso queira compilar para GNU/Linux, instale os pacotes `fakeroot`, `dpkg` e `rpm`. 
+Por exemplo, no Ubuntu 18.04, você deve executar o seguinte comando:
 ```sh
-npm install -g electron-forge
+sudo apt-get install fakeroot dpkg rpm
 ```
+
+Caso queira compilar para o Windows, instale o Wix Toolset e coloque o diretório `bin` do mesmo na variável PATH. Por exemplo, adicionando `C:\Program Files (x86)\WiX Toolset v3.11\bin` a variável de ambiente PATH.
 
 No caso da plataforma Windows ainda é necessário instalar o pacote global [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools) para compilação dos módulos nativos. Como administrador instale este pacote executando o seguinte comando:
 ```sh
@@ -79,12 +84,11 @@ npm run start
 
 ### 4: Geração de Binários
 
-A geração de binários é feita utilizando o utilitário `electron-forge`. Especificamente, para gerar os binários, que ficarão na pasta `out´, execute o seguinte comando:
+A geração de binários é feita utilizando o utilitário `electron-forge`. Especificamente, para gerar os binários, que ficarão na pasta `out`, execute o seguinte comando:
 
 ```sh
-electron-forge make
+npm run make
 ```
-
 
 ## Licença de Uso
 O sistema é distribuído gratuitamente sob a licença de software livre [MIT](https://github.com/marcosroriz/sete/blob/master/LICENSE) que possibilita o compartilhamento e modificação do código do mesmo por terceiros, por exemplo, por agências públicas, empresas e equipes tecnológicas dos municípios.
