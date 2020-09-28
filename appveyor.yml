@@ -1,5 +1,5 @@
 image: 
-  - Visual Studio 2017
+  # - Visual Studio 2017
   - Ubuntu
 
 platform:
@@ -23,6 +23,9 @@ install:
   # Get the latest LTS version of Node.js in Ubuntu
   - sh: nvm install $nodejs_version
   - sh: nvm use $nodejs_version
+
+  # Install basic packages in Ubuntu
+  - sh: sudo apt-get install -y fakeroot dpkg rpm
 
   # Add Wix to Windows Build Path
   - cmd: dir "c:\Program Files (x86)\WiX Toolset"*
