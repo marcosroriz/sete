@@ -90,3 +90,6 @@ out/
 
 # Eclipse Project
 .project
+
+# Binaries
+bin/sete-*

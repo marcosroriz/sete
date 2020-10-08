@@ -97,14 +97,16 @@ var codCidade = userconfig.get("COD_CIDADE");
 var codEstado = userconfig.get("COD_ESTADO");
 var minZoom = 15;
 
-knex("IBGE_Municipios")
-    .select()
-    .where("codigo_ibge", userconfig.get("COD_CIDADE"))
-    .then(res => {
-        cidadeLatitude = res[0]["latitude"];
-        cidadeLongitude = res[0]["longitude"];
+if (codCidade != null) {
+    knex("IBGE_Municipios")
+        .select()
+        .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+        .then(res => {
+            cidadeLatitude = res[0]["latitude"];
+            cidadeLongitude = res[0]["longitude"];
 
-    });
+        });
+}
 
 // Funções comuns do banco de dados
 function InserirPromise(table, data) {

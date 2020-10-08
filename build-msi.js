@@ -19,6 +19,7 @@ const msiCreator = new MSICreator({
 	description: 'Software de Gestao do Transporte Escolar',
 	manufacturer: 'CECATE UFG',
 	language: 1046,
+	cultures: "pt-BR",
 	version: '1.0.0'
 });
 
