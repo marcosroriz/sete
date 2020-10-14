@@ -35,7 +35,7 @@ var currentPage = "./dashboard-main.html";
 var errorFn = (msg, err) => {
     Swal2.fire({
         title: "Ops... tivemos um problema!",
-        text: msg + " Feche e abra o software novamente. \n" + err,
+        text: msg + "\n Caso o erro persista, informe a seguinte mensagem para a equipe de suporte (cecateufg@gmail.com): \n" + err,
         icon: "error",
         type: "error",
         button: "Fechar"
