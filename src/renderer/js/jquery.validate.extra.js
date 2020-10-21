@@ -125,7 +125,7 @@ window.$.validator.addMethod("renavam", function (value, element) {
 
 // Validar campos que só podem ter letras
 window.$.validator.addMethod("lettersonly", function (value, element) {
-    return this.optional(element) || /^[a-z áàäéêëíïóõôöúûüùçñ]+$/i.test(value);
+    return this.optional(element) || /^[a-z ãõáàäéêëíïóõôöúûüùçñ]+$/i.test(value);
 }, "Informe apenas caracteres válidos");
 
 // Validar escolha de estado em um select
