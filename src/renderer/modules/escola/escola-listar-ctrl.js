@@ -22,6 +22,7 @@ var dataTableEscolas = $("#datatables").DataTable({
     ],
     columnDefs: [{
         targets: 0,
+        type: 'locale-compare',
         render: function (data, type, row) {
             return data.length > 50 ?
                 data.substr(0, 50) + '…' :

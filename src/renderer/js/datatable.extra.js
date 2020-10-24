@@ -90,6 +90,10 @@ jQuery.fn.dataTable.ext.type.search['locale-compare'] = function (data) {
         : typeof data === 'string'
             ? data
                 .replace(/\n/g, ' ')
+                .replace(/[e]/g,'e')
+                .replace(/[í]/g,'i')
+                .replace(/[ã]/g,'a')
+                .replace(/[õ]/g,'o')
                 .replace(/[éÉěĚèêëÈÊË]/g, 'e')
                 .replace(/[šŠ]/g, 's')
                 .replace(/[čČçÇ]/g, 'c')

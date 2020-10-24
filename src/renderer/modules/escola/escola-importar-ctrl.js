@@ -5,25 +5,29 @@ var listaDeEscolas = new Map();
 var dataTableEscolas = $("#datatables").DataTable({
     // fixedHeader: true,
     columns: [
+        { data: "SELECT", width: "5%" },
         { data: 'NOME', width: "40%" },
-        { data: 'LOCALIZACAO', width: "15%" },
+        { data: 'LOCALIZACAO', width: "20%" },
         { data: 'ENSINO', width: "20%" },
-        { data: 'REGIME', width: "20%" },
+        { data: 'REGIME', width: "25%" },
+    ],
+    columnDefs: [
         {
-            data: "ACOES",
-            width: "110px",
-            sortable: false,
-            defaultContent: '<a href="#" class="btn btn-link btn-info escolaStudent"><i class="fa fa-user"></i></a>' +
-                '<a href="#" class="btn btn-link btn-primary escolaView"><i class="fa fa-search"></i></a>' +
-                '<a href="#" class="btn btn-link btn-warning escolaEdit"><i class="fa fa-edit"></i></a>' +
-                '<a href="#" class="btn btn-link btn-danger escolaRemove"><i class="fa fa-times"></i></a>'
+            targets: 1,
+            type: 'locale-compare',
+        },
+        {
+            targets: 0,
+            'checkboxes': {
+                'selectRow': true
+            }
         }
     ],
-    order: [[0, "desc"]],
-    columnDefs: [{
-        targets: 0,
-        type: 'locale-compare',
-    }],
+    order: [[1, "asc"]],
+    select: {
+        style: 'multi',
+        info: false
+    },
     autoWidth: false,
     bAutoWidth: false,
     lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
@@ -43,33 +47,11 @@ var dataTableEscolas = $("#datatables").DataTable({
             "previous": "Anterior"
         },
     },
-    dom: 'lfrtipB',
-    buttons: [
-        {
-            extend: 'pdfHtml5',
-            orientation: "landscape",
-            title: "Escolas cadastradas no MEC",
-            text: "Exportar para PDF",
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4]
-            },
-            customize: function (doc) {
-                doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                doc.images = doc.images || {};
-                doc.images["logo"] = baseImages.get("logo");
-                doc.content.splice(1, 0, {
-                    alignment: 'center',
-                    margin: [0, 0, 0, 12],
-                    image: "logo"
-                });
-                doc.styles.tableHeader.fontSize = 12;
-            }
-        }
-    ]
+    dom: 'lfrtip',
 });
 
-$('input[type="search"]').keyup(function () {
-    dataTableEscolas.search(jQuery.fn.dataTable.ext.type.search.string(this.value)).draw()
+$("#datatables_filter input").on('keyup', function () {
+    dataTableEscolas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
 })
 
 dataTableEscolas.on('click', '.escolaStudent', function () {
@@ -188,6 +170,7 @@ BuscarDadoEspecificoPromise("MEC_Escolas", "CO_MUNICIPIO", codCidade)
             console.log(escolaJSON);
 
             listaDeEscolas.set(escolaJSON["CO_ENTIDADE"], escolaJSON);
+            escolaJSON["SELECT"] = ""
             dataTableEscolas.row.add(escolaJSON);
 
         }
