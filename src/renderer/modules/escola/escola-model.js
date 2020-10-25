@@ -87,6 +87,7 @@ var parseEscolaDB = function (escolaRaw) {
     }
 
     var tipoEnsino = new Array();
+    if (escolaRaw["ENSINO_PRE_ESCOLA"]) tipoEnsino.push("Pré-escola")
     if (escolaRaw["ENSINO_FUNDAMENTAL"]) tipoEnsino.push("Fundamental");
     if (escolaRaw["ENSINO_MEDIO"]) tipoEnsino.push("Médio");
     if (escolaRaw["ENSINO_SUPERIOR"]) tipoEnsino.push("Superior");
@@ -96,7 +97,11 @@ var parseEscolaDB = function (escolaRaw) {
     if (escolaRaw["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
     if (escolaRaw["HORARIO_NOTURNO"]) horarioEnsino.push("Tarde");
     if (escolaRaw["HORARIO_VESPERTINO"]) horarioEnsino.push("Noite");
-    escolaJSON["HORARIO"] = horarioEnsino.join(", ");
+    
+    if (horarioEnsino != 0)
+        escolaJSON["HORARIO"] = horarioEnsino.join(", ");
+    else
+        escolaJSON["HORARIO"] = "Não informado"
 
     var regimeEnsino = new Array();
     if (escolaRaw["MEC_IN_REGULAR"]) regimeEnsino.push("Regular");

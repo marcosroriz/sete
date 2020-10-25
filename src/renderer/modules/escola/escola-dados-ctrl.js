@@ -1,6 +1,11 @@
 // Cria mapa
 var elat = estadoEscola["LOC_LATITUDE"];
 var elng = estadoEscola["LOC_LONGITUDE"]
+
+if (elat == null || elng == null) {
+    elat = cidadeLatitude
+    elng = cidadeLongitude
+}
 var mapaDetalhe = novoMapaOpenLayers("mapDetalheEscola", elat, elng);
 mapaDetalhe["activateImageLayerSwitcher"]();
 
@@ -133,13 +138,13 @@ var popularTabelaInstitucional = () => {
     dataTableInstitucional.row.add(["Estado", ibgeEstados[estadoEscola["MEC_CO_UF"]]["nome"]]);
     dataTableInstitucional.row.add(["Município", ibgeMunicipios[estadoEscola["MEC_CO_MUNICIPIO"]]]);
 
-    if (estadoEscola["LOC_CEP"] != "") {
+    if (estadoEscola["LOC_CEP"] != "" && estadoEscola["LOC_CEP"] != null) {
         dataTableInstitucional.row.add(["CEP", estadoEscola["DEPENDENCIA"]]);
     } else {
         dataTableInstitucional.row.add(["CEP", "CEP não informado"]);
     }
 
-    if (estadoEscola["LOC_ENDERECO"] != "") {
+    if (estadoEscola["LOC_ENDERECO"] != "" && estadoEscola["LOC_ENDERECO"] != null) {
         dataTableInstitucional.row.add(["Endereço", estadoEscola["LOC_ENDERECO"]]);
     } else {
         dataTableInstitucional.row.add(["Endereço", "Endereço não informado"]);
@@ -161,13 +166,13 @@ var popularTabelaInstitucional = () => {
     }
     dataTableInstitucional.row.add(["Dependência", estadoEscola["DEPENDENCIA"]]);
 
-    if (estadoEscola["CONTATO_RESPONSAVEL"] != "") {
+    if (estadoEscola["CONTATO_RESPONSAVEL"] != "" && estadoEscola["CONTATO_RESPONSAVEL"] != null) {
         dataTableInstitucional.row.add(["Contato", estadoEscola["CONTATO_RESPONSAVEL"]]);
     } else {
         dataTableInstitucional.row.add(["Contato", "Contato não informado"]);
     }
 
-    if (estadoEscola["CONTATO_TELEFONE"] != "") {
+    if (estadoEscola["CONTATO_TELEFONE"] != "" && estadoEscola["CONTATO_TELEFONE"] != null) {
         dataTableInstitucional.row.add(["Telefone de Contato", estadoEscola["CONTATO_TELEFONE"]]);
     } else {
         dataTableInstitucional.row.add(["Telefone de Contato", "Telefone de contato não informado"]);
