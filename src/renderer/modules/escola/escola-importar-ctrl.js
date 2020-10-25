@@ -113,7 +113,7 @@ $("#importarEscolasBtn").on('click', () => {
                     delete escola["REGIME"];
                     delete escola["SELECT"];
 
-                    promiseArray.push(InserirPromise("Escolas", escola).then(() => updateProgress()))
+                    promiseArray.push(InserirIgnorarConflitoPromise("Escolas", escola).then(() => updateProgress()))
                 })
                 Promise.all(promiseArray).then(() => {
                     Swal2.fire({
@@ -253,7 +253,6 @@ var listaInicialCB = (err, result) => {
 console.log("CO_MUNICIPIO", codCidade)
 BuscarDadoEspecificoPromise("MEC_Escolas", "CO_MUNICIPIO", codCidade)
     .then(result => {
-        $("#totalNumEscolas").text(result.length);
         var count = 0;
         for (let escolaRaw of result) {
             let escolaJSON = parseEscolaMECDB(escolaRaw);
@@ -264,7 +263,7 @@ BuscarDadoEspecificoPromise("MEC_Escolas", "CO_MUNICIPIO", codCidade)
                 dataTableEscolas.row.add(escolaJSON);
             }
         }
-
+        $("#totalNumEscolas").text(count);
         dataTableEscolas.draw();
     })
     .catch(err => {

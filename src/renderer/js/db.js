@@ -119,6 +119,15 @@ function Inserir(table, data, cb) {
         .catch(err => cb(err));
 }
 
+function InserirIgnorarConflitoPromise(table, data) {
+    return knex.raw(
+        knex(table)
+            .insert(data)
+            .toString()
+            .replace('insert', 'INSERT OR IGNORE')
+    );
+}
+
 function AtualizarPromise(table, data, column, id) {
     return knex(table).where(column, '=', id).update(data);
 }
