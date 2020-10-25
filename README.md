@@ -72,7 +72,7 @@ npm install
 
 Por fim, recompile a dependência nativa.
 ```sh
-npm install sqlite3 --build-from-source --runtime=electron --target=10.1.2 --dist-url=https://electronjs.org/headers
+npm install sqlite3 --build-from-source --runtime=electron --target=8.5.2 --dist-url=https://electronjs.org/headers
 ```
 
 ### 3: Executando o projeto
