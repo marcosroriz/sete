@@ -2,33 +2,35 @@
 var elat = estadoEscola["LOC_LATITUDE"];
 var elng = estadoEscola["LOC_LONGITUDE"]
 
-if (elat == null || elng == null) {
-    elat = cidadeLatitude
-    elng = cidadeLongitude
-}
-var mapaDetalhe = novoMapaOpenLayers("mapDetalheEscola", elat, elng);
-mapaDetalhe["activateImageLayerSwitcher"]();
+if (elat != null && elng != null) {
+    $("#avisoNaoGeoReferenciada").hide();
 
-window.onresize = function () {
-    setTimeout(function () {
-        if (mapaDetalhe != null) { mapaDetalhe["map"].updateSize(); }
-    }, 200);
-}
+    var mapaDetalhe = novoMapaOpenLayers("mapDetalheEscola", elat, elng);
+    mapaDetalhe["activateImageLayerSwitcher"]();
 
-// Desenha marcador
-var posicaoEscola = new ol.Feature({
-    "geometry": new ol.geom.Point(ol.proj.fromLonLat([elng, elat]))
-});
-posicaoEscola.setStyle(new ol.style.Style({
-    image: new ol.style.Icon({
-        anchor: [12, 37],
-        anchorXUnits: 'pixels',
-        anchorYUnits: 'pixels',
-        opacity: 1,
-        src: "img/icones/escola-marcador.png"
-    })
-}));
-mapaDetalhe["vectorSource"].addFeature(posicaoEscola);
+    window.onresize = function () {
+        setTimeout(function () {
+            if (mapaDetalhe != null) { mapaDetalhe["map"].updateSize(); }
+        }, 200);
+    }
+
+    // Desenha marcador
+    var posicaoEscola = new ol.Feature({
+        "geometry": new ol.geom.Point(ol.proj.fromLonLat([elng, elat]))
+    });
+    posicaoEscola.setStyle(new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [12, 37],
+            anchorXUnits: 'pixels',
+            anchorYUnits: 'pixels',
+            opacity: 1,
+            src: "img/icones/escola-marcador.png"
+        })
+    }));
+    mapaDetalhe["vectorSource"].addFeature(posicaoEscola);
+} else {
+    $("#mapDetalheEscola").hide();
+}
 
 // Tira o btn group do datatable
 $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons';
@@ -112,9 +114,9 @@ var dataTableInstitucional = $("#dataTableInstitucional").DataTable({
                                     text: "Escola removida com sucesso!",
                                     confirmButtonText: 'Retornar a página de administração'
                                 })
-                                .then(() => {
-                                    navigateDashboard("./modules/escola/escola-listar-view.html");
-                                });
+                                    .then(() => {
+                                        navigateDashboard("./modules/escola/escola-listar-view.html");
+                                    });
                             } else {
                                 Swal2.fire({
                                     type: 'error',
