@@ -36,7 +36,7 @@ var dataTableEscolas = $("#datatables").DataTable({
         "search": "_INPUT_",
         "searchPlaceholder": "Procurar escolas",
         "lengthMenu": "Mostrar _MENU_ escolas por página",
-        "zeroRecords": "Não encontrei nenhuma escola para importar",
+        "zeroRecords": "Não encontrei nenhuma escola com este filtro",
         "info": "Mostrando página _PAGE_ de _PAGES_",
         "infoEmpty": "Sem registros disponíveis",
         "infoFiltered": "(Escolas filtradas a partir do total de _MAX_ escolas)",
@@ -53,6 +53,95 @@ var dataTableEscolas = $("#datatables").DataTable({
 $("#datatables_filter input").on('keyup', function () {
     dataTableEscolas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
 })
+
+$("#importarEscolasBtn").on('click', () => {
+    var rawDados = dataTableEscolas.rows('.selected').data().toArray();
+    if (rawDados.length == 0) {
+        Swal2.fire({
+            title: "Nenhuma escola selecionada",
+            text: "Por favor, selecione pelo menos uma escolas a ser importarda para prosseguir.",
+            icon: "error",
+            confirmButtonText: "Fechar"
+        })
+    } else {
+        Swal2.fire({
+            title: 'Você quer importar as escolas selecionadas?',
+            text: "Você irá importar " + rawDados.length + " escolas para o banco de dados.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: "Cancelar",
+            confirmButtonText: 'Sim'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log("SIM")
+                Swal2.fire({
+                    title: "Importando as escolas...",
+                    imageUrl: "img/icones/processing.gif",
+                    closeOnClickOutside: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    html: `
+                    <br />
+                    <div class="progress" style="height: 20px;">
+                        <div id="pbar" class="progress-bar" role="progressbar" 
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" 
+                             style="width: 0%;">
+                        </div>
+                    </div>
+                    `
+                })
+
+                var progresso = 0;
+                var max = rawDados.length;
+
+                function updateProgress() {
+                    progresso++;
+                    console.log(Math.round(100 * (progresso/max)));
+                    var progressPorcentagem = Math.round(100 * (progresso/max))
+
+                    $('.progress-bar').css('width', progressPorcentagem + "%")
+                }
+
+                var dados = [].concat(rawDados)
+                var promiseArray = new Array();
+                dados.forEach((escola) => {
+                    delete escola["LOCALIZACAO"];
+                    delete escola["DEPENDENCIA"];
+                    delete escola["ENSINO"];
+                    delete escola["REGIME"];
+                    delete escola["SELECT"];
+
+                    promiseArray.push(InserirPromise("Escolas", escola).then(() => updateProgress()))
+                })
+                Promise.all(promiseArray).then(() => {
+                    Swal2.fire({
+                        title: "Parabéns!",
+                        text: "As escolas foram importadas com sucesso.",
+                        icon: "success",
+                        type: "success",
+                        button: "Fechar"
+                    });
+                })
+
+            }
+        })
+    }
+
+
+    // var dados = [].concat(rawDados)
+    // dados.forEach((k) => {
+    //     delete k["LOCALIZACAO"];
+    //     delete k["DEPENDENCIA"];
+    //     delete k["ENSINO"];
+    //     delete k["REGIME"];
+    //     delete k["SELECT"];
+    // })
+    // InserirPromise("Escolas", dados).then((res) => console.log(res))
+});
+
+
 
 dataTableEscolas.on('click', '.escolaStudent', function () {
     var $tr = getRowOnClick(this);
@@ -165,19 +254,19 @@ console.log("CO_MUNICIPIO", codCidade)
 BuscarDadoEspecificoPromise("MEC_Escolas", "CO_MUNICIPIO", codCidade)
     .then(result => {
         $("#totalNumEscolas").text(result.length);
+        var count = 0;
         for (let escolaRaw of result) {
             let escolaJSON = parseEscolaMECDB(escolaRaw);
-            console.log(escolaJSON);
 
-            listaDeEscolas.set(escolaJSON["CO_ENTIDADE"], escolaJSON);
-            escolaJSON["SELECT"] = ""
-            dataTableEscolas.row.add(escolaJSON);
-
+            if (escolaJSON["ENSINO"] != "") {
+                listaDeEscolas.set(escolaJSON["CO_ENTIDADE"], escolaJSON);
+                escolaJSON["SELECT"] = count++;
+                dataTableEscolas.row.add(escolaJSON);
+            }
         }
 
         dataTableEscolas.draw();
-
     })
     .catch(err => {
-        errorFn
+        errorFn("Erro ao listar as escolas a serem importadas")
     })

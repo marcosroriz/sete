@@ -113,8 +113,15 @@ var parseEscolaDB = function (escolaRaw) {
 
 // Transformar linha do DB para JSON
 var parseEscolaMECDB = function (escolaRaw) {
-    var escolaJSON = Object.assign({}, escolaRaw);
-    escolaJSON["NOME"] = escolaJSON["NO_ENTIDADE"];
+    var escolaJSON = {}; // Object.assign({}, escolaRaw);
+    escolaJSON["NOME"] = escolaRaw["NO_ENTIDADE"];
+    escolaJSON["MEC_NO_ENTIDADE"] = escolaRaw["NO_ENTIDADE"];
+    escolaJSON["ID_ESCOLA"] = Number(escolaRaw["CO_ENTIDADE"]);
+    escolaJSON["MEC_CO_ENTIDADE"] = Number(escolaRaw["CO_ENTIDADE"]);
+    escolaJSON["MEC_CO_UF"] = Number(escolaRaw["CO_UF"]);
+    escolaJSON["MEC_CO_MUNICIPIO"] = Number(escolaRaw["CO_MUNICIPIO"]);
+    
+    escolaJSON["MEC_TP_LOCALIZACAO"] = Number(escolaRaw["TP_LOCALIZACAO"]);
     switch (Number(escolaRaw["TP_LOCALIZACAO"])) {
         case 1:
             escolaJSON["LOCALIZACAO"] = "Urbana";
@@ -126,6 +133,7 @@ var parseEscolaMECDB = function (escolaRaw) {
             escolaJSON["LOCALIZACAO"] = "Urbana";
     }
 
+    escolaJSON["MEC_TP_DEPENDENCIA"] = Number(escolaRaw["TP_DEPENDENCIA"]);
     switch (Number(escolaRaw["TP_DEPENDENCIA"])) {
         case 1:
             escolaJSON["DEPENDENCIA"] = "Federal";
@@ -144,9 +152,20 @@ var parseEscolaMECDB = function (escolaRaw) {
     }
 
     var tipoEnsino = new Array();
+    if (Boolean(Number(escolaRaw["IN_COMUM_CRECHE"])) ||
+        Boolean(Number(escolaRaw["IN_COMUM_PRE"]))) {
+        tipoEnsino.push("Pré-escola");
+        escolaJSON["ENSINO_PRE_ESCOLA"] = true;
+    } else {
+        escolaJSON["ENSINO_PRE_ESCOLA"] = false;
+    }
+
     if (Boolean(Number(escolaRaw["IN_COMUM_FUND_AI"])) ||
         Boolean(Number(escolaRaw["IN_COMUM_FUND_AF"]))) {
         tipoEnsino.push("Fundamental");
+        escolaJSON["ENSINO_FUNDAMENTAL"] = true;
+    } else {
+        escolaJSON["ENSINO_FUNDAMENTAL"] = false;
     }
 
     if (Boolean(Number(escolaRaw["IN_COMUM_MEDIO_MEDIO"])) ||
@@ -154,22 +173,23 @@ var parseEscolaMECDB = function (escolaRaw) {
         Boolean(Number(escolaRaw["IN_COMUM_MEDIO_INTEGRADO"])) ||
         Boolean(Number(escolaRaw["IN_COMUM_MEDIO_NORMAL"]))) {
         tipoEnsino.push("Médio");
+        escolaJSON["ENSINO_MEDIO"] = true;
+    } else {
+        escolaJSON["ENSINO_MEDIO"] = false;
     }
     escolaJSON["ENSINO"] = tipoEnsino.join(", ");
 
-    // var horarioEnsino = new Array();
-    // if (escolaRaw["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
-    // if (escolaRaw["HORARIO_NOTURNO"]) horarioEnsino.push("Tarde");
-    // if (escolaRaw["HORARIO_VESPERTINO"]) horarioEnsino.push("Noite");
-    // escolaJSON["HORARIO"] = horarioEnsino.join(", ");
-
     var regimeEnsino = new Array();
-    if (Boolean(Number(escolaRaw["IN_REGULAR"]))) regimeEnsino.push("Regular");
-    if (Boolean(Number(escolaRaw["IN_EJA"]))) regimeEnsino.push("EJA");
-    if (Boolean(Number(escolaRaw["IN_PROFISSIONALIZANTE"]))) regimeEnsino.push("Profissionalizante");
-    escolaJSON["REGIME"] = regimeEnsino.join(", ");
+    escolaJSON["MEC_IN_REGULAR"] = Boolean(Number(escolaRaw["IN_REGULAR"]))
+    if (escolaJSON["MEC_IN_REGULAR"]) regimeEnsino.push("Regular")
 
-    escolaJSON["NUM_ALUNOS"] = 0;
+    escolaJSON["MEC_IN_EJA"] = Boolean(Number(escolaRaw["IN_EJA"]))
+    if (escolaJSON["MEC_IN_EJA"]) regimeEnsino.push("EJA");
+
+    escolaJSON["MEC_IN_PROFISSIONALIZANTE"] = Boolean(Number(escolaRaw["IN_PROFISSIONALIZANTE"]))
+    if (escolaJSON["MEC_IN_PROFISSIONALIZANTE"]) regimeEnsino.push("Profissionalizante");
+
+    escolaJSON["REGIME"] = regimeEnsino.join(", ");
     return escolaJSON;
 };
 

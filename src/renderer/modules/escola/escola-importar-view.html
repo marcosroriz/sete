@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row justify-content-center mb-3">
-        <img id="pageIcon" src="./img/icones/escola-cadastro.png">
-        <p class="pageTitle">Escolas Cadastradas</p>
+        <img id="censoIcon" src="./img/icones/censo_pb.png">
+        <p class="pageTitle">Importar escolas do Censo Escolar</p>
     </div>
 
     <div class="row">
@@ -11,10 +11,31 @@
                     <div class="row">
                         <div class="col-12 text-center">
                             <div class="totalText">
-                                Total de Escolas
+                                Total de escolas registradas no Censo Escolar
                                 <span id="totalNumEscolas" class="badge badge-success badge-total"></span>
                             </div>
                         </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <h6 class="mb-4 mt-1 text-center text-space">
+                            Essa ferramenta possibilita importar as escolas cadastradas no Censo Escolar.
+                        </h6>
+                    </div>
+                    <div class="row mt-2">
+                        <ul class="fa-ul ul-dica">
+                            <li><span class="fa-li">
+                                <i class="fa fa-info-circle"></i></span>
+                                Para selecionar uma ou mais escola, basta clicar no ícone <i
+                            class="fa fa-square-o"></i>
+                            </li>
+                            <li><span class="fa-li"><i class="fa fa-info-circle"></i></span>
+                                Para selecionar todas as escolas, clique no ícone <i
+                            class="fa fa-square-o"></i> no cabeçalho da tabela.
+                            </li>
+                            <li><span class="fa-li"><i class="fa fa-info-circle"></i></span>
+                                Por fim, clique no botão <div class="badge badge-warning badge-total badge-censo">Importar</div> para concluir o processo.
+                            </li>
+                        </ul>
                     </div>
                     <div class="fresh-datatables">
                         <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0"
@@ -32,8 +53,8 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="row mt-4 p-5">
-                        <button type="button" id="importarEscolas" class="btn btn-warning btn-lg btn-block">
+                    <div class="row mt-5 p-5">
+                        <button type="button" id="importarEscolasBtn" class="btn btn-warning btn-lg btn-block">
                             Importar Escolas
                         </button>
                     </div>

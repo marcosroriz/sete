@@ -400,7 +400,7 @@ img#pageIcon {
 
 .form-check-radio input[type="radio"]:checked+.form-check-sign::after {
     padding-top: 0px !important;
-    margin-top: -26px !important;
+    /* margin-top: -26px !important; */
     color: #485f8e;
 }
 
@@ -1049,6 +1049,10 @@ img.ctrlIcon {
     height: 80px;
 }
 
+div#datatables_length {
+    float: left;
+}
+
 .datatable-relatorio div#datatables_length {
     float: none;
     text-align: center;
@@ -1075,4 +1079,17 @@ div#datatables_filter {
     background: #1bafce;
     border: #1bafce;
     font-weight: 600;
+}
+
+#pbar {
+    height: 100%;
+}
+
+img#censoIcon {
+    max-height: 60px;
+}
+
+
+.badge-censo {
+    color: white;
 }
