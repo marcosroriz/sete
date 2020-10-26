@@ -31,8 +31,8 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane tab-wiz fade" id="tab-dados-basicos" role="tabpanel">
-                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito do
-                                    aluno sendo cadastrado.</h6>
+                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a respeito da
+                                    rota sendo cadastrada.</h6>
                                 <div class="row justify-content-center">
                                     <div class="col-12">
                                         <div class="form-group obr">
@@ -93,10 +93,10 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group obr">
+                                        <div class="form-group opt">
                                             <div class="row">
-                                                <div class="obrlabel">
-                                                    Obrigatório
+                                                <div class="optlabel">
+                                                    Optativo
                                                 </div>
                                                 <label class="col-5 control-label">
                                                     Informe o veículo (e placa) utilizado para realizar essa rota:
@@ -104,6 +104,7 @@
                                                 </label>
                                                 <div class="col-5 mt-2">
                                                     <select id="tipoVeiculo" name="tipoVeiculo" class="form-control">
+                                                        <option value="-1">Escolher veículo depois</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -111,10 +112,10 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group obr">
+                                        <div class="form-group opt">
                                             <div class="row">
-                                                <div class="obrlabel">
-                                                    Obrigatório
+                                                <div class="optlabel">
+                                                    Optativo
                                                 </div>
                                                 <label class="col-5 control-label">
                                                     Informe os motoristas responsáveis por essa rota:
@@ -123,10 +124,11 @@
                                                 <div class="col-5">
                                                     <select id="tipoMotorista" name="tipoMotorista" class="selectpicker"
                                                         multiple>
+                                                        <option value="-1">Escolher motorista depois</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="row">
+                                            <div class="row marcarTodosLabel">
                                                 <div class="col-6"></div>
                                                 <span class="ml-5 hint">Marque todos que se aplique</span>
                                             </div>

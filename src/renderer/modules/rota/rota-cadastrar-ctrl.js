@@ -11,6 +11,10 @@ var novosAlunos = new Set();
 var antEscolas = new Set();
 var antAlunos = new Set();
 
+// Boolean que indica se o veículo e motoristas foram definidos previamente para esta rota
+var veiculoInformadoPrev = false;
+var motoristaInformadoPrev = false;
+
 // Filtros
 $('#escolasNaoAtendidas').textFilter($('#filtroEscolasNaoAtendidas'));
 $('#escolasAtentidas').textFilter($('#filtroEscolasAtendidas'));
@@ -135,7 +139,7 @@ var completeForm = () => {
         });
 }
 
-$("#salvarrota").click(() => {
+$("#salvarrota").on("click", () => {
     var rotasJSON = GetRotaFromForm();
 
     // Campos restantes
@@ -153,8 +157,13 @@ $("#salvarrota").click(() => {
         alunosRemover.forEach((aID) => prePromessas.push(RemoverPromise("RotaAtendeAluno", "ID_ALUNO", aID)));
 
         if (action == "editarRota") {
-            for (var mID of $("#tipoMotorista").val()) {
-                prePromessas.push(RemoverPromise("RotaDirigidaPorMotorista", "ID_ROTA", estadoRota["ID_ROTA"]));
+            if (motoristaInformadoPrev) {
+                for (var mID of $("#tipoMotorista").val()) {
+                    prePromessas.push(RemoverPromise("RotaDirigidaPorMotorista", "ID_ROTA", estadoRota["ID_ROTA"]));
+                }
+            }
+            if (veiculoInformadoPrev) {
+                prePromessas.push(RemoverPromise("RotaPossuiVeiculo", "ID_ROTA", estadoRota["ID_ROTA"]));
             }
             escolasRemover.forEach((eID) => {
                 prePromessas.push(RemoverComposedPromise("RotaPassaPorEscolas", "ID_ESCOLA", eID, "ID_ROTA", estadoRota["ID_ROTA"]));
@@ -184,14 +193,14 @@ $("#salvarrota").click(() => {
                         promessasFinais.push(InserirPromise("RotaPassaPorEscolas", { "ID_ROTA": idRota, "ID_ESCOLA": eID })));
 
                     var placaVeiculo = $("#tipoVeiculo").val();
-                    if (action == "editarRota") {
-                        promessasFinais.push(AtualizarPromise("RotaPossuiVeiculo", { "ID_ROTA": idRota, "ID_VEICULO": placaVeiculo }, "ID_ROTA", idRota));
-                    } else {
+                    if (placaVeiculo != -1) {
                         promessasFinais.push(InserirPromise("RotaPossuiVeiculo", { "ID_ROTA": idRota, "ID_VEICULO": placaVeiculo }));
                     }
 
-                    for (var mID of $("#tipoMotorista").val()) {
-                        promessasFinais.push(InserirPromise("RotaDirigidaPorMotorista", { "ID_ROTA": idRota, "ID_MOTORISTA": mID }));
+                    if ($("#tipoMotorista").val() != -1) {
+                        for (var mID of $("#tipoMotorista").val()) {
+                            promessasFinais.push(InserirPromise("RotaDirigidaPorMotorista", { "ID_ROTA": idRota, "ID_MOTORISTA": mID }));
+                        }
                     }
 
                     Promise.all(promessasFinais)
@@ -207,21 +216,37 @@ $("#salvarrota").click(() => {
 
 function carregaVeiculoMotorista(veiculos, motoristas) {
     // Processando Veiculos
-    for (let veiculoRaw of veiculos) {
-        let veiculoJSON = parseVeiculoDB(veiculoRaw);
-        let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`
-        $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID_VEICULO"]}">${vSTR}</option>`);
+    if (veiculos.length != 0) {
+        for (let veiculoRaw of veiculos) {
+            let veiculoJSON = parseVeiculoDB(veiculoRaw);
+            let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`
+            $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID_VEICULO"]}">${vSTR}</option>`);
+        }
+        veiculoInformadoPrev = true;
     }
     $("#tipoVeiculo").val($("#tipoVeiculo option:first").val());
 
     // Processando Motoristas
-    for (let motoristaRaw of motoristas) {
-        let motoristaJSON = parseMotoristaDB(motoristaRaw);
-        $('#tipoMotorista').append(`<option value="${motoristaJSON["ID_MOTORISTA"]}">${motoristaJSON["NOME"]}</option>`);
+    if (veiculos.length != 0) {
+        for (let motoristaRaw of motoristas) {
+            let motoristaJSON = parseMotoristaDB(motoristaRaw);
+            $('#tipoMotorista').append(`<option value="${motoristaJSON["ID_MOTORISTA"]}">${motoristaJSON["NOME"]}</option>`);
+        }
+        $('#tipoMotorista').selectpicker({
+            noneSelectedText: "Escolha pelo menos um motorista"
+        });
+
+        motoristaInformadoPrev = true;
+    } else {
+        $('#tipoMotorista').removeClass("selectpicker")
+        $('#tipoMotorista').addClass("form-control")
+        $('#tipoMotorista').removeAttr("multiple")
+        $('#tipoMotorista').val(-1)
+        $('#tipoMotorista').change()
+
+        $(".marcarTodosLabel").hide()
+        $("#tipoMotorista").parent().addClass("mt-2")
     }
-    $('#tipoMotorista').selectpicker({
-        noneSelectedText: "Escolha pelo menos um motorista"
-    });
 }
 
 if (action == "editarRota") {
@@ -329,7 +354,7 @@ if (action == "editarRota") {
         })
 }
 
-$("#colocarEscola").click(() => {
+$("#colocarEscola").on("click", () => {
     for (var eID of $("#escolasNaoAtendidas").val()) {
         var eNome = $(`#escolasNaoAtendidas option[value=${eID}]`).text();
         $(`#escolasNaoAtendidas option[value=${eID}]`).remove();
@@ -340,7 +365,7 @@ $("#colocarEscola").click(() => {
     $("#totalNumEscolas").text($("#escolasAtentidas option").length);
 });
 
-$("#tirarEscola").click(() => {
+$("#tirarEscola").on("click", () => {
     for (var eID of $("#escolasAtentidas").val()) {
         var eNome = $(`#escolasAtentidas option[value=${eID}]`).text();
         $(`#escolasAtentidas option[value=${eID}]`).remove();
@@ -351,7 +376,7 @@ $("#tirarEscola").click(() => {
     $("#totalNumEscolas").text($("#escolasAtentidas option").length);
 });
 
-$("#colocarAluno").click(() => {
+$("#colocarAluno").on("click", () => {
     for (var aID of $("#alunosNaoAtendidos").val()) {
         var aNome = $(`#alunosNaoAtendidos option[value=${aID}]`).text();
         $(`#alunosNaoAtendidos option[value=${aID}]`).remove();
@@ -362,7 +387,7 @@ $("#colocarAluno").click(() => {
     $("#totalNumAlunos").text($("#alunosAtendidos option").length);
 });
 
-$("#tirarAluno").click(() => {
+$("#tirarAluno").on("click", () => {
     for (var aID of $("#alunosAtendidos").val()) {
         var aNome = $(`#alunosAtendidos option[value=${aID}]`).text();
         $(`#alunosAtendidos option[value=${aID}]`).remove();
@@ -373,7 +398,7 @@ $("#tirarAluno").click(() => {
     $("#totalNumAlunos").text($("#alunosAtendidos option").length);
 });
 
-$('#tipoMotorista').change(() => {
+$('#tipoMotorista').on("change", () => {
     $('#tipoMotorista').valid();
 })
 
