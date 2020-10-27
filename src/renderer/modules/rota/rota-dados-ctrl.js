@@ -432,7 +432,10 @@ Promise.all([buscarEscolasPromise, buscarAlunosPromise])
 
 // Acrescentando rota existente
 if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != undefined) {
+    $("#avisoNaoGeoReferenciada").hide();
     malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]))
+} else {
+    $("#mapDetalheRota").hide();   
 }
 
 $("#detalheMapa").click(() => {
