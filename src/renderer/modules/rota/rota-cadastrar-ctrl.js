@@ -262,8 +262,6 @@ if (action == "editarRota") {
         .then((res) => {
             // Processa Veiculos e Motoristas
             carregaVeiculoMotorista(res[0], res[1]);
-            console.log("RES0", res[0])
-            console.log("RES1", res[1])
 
             if (res[0].length != 0) {
                 $("#tipoVeiculo").val(res[2][0]["ID_VEICULO"]);
