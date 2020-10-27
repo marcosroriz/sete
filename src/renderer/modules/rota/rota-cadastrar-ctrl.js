@@ -65,8 +65,6 @@ var validadorFormulario = $("#wizardCadastrarRotaForm").validate({
         $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
     },
     errorPlacement: function (error, element) {
-        console.log(error);
-        console.log(element);
         $(element).closest('.form-group').append(error).addClass('has-error');
     }
 });
@@ -227,7 +225,7 @@ function carregaVeiculoMotorista(veiculos, motoristas) {
     $("#tipoVeiculo").val($("#tipoVeiculo option:first").val());
 
     // Processando Motoristas
-    if (veiculos.length != 0) {
+    if (motoristas.length != 0) {
         for (let motoristaRaw of motoristas) {
             let motoristaJSON = parseMotoristaDB(motoristaRaw);
             $('#tipoMotorista').append(`<option value="${motoristaJSON["ID_MOTORISTA"]}">${motoristaJSON["NOME"]}</option>`);
@@ -340,6 +338,8 @@ if (action == "editarRota") {
     Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise])
         .then((res) => {
             // Processa Veiculos e Motoristas
+            console.log(res[0])
+            console.log(res[1])
             carregaVeiculoMotorista(res[0], res[1]);
 
             // Processando Escolas
@@ -406,3 +406,26 @@ $('#tipoMotorista').on("change", () => {
     $('#tipoMotorista').valid();
 })
 
+$('#tipoMotorista').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+    // Verificar se quer adicionar depois
+    if (clickedIndex == 0) {
+        // Ver se não tinha escolhido isso antes
+        // previousValue = true se estava ativo antes
+        if (!previousValue) {
+            // Remover todas as opções escolhidas
+            $('.selectpicker').val('-1');
+            $('.selectpicker').selectpicker('render');
+        } 
+    } else {
+        // Ver se tinha escolhido a opção de escolher depois
+        var opcoes = $('.selectpicker').val();
+        if (opcoes.includes("-1")) {
+            opcoes = opcoes.filter(item => item != '-1')
+        }
+    
+        $('.selectpicker').val(opcoes);
+        $('.selectpicker').selectpicker('render');
+    }
+
+    $('.selectpicker').selectpicker('toggle');
+});
