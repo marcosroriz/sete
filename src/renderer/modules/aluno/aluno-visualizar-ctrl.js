@@ -1,3 +1,5 @@
+const fs = require("fs")
+
 var alunoVisualizado = null;
 var listaDeAlunos = new Map();
 
@@ -9,6 +11,13 @@ var vLayer = mapaViz["vectorSource"];
 // Ativa busca e camadas
 mapaViz["activateGeocoder"]();
 mapaViz["activateImageLayerSwitcher"]();
+mapaViz["map"].updateSize();
+
+window.onresize = function () {
+    setTimeout(function () {
+        if (mapaViz != null) { mapaViz["map"].updateSize(); }
+    }, 200);
+}
 
 // Função para relatar erro
 var errorFnAlunos = (err) => {
@@ -26,7 +35,7 @@ var selectAluno = new ol.interaction.Select({
     multi: false,
     condition: ol.events.condition.singleClick,
     filter: (feature, layer) => {
-        if (feature.getGeometry().getType() == "Point") { 
+        if (feature.getGeometry().getType() == "Point") {
             return true;
         } else {
             return false;
@@ -81,6 +90,13 @@ var plotarAluno = (aluno) => {
     p.set("ESCOLA", aluno["ESCOLA"]);
     p.set("TURNOSTR", aluno["TURNOSTR"]);
     p.set("NIVELSTR", aluno["NIVELSTR"]);
+
+    if (aluno["SEXO"] == 1) {
+        p.set("SEXO", "Masculino");
+    } else {
+        p.set("SEXO", "Feminino");
+    }
+
     p.setStyle(new ol.style.Style({
         image: new ol.style.Icon({
             anchor: [12, 37],
@@ -122,12 +138,12 @@ var listarEscolasAlunosCB = (err, result) => {
 
         // Plotar alunos
         listaDeAlunos.forEach((aluno) => {
-            let aID  = aluno["ID_ALUNO"];
+            let aID = aluno["ID_ALUNO"];
             vSource.addFeature(plotarAluno(aluno));
         });
 
         mapaViz["map"].getView().fit(vSource.getExtent());
-        
+
     }
 };
 
@@ -192,7 +208,7 @@ $("#infantil").on('change', function (e) {
     if (e.currentTarget.checked) {
         addAlunoNivel(1);
     } else {
-        removerAlunoNivel(1);        
+        removerAlunoNivel(1);
     }
 });
 
@@ -200,7 +216,7 @@ $("#fundamental").on('change', function (e) {
     if (e.currentTarget.checked) {
         addAlunoNivel(2);
     } else {
-        removerAlunoNivel(2);        
+        removerAlunoNivel(2);
     }
 });
 
@@ -208,7 +224,7 @@ $("#medio").on('change', function (e) {
     if (e.currentTarget.checked) {
         addAlunoNivel(3);
     } else {
-        removerAlunoNivel(3);        
+        removerAlunoNivel(3);
     }
 });
 
@@ -216,7 +232,7 @@ $("#superior").on('change', function (e) {
     if (e.currentTarget.checked) {
         addAlunoNivel(4);
     } else {
-        removerAlunoNivel(4);        
+        removerAlunoNivel(4);
     }
 });
 
@@ -224,7 +240,7 @@ $("#outro").on('change', function (e) {
     if (e.currentTarget.checked) {
         addAlunoNivel(5);
     } else {
-        removerAlunoNivel(5);        
+        removerAlunoNivel(5);
     }
 });
 
@@ -264,19 +280,51 @@ $("#noite").on('change', function (e) {
 BuscarTodosAlunos(listaInicialCB);
 
 // Botões
-$("#btnVoltar").click(() => {
+$("#btnVoltar").on('click', () => {
     navigateDashboard(lastPage);
 })
 
-$("#btnExpJPEG").click(() => {
-    htmlToImage.toPng(document.getElementById("mapaCanvas"))
-        .then(function (dataUrl) {
-            var link = document.createElement('a');
-            link.download = 'mapa-aluno.jpeg';
-            link.href = dataUrl;
-            link.click();
-        });
-})
+$("#btnExpJPEG").on('click', () => {
+    dialog.showSaveDialog(win, {
+        title: "Salvar Mapa",
+        defaultPath: "mapa-aluno.jpg",
+        buttonLabel: "Salvar",
+        filters: [
+            { name: "JPG", extensions: ["jpg"] },
+            { name: "PNG", extensions: ["png"] }
+        ]
+    }).then((acao) => {
+        if (!acao.canceled) {
+            Swal2.fire({
+                title: "Salvando o mapa",
+                imageUrl: "img/icones/processing.gif",
+                closeOnClickOutside: false,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                html: `Aguarade um segundinho...
+                `
+            })
+            htmlToImage.toPng(document.getElementById("mapaCanvas"))
+                .then(function (dataUrl) {
+                    var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+                    fs.writeFile(acao.filePath, base64Data, 'base64', (err) => {
+                        if (err) {
+                            errorFn("Erro ao salvar a imagem")
+                        } else {
+                            Swal2.fire({
+                                title: "Sucesso!",
+                                text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + acao.filePath,
+                                icon: "success",
+                                type: "success",
+                                button: "Fechar"
+                            });
+                        }
+                    });
+                });
+        }
 
+
+    });
+})
 
 action = "visualizarAluno";

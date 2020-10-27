@@ -41,6 +41,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         ],
         "view": new ol.View({
             center: ol.proj.fromLonLat([longitude, latitude]),
+            maxZoom: 18,
             zoom: 15
         })
     });
