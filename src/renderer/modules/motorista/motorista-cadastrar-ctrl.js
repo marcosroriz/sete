@@ -156,7 +156,24 @@ $("#salvarmotorista").click(() => {
                 completeForm();
             })
             .catch((err) => {
-                errorFn("Erro ao salvar o motorista!", err);
+                Swal2.fire({
+                    title: "Ops... tivemos um problema: CPF Duplicado.",
+                    html: `Já existe um motorista com o CPF indicado. <br>
+                           Por favor digite outro CPF ou exclua este motorista primeiro.`,
+                    icon: "error",
+                    type: "error",
+                    showCancelButton: false,
+                    confirmButtonClass: "btn-success",
+                    confirmButtonText: "Corrigir",
+                    closeOnConfirm: false,
+                    closeOnClickOutside: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: true
+                }).then(() => {
+                    Swal2.close()
+                    $(".btn-back").trigger("click")
+                    setTimeout(() => $("#regcpf").trigger("focus"), 200);
+                })
             });
         }
     }
