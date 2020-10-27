@@ -1093,3 +1093,11 @@ img#censoIcon {
 .badge-censo {
     color: white;
 }
+
+.btn-back {
+    margin-left: 20px;
+}
+
+.btnApagar {
+    height: 38px;
+}
