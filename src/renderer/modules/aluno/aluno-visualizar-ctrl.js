@@ -287,10 +287,9 @@ $("#btnVoltar").on('click', () => {
 $("#btnExpJPEG").on('click', () => {
     dialog.showSaveDialog(win, {
         title: "Salvar Mapa",
-        defaultPath: "mapa-aluno.jpg",
+        defaultPath: "mapa-aluno.png",
         buttonLabel: "Salvar",
         filters: [
-            { name: "JPG", extensions: ["jpg"] },
             { name: "PNG", extensions: ["png"] }
         ]
     }).then((acao) => {
@@ -301,7 +300,7 @@ $("#btnExpJPEG").on('click', () => {
                 closeOnClickOutside: false,
                 allowOutsideClick: false,
                 showConfirmButton: false,
-                html: `Aguarade um segundinho...
+                html: `Aguarde um segundinho...
                 `
             })
             htmlToImage.toPng(document.getElementById("mapaCanvas"))
