@@ -1,7 +1,7 @@
 function GetMotoristaFromForm() {
     return {
         "NOME": $("#regnome").val(), // string
-        "CPF": $("#regcpf").val(), // number
+        "CPF": $("#regcpf").val(), // string
         "DATA_NASCIMENTO": $("#regdata").val(), // string
         "TELEFONE": $("#regtelresp").val(), // string
         "SEXO": $("input[name='modoSexo']:checked").val(), // int

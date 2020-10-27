@@ -196,8 +196,8 @@ $("#salvarrota").on("click", () => {
                     }
 
                     if ($("#tipoMotorista").val() != -1) {
-                        for (var mID of $("#tipoMotorista").val()) {
-                            promessasFinais.push(InserirPromise("RotaDirigidaPorMotorista", { "ID_ROTA": idRota, "ID_MOTORISTA": mID }));
+                        for (var mCPF of $("#tipoMotorista").val()) {
+                            promessasFinais.push(InserirPromise("RotaDirigidaPorMotorista", { "ID_ROTA": idRota, "CPF_MOTORISTA": mCPF }));
                         }
                     }
 
@@ -228,7 +228,7 @@ function carregaVeiculoMotorista(veiculos, motoristas) {
     if (motoristas.length != 0) {
         for (let motoristaRaw of motoristas) {
             let motoristaJSON = parseMotoristaDB(motoristaRaw);
-            $('#tipoMotorista').append(`<option value="${motoristaJSON["ID_MOTORISTA"]}">${motoristaJSON["NOME"]}</option>`);
+            $('#tipoMotorista').append(`<option value="${motoristaJSON["CPF"]}">${motoristaJSON["NOME"]}</option>`);
         }
         $('#tipoMotorista').selectpicker({
             noneSelectedText: "Escolha pelo menos um motorista"
@@ -267,7 +267,7 @@ if (action == "editarRota") {
 
             if (res[1].length != 0) {
                 var mlist = new Array();
-                res[3].forEach(m => mlist.push(m["ID_MOTORISTA"]))
+                res[3].forEach(m => mlist.push(m["CPF"]))
                 $("#tipoMotorista").selectpicker('val', mlist)
             }
 

@@ -1,4 +1,4 @@
-var idMotorista = estadoMotorista["ID_MOTORISTA"];
+var idMotorista = estadoMotorista["CPF"];
 
 // Tira o btn group do datatable
 $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons';
@@ -74,7 +74,7 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
                     confirmButtonText: 'Sim, remover'
                 }).then((result) => {
                     if (result.value) {
-                        RemoverPromise("Motoristas", "ID_MOTORISTA", idMotorista)
+                        RemoverPromise("Motoristas", "CPF", idMotorista)
                         .then(() => {
                             Swal2.fire({
                                 type: 'success',

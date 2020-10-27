@@ -143,7 +143,7 @@ $("#salvarmotorista").click(() => {
         }
 
         if (action == "editarMotorista") {
-            AtualizarPromise("Motoristas", motoristaJSON, "ID_MOTORISTA", estadoMotorista["ID_MOTORISTA"])
+            AtualizarPromise("Motoristas", motoristaJSON, "CPF", estadoMotorista["CPF"])
             .then((res) => {
                 completeForm();
             })
@@ -164,10 +164,10 @@ $("#salvarmotorista").click(() => {
 
 if (action == "editarMotorista") {
     PopulateMotoristaFromState(estadoMotorista); 
-    $("#cancelarAcao").click(() => {
+    $("#cancelarAcao").on('click', () => {
         Swal2.fire({
             title: 'Cancelar Edição?',
-            text: "Se você cancelar nenhum alteração será feita nos dados do motorista.",
+            text: "Se você cancelar nenhuma alteração será feita nos dados do motorista.",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',

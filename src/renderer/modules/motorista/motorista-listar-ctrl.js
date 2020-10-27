@@ -88,7 +88,7 @@ dataTablesMotoristas.on('click', '.motoristaEdit', function () {
 dataTablesMotoristas.on('click', '.motoristaRemove', function () {
     var $tr = getRowOnClick(this);
     estadoMotorista = dataTablesMotoristas.row($tr).data();
-    var idMotorista = estadoMotorista["ID_MOTORISTA"];
+    var idMotorista = estadoMotorista["CPF"];
 
     action = "apagarMotorista";
     Swal2.fire({
@@ -102,7 +102,7 @@ dataTablesMotoristas.on('click', '.motoristaRemove', function () {
         confirmButtonText: 'Sim, remover'
     }).then((result) => {
         if (result.value) {
-            RemoverPromise("Motoristas", "ID_MOTORISTA", idMotorista)
+            RemoverPromise("Motoristas", "CPF", idMotorista)
             .then(() => {
                 dataTablesMotoristas.row($tr).remove();
                 dataTablesMotoristas.draw();
@@ -127,7 +127,7 @@ var listaInicialCB = (err, result) => {
 
         for (let motoristaRaw of result) {
             let motoristaJSON = parseMotoristaDB(motoristaRaw);
-            listaDeMotoristas.set(motoristaJSON["ID_MOTORISTA"], motoristaJSON);
+            listaDeMotoristas.set(motoristaJSON["CPF"], motoristaJSON);
         }
 
         listaDeMotoristas.forEach((motorista) => {

@@ -114,7 +114,7 @@ function SuccessData(table) {
 //set select motorista
 function SetSelectMotoristas(motoristas) {
     motoristas.forEach(c => {
-        var newRow = $("<option value='" + c.ID_MOTORISTA + "'>");
+        var newRow = $("<option value='" + c.CPF + "'>");
         newRow.append(c.NOME);
         $(".select-motorista").append(newRow);
     });

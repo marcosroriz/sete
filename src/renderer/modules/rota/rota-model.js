@@ -124,7 +124,7 @@ function BuscarDadosVeiculoRotaPromise(idRota) {
 function BuscarDadosMotoristaRotaPromise(idRota) {
     return knex("RotaDirigidaPorMotorista AS R")
         .select("M.*")
-        .leftJoin("Motoristas AS M", "R.ID_MOTORISTA", "=", "M.ID_MOTORISTA")
+        .leftJoin("Motoristas AS M", "R.CPF_MOTORISTA", "=", "M.CPF")
         .where("ID_ROTA", "=", idRota)
 }
 
