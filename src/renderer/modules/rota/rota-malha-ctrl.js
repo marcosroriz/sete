@@ -1,6 +1,3 @@
-// Lista de Imports
-var fs = require("fs-extra");
-
 $("#baixarMalha").click(() => {
     dialog.showSaveDialog(win, {
         title: "Salvar Malha OSM",

@@ -1,5 +1,3 @@
-const fs = require("fs")
-
 var alunoVisualizado = null;
 var listaDeAlunos = new Map();
 

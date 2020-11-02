@@ -1,5 +1,3 @@
-const fs = require("fs")
-
 var escolaVisualizada = null;
 var escolas = new Map();
 

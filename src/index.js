@@ -51,6 +51,7 @@ const createEntryWindow = () => {
         "show": false,
         webPreferences: {
             nodeIntegration: true,
+            nodeIntegrationInWorker: true,
             enableRemoteModule: true
         }
     });

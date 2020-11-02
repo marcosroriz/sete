@@ -1,6 +1,3 @@
-// Bibliotecas
-var fs = require("fs-extra");
-
 // Máscaras
 $('.cep').mask('00000-000');
 $(".cpfmask").mask('000.000.000-00', { reverse: true });

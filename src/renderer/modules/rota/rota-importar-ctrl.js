@@ -51,7 +51,6 @@ mapa["activateImageLayerSwitcher"]();
 
 // Lista de Imports
 var togeojson = require('@mapbox/togeojson');
-var fs = require("fs-extra");
 var DOMParser = require('xmldom').DOMParser;
 
 $("#arqGPX").change(() => {

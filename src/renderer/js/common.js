@@ -1,9 +1,12 @@
-// Imports Principais
+// Imports Principais do Electron
 var electron = require('electron');
 var { ipcRenderer, remote, shell } = electron;
 var app = remote.app;
 var dialog = remote.dialog;
 var win = remote.getCurrentWindow();
+
+// Imports Básicos do NodeJS
+var fs = require("fs-extra");
 
 // Caminhos Comuns
 var userDataDir = app.getPath('userData');

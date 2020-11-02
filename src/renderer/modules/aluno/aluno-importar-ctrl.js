@@ -1,5 +1,4 @@
 // Lista de Imports
-var fs = require("fs-extra");
 var readXlsxFile = require('read-excel-file/node');
 var schema = {
     'Nome': {
