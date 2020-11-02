@@ -75,7 +75,6 @@ $("#importarEscolasBtn").on('click', () => {
             confirmButtonText: 'Sim'
         }).then((result) => {
             if (result.isConfirmed) {
-                console.log("SIM")
                 Swal2.fire({
                     title: "Importando as escolas...",
                     imageUrl: "img/icones/processing.gif",

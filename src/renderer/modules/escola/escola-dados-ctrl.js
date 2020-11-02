@@ -175,9 +175,15 @@ var popularTabelaInstitucional = () => {
     }
 
     if (estadoEscola["CONTATO_TELEFONE"] != "" && estadoEscola["CONTATO_TELEFONE"] != null) {
-        dataTableInstitucional.row.add(["Telefone de Contato", estadoEscola["CONTATO_TELEFONE"]]);
+        dataTableInstitucional.row.add(["Telefone de contato", estadoEscola["CONTATO_TELEFONE"]]);
     } else {
-        dataTableInstitucional.row.add(["Telefone de Contato", "Telefone de contato não informado"]);
+        dataTableInstitucional.row.add(["Telefone de contato", "Telefone de contato não informado"]);
+    }
+
+    if (estadoEscola["CONTATO_EMAIL"] != "" && estadoEscola["CONTATO_EMAIL"] != null) {
+        dataTableInstitucional.row.add(["E-mail de contato", estadoEscola["CONTATO_EMAIL"]]);
+    } else {
+        dataTableInstitucional.row.add(["E-mail de contato", "E-mail de contato não informado"]);
     }
 
     dataTableInstitucional.row.add(["Número de alunos atendidos", estadoEscola["NUM_ALUNOS"]]);

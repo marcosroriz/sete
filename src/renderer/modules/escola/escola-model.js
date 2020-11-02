@@ -12,6 +12,7 @@ function GetEscolaFromForm() {
         "MEC_NO_ENTIDADE": $("#nomeEscola").val(), // string
         "CONTATO_RESPONSAVEL": $("#nomeContato").val(), // string
         "CONTATO_TELEFONE": $("#telContato").val(), // string
+        "CONTATO_EMAIL": $("#emailContato").val(), // string
         "MEC_TP_DEPENDENCIA": $("input[name='tipoDependencia']:checked").val(), // int
         "MEC_IN_REGULAR": $("#temEnsinoRegular").is(":checked"), // bool
         "MEC_IN_EJA": $("#temEnsinoEJA").is(":checked"), // bool
@@ -41,6 +42,7 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#nomeEscola").val(estadoEscolaJSON["MEC_NO_ENTIDADE"]);
     $("#nomeContato").val(estadoEscolaJSON["CONTATO_RESPONSAVEL"]);
     $("#telContato").val(estadoEscolaJSON["CONTATO_TELEFONE"]);
+    $("#emailContato").val(estadoEscolaJSON["CONTATO_EMAIL"]);
     $("input[name='tipoDependencia']").filter(`[value="${estadoEscolaJSON["MEC_TP_DEPENDENCIA"]}"]`).prop("checked", true);
 
     $("#temEnsinoRegular").prop("checked", estadoEscolaJSON["MEC_IN_REGULAR"]);
