@@ -59,7 +59,7 @@ $("#importarEscolasBtn").on('click', () => {
     if (rawDados.length == 0) {
         Swal2.fire({
             title: "Nenhuma escola selecionada",
-            text: "Por favor, selecione pelo menos uma escolas a ser importarda para prosseguir.",
+            text: "Por favor, selecione pelo menos uma escola a ser importarda para prosseguir.",
             icon: "error",
             confirmButtonText: "Fechar"
         })
@@ -123,21 +123,9 @@ $("#importarEscolasBtn").on('click', () => {
                         button: "Fechar"
                     });
                 })
-
             }
         })
     }
-
-
-    // var dados = [].concat(rawDados)
-    // dados.forEach((k) => {
-    //     delete k["LOCALIZACAO"];
-    //     delete k["DEPENDENCIA"];
-    //     delete k["ENSINO"];
-    //     delete k["REGIME"];
-    //     delete k["SELECT"];
-    // })
-    // InserirPromise("Escolas", dados).then((res) => console.log(res))
 });
 
 
@@ -249,7 +237,6 @@ var listaInicialCB = (err, result) => {
     }
 };
 
-console.log("CO_MUNICIPIO", codCidade)
 BuscarDadoEspecificoPromise("MEC_Escolas", "CO_MUNICIPIO", codCidade)
     .then(result => {
         var count = 0;
