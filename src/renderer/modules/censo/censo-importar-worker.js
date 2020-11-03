@@ -24,6 +24,7 @@ function parseRegistro00(registro) {
     }
 
     // Campos Obrigatórios
+    escola["ID_ESCOLA"] = Number(registro.data[1]);
     escola["MEC_CO_ENTIDADE"] = Number(registro.data[1]);
     escola["SITUACAO"] = Number(registro.data[2]);
     escola["NOME"] = registro.data[5];
@@ -286,7 +287,8 @@ function processRegistro60(registro) {
 }
 
 function parseBaseCenso(arq, cb) {
-    Papa.parse($("#arqCenso")[0].files[0], {
+    baseDados = {};
+    Papa.parse(arq, {
         delimiter: "|",
         encoding: "ISO-8859-1",
         worker: true,
@@ -317,7 +319,14 @@ function parseBaseCenso(arq, cb) {
             cb(err)
         },
         complete: () => {
-            cb(false, baseDados)
+            Object.keys(baseDados).forEach((escolaID) => {
+                delete baseDados[escolaID]["PESSOAS"];
+                delete baseDados[escolaID]["TURMAS"];
+                delete baseDados[escolaID]["DISTRITO"];
+                delete baseDados[escolaID]["SITUACAO"];
+                baseDados[escolaID]["MEC_CO_UF"] = Number(String(baseDados[escolaID]["MEC_CO_MUNICIPIO"]).substr(0,2))
+            })
+            cb(false, arq, baseDados)
         }
     });
 }

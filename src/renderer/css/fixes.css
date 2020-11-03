@@ -1083,6 +1083,8 @@ div#datatables_filter {
 
 #pbar {
     height: 100%;
+    padding: 2px;
+    font-size: 1em;
 }
 
 img#censoIcon {
