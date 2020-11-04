@@ -1103,3 +1103,28 @@ img#censoIcon {
 .btnApagar {
     height: 38px;
 }
+
+.passo {
+    background: #ff8e19;
+    text-align: center;
+    padding: 20px;
+}
+
+.passo span {
+    font-weight: bold;
+}
+
+
+.passoDesc p, .passoDesc a {
+    font-size: 0.85em;
+}
+
+
+.passoDesc h5 {
+    font-weight: bold;
+    font-size: 1em;
+}
+
+li.media {
+    margin-top: 20px;
+}

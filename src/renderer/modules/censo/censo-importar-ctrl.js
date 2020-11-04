@@ -83,7 +83,7 @@ function preprocess(arquivo) {
     if (arquivo == undefined) {
         Swal2.fire({
             title: "Ops... tivemos um problema!",
-            text: "É necessário informar o arquivo para realizar a importação.",
+            text: "É necessário informar o arquivo da base de dados para realizar a importação.",
             icon: "error",
             confirmButtonColor: "red",
             confirmButtonText: "Fechar",
@@ -217,9 +217,9 @@ function realizaImportacao(rawDados) {
             allowOutsideClick: false,
             button: "Fechar"
         })
-        .then(() => {
-            navigateDashboard("./dashboard-main.html");
-        });
+            .then(() => {
+                navigateDashboard("./dashboard-main.html");
+            });
     })
 }
 
@@ -257,24 +257,12 @@ $('.card-wizard').bootstrapWizard({
     'previousSelector': '.btn-back',
 
     onNext: function (tab, navigation, index) {
-        var arquivo = $("#arqCenso")[0].files[0];
         window.scroll(0, 0);
-
-        if (ultArquivoAnalisado != arquivo) {
-            return preprocess(arquivo);
-        }
-
         return true;
     },
 
     onTabClick: function (tab, navigation, index) {
-        var arquivo = $("#arqCenso")[0].files[0];
         window.scroll(0, 0);
-
-        if (ultArquivoAnalisado != arquivo) {
-            return preprocess();
-        }
-
         return true;
     },
 
@@ -286,11 +274,18 @@ $('.card-wizard').bootstrapWizard({
 
         // If it's the last tab then hide the last button and show the finish instead
         if ($current >= $total) {
-            $($wizard).find('.btn-next').hide();
-            $($wizard).find('.btn-finish').show();
+            var arquivo = $("#arqCenso")[0].files[0];
+            if (ultArquivoAnalisado != arquivo) {
+                if(preprocess(arquivo)) {
+                    $($wizard).find('.btn-next').hide();
+                    $($wizard).find('.btn-finish').show();
+                } else {
+                    setTimeout(() => $('.btn-back').trigger('click'), 200);
+                    return false;
+                }
+            }
         } else {
             $($wizard).find('.btn-next').show();
-
             $($wizard).find('.btn-finish').hide();
         }
     }

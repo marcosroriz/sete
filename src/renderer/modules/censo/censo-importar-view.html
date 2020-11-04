@@ -9,14 +9,21 @@
             <div class="card card-wizard wiz-fixes">
                 <div class="card-body ">
                     <ul class="nav nav-tabs">
-                        <li class="nav-item col-6 tab-2-fix">
+                        <li class="nav-item">
                             <a class="nav-link" href="#tab-censo-instrucoes" data-toggle="tab" role="tab">
                                 <img src="./img/icones/tab-educacenso.png" class="wiz-icon">
-                                Educa Censo
+                                Educacenso
                             </a>
                         </li>
-                        <li class="nav-item col-6 tab-2-fix">
-                            <a class="nav-link" href="#tab-censo-preprocessamento" data-toggle="tab" role="tab">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#tab-censo-preprocessamento" id="tab-pre" data-toggle="tab"
+                                role="tab">
+                                <img src="./img/icones/tab-txt.png" class="wiz-icon">
+                                Base de Dados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#tab-censo-processamento" data-toggle="tab" role="tab">
                                 <img src="./img/icones/tab-processamento2.png" class="wiz-icon">
                                 Importar
                             </a>
@@ -26,10 +33,113 @@
                     <!-- Abas -->
                     <div class="tab-content">
                         <div class="tab-pane tab-wiz fade show active" id="tab-censo-instrucoes" role="tabpanel">
-                            <h6 class="mb-4 text-center text-space">
-                                Por favor, envie o arquivo exportado do sistema Educa Censo.
+                            <h6 class="mb-4  text-space">
+                                Para importar a base de dados para o SETE é necessário primeiramente exportá-la do
+                                sistema Educacenso do INEP.
                                 <br>
-                                Você pode encaminhar o arquivo compactado ou o arquivo descompactado (txt).
+                                Para isso, siga as seguintes instruções:
+                            </h6>
+                            <div class="row">
+                                <ul class="list-unstyled">
+                                    <li class="media">
+                                        <div class="passo mr-3">
+                                            <span>1</span>
+                                        </div>
+                                        <div class="passoDesc media-body">
+                                            <h5 class="mt-0 mb-1">Entre no sistema Educacenso</h5>
+                                            <p>Entre no sistema através do seguinte <em>site</em>:<br>
+                                                <a href="http://censobasico.inep.gov.br/censobasico/">
+                                                    http://censobasico.inep.gov.br/censobasico/
+                                                </a>
+                                            </p>
+                                        </div>
+                                    </li>
+                                    <li class="media my-4">
+                                        <div class="passo mr-3">
+                                            <span>2</span>
+                                        </div>
+                                        <div class="passoDesc media-body">
+                                            <h5 class="mt-0 mb-1">Navegue até a opção de exportação</h5>
+                                            <p>Após a autenticação do usuário no sistema Educacenso, selecione no menu a
+                                                opção "Migração", "Exportação" e "Solicitar Arquivo".</p>
+                                            <img src="./img/icones/censo-menu-exportar.png" class="passo-icon">
+
+
+                                        </div>
+                                    </li>
+                                    <li class="media">
+                                        <div class="passo mr-3">
+                                            <span>3</span>
+                                        </div>
+                                        <div class="passoDesc media-body">
+                                            <h5 class="mt-0 mb-1">Selecione os dados</h5>
+                                            <p>Em Dependência administrativa, selecione a opção Municipal e clique no
+                                                botão Exportar.
+                                            </p>
+                                            <img src="./img/icones/censo-menu-dependencia.png" class="passo-icon">
+                                        </div>
+                                    </li>
+                                    <li class="media">
+                                        <div class="passo mr-3">
+                                            <span>4</span>
+                                        </div>
+                                        <div class="passoDesc media-body">
+                                            <h5 class="mt-0 mb-1">Termo de compromisso</h5>
+                                            <p>Aparecerá o termo de compromisso e, depois de selecionado o de acordo,
+                                                será apresentado no canto superior direito uma mensagem informando que o
+                                                arquivo de exportação será processado.
+                                                Clique em Continuar e novamente no botão Exportar.
+                                            </p>
+                                        </div>
+                                    </li>
+                                    <li class="media">
+                                        <div class="passo mr-3">
+                                            <span>5</span>
+                                        </div>
+                                        <div class="passoDesc media-body">
+                                            <h5 class="mt-0 mb-1">Verificar exportação</h5>
+                                            <p>
+                                                Aguarde alguns minutinhos, para baixar o arquivo de exportação clique no
+                                                botão “Visualizar arquivos” que exibirá a exportação solicitada.
+                                            </p>
+                                            <img src="./img/icones/censo-menu-visualizar.png" class="passo-icon">
+                                        </div>
+                                    </li>
+                                    <li class="media">
+                                        <div class="passo mr-3">
+                                            <span>6</span>
+                                        </div>
+                                        <div class="passoDesc media-body">
+                                            <h5 class="mt-0 mb-1">Baixar base de dados</h5>
+                                            <p>
+                                                Se o arquivo já tiver sido gerado o status ficará como “Concluído” e, na
+                                                coluna “Ação”, aparecerá a opção de baixar o arquivo. Clique no ícone em
+                                                formato de folha para baixar o arquivo exportado ou clique no botão “Baixar todos”.
+                                            </p>
+                                            <img src="./img/icones/censo-menu-baixar.png" class="passo-icon">
+                                        </div>
+                                    </li>
+                                    <li class="media">
+                                        <div class="passo mr-3">
+                                            <span>7</span>
+                                        </div>
+                                        <div class="passoDesc media-body">
+                                            <h5 class="mt-0 mb-1">Descompactar a base de dados</h5>
+                                            <p>O arquivo de exportação baixado estará compactado no formato .zip.
+                                                Descompacte-o com o programa WinRAR ou 7-Zip. O arquivo descompactado será um
+                                                arquivo de texto simples (.txt) 
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane tab-wiz fade" id="tab-censo-preprocessamento" role="tabpanel">
+                            <h6 class="mb-4 text-center text-space">
+                                Por favor, envie a base de dados exportada do sistema Educacenso.
+                                <br>
+                                Você deve encaminhar o arquivo descompactado (txt).
                             </h6>
                             <div class="row justify-content-center">
                                 <div class="col-12">
@@ -44,7 +154,7 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane tab-wiz fade" id="tab-censo-preprocessamento" role="tabpanel">
+                        <div class="tab-pane tab-wiz fade" id="tab-censo-processamento" role="tabpanel">
                             <div class="row justify-content-center">
                                 <h6 class="mb-4 mt-1 text-center text-space">
                                     Essa ferramenta possibilita importar os <strong>alunos</strong> e

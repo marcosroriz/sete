@@ -1,6 +1,6 @@
 // Core Imports
 const electron = require("electron");
-const { app, BrowserWindow, ipcMain } = electron;
+const { app, BrowserWindow, ipcMain, shell } = electron;
 const path = require("path");
 const fs = require("fs-extra");
 
@@ -67,9 +67,12 @@ const createEntryWindow = () => {
     // Prevent External Navigation
     appWindow.webContents.on("will-navigate", (e, url) => {
         console.log("WILL-NAVIGATE", url);
-        if (!(url.includes("file:"))) {
+        if (url.includes("censobasico.inep.gov")) {
+            shell.openExternal(url);
             e.preventDefault();
-        }
+        } else if (!(url.includes("file:"))) {
+            e.preventDefault();
+        } 
     });
 
     appWindow.on("ready-to-show", () => {
