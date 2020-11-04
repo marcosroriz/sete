@@ -55,8 +55,15 @@ dashPromises.push(BuscarTodosDadosPromise("Rotas").then((res) => {
 }))
 
 Promise.all(dashPromises)
-.then(() => {
-    $(".preload").fadeOut(1000, function () {
-        $(".content").fadeIn(1000);
-    });
-})
+    .then(() => {
+        $(".preload").fadeOut(1000, function () {
+            $(".content").fadeIn(1000);
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+        console.log("ERROR")
+        $(".preload").fadeOut(1000, function () {
+            $(".content").fadeIn(1000);
+        });
+    })

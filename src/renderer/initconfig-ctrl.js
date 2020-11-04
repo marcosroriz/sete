@@ -572,10 +572,15 @@ $("#finishconfig").click(() => {
                                     console.log("RELAÇÕES DO BANCO RECRIADAS");
                                     finishConfig();
                                 })
+                                .catch((err) => {
+                                    // TODO: Arrumar isso
+                                    finishConfig();
+                                })
                         })
                         .catch((err) => {
                             console.log(err);
                             console.log("ERRO")
+                            finishConfig();
                         })
                 })
         } else {
