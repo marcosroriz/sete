@@ -4,6 +4,7 @@ var { ipcRenderer, remote, shell } = electron;
 var app = remote.app;
 var dialog = remote.dialog;
 var win = remote.getCurrentWindow();
+var versao = app.getVersion();
 
 // Imports Básicos do NodeJS
 var fs = require("fs-extra");
