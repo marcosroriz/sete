@@ -20,7 +20,7 @@ $(document).ready(function () {
 
     // Ativa a aba de login por padrão
     $("#login-tab").click();
-    $("#reglink").click(() => $("#register-tab").click());
+    $("#reglink").click(() => $("#registrar-tab").click());
     // Popula o campo de email e senha se o usuário tiver logado previamente
     // Para isso, vamos ver se exite a chave / valor lembrar no arquivo de configuração local do usuário
     if (userconfig.get("LEMBRAR")) {
