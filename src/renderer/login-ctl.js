@@ -28,6 +28,24 @@ $(document).ready(function () {
         $("#loginpassword").val(userconfig.get("PASSWORD"));
     }
 
+    //Trata a ação de login quando a tecla enter for clicada
+    $("#loginemail").keypress((e) => {
+        if (e.which === 13) {
+            acionarEfetuarLoginComTeclaEnter();
+        }
+    })
+
+    $("#loginpassword").keypress((e) => {
+        if (e.which === 13) {
+            acionarEfetuarLoginComTeclaEnter();
+        }
+    })
+
+    function acionarEfetuarLoginComTeclaEnter() {
+        $("#loginsubmit").click();
+    }
+
+
     // Inicia o campo de estados/cidade na aba de registro
     localizacao = new dgCidadesEstados({
         cidade: document.getElementById('regcidade'),
