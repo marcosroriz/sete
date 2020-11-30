@@ -178,7 +178,7 @@ $(document).ready(function () {
         }
     });
 
-    // Ações de teclado para Login (pressionar Enter para logar)
+    // Ações do teclado para Login (pressionar Enter para logar)
 
     $("#loginemail, #loginpassword").keypress((e) => {
         if(e.which === 13) {
