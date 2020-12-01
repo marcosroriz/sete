@@ -29,21 +29,11 @@ $(document).ready(function () {
     }
 
     //Trata a ação de login quando a tecla enter for clicada
-    $("#loginemail").keypress((e) => {
+    $("#loginemail, #loginpassword").keypress((e) => {
         if (e.which === 13) {
-            acionarEfetuarLoginComTeclaEnter();
+            $("#loginsubmit").click();
         }
     })
-
-    $("#loginpassword").keypress((e) => {
-        if (e.which === 13) {
-            acionarEfetuarLoginComTeclaEnter();
-        }
-    })
-
-    function acionarEfetuarLoginComTeclaEnter() {
-        $("#loginsubmit").click();
-    }
 
 
     // Inicia o campo de estados/cidade na aba de registro
