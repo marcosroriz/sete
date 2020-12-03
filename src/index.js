@@ -56,13 +56,13 @@ const createEntryWindow = () => {
         }
     });
 
-    appWindow.setMenuBarVisibility(false);
+    appWindow.setMenuBarVisibility(true);
 
     // and load the entry.html of the app.
     appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
 
     // Open the DevTools.
-    // appWindow.webContents.openDevTools();
+    appWindow.webContents.openDevTools();
 
     // Prevent External Navigation
     appWindow.webContents.on("will-navigate", (e, url) => {
