@@ -120,9 +120,10 @@ var parseVeiculoDB = function (veiculoRaw) {
     switch (parseInt(veiculoRaw["MARCA"])) {
         case 1: veiculoJSON["MARCASTR"] = "IVECO"; break;
         case 2: veiculoJSON["MARCASTR"] = "MERCEDES-BENZ"; break;
-        case 3: veiculoJSON["MARCASTR"] = "VOLKSWAGEN"; break;
-        case 4: veiculoJSON["MARCASTR"] = "VOLARE"; break;
-        case 5: veiculoJSON["MARCASTR"] = "OUTRA"; break;
+        case 3: veiculoJSON["MARCASTR"] = "RENAULT"; break;
+        case 4: veiculoJSON["MARCASTR"] = "VOLKSWAGEN"; break;
+        case 5: veiculoJSON["MARCASTR"] = "VOLARE"; break;
+        case 10: veiculoJSON["MARCASTR"] = "OUTRA"; break;
         default: veiculoJSON["MARCASTR"] = "OUTRA";
     }
 
