@@ -92,6 +92,25 @@ function fbSync() {
         });
 }
 
+function getCodigoCidadeUsuario() {
+    let uidFirebase = userconfig.get("ID");
+    console.log(uidFirebase);
+    var data = remotedb.collection("users").doc(uidFirebase);
+    data.get().then(function (doc) {
+        if (doc.exists) {
+            let arData = doc.data();
+            return arData.COD_CIDADE;
+        } else {
+            // doc.data() will be undefined in this case
+            console.log("No such document!");
+        }
+    }).catch(function (error) {
+        console.log("Error getting document:", error);
+    });
+
+
+}
+
 // Dados da cidade
 var cidadeLatitude = -16.8152409;
 var cidadeLongitude = -49.2756642;

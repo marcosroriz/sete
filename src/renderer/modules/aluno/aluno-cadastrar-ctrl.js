@@ -207,15 +207,15 @@ var completeForm = () => {
         closeOnConfirm: false,
         allowOutsideClick: false,
     })
-    .then(() => {
-        navigateDashboard("./modules/aluno/aluno-listar-view.html");
-    });
+        .then(() => {
+            navigateDashboard("./modules/aluno/aluno-listar-view.html");
+        });
 }
 
 $("#salvaraluno").click(() => {
     $("[name='turnoAluno']").valid();
     $("[name='nivelAluno']").valid();
-    
+
     var alunoJSON = GetAlunoFromForm();
     var idEscola = $("#listaescola").val();
 
@@ -225,12 +225,12 @@ $("#salvaraluno").click(() => {
     } else {
         if (action == "editarAluno") {
             AtualizarEscolaPromise(estadoAluno["ID_ALUNO"], alunoJSON)
-            .then((res) => {
-                completeForm();
-            })
-            .catch((err) => {
-                errorFn("Erro ao inserir o aluno na escola!", err);
-            });
+                .then((res) => {
+                    completeForm();
+                })
+                .catch((err) => {
+                    errorFn("Erro ao inserir o aluno na escola!", err);
+                });
         } else {
             InserirAlunoPromise(alunoJSON)
                 .then((res) => {
@@ -256,10 +256,10 @@ $("#salvaraluno").click(() => {
 
 
 if (action == "editarAluno") {
-    PopulateAlunoFromState(estadoAluno); 
+    PopulateAlunoFromState(estadoAluno);
     posicaoAluno = new ol.Feature(
         new ol.geom.Point(ol.proj.fromLonLat([estadoAluno["LOC_LONGITUDE"],
-                                              estadoAluno["LOC_LATITUDE"]]))
+        estadoAluno["LOC_LATITUDE"]]))
     );
     posicaoAluno.setStyle(new ol.style.Style({
         image: new ol.style.Icon({

@@ -1,3 +1,8 @@
+// Instanciação 
+emailjs.init("user_319iA49jzZ51Sa7qehcii");
+const SERVICE_ID = 'service_ij3p8cb';
+const TEMPLATE_ID = 'template_5mqem8f';
+
 // Localização do Usuário
 var localizacao;
 
@@ -205,7 +210,7 @@ $(document).ready(function () {
                 .signInWithEmailAndPassword(email, password)
                 .then((firebaseUser) => {
                     // Set local config 
-                    if (loginlembrar) {
+                    if (lembrarlogin) {
                         userconfig.set("LEMBRAR", true);
                         userconfig.set("EMAIL", email);
                         userconfig.set("PASSWORD", password);
@@ -215,27 +220,47 @@ $(document).ready(function () {
                         userconfig.delete("PASSWORD");
                     }
                     userconfig.set("ID", firebaseUser.user.uid);
-
-                    // Checar se o usuário já fez a configuração inicial
-                    RecuperarUsuario(firebaseUser.user.uid).then((userData) => {
-                        if (userData.length == 0) {
-                            var remoteUserData = remotedb.collection("users").doc(firebaseUser.user.uid);
-                            remoteUserData.get().then((remoteDoc) => {
-                                var remoteData = remoteDoc.data();
-                                remoteData["INIT"] = false;
-                                InserirUsuario(remoteData).then(() => {
-                                    document.location.href = "./initconfig-view.html";
+                    var data = remotedb.collection("users").doc(firebaseUser.user.uid);
+                    data.get().then(function (doc) {
+                        if (doc.exists) {
+                            let arData = doc.data();
+                            userconfig.set("COD_CIDADE", arData.COD_CIDADE);
+                            //firebaseUser = user;
+                            var userDocPromise = remotedb.collection("data").doc(arData.COD_CIDADE).get();
+                            userDocPromise.then((queryResult) => {
+                                userData = queryResult.data();
+                                var configData = remotedb.collection("config").doc(arData.COD_CIDADE);
+                                configData.get().then(function (docConfig) {
+                                    if (docConfig.exists) {
+                                        arDataConfig = docConfig.data();
+                                        if (arDataConfig.users.indexOf(firebaseUser.user.uid) > -1) {
+                                            if (userData.INIT) {
+                                                urldestino = "./dashboard.html";
+                                            } else {
+                                                urldestino = "./initconfig-view.html";
+                                            }
+                                            document.location.href = urldestino;
+                                        } else {
+                                            errorFn(`Usuário não configurado no municipio! Entre em contato com o CECATE (cecateufg@gmail.com).`)
+                                            return;
+                                        }
+                                    } else {
+                                        errorFn(`Municipio não configurado na tag config! Entre em contato com o CECATE (cecateufg@gmail.com).`)
+                                        return;
+                                    }
                                 });
-                            });
+                            }).catch((err) => {
+                                if (err != null) {
+                                    console.log(err.message);
+                                    errorFn(`Dados do Municipio não encontrados! Entre em contato com o CECATE (cecateufg@gmail.com).`)
+                                    return;
+                                }
+                            })
                         } else {
-                            var hasInit = JSON.parse(userData[0]["INIT"]);
-                            var urldestino = "./initconfig-view.html";
-                            if (hasInit) {
-                                urldestino = "./dashboard.html";
-                            }
-                            document.location.href = urldestino;
+                            // doc.data() will be undefined in this case
+                            console.log("No such document!");
                         }
-                    });
+                    })
                 })
                 .catch((err) => {
                     if (err != null) {
@@ -246,7 +271,6 @@ $(document).ready(function () {
                 });
         }
     });
-
     // recoversubmit
     $("#recoversubmit").click(() => {
         var email = $("#recoveremail").val();
@@ -317,15 +341,25 @@ $(document).ready(function () {
                         "COD_ESTADO": localizacao.estado.value
                     };
 
+                    emailjs.send(SERVICE_ID, TEMPLATE_ID, userData)
+                        .then(function (response) {
+                            console.log('SUCCESS!', response.status, response.text);
+                        }, function (error) {
+                            console.log('FAILED...', error);
+                        });
+                    //Alimenta a coleção config com os documentos do municipio
+                    var dataConfig = remotedb.collection("config").doc(localizacao.cidade.value);
+                    dataConfig.get().then(function (doc) {
+                        if (!doc.exists) {
+                            remotedb.collection("config").doc(localizacao.cidade.value).set({ "users": [] }).then(function () {
+                                criarColecaoMunicipio(localizacao.cidade.value);
+                            });
+                        }
+                    })
+
+
                     var promiseArray = new Array();
                     promiseArray.push(remotedb.collection("users").doc(fbuser.user.uid).set(userData));
-                    promiseArray.push(remotedb.collection("data").doc(fbuser.user.uid).set({
-                        "alunos": [], "escolatemalunos": [], "escolas": [], "faztransporte": [], "fornecedores": [],
-                        "garagem": [], "garagemtemveiculo": [], "motoristas": [], "municipios": [], "ordemdeservico": [],
-                        "rotaatendealuno": [], "rotadirigidapormotorista": [], "rotapassaporescolas": [], "rotapossuiveiculo": [],
-                        "rotas": [], "veiculos": [],
-                        "INIT": false
-                    }));
                     promiseArray.push(InserirUsuario(userData));
 
                     Promise.all(promiseArray).then(() => {
@@ -366,5 +400,26 @@ $(document).ready(function () {
     $("#regpasswordrepeat").change(() => {
         $("#regpasswordrepeat").valid();
     });
+
+    function criarColecaoMunicipio(codMunicipio) {
+
+        //Cria a coleção dos dados para o municipio caso não tenha sido criado ainda
+        var dataFirebase = remotedb.collection("data").doc(codMunicipio);
+        dataFirebase.get().then(function (doc) {
+            if (!doc.exists) {
+                //console.log("Cidade Não existe");
+                remotedb.collection("data").doc(codMunicipio).set({
+                    "alunos": [], "escolatemalunos": [], "escolas": [], "faztransporte": [], "fornecedores": [],
+                    "garagem": [], "garagemtemveiculo": [], "motoristas": [], "municipios": [], "ordemdeservico": [],
+                    "rotaatendealuno": [], "rotadirigidapormotorista": [], "rotapassaporescolas": [], "rotapossuiveiculo": [],
+                    "rotas": [], "veiculos": [],
+                    "INIT": false
+                });
+            }
+        })
+
+
+    }
+
 
 });
