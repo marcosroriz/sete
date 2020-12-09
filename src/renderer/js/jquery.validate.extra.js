@@ -61,6 +61,7 @@ window.$.validator.addMethod("cpf", function (value, element) {
 
 // Validar latitude e longitude
 window.$.validator.addMethod("posicao", function (value, element) {
+    if (value.indexOf(',') >= 0) {value = value.replace(',','.');}
     return this.optional(element) ||
         (value.length >= 2 && /^(?=.)-?((0?[8-9][0-9])|180|([0-1]?[0-7]?[0-9]))?(?:\.[0-9]{1,20})?$/.test(value));
 }, "Informe uma posição válida");
