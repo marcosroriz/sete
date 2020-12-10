@@ -178,6 +178,19 @@ $(document).ready(function () {
         }
     });
 
+    // Ações do teclado para Login (pressionar Enter para logar)
+
+    $("#loginemail, #loginpassword").keypress((e) => {
+        if(e.which === 13) {
+            $("#loginsubmit").click();
+        }
+    });
+    $("#recoveremail").keypress((e) => {
+        if(e.which === 13) {
+            $("#recoversubmit").click();
+        }
+    });
+    
     // Ações para cada click
 
     // No caso de login iremos fazer o login com o Firebase as preferências
