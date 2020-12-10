@@ -128,7 +128,7 @@ var validadorFormulario = $("#wizardCadastrarGaragemForm").validate({
 // Botões
 var completeForm = () => {
     Swal2.fire({
-        title: "Garagaem salva com sucesso",
+        title: "Garagem salva com sucesso",
         text: "Clique abaixo para retornar ao painel.",
         type: "success",
         icon: "success",
@@ -140,9 +140,9 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-    .then(() => {
-        navigateDashboard("./modules/frota/frota-listar-view.html");
-    });
+        .then(() => {
+            navigateDashboard("./modules/frota/frota-listar-view.html");
+        });
 }
 
 $("#salvargaragem").click(() => {
@@ -160,23 +160,23 @@ $("#salvargaragem").click(() => {
         garagemJSON["LOC_LONGITUDE"] = $("#reglon").val();
         garagemJSON["LOC_ENDERECO"] = $("#regend").val();
         garagemJSON["LOC_CEP"] = $("#regcep").val();
-        
+
         if (action == "editarGaragem") {
             AtualizarPromise("Garagem", garagemJSON, "ID_GARAGEM", idGaragem)
-            .then((res) => {
-                completeForm();
-            })
-            .catch((err) => {
-                errorFn("Erro ao atualizar a garagem!", err);
-            });
+                .then((res) => {
+                    completeForm();
+                })
+                .catch((err) => {
+                    errorFn("Erro ao atualizar a garagem!", err);
+                });
         } else {
             InserirPromise("Garagem", garagemJSON)
-            .then((res) => {
-                completeForm();
-            })
-            .catch((err) => {
-                errorFn("Erro ao salvar a garagem!", err);
-            });
+                .then((res) => {
+                    completeForm();
+                })
+                .catch((err) => {
+                    errorFn("Erro ao salvar a garagem!", err);
+                });
         }
     }
 });
