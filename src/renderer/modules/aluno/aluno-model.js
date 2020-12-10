@@ -1,7 +1,7 @@
 function GetAlunoFromForm() {
     return {
-        "LOC_LATITUDE": Number(String($("#reglat").val()).replace(',','.')), // real
-        "LOC_LONGITUDE": Number(String($("#reglon").val()).replace(',','.')), // real
+        "LOC_LATITUDE": $("#reglat").val(), // real
+        "LOC_LONGITUDE": $("#reglon").val(), // real
         "LOC_ENDERECO": $("#regend").val(), // string
         "LOC_CEP": $("#regcep").val(), // string
         "MEC_TP_LOCALIZACAO": $("input[name='areaUrbana']:checked").val(), // int
@@ -241,8 +241,8 @@ function AtualizarEscolaPromise(idAluno, alunoJSON) {
 function GetAlunoForm() {
     return {
         "ID_ALUNO": _aluno.ID_ALUNO, //int primary key
-        "LATITUDE": Number(String($("#reglat").val()).replace(',','.')), // real
-        "LONGITUDE": Number(String($("#reglon").val()).replace(',','.')), // real
+        "LATITUDE": $("#reglat").val(), //real
+        "LONGITUDE": $("#reglon").val(), //real
         "ENDERECO": $("#regend").val(), //string
         "CEP": $("#regcep").val(), //int
         "DA_PORTEIRA": $("#temPorteira").is(":checked"), //bool
