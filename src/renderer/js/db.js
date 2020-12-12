@@ -1,37 +1,60 @@
-var path = require("path");
+// db.js
+// Este arquivo centraliza as chamadas ao banco de dados, permitindo assim
+// utilizar diferentes implementações. Atualmente, suportamos as seguintes
+// base de dados: SQLite (local) e Firebase (remota)
 
-// Google Firebase
-// Init Firebase
-var dbconfig = {
-    apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
-    authDomain: "softwareter.firebaseapp.com",
-    databaseURL: "https://softwareter.firebaseio.com",
-    projectId: "softwareter",
-    storageBucket: "softwareter.appspot.com",
-    messagingSenderId: "881352897273"
-};
-firebase.initializeApp(dbconfig);
 
-// Usuário do Firebase
+////////////////////////////////////////////////////////////////////////////////
+// INIT FIREBASE 
+////////////////////////////////////////////////////////////////////////////////
+
+// Carrega a implementação do banco no Firebase
+var firebaseImpl = require("./js/db_firebase.js");
+
+// Usuário do Firebase (começa como vazio)
 var firebaseUser = null;
 
-// Base de dados Firestore
+// Instancia o banco Firebase
 var remotedb = firebase.firestore();
 
-var dbPath = path.join(userDataDir, "db", "local.db");
-var knex = require("knex")({
-    client: "sqlite3",
-    connection: {
-        filename: dbPath,
-    },
-    useNullAsDefault: true,
-    pool: {
-        afterCreate: (conn, cb) => conn.run('PRAGMA foreign_keys = ON', cb)
-    }
-});
-knex.on('query', function (queryData) {
-    console.log(queryData);
-});
+////////////////////////////////////////////////////////////////////////////////
+// END FIREBASE 
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+// INIT SQLITE /////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// Carrega a implementação do banco no SQLite
+var sqliteImpl = require("./js/db_sqlite.js");
+
+////////////////////////////////////////////////////////////////////////////////
+// END SQLITE //////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+// Variável que controla a implementação a ser utilizada, por padrão é o Firebase
+var dbImpl = firebaseImpl;
+
+
+////////////////////////////////////////////////////////////////////////////////
+// FUNÇÕES DE CONSULTA
+////////////////////////////////////////////////////////////////////////////////
+
+// Funções comuns do banco de dados
+function InserirPromise(colecao, dado, id = "", merge = false) {
+    return dbImpl.InserirPromise(colecao, dado, id, merge);
+}
+
+function BuscarTodosDadosPromise(colecao) {
+    return dbImpl.BuscarDadosEspecificos(colecao);
+}
+
+function BuscarDadosEspecificosPromise(colecao, coluna, valor, operador = "==") {
+    return dbImpl.BuscarDadosEspecificosPromise(colecao, coluna, valor, operador);
+}
+
 
 // Clear database
 function clearDBPromises() {
