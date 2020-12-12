@@ -60,11 +60,11 @@ $(".telmask").mask(telmaskbehaviour, teloptions);
 var validadorFormulario = $("#wizardCadastrarAlunoForm").validate({
     rules: {
         reglat: {
-            required: true,
+            required: false,
             posicao: true
         },
         reglon: {
-            required: true,
+            required: false,
             posicao: true
         },
         regdata: {
@@ -103,12 +103,6 @@ var validadorFormulario = $("#wizardCadastrarAlunoForm").validate({
         }
     },
     messages: {
-        reglat: {
-            required: "Por favor selecione ou digite a latitude da casa do aluno"
-        },
-        reglon: {
-            required: "Por favor selecione ou digite a longitude da casa do aluno",
-        },
         regdata: {
             required: "Por favor digite a data de nascimento do aluno"
         },
