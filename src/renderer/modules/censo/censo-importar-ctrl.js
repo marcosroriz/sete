@@ -124,81 +124,74 @@ function realizaImportacao(rawDados) {
     // Remover os dados selecionados do banco
     var dados = [].concat(rawDados);
 
-    // Barra de progresso (valor atual)
-    var progresso = 0;
-
     // Numero de operações a serem realizadas
     var numEscolas = dados.length;
     var numAlunos = 0;
     dados.forEach((escolaSelecionada) => {
         numAlunos += Object.keys(baseDados[escolaSelecionada["ID"]]["ALUNOS"]).length
     })
-    var max = numEscolas + numAlunos +  // Remover
-        numEscolas + numAlunos + numAlunos; // Inserir
+    var totalOperacoes = numEscolas + numAlunos + numAlunos; 
 
-    function updateProgress() {
+    // Barra de progresso (valor atual)
+    var progresso = 0;
+
+    function updateProgresso() {
         progresso++;
-        let progressPorcentagem = Math.round(100 * (progresso / max))
-        $('.progress-bar').css('width', progressPorcentagem + "%")
-        $('.progress-bar').text(progressPorcentagem + "%")
+        let progressoPorcentagem = Math.round(100 * (progresso / totalOperacoes))
+        $('.progress-bar').css('width', progressoPorcentagem + "%")
+        $('.progress-bar').text(progressoPorcentagem + "%")
     }
 
-    var promiseArray = new Array();
-    dados.forEach((escolaSelecionada) => {
-        // Remove escola
-        var idEscola = escolaSelecionada["ID"];
-        var escola = baseDados[idEscola]
-        promiseArray.push(RemoverPromise("Escolas", "MEC_NO_ENTIDADE", escola["MEC_NO_ENTIDADE"])
-            .then(() => updateProgress()))
-
-        // Remove alunos
-        var alunos = escola["ALUNOS"]
-        for (let aluno of Object.values(alunos)) {
-            promiseArray.push(RemoverComposedPromise(
-                "Alunos",
-                "NOME", aluno["NOME"],
-                "DATA_NASCIMENTO", aluno["DATA_NASCIMENTO"])
-                .then(() => updateProgress())
-            )
-        }
-    })
+    // Ao inserir os alunos, vamos guardar as escolas que eles estudam para
+    // posteriormente adicionar na tabela escolatemalunos
     var relEscolaAluno = {};
+    
+    // Vamos Inserir os Alunos e as Escolas
+    var promiseArray = new Array();
+    
+    // Para cada escola
+    dados.forEach((escolaSelecionada) => {
+        // Obtem uma cópia da escola
+        let idEscola = escolaSelecionada["ID"];
+        var escola = Object.assign({}, baseDados[idEscola])
+
+        // Obtem uma cópia dos alunos
+        var alunos = Object.assign({}, escola["ALUNOS"]);
+
+        // Cria a chave desta escola no dicionário (para relacionar com os alunos)
+        relEscolaAluno[idEscola] = new Array();
+
+        // Para cada aluno desta escola
+        for (var aluno of Object.values(alunos)) {
+            // Constrói o ID do aluno utilizando o nome completo e a data de nascimento
+            var idAluno = aluno["NOME"].replace(/ /g,"-") + "-" + 
+                          aluno["DATA_NASCIMENTO"].replace(/\//g, "-")
+            
+            // Registra o vinculo deste aluno com esta escola (adiciona ao array)
+            relEscolaAluno[idEscola].push(idAluno);
+
+            // Insere o Aluno no Banco de Dados
+            promiseArray.push(InserirPromise("alunos", aluno, idAluno)
+                                            .then(() => updateProgresso()))
+        }
+
+        // Apaga o atributo aluno da escola
+        delete escola["ALUNOS"];
+
+        // Adiciona esta escola no banco de dados
+        promiseArray.push(InserirPromise("escolas", escola, String(idEscola))
+                                        .then(() => updateProgresso()))
+    })
+
     Promise.all(promiseArray).then(() => {
-        var promiseArrayBasicos = new Array();
-        dados.forEach((escolaSelecionada) => {
-            // Obtem uma cópia da escola
-            let idEscola = escolaSelecionada["ID"];
-            var escola = Object.assign({}, baseDados[idEscola])
-
-            // Obtem alunos
-            var alunos = Object.assign({}, escola["ALUNOS"]);
-
-            relEscolaAluno[idEscola] = new Array();
-            for (var aluno of Object.values(alunos)) {
-                // Inserir alunos
-                promiseArrayBasicos.push(InserirPromise("Alunos", aluno)
-                    .then((idAluno) => {
-                        relEscolaAluno[idEscola].push(idAluno[0]);
-                        updateProgress();
-                    })
-                )
-            }
-
-            delete escola["ALUNOS"];
-            promiseArrayBasicos.push(InserirPromise("Escolas", escola)
-                .then(() => updateProgress()))
-        })
-
-        return Promise.all(promiseArrayBasicos)
-    }).then(() => {
         var promiseArrayRelacoes = new Array();
         for (let [idEscola, alunos] of Object.entries(relEscolaAluno)) {
             for (let idAluno of Object.values(alunos)) {
-                promiseArrayRelacoes.push(InserirPromise("EscolaTemAlunos", {
-                    "ID_ESCOLA": Number(idEscola),
+                promiseArrayRelacoes.push(InserirPromise("escolatemalunos", {
+                    "ID_ESCOLA": String(idEscola),
                     "ID_ALUNO": idAluno
                 })
-                .then(() => updateProgress()))
+                .then(() => updateProgresso()))
             }
         }
 
@@ -217,9 +210,9 @@ function realizaImportacao(rawDados) {
             allowOutsideClick: false,
             button: "Fechar"
         })
-            .then(() => {
-                navigateDashboard("./dashboard-main.html");
-            });
+        .then(() => {
+            navigateDashboard("./dashboard-main.html");
+        });
     })
 }
 
