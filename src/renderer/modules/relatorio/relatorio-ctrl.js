@@ -73,7 +73,7 @@ function plotGraphic(target, option) {
         Chartist.Bar(target, option["SERIE"], chart["barra"]);
     } else if (option["TIPO"] == "total") {
         $(target).append(`<div class='totalChart'>
-            <span>${roundToTwo(option["SERIE"]["series"][0])}</sṕan>
+            <span>${roundToTwo(option["SERIE"]["series"][0])}</span>
         </div>`)
     } else if (option["TIPO"] == "barraraw") {
         Chartist.Bar(target, option["SERIE"], chart["barraraw"]);
@@ -145,10 +145,10 @@ function GetTemplateDataTableConfig() {
                 orientation: "landscape",
                 text: "Exportar para PDF",
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
+                    columns: [0, 1, 2, 8, 3, 4]
                 },
                 customize: function (doc) {
-                    doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
+                    doc.content[1].table.widths = ['30%', '10%', '10%', '10%', '25%', '15%'];
                     doc.images = doc.images || {};
                     doc.images["logo"] = baseImages.get("logo");
                     doc.content.splice(1, 0, {
