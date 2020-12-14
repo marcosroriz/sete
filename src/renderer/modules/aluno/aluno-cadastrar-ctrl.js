@@ -17,6 +17,7 @@ mapa["activateGeocoder"]();
 // Ativa camadas
 mapa["activateImageLayerSwitcher"]();
 
+var x = 0;
 mapaOL.on('singleclick', function (evt) {
     if (evt.originalEvent.path.length > 21) {
         return;
@@ -45,8 +46,8 @@ mapaOL.on('singleclick', function (evt) {
     vectorSource.addFeature(posicaoAluno);
 
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-    $("#reglat").val(lat);
-    $("#reglon").val(lon);
+    $("#reglat").val(lat.toPrecision(8));
+    $("#reglon").val(lon.toPrecision(8));
     $("#reglat").valid();
     $("#reglon").valid();
 });
