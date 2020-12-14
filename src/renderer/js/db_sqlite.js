@@ -25,6 +25,8 @@ knex.on('query', function (queryData) {
 });
 
 module.exports = {
+    knex: knex,
+    
     BuscarTodosDadosPromise: (tabela) => {
         return knex.select('*').from(tabela);
     },

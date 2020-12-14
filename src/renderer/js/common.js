@@ -27,10 +27,6 @@ var htmlToImage = require("html-to-image");
 var appTitle = "SETE - Software Eletrônico de Gestão do Transporte Escolar"
 var userData = {};
 
-// Arquivo de configuração local
-var Store = require("electron-store");
-var userconfig = new Store();
-
 // Variáveis globais utilizadas para navegação
 var lastPage = "./dashboard-main.html";
 var currentPage = "./dashboard-main.html";

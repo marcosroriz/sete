@@ -171,23 +171,23 @@ function realizaImportacao(rawDados) {
             relEscolaAluno[idEscola].push(idAluno);
 
             // Insere o Aluno no Banco de Dados
-            promiseArray.push(InserirPromise("alunos", aluno, idAluno)
-                                            .then(() => updateProgresso()))
+            promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
+                                               .then(() => updateProgresso()))
         }
 
         // Apaga o atributo aluno da escola
         delete escola["ALUNOS"];
 
         // Adiciona esta escola no banco de dados
-        promiseArray.push(InserirPromise("escolas", escola, String(idEscola))
-                                        .then(() => updateProgresso()))
+        promiseArray.push(dbInserirPromise("escolas", escola, String(idEscola))
+                                          .then(() => updateProgresso()))
     })
 
     Promise.all(promiseArray).then(() => {
         var promiseArrayRelacoes = new Array();
         for (let [idEscola, alunos] of Object.entries(relEscolaAluno)) {
             for (let idAluno of Object.values(alunos)) {
-                promiseArrayRelacoes.push(InserirPromise("escolatemalunos", {
+                promiseArrayRelacoes.push(dbInserirPromise("escolatemalunos", {
                     "ID_ESCOLA": String(idEscola),
                     "ID_ALUNO": idAluno
                 })
@@ -197,11 +197,8 @@ function realizaImportacao(rawDados) {
 
         return Promise.all(promiseArrayRelacoes)
     })
-    .catch(err => {
-        errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em cecateufg@gmail.com")
-    })
-    .then(() => {
-        Swal2.fire({
+    .then(() => dbAtualizaVersao())
+    .then(() => Swal2.fire({
             title: "Parabéns!",
             text: "Os dados foram importados com sucesso.",
             icon: "success",
@@ -209,11 +206,14 @@ function realizaImportacao(rawDados) {
             closeOnClickOutside: false,
             allowOutsideClick: false,
             button: "Fechar"
-        })
-        .then(() => {
-            navigateDashboard("./dashboard-main.html");
-        });
+        }))
+    .then(() => {
+        navigateDashboard("./dashboard-main.html");
     })
+    .catch(err => {
+        errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em cecateufg@gmail.com")
+    })
+
 }
 
 $('#importarAlunosCenso').on('click', () => {

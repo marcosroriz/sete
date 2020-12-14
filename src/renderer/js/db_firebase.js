@@ -30,26 +30,40 @@ function DesempacotaPromise(promessaAlvo) {
     }).catch(err => Promise.reject(err))
 }
 
-module.exports = {
-    FonteDoDado: "cache",
+async function AsyncEstaSincronizado(ultimaAtualizacao) {
+    let sync = false;
+    let atualizacaoServidor = await remotedb.collection(COLECAO_RAIZ)
+                                            .doc(codCidade)
+                                            .collection("status")
+                                            .doc("atualizacao")
+                                            .get();
+    if (atualizacaoServidor.exists) {
+        sync = ultimaAtualizacao == atualizacaoServidor.data()["LAST_UPDATE"];
+    }
+    return sync;
+}
 
-    BuscarTodosDadosPromise: (nomeColecao) => {
-        console.log(module.exports.FonteDoDado);
+module.exports = {
+    dbFonteDoDado: "cache",
+
+    dbEstaSincronizado: AsyncEstaSincronizado,
+
+    dbBuscarTodosDadosPromise: (nomeColecao) => {
         return DesempacotaPromise(remotedb.collection(COLECAO_RAIZ)
                                           .doc(codCidade)
                                           .collection(nomeColecao)
-                                          .get({ source: module.exports.FonteDoDado }));
+                                          .get({ source: module.exports.dbFonteDoDado }));
     },
 
-    BuscarDadosEspecificosPromise: (nomeColecao, coluna, valor, operador = "==") => {
+    dbBuscarDadosEspecificosPromise: (nomeColecao, coluna, valor, operador = "==") => {
         return DesempacotaPromise(remotedb.collection(COLECAO_RAIZ)
                                           .doc(codCidade)
                                           .collection(nomeColecao)
                                           .where(coluna, operador, valor)
-                                          .get({source: module.exports.FonteDoDado}));
+                                          .get({source: module.exports.dbFonteDoDado}));
     },
 
-    InserirPromise: (nomeColecao, dado, id = "", merge = false) => {
+    dbInserirPromise: (nomeColecao, dado, id = "", merge = false) => {
         if (id != "") {
             return remotedb.collection(COLECAO_RAIZ)
                            .doc(codCidade)

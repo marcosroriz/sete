@@ -1,13 +1,24 @@
 // db.js
 // Este arquivo centraliza as chamadas ao banco de dados, permitindo assim
 // utilizar diferentes implementações. Atualmente, suportamos as seguintes
-// base de dados: SQLite (local) e Firebase (remota)
+// base de dados: ElectronStore (cache), Firebase (remota) e SQLite (local)
+
+// Tabelas (coleções) do banco de dados
+var DB_TABLES = ["alunos", "escolas", "escolatemalunos", "fornecedores", 
+"faztransporte", "garagem", "garagemtemveiculo", "motoristas", "municipios", 
+"ordemdeservico", "rotas", "rotaatendealuno", "rotadirigidapormotorista", 
+"rotapassaporescolas", "rotapossuiveiculo", "veiculos"]
+
+////////////////////////////////////////////////////////////////////////////////
+// Local Database (cache)
+////////////////////////////////////////////////////////////////////////////////
+var Store = require("electron-store");
+var userconfig = new Store();
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // INIT FIREBASE 
 ////////////////////////////////////////////////////////////////////////////////
-
 // Carrega a implementação do banco no Firebase
 var firebaseImpl = require("./js/db_firebase.js");
 
@@ -17,21 +28,13 @@ var firebaseUser = null;
 // Instancia o banco Firebase
 var remotedb = firebase.firestore();
 
-////////////////////////////////////////////////////////////////////////////////
-// END FIREBASE 
-////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // INIT SQLITE /////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
 // Carrega a implementação do banco no SQLite
 var sqliteImpl = require("./js/db_sqlite.js");
-
-////////////////////////////////////////////////////////////////////////////////
-// END SQLITE //////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+var knex = sqliteImpl.knex;
 
 
 // Variável que controla a implementação a ser utilizada, por padrão é o Firebase
@@ -43,16 +46,52 @@ var dbImpl = firebaseImpl;
 ////////////////////////////////////////////////////////////////////////////////
 
 // Funções comuns do banco de dados
-function InserirPromise(colecao, dado, id = "", merge = false) {
-    return dbImpl.InserirPromise(colecao, dado, id, merge);
+function dbInserirPromise(colecao, dado, id = "", merge = false) {
+    return dbImpl.dbInserirPromise(colecao, dado, id, merge);
 }
 
-function BuscarTodosDadosPromise(colecao) {
-    return dbImpl.BuscarDadosEspecificos(colecao);
+function dbBuscarTodosDadosPromise(colecao) {
+    return dbImpl.dbBuscarDadosEspecificos(colecao);
 }
 
-function BuscarDadosEspecificosPromise(colecao, coluna, valor, operador = "==") {
-    return dbImpl.BuscarDadosEspecificosPromise(colecao, coluna, valor, operador);
+function dbBuscarDadosEspecificosPromise(colecao, coluna, valor, operador = "==") {
+    return dbImpl.dbBuscarDadosEspecificosPromise(colecao, coluna, valor, operador);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// FUNÇÕES DE SINCRONIZAÇÃO
+////////////////////////////////////////////////////////////////////////////////
+
+function dbEstaSincronizado() {
+    let ultimaAtualizacao = userconfig.get("LAST_UPDATE");
+    if (ultimaAtualizacao == undefined) {
+        return false;
+    } else {
+        return dbImpl.dbEstaSincronizado(ultimaAtualizacao);
+    }
+}
+
+function dbAtualizaVersao(lastUpdate = new Date().toJSON()) {
+    dbImpl.dbFonteDoDado = "server";
+    return dbImpl.dbInserirPromise("status", { LAST_UPDATE: lastUpdate }, "atualizacao")
+                 .then(() => {
+                        dbImpl.dbFonteDoDado = "cache";
+                        userconfig.set("LAST_UPDATE", lastUpdate);
+                        return Promise.resolve(lastUpdate)
+                 })
+                 .catch((err) => Promise.reject(err))
+}
+
+function dbSincronizar() {
+    dbImpl.dbFonteDoDado = "server";
+    
+    var sincPromisses = new Array();
+    DB_TABLES.forEach(db => sincPromisses.push(dbImpl.dbBuscarTodosDadosPromise(db)))
+
+    return Promise.all(sincPromisses)
+                  .then(() => dbAtualizaVersao())
+                  .catch((err) => Promise.reject(err))
 }
 
 
@@ -133,10 +172,6 @@ if (codCidade != null) {
         });
 }
 
-// Funções comuns do banco de dados
-function InserirPromise(table, data) {
-    return knex(table).insert(data);
-}
 
 function Inserir(table, data, cb) {
     InserirPromise(table, data)
