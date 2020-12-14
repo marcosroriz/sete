@@ -42,6 +42,18 @@ var errorFn = (msg, err) => {
     });
 }
 
+// Função genérica para relatar carregamento
+var loadingFn = (msgTitle, msgDesc = "Aguarde, estamos processando...") => {
+    return Swal2.fire({
+        title: msgTitle,
+        imageUrl: "img/icones/processing.gif",
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        text: msgDesc
+    })
+}
+
 // Função de Navegação Dash
 function navigateDashboard(target) {
     lastPage = currentPage;
