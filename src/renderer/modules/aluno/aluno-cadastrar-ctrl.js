@@ -207,7 +207,7 @@ var completeForm = () => {
     });
 }
 
-$("#salvaraluno").click(() => {
+$("#salvaraluno").on('click', () => {
     $("[name='turnoAluno']").valid();
     $("[name='nivelAluno']").valid();
     
@@ -227,24 +227,22 @@ $("#salvaraluno").click(() => {
                 errorFn("Erro ao inserir o aluno na escola!", err);
             });
         } else {
-            InserirAlunoPromise(alunoJSON)
-                .then((res) => {
-                    if (idEscola != 0) {
-                        var idAluno = res[0];
-                        AdicionaAlunoEscola(idAluno, idEscola)
-                            .then((res) => {
-                                completeForm();
-                            })
-                            .catch((err) => {
-                                errorFn("Erro ao inserir o aluno na escola!", err);
-                            });
-                    } else {
-                        completeForm();
-                    }
-                })
-                .catch((err) => {
-                    errorFn("Erro ao salvar o aluno!", err);
-                });
+            loadingFn("Cadastrando o(a) aluno(a) ...")
+            
+            dbInserirPromise(DB_TABLE_ALUNO, alunoJSON)
+            .then((res) => {
+                if (idEscola != 0) {
+                    return dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
+                        "ID_ESCOLA": idEscola, 
+                        "ID_ALUNO": res.id
+                    })
+                } else {
+                    return Promise.resolve(res.id)
+                }
+            })
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao salvar o aluno."))
         }
     }
 });

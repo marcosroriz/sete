@@ -9,6 +9,10 @@ var DB_TABLES = ["alunos", "escolas", "escolatemalunos", "fornecedores",
 "ordemdeservico", "rotas", "rotaatendealuno", "rotadirigidapormotorista", 
 "rotapassaporescolas", "rotapossuiveiculo", "veiculos"]
 
+var DB_TABLE_ALUNO = "alunos";
+var DB_TABLE_ESCOLAS = "escolas";
+var DB_TABLE_ESCOLA_TEM_ALUNOS = "escolatemalunos";
+
 ////////////////////////////////////////////////////////////////////////////////
 // Local Database (cache)
 ////////////////////////////////////////////////////////////////////////////////
