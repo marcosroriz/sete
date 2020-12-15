@@ -337,7 +337,7 @@
         });
 
         // Links
-        $(".link-menu").click(function () {
+        $(".link-menu").on('click', function () {
             $(".activeLink").removeClass("activeLink");
             $(this.parentElement).addClass("activeLink");
             navigateDashboard("./modules/" + $(this).attr("name") + ".html");

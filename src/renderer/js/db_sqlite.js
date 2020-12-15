@@ -1,9 +1,6 @@
 // db_firebase.js
 // Este arquivo implementa as funções do banco de dados utilizando o sqlite
 
-// Importa path para que possamos localizar o arquivo do db no sistema
-var path = require("path");
-
 // Calcula o caminho até o db
 var dbPath = path.join(userDataDir, "db", "local.db");
 

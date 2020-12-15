@@ -1,3 +1,14 @@
+// common.js
+// Este arquivo contém imports e rotinas comuns a todas as telas do software
+// Aqui é importado (biblioteca) e definido (funções): 
+// - bibliotecas do Electron
+// - funções de manipulação de arquivo (fs)
+// - funções de navegação do sistema de arquivo (path/userData)
+// - funções de navegação interna do sete (dashboard)
+// - bibliotecas do jQuery
+// - funções para criar notificações (erro, pergunta, etc) com SweetAlert2
+// - funções que retornam as opções comuns dos wizards e de validação dos formulários
+
 // Imports Principais do Electron
 var electron = require('electron');
 var { ipcRenderer, remote, shell } = electron;
@@ -6,11 +17,13 @@ var dialog = remote.dialog;
 var win = remote.getCurrentWindow();
 var versao = app.getVersion();
 
-// Imports Básicos do NodeJS
+// Imports de I/O do NodeJS
 var fs = require("fs-extra");
 
-// Caminhos Comuns
-var userDataDir = app.getPath('userData');
+// Imports de biblioteca de caminhos (para acessar e navegar no sistema de arquivos)
+// app.getPath retorna a pasta do SO que armazina os dados de configuração do app
+var path = require("path");
+var userDataDir = app.getPath('userData'); 
 
 // Bibliotecas Básicas do JS
 window.$ = window.jQuery = require("jquery");
@@ -32,13 +45,16 @@ var lastPage = "./dashboard-main.html";
 var currentPage = "./dashboard-main.html";
 
 // Função genérica para relatar erros
-var errorFn = (msg, err) => {
+var errorFn = (msg, err = "") => {
+    if (err != "") {
+        msg = msg + "\n Caso o erro persista, informe a seguinte mensagem para a equipe de suporte (cecateufg@gmail.com): \n" + err
+    }
     Swal2.fire({
         title: "Ops... tivemos um problema!",
-        text: msg + "\n Caso o erro persista, informe a seguinte mensagem para a equipe de suporte (cecateufg@gmail.com): \n" + err,
+        text: msg,
         icon: "error",
         type: "error",
-        button: "Fechar"
+        confirmButtonText: "Fechar"
     });
 }
 
@@ -87,30 +103,57 @@ function configMostrarResultadoValidacao() {
 }
 
 // Estrutura básica dos formulários wizard
-function configWizardBasico(idElemento) {
+function configWizardBasico(idElemento, usarValidador = true) {
     return {
         'tabClass': 'nav nav-pills',
         'nextSelector': '.btn-next',
         'previousSelector': '.btn-back',
 
         onNext: function (tab, navigation, index) {
-            var $valid = $(idElemento).valid();
-            if (!$valid) {
-                validadorFormulario.focusInvalid();
-                return false;
-            } else {
-                window.scroll(0, 0);
-            }
-        },
-
-        onTabClick: function (tab, navigation, index) {
-            var $valid = $(idElemento).valid();
-            if (!$valid) {
-                return false;
+            if (usarValidador) {
+                var $valid = $(idElemento).valid();
+                if (!$valid) {
+                    validadorFormulario.focusInvalid();
+                    return false;
+                } else {
+                    window.scroll(0, 0);
+                }
             } else {
                 window.scroll(0, 0);
                 return true;
             }
         },
+
+        onTabClick: function (tab, navigation, index) {
+            if (usarValidador) {
+                var $valid = $(idElemento).valid();
+                if (!$valid) {
+                    return false;
+                } else {
+                    window.scroll(0, 0);
+                    return true;
+                }
+            } else {
+                window.scroll(0, 0);
+                return true;
+            }
+        },
+
+        onTabShow: function (tab, navigation, index) {
+            var $total = navigation.find('li').length;
+            var $current = index + 1;
+    
+            var $wizard = navigation.closest('.card-wizard');
+    
+            // If it's the last tab then hide the last button and show the finish instead
+            if ($current >= $total) {
+                $($wizard).find('.btn-next').hide();
+                $($wizard).find('.btn-finish').show();
+            } else {
+                $($wizard).find('.btn-next').show();
+    
+                $($wizard).find('.btn-finish').hide();
+            }
+        }
     }
 }
