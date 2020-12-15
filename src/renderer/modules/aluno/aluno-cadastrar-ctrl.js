@@ -18,38 +18,24 @@ mapa["activateGeocoder"]();
 // Ativa camadas
 mapa["activateImageLayerSwitcher"]();
 
+// Lida com click de usuário
 mapaOL.on('singleclick', function (evt) {
     if (evt.originalEvent.path.length > 21) {
         return;
     }
 
     if (posicaoAluno != null) {
-        try {
-            vectorSource.removeFeature(posicaoAluno);
-        } catch (err) {
-            console.log(err);
-        }
+        vectorSource.removeFeature(posicaoAluno);
     }
-
-    posicaoAluno = new ol.Feature(
-        new ol.geom.Point(evt.coordinate)
-    );
-    posicaoAluno.setStyle(new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [25, 50],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            opacity: 1,
-            src: "img/icones/casamarker.png"
-        })
-    }));
-    vectorSource.addFeature(posicaoAluno);
-
+    
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
     $("#reglat").val(lat.toPrecision(8));
     $("#reglon").val(lon.toPrecision(8));
     $("#reglat").valid();
     $("#reglon").valid();
+
+    posicaoAluno = gerarMarcador(lat, lon, "img/icones/casamarker.png", 25, 50);
+    vectorSource.addFeature(posicaoAluno);
 });
 
 // Máscaras
@@ -261,19 +247,9 @@ function preencheDadosParaEdicao() {
     // Coloca marcador da casa do aluno caso tenha a localização
     if (estadoAluno["LOC_LONGITUDE"] != null && estadoAluno["LOC_LONGITUDE"] != undefined &&
         estadoAluno["LOC_LATITUDE"] != null && estadoAluno["LOC_LATITUDE"] != undefined) {
-            posicaoAluno = new ol.Feature(
-                new ol.geom.Point(ol.proj.fromLonLat([estadoAluno["LOC_LONGITUDE"],
-                                                      estadoAluno["LOC_LATITUDE"]]))
-            );
-            posicaoAluno.setStyle(new ol.style.Style({
-                image: new ol.style.Icon({
-                    anchor: [25, 40],
-                    anchorXUnits: 'pixels',
-                    anchorYUnits: 'pixels',
-                    opacity: 1,
-                    src: "img/icones/casamarker.png"
-                })
-            }));
+            posicaoAluno = gerarMarcador(estadoAluno["LOC_LATITUDE"],
+                                         estadoAluno["LOC_LONGITUDE"], 
+                                         "img/icones/casamarker.png", 25, 40);
             vectorSource.addFeature(posicaoAluno);
     }
 

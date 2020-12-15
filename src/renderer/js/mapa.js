@@ -192,13 +192,13 @@ var mapPNGExportOptions = {
     }
 };
 
-var gerarMarcador = (lat, lng, icon) => {
+var gerarMarcador = (lat, lng, icon, anchorX = 12, anchorY = 37) => {
     let p = new ol.Feature({
         "geometry": new ol.geom.Point(ol.proj.fromLonLat([lng, lat]))
     });
     p.setStyle(new ol.style.Style({
         image: new ol.style.Icon({
-            anchor: [12, 37],
+            anchor: [anchorX, anchorY],
             anchorXUnits: 'pixels',
             anchorYUnits: 'pixels',
             opacity: 1,
