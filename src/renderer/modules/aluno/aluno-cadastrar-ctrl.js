@@ -1,6 +1,6 @@
 // aluno-cadastrar-ctrl.js
 // Este arquivo contém o script de controle da tela aluno-cadastrar-view. 
-// O memso serve tanto para cadastrar, quanto para alterar os dados de um aluno.
+// O mesmo serve tanto para cadastrar, quanto para alterar os dados de um aluno.
 // Também é feito consultas nos dados de escolas para permitir vincular um aluno
 // a uma escola no momento de cadastro ou posteriormente.
 
