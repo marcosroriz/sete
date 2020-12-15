@@ -188,7 +188,6 @@ $("#salvaraluno").on('click', () => {
             dbAtualizarPromise(DB_TABLE_ALUNO, alunoJSON, idAluno)
             .then(() => {
                 let promiseArray = new Array();
-                debugger;
                 if (idEscola != idEscolaAnterior) {
                     promiseArray.push(dbRemoverDadoCompostoPromise(DB_TABLE_ESCOLA_TEM_ALUNOS,
                                       "ID_ESCOLA", String(idEscolaAnterior), 
