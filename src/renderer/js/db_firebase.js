@@ -12,7 +12,7 @@ var firebaseDBConfig = {
 };
 firebase.initializeApp(firebaseDBConfig);
 
-// Configura firebase para usar cache
+// Configura o firebase para usar cache
 firebase.firestore().settings({
     cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
 });
@@ -42,6 +42,7 @@ function DesempacotaComoDicionario(snapshotDocumentos) {
     return Promise.resolve(dados)
 }
 
+// Função que verifica se o banco de dados está sincronizado com o firebase
 async function AsyncEstaSincronizado(ultimaAtualizacao) {
     let sync = false;
     let atualizacaoServidor = await dbAcessarDados("status").doc("atualizacao").get();
@@ -78,6 +79,25 @@ module.exports = {
             return dbAcessarDados(nomeColecao)
                    .add(dado);
         }
+    },
+
+    dbAtualizarPromise: (nomeColecao, dado, id) => {
+        return dbAcessarDados(nomeColecao)
+               .doc(id)
+               .update(dado);
+    },
+
+    dbRemoverDadoCompostoPromise: (nomeColecao, c1, id1, c2, id2) => {
+        return dbAcessarDados(nomeColecao)
+               .where(c1, "==", id1)
+               .where(c2, "==", id2)
+               .get({source: 'server'})
+               .then((snapshotDocumentos) => {
+                    let delPromisseArray = new Array();
+                    snapshotDocumentos.forEach(doc => delPromisseArray.push(doc.ref.delete()))
+
+                    return Promise.all(delPromisseArray)
+               })
     },
 
     dbLeftJoinPromise: (colecao1, coluna1, colecao2, coluna2) => {

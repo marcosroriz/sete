@@ -30,31 +30,31 @@ function GetAlunoFromForm() {
 }
 
 function PopulateAlunoFromState(estadoAlunoJSON) {
-    $(".pageTitle").html("Atualizar Aluno");
-    $("#reglat").val(estadoAlunoJSON["LOC_LATITUDE"]);
-    $("#reglon").val(estadoAlunoJSON["LOC_LONGITUDE"]);
-    $("#regend").val(estadoAlunoJSON["LOC_ENDERECO"]);
-    $("#regcep").val(estadoAlunoJSON["LOC_CEP"]);
+    if (estadoAlunoJSON["LOC_LATITUDE"]) $("#reglat").val(estadoAlunoJSON["LOC_LATITUDE"]);
+    if (estadoAlunoJSON["LOC_LONGITUDE"]) $("#reglon").val(estadoAlunoJSON["LOC_LONGITUDE"]);
+    if (estadoAlunoJSON["LOC_ENDERECO"]) $("#regend").val(estadoAlunoJSON["LOC_ENDERECO"]);
+    if (estadoAlunoJSON["LOC_CEP"]) $("#regcep").val(estadoAlunoJSON["LOC_CEP"]);
 
     $("input[name='areaUrbana']").filter(`[value="${estadoAlunoJSON["MEC_TP_LOCALIZACAO"]}"]`).prop("checked", true);
-    $("#temPorteira").prop("checked", estadoAlunoJSON["DA_PORTEIRA"]);
-    $("#temMataBurro").prop("checked", estadoAlunoJSON["DA_MATABURRO"]);
-    $("#temColchete").prop("checked", estadoAlunoJSON["DA_COLCHETE"]);
-    $("#temAtoleiro").prop("checked", estadoAlunoJSON["DA_ATOLEIRO"]);
-    $("#temPonte").prop("checked", estadoAlunoJSON["DA_PONTERUSTICA"]);
+    if (estadoAlunoJSON["DA_PORTEIRA"]) $("#temPorteira").prop("checked", estadoAlunoJSON["DA_PORTEIRA"]);
+    if (estadoAlunoJSON["DA_MATABURRO"]) $("#temMataBurro").prop("checked", estadoAlunoJSON["DA_MATABURRO"]);
+    if (estadoAlunoJSON["DA_COLCHETE"]) $("#temColchete").prop("checked", estadoAlunoJSON["DA_COLCHETE"]);
+    if (estadoAlunoJSON["DA_ATOLEIRO"]) $("#temAtoleiro").prop("checked", estadoAlunoJSON["DA_ATOLEIRO"]);
+    if (estadoAlunoJSON["DA_PONTERUSTICA"]) $("#temPonte").prop("checked", estadoAlunoJSON["DA_PONTERUSTICA"]);
 
     $("#regnome").val(estadoAlunoJSON["NOME"]);
     $("#regcpf").val(estadoAlunoJSON["CPF"]);
     $("#regdata").val(estadoAlunoJSON["DATA_NASCIMENTO"]);
-    $("#regnomeresp").val(estadoAlunoJSON["NOME_RESPONSAVEL"]);
-    $("#regtelresp").val(estadoAlunoJSON["TELEFONE_RESPONSAVEL"]);
-    $("#listareggrauresp").val(estadoAlunoJSON["GRAU_RESPONSAVEL"]);
+    if (estadoAlunoJSON["NOME_RESPONSAVEL"]) $("#regnomeresp").val(estadoAlunoJSON["NOME_RESPONSAVEL"]);
+    if (estadoAlunoJSON["TELEFONE_RESPONSAVEL"]) $("#regtelresp").val(estadoAlunoJSON["TELEFONE_RESPONSAVEL"]);
+    if (estadoAlunoJSON["GRAU_RESPONSAVEL"]) $("#listareggrauresp").val(estadoAlunoJSON["GRAU_RESPONSAVEL"]);
+
     $("input[name='modoSexo']").val([estadoAlunoJSON["SEXO"]]);
     $("input[name='corAluno']").val([estadoAlunoJSON["COR"]]);
-    $("#temDeCaminhar").prop("checked", estadoAlunoJSON["DEF_CAMINHAR"]);
-    $("#temDeOuvir").prop("checked", estadoAlunoJSON["DEF_OUVIR"]);
-    $("#temDeEnxergar").prop("checked", estadoAlunoJSON["DEF_ENXERGAR"]);
-    $("#temDefMental").prop("checked", estadoAlunoJSON["DEF_MENTAL"]);
+    if (estadoAlunoJSON["DEF_CAMINHAR"]) $("#temDeCaminhar").prop("checked", estadoAlunoJSON["DEF_CAMINHAR"]);
+    if (estadoAlunoJSON["DEF_OUVIR"]) $("#temDeOuvir").prop("checked", estadoAlunoJSON["DEF_OUVIR"]);
+    if (estadoAlunoJSON["DEF_ENXERGAR"]) $("#temDeEnxergar").prop("checked", estadoAlunoJSON["DEF_ENXERGAR"]);
+    if (estadoAlunoJSON["DEF_MENTAL"]) $("#temDefMental").prop("checked", estadoAlunoJSON["DEF_MENTAL"]);
 
     $("input[name='turnoAluno']").val([estadoAlunoJSON["TURNO"]]);
     $("input[name='nivelAluno']").val([estadoAlunoJSON["NIVEL"]]);

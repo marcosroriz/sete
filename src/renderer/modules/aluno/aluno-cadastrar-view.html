@@ -266,14 +266,13 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group obr">
+                                        <div class="form-group">
                                             <div class="row">
-                                                <div class="obrlabel">
-                                                    Obrigatório
+                                                <div class="optlabel">
+                                                    Optativo
                                                 </div>
                                                 <label class="col-4 control-label">
                                                     <b>Nome do Responsável</b>
-                                                    <star>*</star>
                                                 </label>
                                                 <div class="col-6">
                                                     <input id="regnomeresp" name="regnomeresp" type="text"
@@ -303,18 +302,18 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group obr">
+                                        <div class="form-group">
                                             <div class="row">
                                                 <div class="obrlabel">
-                                                    Obrigatório
+                                                    Optativo
                                                 </div>
                                                 <label class="control-label">
                                                     <b>Grau de Parentesco do Responsável</b>
-                                                    <star>*</star>
                                                 </label>
                                                 <div class="col-6">
                                                     <select id="listareggrauresp" name="listareggrauresp"
                                                         class="form-control">
+                                                        <option value="-1">Não Informado</option>
                                                         <option value="0">Pai, Mãe, Padrasto ou Madrasta</option>
                                                         <option value="1">Avô ou Avó</option>
                                                         <option value="2">Irmão ou Irmã</option>
@@ -374,7 +373,7 @@
                                                     Obrigatório
                                                 </div>
                                                 <label class="control-label">
-                                                    <b>A cor ou raça do aluno é?</b>
+                                                    <b>A cor do aluno é?</b>
                                                     <star>*</star>
                                                 </label>
                                                 <div class="form-check form-check-radio">
@@ -505,14 +504,16 @@
 
                                     <div class="col-12">
                                         <div class="form-group obr">
-                                            <div class="row">
-                                                <div class="obrlabel">
-                                                    Obrigatório
-                                                </div>
+                                            <div class="col-12 mb-3">
                                                 <label class="control-label">
                                                     <b>Qual o turno que o aluno estuda?</b>
                                                     <star>*</star>
                                                 </label>
+                                            </div>
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <div class="form-check form-check-radio">
                                                     <label class="form-check-label">
                                                         <input class="form-check-input" type="radio" name="turnoAluno"

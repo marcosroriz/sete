@@ -1,7 +1,8 @@
-// Máscaras
-$('.cep').mask('00000-000');
-$(".cpfmask").mask('000.000.000-00', { reverse: true });
-$(".telmask").mask(telmaskbehaviour, teloptions);
+// aluno-cadastrar-ctrl.js
+// Este arquivo contém o script de controle da tela aluno-cadastrar-view. 
+// O memso serve tanto para cadastrar, quanto para alterar os dados de um aluno.
+// Também é feito consultas nos dados de escolas para permitir vincular um aluno
+// a uma escola no momento de cadastro ou posteriormente.
 
 // Posição do Aluno (Mapa)
 var posicaoAluno;
@@ -17,7 +18,6 @@ mapa["activateGeocoder"]();
 // Ativa camadas
 mapa["activateImageLayerSwitcher"]();
 
-var x = 0;
 mapaOL.on('singleclick', function (evt) {
     if (evt.originalEvent.path.length > 21) {
         return;
@@ -52,150 +52,113 @@ mapaOL.on('singleclick', function (evt) {
     $("#reglon").valid();
 });
 
-
 // Máscaras
 $(".datanasc").mask('00/00/0000');
 $('.cep').mask('00000-000');
 $(".telmask").mask(telmaskbehaviour, teloptions);
+$(".cpfmask").mask('000.000.000-00', { reverse: true });
 
+// Estrutura de validação do formulário
 var validadorFormulario = $("#wizardCadastrarAlunoForm").validate({
-    rules: {
-        reglat: {
-            required: false,
-            posicao: true
+    // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
+    ...configMostrarResultadoValidacao(),
+    ...{
+        rules: {
+            reglat: {
+                required: false,
+                posicao: true
+            },
+            reglon: {
+                required: false,
+                posicao: true
+            },
+            regdata: {
+                required: true,
+                datanasc: true
+            },
+            regnome: {
+                required: true,
+                lettersonly: true
+            },
+            areaUrbana: {
+                required: true,
+            },
+            regnomeresp: {
+                required: false,
+                lettersonly: true
+            },
+            listareggrauresp: {
+                required: false,
+            },
+            modoSexo: {
+                required: true
+            },
+            corAluno: {
+                required: true
+            },
+            listaescola: {
+                required: true,
+            },
+            turnoAluno: {
+                required: true
+            },
+            nivelAluno: {
+                required: true
+            }
         },
-        reglon: {
-            required: false,
-            posicao: true
-        },
-        regdata: {
-            required: true,
-            datanasc: true
-        },
-        regnome: {
-            required: true,
-            lettersonly: true
-        },
-        areaUrbana: {
-            required: true,
-        },
-        regnomeresp: {
-            required: true,
-            lettersonly: true
-        },
-        listareggrauresp: {
-            required: true,
-            pickselect: true
-        },
-        modoSexo: {
-            required: true
-        },
-        corAluno: {
-            required: true
-        },
-        listaescola: {
-            required: true,
-        },
-        turnoAluno: {
-            required: true
-        },
-        nivelAluno: {
-            required: true
+        messages: {
+            regdata: {
+                required: "Por favor digite a data de nascimento do aluno"
+            },
+            regnome: {
+                required: "Por favor digite um nome válido"
+            },
+            regnomeresp: {
+                required: "Por favor digite um nome válido"
+            },
+            listareggrauresp: {
+                required: "Selecione o grau de parentesco"
+            }
         }
-    },
-    messages: {
-        regdata: {
-            required: "Por favor digite a data de nascimento do aluno"
-        },
-        regnome: {
-            required: "Por favor digite um nome válido"
-        },
-        regnomeresp: {
-            required: "Por favor digite um nome válido"
-        },
-        listareggrauresp: {
-            required: "Selecione o grau de parentesco"
-        }
-    },
-    highlight: function (element) {
-        $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-        $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
-    },
-    success: function (element) {
-        $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-        $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
-    },
-    errorPlacement: function (error, element) {
-        console.log(error);
-        console.log(element);
-        $(element).closest('.form-group').append(error).addClass('has-error');
     }
 });
 
 
 $('.card-wizard').bootstrapWizard({
-    'tabClass': 'nav nav-pills',
-    'nextSelector': '.btn-next',
-    'previousSelector': '.btn-back',
+    // Configura ações básica do wizard (ver função em common.js)
+    ...configWizardBasico('#wizardCadastrarAlunoForm'),
+    ...{
+        onTabShow: function (tab, navigation, index) {
+            var $total = navigation.find('li').length;
+            var $current = index + 1;
 
-    onNext: function (tab, navigation, index) {
-        var $valid = $('#wizardCadastrarAlunoForm').valid();
-        if (!$valid) {
-            validadorFormulario.focusInvalid();
-            return false;
-        } else {
-            window.scroll(0, 0);
+            var $wizard = navigation.closest('.card-wizard');
+
+            // If it's the last tab then hide the last button and show the finish instead
+            if ($current >= $total) {
+                $($wizard).find('.btn-next').hide();
+                $($wizard).find('.btn-finish').show();
+            } else {
+                $($wizard).find('.btn-next').show();
+                $($wizard).find('.btn-finish').hide();
+            }
+
+            if (action == "editarAluno") {
+                $($wizard).find('#cancelarAcao').show();
+            } else {
+                $($wizard).find('#cancelarAcao').hide();
+            }
+
         }
-    },
-
-    onTabClick: function (tab, navigation, index) {
-        var $valid = $('#wizardCadastrarAlunoForm').valid();
-        if (!$valid) {
-            return false;
-        } else {
-            window.scroll(0, 0);
-            return true;
-        }
-    },
-
-    onTabShow: function (tab, navigation, index) {
-        var $total = navigation.find('li').length;
-        var $current = index + 1;
-
-        var $wizard = navigation.closest('.card-wizard');
-
-        // If it's the last tab then hide the last button and show the finish instead
-        if ($current >= $total) {
-            $($wizard).find('.btn-next').hide();
-            $($wizard).find('.btn-finish').show();
-        } else {
-            $($wizard).find('.btn-next').show();
-            $($wizard).find('.btn-finish').hide();
-        }
-
-        if (action == "editarAluno") {
-            $($wizard).find('#cancelarAcao').show();
-        } else {
-            $($wizard).find('#cancelarAcao').hide();
-        }
-
     }
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
-.then((res) => {
-    res.forEach((escola) => {
-        var eID = escola["ID_ESCOLA"];
-        var eNome = escola["NOME"];
-        $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
-    });
-})
 
 var completeForm = () => {
     Swal2.fire({
         title: "Aluno salvo com sucesso",
         text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
-            "Clique abaixo para retornar ao painel.",
+              "Clique abaixo para retornar ao painel.",
         type: "info",
         icon: "info",
         showCancelButton: false,
@@ -212,6 +175,7 @@ $("#salvaraluno").on('click', () => {
     $("[name='nivelAluno']").valid();
     
     var alunoJSON = GetAlunoFromForm();
+    var idAluno = estadoAluno["ID"];
     var idEscola = $("#listaescola").val();
 
     var $valid = $('#wizardCadastrarAlunoForm').valid();
@@ -219,13 +183,29 @@ $("#salvaraluno").on('click', () => {
         return false;
     } else {
         if (action == "editarAluno") {
-            AtualizarEscolaPromise(estadoAluno["ID_ALUNO"], alunoJSON)
-            .then((res) => {
-                completeForm();
+            loadingFn("Atualizando os dados do(a) aluno(a) ...")
+
+            dbAtualizarPromise(DB_TABLE_ALUNO, alunoJSON, idAluno)
+            .then(() => {
+                let promiseArray = new Array();
+                debugger;
+                if (idEscola != idEscolaAnterior) {
+                    promiseArray.push(dbRemoverDadoCompostoPromise(DB_TABLE_ESCOLA_TEM_ALUNOS,
+                                      "ID_ESCOLA", String(idEscolaAnterior), 
+                                      "ID_ALUNO", idAluno))
+
+                    if (idEscola != 0) {
+                        promiseArray.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
+                            "ID_ESCOLA": idEscola, 
+                            "ID_ALUNO": idAluno
+                        }))
+                    }
+                    return Promise.all(promiseArray);
+                }
             })
-            .catch((err) => {
-                errorFn("Erro ao inserir o aluno na escola!", err);
-            });
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao atualizar o(a) aluno na escola!", err));
         } else {
             loadingFn("Cadastrando o(a) aluno(a) ...")
             
@@ -242,29 +222,63 @@ $("#salvaraluno").on('click', () => {
             })
             .then(() => dbAtualizaVersao())
             .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao salvar o aluno."))
+            .catch((err) => errorFn("Erro ao salvar o aluno.", err))
         }
     }
 });
 
 
-if (action == "editarAluno") {
-    PopulateAlunoFromState(estadoAluno); 
-    posicaoAluno = new ol.Feature(
-        new ol.geom.Point(ol.proj.fromLonLat([estadoAluno["LOC_LONGITUDE"],
-                                              estadoAluno["LOC_LATITUDE"]]))
-    );
-    posicaoAluno.setStyle(new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [25, 40],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            opacity: 1,
-            src: "img/icones/casamarker.png"
-        })
-    }));
-    vectorSource.addFeature(posicaoAluno);
-    $("#cancelarAcao").click(() => {
+dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
+.then((res) => {
+    res.forEach((escola) => {
+        var eID = escola["ID_ESCOLA"];
+        var eNome = escola["NOME"];
+        $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
+    });
+
+    return res;
+})
+.then(() => { if (action == "editarAluno") preencheDadosParaEdicao() })
+.catch((err) => errorFn)
+
+
+// Variável armazena o ID da escola do aluno 
+// Importante ter para caso o usuário modifique os dados do aluno/escola
+var idEscolaAnterior;
+
+function preencheDadosParaEdicao() {
+    $(".pageTitle").html("Atualizar Aluno");
+    PopulateAlunoFromState(estadoAluno);
+    
+    // ID da escola anterior
+    idEscolaAnterior = estadoAluno["ID_ESCOLA"];
+
+    // Reativa máscaras
+    $(".cep").trigger('input')
+    $(".datanasc").trigger('input')
+    $(".telmask").trigger('input')
+    $(".cpfmask").trigger('input')
+    
+    // Coloca marcador da casa do aluno caso tenha a localização
+    if (estadoAluno["LOC_LONGITUDE"] != null && estadoAluno["LOC_LONGITUDE"] != undefined &&
+        estadoAluno["LOC_LATITUDE"] != null && estadoAluno["LOC_LATITUDE"] != undefined) {
+            posicaoAluno = new ol.Feature(
+                new ol.geom.Point(ol.proj.fromLonLat([estadoAluno["LOC_LONGITUDE"],
+                                                      estadoAluno["LOC_LATITUDE"]]))
+            );
+            posicaoAluno.setStyle(new ol.style.Style({
+                image: new ol.style.Icon({
+                    anchor: [25, 40],
+                    anchorXUnits: 'pixels',
+                    anchorYUnits: 'pixels',
+                    opacity: 1,
+                    src: "img/icones/casamarker.png"
+                })
+            }));
+            vectorSource.addFeature(posicaoAluno);
+    }
+
+    $("#cancelarAcao").on('click', () => {
         Swal2.fire({
             title: 'Cancelar Edição?',
             text: "Se você cancelar nenhum alteração será feita nos dados do aluno.",

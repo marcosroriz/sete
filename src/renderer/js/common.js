@@ -66,3 +66,51 @@ function navigateDashboard(target) {
 function navigatePage(target) {
     document.location.href = target;
 }
+
+// Estrutura básica de validação dos formulários
+function configMostrarResultadoValidacao() {
+    return {
+        highlight: function (element) {
+            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+            $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
+        },
+        success: function (element) {
+            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+            $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
+        },
+        errorPlacement: function (error, element) {
+            console.log(error);
+            console.log(element);
+            $(element).closest('.form-group').append(error).addClass('has-error');
+        }
+    }
+}
+
+// Estrutura básica dos formulários wizard
+function configWizardBasico(idElemento) {
+    return {
+        'tabClass': 'nav nav-pills',
+        'nextSelector': '.btn-next',
+        'previousSelector': '.btn-back',
+
+        onNext: function (tab, navigation, index) {
+            var $valid = $(idElemento).valid();
+            if (!$valid) {
+                validadorFormulario.focusInvalid();
+                return false;
+            } else {
+                window.scroll(0, 0);
+            }
+        },
+
+        onTabClick: function (tab, navigation, index) {
+            var $valid = $(idElemento).valid();
+            if (!$valid) {
+                return false;
+            } else {
+                window.scroll(0, 0);
+                return true;
+            }
+        },
+    }
+}

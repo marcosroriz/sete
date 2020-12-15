@@ -1,5 +1,5 @@
 // aluno-listar-ctrl.js
-// Este arquivo contém o script de controle da tela aluno-listar-ctrl. O memso
+// Este arquivo contém o script de controle da tela aluno-listar-view. O memso
 // apresenta os alunos cadastrados em uma tabela. Para tal, é feito uma consulta
 // dos alunos no banco de dados. Também é feito consultas nos dados de escolas e
 // coleções para apresentar dados adicionais na tabela dos alunos
@@ -55,6 +55,7 @@ var dataTablesAlunos = $("#datatables").DataTable({
         ]
     }
 });
+
 
 dataTablesAlunos.on('click', '.alunoView', function () {
     var $tr = getRowOnClick(this);

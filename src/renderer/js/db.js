@@ -56,6 +56,14 @@ function dbInserirPromise(colecao, dado, id = "", merge = false) {
     return dbImpl.dbInserirPromise(colecao, dado, id, merge);
 }
 
+function dbAtualizarPromise(colecao, dado, id) {
+    return dbImpl.dbAtualizarPromise(colecao, dado, id);
+}
+
+function dbRemoverDadoCompostoPromise(colecao, c1, id1, c2, id2) {
+    return dbImpl.dbRemoverDadoCompostoPromise(colecao, c1, id1, c2, id2);
+}
+
 function dbBuscarTodosDadosPromise(colecao) {
     return dbImpl.dbBuscarTodosDadosPromise(colecao);
 }
