@@ -36,6 +36,18 @@ mapaOL.on('singleclick', function (evt) {
 
     posicaoAluno = gerarMarcador(lat, lon, "img/icones/casamarker.png", 25, 50);
     vectorSource.addFeature(posicaoAluno);
+
+    var translate = new ol.interaction.Translate({
+        features: new ol.Collection([posicaoAluno])
+    });
+
+    translate.on('translateend', function (evt) {
+        var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
+        $("#reglat").val(lat.toPrecision(8));
+        $("#reglon").val(lon.toPrecision(8));
+    }, posicaoAluno);
+
+    mapaOL.addInteraction(translate);
 });
 
 // Máscaras

@@ -293,7 +293,6 @@ $("#btnExpJPEG").on('click', () => {
                                 htmlToImage.toPng(document.getElementById("mapaCanvas"))])
         }
     }).then((data) => {
-        debugger;
         var caminhoSalvar = data[0];
         var dataUrl = data[1];
         var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
