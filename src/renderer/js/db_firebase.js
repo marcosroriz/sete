@@ -87,6 +87,24 @@ module.exports = {
                .update(dado);
     },
 
+    dbRemoverDadoPorIDPromise: (nomeColecao, coluna, documentoID) => {
+        return dbAcessarDados(nomeColecao)
+               .doc(documentoID)
+               .delete();
+    },
+
+    dbRemoverDadoSimplesPromise: (nomeColecao, coluna, id) => {
+        return dbAcessarDados(nomeColecao)
+               .where(coluna, "==", id)
+               .get({source: 'server'})
+               .then((snapshotDocumentos) => {
+                   let delPromisseArray = new Array();
+                   snapshotDocumentos.forEach(doc => delPromisseArray.push(doc.ref.delete()))
+
+                   return Promise.all(delPromisseArray)
+               })
+    },
+
     dbRemoverDadoCompostoPromise: (nomeColecao, c1, id1, c2, id2) => {
         return dbAcessarDados(nomeColecao)
                .where(c1, "==", id1)

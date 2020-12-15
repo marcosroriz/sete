@@ -1,29 +1,50 @@
-// Cria mapa
-var alat = estadoAluno["LOC_LATITUDE"];
-var alng = estadoAluno["LOC_LONGITUDE"]
+// aluno-dados-ctrl.js
+// Este arquivo contém o script de controle da tela aluno-dados-view. 
+// O memso serve tanto para detalhar os dados de um determinado aluno
+// Os dados do aluno estão na variável estadoAluno
+
+// Cria mapa na cidade atual
 var mapaDetalhe = novoMapaOpenLayers("mapDetalheAluno", cidadeLatitude, cidadeLongitude);
 mapaDetalhe["activateImageLayerSwitcher"]();
 
+// Corrige o bug de resize no mapa
 window.onresize = function () {
     setTimeout(function () {
         if (mapaDetalhe != null) { mapaDetalhe["map"].updateSize(); }
     }, 200);
 }
 
-// Desenha marcador
-var posicaoAluno = new ol.Feature({
-    "geometry": new ol.geom.Point(ol.proj.fromLonLat([alng, alat]))
-});
-posicaoAluno.setStyle(new ol.style.Style({
-    image: new ol.style.Icon({
-        anchor: [12, 37],
-        anchorXUnits: 'pixels',
-        anchorYUnits: 'pixels',
-        opacity: 1,
-        src: "img/icones/aluno-marcador.png"
-    })
-}));
-mapaDetalhe["vectorSource"].addFeature(posicaoAluno);
+// Plota a posição do aluno se tiver localização GPS
+if (estadoAluno["LOC_LONGITUDE"] != "" && estadoAluno["LOC_LONGITUDE"] != undefined &&
+    estadoAluno["LOC_LATITUDE"] != "" && estadoAluno["LOC_LATITUDE"] != undefined) {
+    // Esconde o campo que diz que o aluno não tem localização
+    $("#alunoSemMapa").hide()
+    
+    // Desenha marcador da posição atual do aluno
+    var alunoLAT = estadoAluno["LOC_LATITUDE"];
+    var alunoLNG = estadoAluno["LOC_LONGITUDE"]
+
+    var posicaoAluno = gerarMarcador(alunoLAT, alunoLNG, "img/icones/aluno-marcador.png");
+    mapaDetalhe["vectorSource"].addFeature(posicaoAluno);
+    mapaDetalhe["map"].getView().fit(mapaDetalhe["vectorSource"].getExtent());
+    mapaDetalhe["map"].updateSize();    
+} else {
+    // Esconde o mapa do aluno e mostra o campo que nao tem localização
+    $("#mapDetalheAluno").hide()
+    $("#alunoSemMapa").show()
+}
+
+// Plota a posição da escola se tiver localização GPS
+if (estadoAluno["ESCOLA_LOC_LATITUDE"] != "" && estadoAluno["ESCOLA_LOC_LATITUDE"] != undefined &&
+    estadoAluno["ESCOLA_LOC_LONGITUDE"] != "" && estadoAluno["ESCOLA_LOC_LONGITUDE"] != undefined) {
+    var escolaLAT = estadoAluno["ESCOLA_LOC_LATITUDE"];
+    var escolaLNG = estadoAluno["ESCOLA_LOC_LONGITUDE"];
+    
+    var posicaoEscola = gerarMarcador(escolaLAT, escolaLNG, "img/icones/escola-marcador.png");
+    mapaDetalhe["vectorSource"].addFeature(posicaoEscola);
+    mapaDetalhe["map"].getView().fit(mapaDetalhe["vectorSource"].getExtent());
+    mapaDetalhe["map"].updateSize();    
+}
 
 // Tira o btn group do datatable
 $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons';
@@ -47,9 +68,11 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
                 navigateDashboard(lastPage);
             }
         },
+        // TODO: https://datatables.net/forums/discussion/58749/any-export-complete-event
         {
             extend: 'excel',
             className: 'btnExcel',
+            extension: ".xlsx",
             filename: "Aluno" + estadoAluno["NOME"],
             title: appTitle,
             messageTop: "Dados do Aluno: " + estadoAluno["NOME"],
@@ -66,6 +89,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
             extend: 'pdfHtml5',
             orientation: "landscape",
             title: "Aluno",
+            extension: ".pdf",
             text: "Exportar para PDF",
             exportOptions: {
                 columns: [0, 1]
@@ -91,35 +115,35 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
                 Swal2.fire({
                     title: 'Remover esse aluno?',
                     text: "Ao remover esse aluno ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
-                    type: 'warning',
+                    icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
                     cancelButtonText: "Cancelar",
                     confirmButtonText: 'Sim, remover'
                 }).then((result) => {
+                    let listaPromisePraRemover = []
                     if (result.value) {
-                        RemoverAluno(estadoAluno["ID_ALUNO"], (err, result) => {
-                            if (result) {
-                                Swal2.fire({
-                                    type: 'success',
-                                    title: "Sucesso!",
-                                    text: "Aluno removido com sucesso!",
-                                    confirmButtonText: 'Retornar a página de administração'
-                                })
-                                    .then(() => {
-                                        navigateDashboard("./modules/aluno/aluno-listar-view.html");
-                                    });
-                            } else {
-                                Swal2.fire({
-                                    type: 'error',
-                                    title: 'Oops...',
-                                    text: 'Tivemos algum problema. Por favor, reinicie o software!' + err,
-                                });
-                            }
+                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
+                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", estadoAluno["ID"]));
+                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
+                        listaPromisePraRemover.push(dbAtualizaVersao());
+                    }
+            
+                    return Promise.all(listaPromisePraRemover)
+                })
+                .then((res) => {
+                    if (res.length > 0) {
+                        Swal2.fire({
+                            title: "Sucesso!",
+                            icon: "success",
+                            text: "Aluno(a) removido(a) com sucesso!",
+                            confirmButtonText: 'Retornar a página de administração'
+                        }).then(() => {
+                            navigateDashboard("./modules/aluno/aluno-listar-view.html");
                         });
                     }
-                })
+                }).catch((err) => errorFn("Erro ao remover o(a) aluno(a)", err))
             }
         },
     ]
@@ -132,11 +156,11 @@ var popularTabelaAluno = () => {
     dataTableAluno.row.add(["Nome do aluno", estadoAluno["NOME"]]);
     dataTableAluno.row.add(["Data de nascimento", estadoAluno["DATA_NASCIMENTO"]]);
 
-    switch (estadoAluno["SEXO"]) {
-        case 1:
+    switch (String(estadoAluno["SEXO"])) {
+        case "1":
             dataTableAluno.row.add(["Sexo", "Masculino"]);
             break;
-        case 2:
+        case "2":
             dataTableAluno.row.add(["Sexo", "Feminino"]);
             break;
         default:
@@ -144,20 +168,20 @@ var popularTabelaAluno = () => {
             break;
     }
 
-    switch (estadoAluno["COR"]) {
-        case 1:
+    switch (String(estadoAluno["COR"])) {
+        case "1":
             dataTableAluno.row.add(["Cor/Raça", "Amarelo"]);
             break;
-        case 2:
+        case "2":
             dataTableAluno.row.add(["Cor/Raça", "Branco"]);
             break;
-        case 3:
+        case "3":
             dataTableAluno.row.add(["Cor/Raça", "Indígena"]);
             break;
-        case 4:
+        case "4":
             dataTableAluno.row.add(["Cor/Raça", "Pardo"]);
             break;
-        case 5:
+        case "5":
             dataTableAluno.row.add(["Cor/Raça", "Preto"]);
             break;
         default:
@@ -257,7 +281,8 @@ var popularTabelaAluno = () => {
                 dataTableAluno.row.add(["Localização", "Área Urbana"]);
         }
 
-        if (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != undefined && estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != "") {
+        if (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != undefined &&
+            estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != "") {
             switch (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"]) {
                 case 1:
                     dataTableAluno.row.add(["Localização diferenciada", "Área de assentamento"]);
@@ -273,36 +298,20 @@ var popularTabelaAluno = () => {
             }
         }
 
-        if (estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"] != undefined && estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"] != "") {
+        if (estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"] != undefined && 
+            estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"] != "") {
             dataTableAluno.row.add(["Contato da Escola", estadoAluno["ESCOLA_CONTATO_RESPONSAVEL"]]);
         } else {
             dataTableAluno.row.add(["Contato da Escola", "Contato da escola não informado"]);
         }
 
-        if (estadoAluno["ESCOLA_CONTATO_TELEFONE"] != undefined && estadoAluno["ESCOLA_CONTATO_TELEFONE"] != "") {
+        if (estadoAluno["ESCOLA_CONTATO_TELEFONE"] != undefined && 
+            estadoAluno["ESCOLA_CONTATO_TELEFONE"] != "") {
             dataTableAluno.row.add(["Telefone de Contato", estadoAluno["ESCOLA_CONTATO_TELEFONE"]]);
         } else {
             dataTableAluno.row.add(["Telefone de Contato", "Telefone de contato não informado"]);
         }
 
-        var elat = estadoAluno["ESCOLA_LOC_LATITUDE"];
-        var elng = estadoAluno["ESCOLA_LOC_LONGITUDE"];
-        // Desenha marcador da Escola
-        var posicaoEscola = new ol.Feature({
-            "geometry": new ol.geom.Point(ol.proj.fromLonLat([elng, elat]))
-        });
-        posicaoEscola.setStyle(new ol.style.Style({
-            image: new ol.style.Icon({
-                anchor: [12, 37],
-                anchorXUnits: 'pixels',
-                anchorYUnits: 'pixels',
-                opacity: 1,
-                src: "img/icones/escola-marcador.png"
-            })
-        }));
-        mapaDetalhe["vectorSource"].addFeature(posicaoEscola);
-        mapaDetalhe["map"].getView().fit(mapaDetalhe["vectorSource"].getExtent());
-        mapaDetalhe["map"].updateSize();
     }
 
     dataTableAluno.draw();

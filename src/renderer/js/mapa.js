@@ -1,3 +1,7 @@
+// mapa.js
+// Este arquivo contém um conjunto de script para controlar as operações 
+// relacionados a criação e interação com mapas
+
 // Função para retornar um Mapa Clicável e Simples do OpenLayers
 var mapaCores = ["#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0",
     "#24796C", "#DAA51B", "#2F8AC4", "#764E9F", "#ED645A",

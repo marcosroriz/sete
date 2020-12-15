@@ -60,6 +60,18 @@ function dbAtualizarPromise(colecao, dado, id) {
     return dbImpl.dbAtualizarPromise(colecao, dado, id);
 }
 
+function dbRemoverDadoPorIDPromise(colecao, coluna, id) {
+    return dbImpl.dbRemoverDadoPorIDPromise(colecao, coluna, id);
+}
+
+function dbRemoverDadoSimplesPromise(colecao, coluna, id) {
+    return dbImpl.dbRemoverDadoSimplesPromise(colecao, coluna, id);
+}
+
+function dbRemoverDadoSimplesPromise(colecao, coluna, id) {
+    return dbImpl.dbRemoverDadoSimplesPromise(colecao, coluna, id);
+}
+
 function dbRemoverDadoCompostoPromise(colecao, c1, id1, c2, id2) {
     return dbImpl.dbRemoverDadoCompostoPromise(colecao, c1, id1, c2, id2);
 }
