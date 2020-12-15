@@ -21,22 +21,30 @@ firebase.firestore().enablePersistence()
 // Nome da coleção raiz que armazena os dados no firebase
 const COLECAO_RAIZ = "municipios";
 
+// Função básica que acessa/recupera uma determinada colecao
+function dbAcessarDados(nomeColecao) {
+    return remotedb.collection(COLECAO_RAIZ)
+                   .doc(codCidade)
+                   .collection(nomeColecao)
+}
+
 // Função que desempacota os documentos do firebase em um vetor de dados
-function DesempacotaPromise(promessaAlvo) {
-    return promessaAlvo.then(snapshotDocumentos => {
-        dados = new Array();
-        snapshotDocumentos.forEach(documento => dados.push(documento.data()))
-        return Promise.resolve(dados)
-    }).catch(err => Promise.reject(err))
+function DesempacotaPromise(snapshotDocumentos) {
+    dados = new Array();
+    snapshotDocumentos.forEach(documento => dados.push({...{ID: documento.id}, ...documento.data()}))
+    return Promise.resolve(dados)
+}
+
+// Função que desempacota os documentos do firebase em um dicionário
+function DesempacotaComoDicionario(snapshotDocumentos) {
+    dados = {}
+    snapshotDocumentos.forEach(documento => dados[documento.id] = documento.data())
+    return Promise.resolve(dados)
 }
 
 async function AsyncEstaSincronizado(ultimaAtualizacao) {
     let sync = false;
-    let atualizacaoServidor = await remotedb.collection(COLECAO_RAIZ)
-                                            .doc(codCidade)
-                                            .collection("status")
-                                            .doc("atualizacao")
-                                            .get();
+    let atualizacaoServidor = await dbAcessarDados("status").doc("atualizacao").get();
     if (atualizacaoServidor.exists) {
         sync = ultimaAtualizacao == atualizacaoServidor.data()["LAST_UPDATE"];
     }
@@ -49,32 +57,44 @@ module.exports = {
     dbEstaSincronizado: AsyncEstaSincronizado,
 
     dbBuscarTodosDadosPromise: (nomeColecao) => {
-        return DesempacotaPromise(remotedb.collection(COLECAO_RAIZ)
-                                          .doc(codCidade)
-                                          .collection(nomeColecao)
-                                          .get({ source: module.exports.dbFonteDoDado }));
+        return dbAcessarDados(nomeColecao)
+               .get({ source: module.exports.dbFonteDoDado })
+               .then((res) => DesempacotaPromise(res));
     },
 
     dbBuscarDadosEspecificosPromise: (nomeColecao, coluna, valor, operador = "==") => {
-        return DesempacotaPromise(remotedb.collection(COLECAO_RAIZ)
-                                          .doc(codCidade)
-                                          .collection(nomeColecao)
-                                          .where(coluna, operador, valor)
-                                          .get({source: module.exports.dbFonteDoDado}));
+        return dbAcessarDados(nomeColecao)
+               .where(coluna, operador, valor)
+               .get({source: module.exports.dbFonteDoDado})
+               .then((res) => DesempacotaPromise(res));
     },
 
     dbInserirPromise: (nomeColecao, dado, id = "", merge = false) => {
         if (id != "") {
-            return remotedb.collection(COLECAO_RAIZ)
-                           .doc(codCidade)
-                           .collection(nomeColecao)
-                           .doc(id)
-                           .set(dado, { "merge": merge });
+            return dbAcessarDados(nomeColecao)
+                   .doc(id)
+                   .set(dado, { "merge": merge });
         } else {
-            return remotedb.collection(COLECAO_RAIZ)
-                           .doc(codCidade)
-                           .collection(nomeColecao)
-                           .add(dado);
+            return dbAcessarDados(nomeColecao)
+                   .add(dado);
         }
+    },
+
+    dbLeftJoinPromise: (colecao1, coluna1, colecao2, coluna2) => {
+        if (coluna2 == "" || coluna2 == undefined) coluna2 = coluna1;
+
+        return Promise.all([dbBuscarTodosDadosPromise(colecao1),
+                            dbAcessarDados(colecao2).get({source: module.exports.dbFonteDoDado})
+                                                    .then((res) => DesempacotaComoDicionario(res))])
+        .then((res) => {
+            esquerda = res[0]
+            direita = res[1]
+
+            for (let i = 0; i < esquerda.length; i++) {
+                esquerda[i] = {...esquerda[i], ...direita[esquerda[i][coluna1]]}
+            }
+
+            return esquerda;
+        })
     }
 }

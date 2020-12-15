@@ -10,8 +10,10 @@ var DB_TABLES = ["alunos", "escolas", "escolatemalunos", "fornecedores",
 "rotapassaporescolas", "rotapossuiveiculo", "veiculos"]
 
 var DB_TABLE_ALUNO = "alunos";
-var DB_TABLE_ESCOLAS = "escolas";
+var DB_TABLE_ESCOLA = "escolas";
+var DB_TABLE_ROTA = "rotas";
 var DB_TABLE_ESCOLA_TEM_ALUNOS = "escolatemalunos";
+var DB_TABLE_ROTA_ATENDE_ALUNO = "rotaatendealuno";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Local Database (cache)
@@ -55,11 +57,15 @@ function dbInserirPromise(colecao, dado, id = "", merge = false) {
 }
 
 function dbBuscarTodosDadosPromise(colecao) {
-    return dbImpl.dbBuscarDadosEspecificos(colecao);
+    return dbImpl.dbBuscarTodosDadosPromise(colecao);
 }
 
 function dbBuscarDadosEspecificosPromise(colecao, coluna, valor, operador = "==") {
     return dbImpl.dbBuscarDadosEspecificosPromise(colecao, coluna, valor, operador);
+}
+
+function dbLeftJoinPromise(colecao1, coluna1, colecao2, coluna2) {
+    return dbImpl.dbLeftJoinPromise(colecao1, coluna1, colecao2, coluna2)
 }
 
 

@@ -182,14 +182,14 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
-BuscarTodasEscolas((err, result) => {
-    result.forEach((escola) => {
+dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
+.then((res) => {
+    res.forEach((escola) => {
         var eID = escola["ID_ESCOLA"];
         var eNome = escola["NOME"];
         $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
     });
-    $("#totalNumAlunos").text($("#alunosAtendidos option").length);
-});
+})
 
 var completeForm = () => {
     Swal2.fire({
