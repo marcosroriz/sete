@@ -14,6 +14,7 @@ var DB_TABLE_ESCOLA = "escolas";
 var DB_TABLE_ROTA = "rotas";
 var DB_TABLE_ESCOLA_TEM_ALUNOS = "escolatemalunos";
 var DB_TABLE_ROTA_ATENDE_ALUNO = "rotaatendealuno";
+var DB_TABLE_ROTA_PASSA_POR_ESCOLA = "rotapassaporescolas";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Local Database (cache)

@@ -4,7 +4,7 @@ function GetAlunoFromForm() {
         "LOC_LONGITUDE": $("#reglon").val(), // real
         "LOC_ENDERECO": $("#regend").val(), // string
         "LOC_CEP": $("#regcep").val(), // string
-        "MEC_TP_LOCALIZACAO": $("input[name='areaUrbana']:checked").val(), // int
+        "MEC_TP_LOCALIZACAO": parseInt($("input[name='areaUrbana']:checked").val()), // int
         "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
         "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
         "DA_COLCHETE": $("#temColchete").is(":checked"), // bool
@@ -17,15 +17,15 @@ function GetAlunoFromForm() {
         "NOME_RESPONSAVEL": $("#regnomeresp").val(), // string
         "TELEFONE_RESPONSAVEL": $("#regtelresp").val(), // string
         "GRAU_RESPONSAVEL": $("#listareggrauresp").val(),
-        "SEXO": $("input[name='modoSexo']:checked").val(), // int
-        "COR": $("input[name='corAluno']:checked").val(), // int
+        "SEXO": parseInt($("input[name='modoSexo']:checked").val()), // int
+        "COR": parseInt($("input[name='corAluno']:checked").val()), // int
         "DEF_CAMINHAR": $("#temDeCaminhar").is(":checked"), // bool
         "DEF_OUVIR": $("#temDeOuvir").is(":checked"), // bool
         "DEF_ENXERGAR": $("#temDeEnxergar").is(":checked"), // bool
         "DEF_MENTAL": $("#temDefMental").is(":checked"), // bool
 
-        "TURNO": $("input[name='turnoAluno']:checked").val(), // int
-        "NIVEL": $("input[name='nivelAluno']:checked").val(), // int
+        "TURNO": parseInt($("input[name='turnoAluno']:checked").val()), // int
+        "NIVEL": parseInt($("input[name='nivelAluno']:checked").val()), // int
     };
 }
 

@@ -70,6 +70,20 @@ var loadingFn = (msgTitle, msgDesc = "Aguarde, estamos processando...") => {
     })
 }
 
+// Função genérica para criar um diálogo de confirmação
+var confirmDialog = (msgTitle, msgDesc) => {
+    return Swal2.fire({
+        title: msgTitle,
+        text: msgDesc,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        cancelButtonText: "Cancelar",
+        confirmButtonText: 'Sim, remover'
+    })
+}
+
 // Função de Navegação Dash
 function navigateDashboard(target) {
     lastPage = currentPage;

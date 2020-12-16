@@ -78,16 +78,10 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
 
     estadoAluno = dataTablesAlunos.row($tr).data();
     action = "apagarAluno";
-    Swal2.fire({
-        title: 'Remover esse aluno?',
-        text: "Ao remover esse aluno ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
-    }).then((result) => {
+    confirmDialog('Remover esse aluno?',
+                  "Ao remover esse aluno ele será retirado do sistema das rotas " + 
+                  "e das escolas que possuir vínculo."
+    ).then((result) => {
         let listaPromisePraRemover = []
         if (result.value) {
             listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
@@ -97,8 +91,7 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
         }
 
         return Promise.all(listaPromisePraRemover)
-    })
-    .then((res) => {
+    }).then((res) => {
         if (res.length > 0) {
             dataTablesAlunos.row($tr).remove();
             dataTablesAlunos.draw();

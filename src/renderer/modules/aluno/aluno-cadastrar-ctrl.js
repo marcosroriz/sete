@@ -25,7 +25,11 @@ mapaOL.on('singleclick', function (evt) {
     }
 
     if (posicaoAluno != null) {
-        vectorSource.removeFeature(posicaoAluno);
+        try {
+            vectorSource.removeFeature(posicaoAluno);
+        } catch (err) {
+            console.log(err);
+        }
     }
     
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
@@ -34,7 +38,7 @@ mapaOL.on('singleclick', function (evt) {
     $("#reglat").valid();
     $("#reglon").valid();
 
-    posicaoAluno = gerarMarcador(lat, lon, "img/icones/casamarker.png", 25, 50);
+    posicaoAluno = gerarMarcador(lat, lon, "img/icones/aluno-marcador.png", 25, 50);
     vectorSource.addFeature(posicaoAluno);
 
     var translate = new ol.interaction.Translate({
@@ -173,7 +177,6 @@ $("#salvaraluno").on('click', () => {
     $("[name='nivelAluno']").valid();
     
     var alunoJSON = GetAlunoFromForm();
-    var idAluno = estadoAluno["ID"];
     var idEscola = $("#listaescola").val();
 
     var $valid = $('#wizardCadastrarAlunoForm').valid();
@@ -181,6 +184,8 @@ $("#salvaraluno").on('click', () => {
         return false;
     } else {
         if (action == "editarAluno") {
+            var idAluno = estadoAluno["ID"];
+
             loadingFn("Atualizando os dados do(a) aluno(a) ...")
 
             dbAtualizarPromise(DB_TABLE_ALUNO, alunoJSON, idAluno)
@@ -228,7 +233,7 @@ $("#salvaraluno").on('click', () => {
 dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
 .then((res) => {
     res.forEach((escola) => {
-        var eID = escola["ID_ESCOLA"];
+        var eID = escola["ID"];
         var eNome = escola["NOME"];
         $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
     });

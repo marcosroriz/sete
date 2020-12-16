@@ -18,7 +18,7 @@ window.onresize = function () {
 if (estadoAluno["LOC_LONGITUDE"] != "" && estadoAluno["LOC_LONGITUDE"] != undefined &&
     estadoAluno["LOC_LATITUDE"] != "" && estadoAluno["LOC_LATITUDE"] != undefined) {
     // Esconde o campo que diz que o aluno não tem localização
-    $("#alunoSemMapa").hide()
+    $("#avisoNaoGeoReferenciada").hide()
     
     // Desenha marcador da posição atual do aluno
     var alunoLAT = estadoAluno["LOC_LATITUDE"];
@@ -31,7 +31,6 @@ if (estadoAluno["LOC_LONGITUDE"] != "" && estadoAluno["LOC_LONGITUDE"] != undefi
 } else {
     // Esconde o mapa do aluno e mostra o campo que nao tem localização
     $("#mapDetalheAluno").hide()
-    $("#alunoSemMapa").show()
 }
 
 // Plota a posição da escola se tiver localização GPS
