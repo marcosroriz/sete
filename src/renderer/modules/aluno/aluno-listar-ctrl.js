@@ -29,8 +29,8 @@ var dataTablesAlunos = $("#datatables").DataTable({
                     '<a href="#" class="btn btn-link btn-danger alunoRemove"><i class="fa fa-times"></i></a>'
             }
         ],
-        columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50) },
-                    { targets: 2, render: renderAtMostXCharacters(50) }],
+        columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50), type: 'locale-compare' },
+                     { targets: 2, render: renderAtMostXCharacters(50) }],
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -56,6 +56,9 @@ var dataTablesAlunos = $("#datatables").DataTable({
     }
 });
 
+$("#datatables_filter input").on('keyup', function () {
+    dataTablesAlunos.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+})
 
 dataTablesAlunos.on('click', '.alunoView', function () {
     var $tr = getRowOnClick(this);

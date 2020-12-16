@@ -35,6 +35,7 @@ var moment = require('moment');
 var swal = require("sweetalert");
 var Swal2 = require("sweetalert2");
 var htmlToImage = require("html-to-image");
+const { debug } = require('console');
 
 // Variáveis Basicas
 var appTitle = "SETE - Software Eletrônico de Gestão do Transporte Escolar"
@@ -45,12 +46,12 @@ var lastPage = "./dashboard-main.html";
 var currentPage = "./dashboard-main.html";
 
 // Função genérica para relatar erros
-var errorFn = (msg, err = "") => {
+var errorFn = (msg, err = "", title = "Ops... tivemos um problema!") => {
     if (err != "") {
         msg = msg + "\n Caso o erro persista, informe a seguinte mensagem para a equipe de suporte (cecateufg@gmail.com): \n" + err
     }
     Swal2.fire({
-        title: "Ops... tivemos um problema!",
+        title: title,
         text: msg,
         icon: "error",
         type: "error",
@@ -71,7 +72,7 @@ var loadingFn = (msgTitle, msgDesc = "Aguarde, estamos processando...") => {
 }
 
 // Função genérica para criar um diálogo de confirmação de exclusão
-var confirmDialog = (msgTitle, msgDesc) => {
+var confirmDialog = (msgTitle, msgDesc, buttonDesc = "Sim, remover") => {
     return Swal2.fire({
         title: msgTitle,
         text: msgDesc,
@@ -80,7 +81,20 @@ var confirmDialog = (msgTitle, msgDesc) => {
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
+        confirmButtonText: buttonDesc
+    })
+}
+
+var goaheadDialog = (msgTitle, msgDesc) => {
+    return Swal2.fire({
+        title: msgTitle,
+        text: msgDesc,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        cancelButtonText: "Cancelar",
+        confirmButtonText: 'Sim'
     })
 }
 
@@ -96,6 +110,17 @@ var cancelDialog = (msgTitle = "Cancelar Edição?",
         cancelButtonColor: '#3085d6',
         cancelButtonText: "Voltar a editar",
         confirmButtonText: 'Sim, cancelar'
+    })
+}
+
+// Função genérica para criar um diálogo de sucesso
+var successDialog = (msgTitle = "Parabéns!", 
+                     msgDesc = "A operação ocorreu com sucesso.") => {
+    return Swal2.fire({
+        title: msgTitle,
+        text: msgDesc,
+        icon: "success",
+        button: "Fechar"
     })
 }
 

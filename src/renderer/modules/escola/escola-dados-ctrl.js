@@ -201,13 +201,14 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable({
     ...dtConfigPadrao("aluno"),
     ...{
         columns: [
-            { data: 'NOME', width: "40%" },
-            { data: 'DATA_NASCIMENTO', width: "300px" },
-            { data: 'NOME_RESPONSAVEL', width: "40%" },
+            { data: 'NOME', width: "30%" },
+            { data: 'DATA_NASCIMENTO', width: "600px" },
+            { data: 'NOME_RESPONSAVEL', width: "30%" },
             { data: 'NIVELSTR', width: "200px" },
-            { data: 'TURNOSTR', width: "200px" },
+            { data: 'TURNOSTR', width: "100px" },
         ],
         // dom: 't<"detalheToolBar"B>',
+        columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50), type: 'locale-compare' } ],
         buttons: [
             {
                 text: "Voltar",
@@ -247,6 +248,11 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable({
     }
 });
 
+// Permite buscar sem acentos
+$("#datatables_filter input").on('keyup', function () {
+    dataTableListaDeAlunos.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+})
+
 dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO")
 .then(res => preprocessarAlunos(res))
 .then(res => plotaAlunosNoMapa(res))
@@ -272,8 +278,10 @@ var plotaAlunosNoMapa = (res) => {
             vSource.addFeature(plotarAluno(aluno));
         }
     });
-    mapaDetalhe["map"].getView().fit(vSource.getExtent());
-    mapaDetalhe["map"].updateSize();
+    if (!vSource.isEmpty()) {
+        mapaDetalhe["map"].getView().fit(vSource.getExtent());
+        mapaDetalhe["map"].updateSize();
+    }
 
     return res;
 }

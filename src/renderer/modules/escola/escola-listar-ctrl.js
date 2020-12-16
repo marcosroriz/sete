@@ -55,6 +55,10 @@ var dataTableEscolas = $("#datatables").DataTable({
     }
 });
 
+$("#datatables_filter input").on('keyup', function () {
+    dataTableEscolas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+})
+
 dataTableEscolas.on('click', '.escolaStudent', function () {
     var $tr = getRowOnClick(this);
 

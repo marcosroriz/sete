@@ -5,6 +5,8 @@
 
 // Cria mapa na cidade atual
 var mapaDetalhe = novoMapaOpenLayers("mapDetalheAluno", cidadeLatitude, cidadeLongitude);
+
+// Ativa camada
 mapaDetalhe["activateImageLayerSwitcher"]();
 
 // Corrige o bug de resize no mapa

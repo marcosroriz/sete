@@ -69,10 +69,6 @@ function dbRemoverDadoSimplesPromise(colecao, coluna, id) {
     return dbImpl.dbRemoverDadoSimplesPromise(colecao, coluna, id);
 }
 
-function dbRemoverDadoSimplesPromise(colecao, coluna, id) {
-    return dbImpl.dbRemoverDadoSimplesPromise(colecao, coluna, id);
-}
-
 function dbRemoverDadoCompostoPromise(colecao, c1, id1, c2, id2) {
     return dbImpl.dbRemoverDadoCompostoPromise(colecao, c1, id1, c2, id2);
 }
@@ -89,6 +85,14 @@ function dbLeftJoinPromise(colecao1, coluna1, colecao2, coluna2) {
     return dbImpl.dbLeftJoinPromise(colecao1, coluna1, colecao2, coluna2)
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// FUNÇÕES DE CONSULTA LOCAL
+////////////////////////////////////////////////////////////////////////////////
+
+function dbLocalBuscarDadoEspecificoPromise(tabela, coluna, id) {
+    return sqliteImpl.BuscarDadoEspecificoPromise(tabela, coluna, id)
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÕES DE SINCRONIZAÇÃO

@@ -28,7 +28,7 @@ module.exports = {
         return knex.select('*').from(tabela);
     },
 
-    BuscarDadosEspecificosPromise: (tabela, coluna, valor, operador = "==") => {
+    BuscarDadoEspecificoPromise: (tabela, coluna, valor, operador = "==") => {
         return knex.select('*').where(coluna, '=', valor).from(tabela);
     },
 
