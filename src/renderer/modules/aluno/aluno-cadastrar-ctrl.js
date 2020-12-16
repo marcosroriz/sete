@@ -271,16 +271,8 @@ function preencheDadosParaEdicao() {
     }
 
     $("#cancelarAcao").on('click', () => {
-        Swal2.fire({
-            title: 'Cancelar Edição?',
-            text: "Se você cancelar nenhum alteração será feita nos dados do aluno.",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            cancelButtonText: "Voltar a editar",
-            confirmButtonText: 'Sim, cancelar'
-        }).then((result) => {
+        cancelDialog()
+        .then((result) => {
             if (result.value) {
                 navigateDashboard(lastPage);
             }

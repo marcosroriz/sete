@@ -214,31 +214,41 @@ var completeForm = () => {
 
 if (action == "editarEscola") {
     PopulateEscolaFromState(estadoEscola); 
+
+    // Revalida e reaplica os campos com as respectivas máscaras
+    $('.cep').trigger('input');
+    $(".telmask").trigger('input');
+    // $("#regestado").trigger("change");
+    // $("#regcidade").trigger("change");
+
+    // Coloca marcador da escola caso tenha a localização
+    if (estadoEscola["LOC_LONGITUDE"] != null && estadoEscola["LOC_LONGITUDE"] != undefined &&
+        estadoEscola["LOC_LATITUDE"] != null && estadoEscola["LOC_LATITUDE"] != undefined) {
+        posicaoEscola = gerarMarcador(estadoEscola["LOC_LATITUDE"], estadoEscola["LOC_LONGITUDE"],
+                                      "img/icones/escola-marcador.png", 25, 50);
+        vectorSource.addFeature(posicaoEscola);
+        
+        var translate = new ol.interaction.Translate({
+            features: new ol.Collection([posicaoEscola])
+        });
+    
+        translate.on('translateend', function (evt) {
+            var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
+            $("#reglat").val(lat.toPrecision(8));
+            $("#reglon").val(lon.toPrecision(8));
+        }, posicaoEscola);
+    
+        mapaOL.addInteraction(translate);
+    }
     posicaoEscola = new ol.Feature(
         new ol.geom.Point(ol.proj.fromLonLat([estadoEscola["LOC_LONGITUDE"],
                                               estadoEscola["LOC_LATITUDE"]]))
     );
-    posicaoEscola.setStyle(new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [25, 40],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            opacity: 1,
-            src: "img/icones/escola-marker.png"
-        })
-    }));
-    vectorSource.addFeature(posicaoEscola);
-    $("#cancelarAcao").click(() => {
-        Swal2.fire({
-            title: 'Cancelar Edição?',
-            text: "Se você cancelar nenhum alteração será feita nos dados da escola.",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            cancelButtonText: "Voltar a editar",
-            confirmButtonText: 'Sim, cancelar'
-        }).then((result) => {
+
+    // Adiciona ação de cancelamento
+    $("#cancelarAcao").on('click', () => {
+        cancelDialog()
+        .then((result) => {
             if (result.value) {
                 navigateDashboard(lastPage);
             }
