@@ -22,22 +22,11 @@ window.onresize = function () {
 }
 
 // Select para lidar com click no aluno
-var selectAluno = new ol.interaction.Select({
-    hitTolerance: 5,
-    multi: false,
-    condition: ol.events.condition.singleClick,
-    filter: (feature, layer) => {
-        if (feature.getGeometry().getType() == "Point") {
-            return true;
-        } else {
-            return false;
-        }
-    }
-});
+var selectAluno = selectPonto("ALUNO");
 
 // Popup aluno
 mapaViz["map"].addInteraction(selectAluno);
-var popup = new ol.Overlay.PopupFeature({
+var popupAluno = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectAluno,
     closeBox: true,
@@ -67,7 +56,7 @@ var popup = new ol.Overlay.PopupFeature({
         }
     }
 });
-mapaViz["map"].addOverlay(popup);
+mapaViz["map"].addOverlay(popupAluno);
 
 dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
 .then(res => preprocessarAlunos(res))
@@ -139,6 +128,7 @@ var plotarAluno = (aluno) => {
     p.set("ESCOLA", aluno["ESCOLA"]);
     p.set("TURNOSTR", aluno["TURNOSTR"]);
     p.set("NIVELSTR", aluno["NIVELSTR"]);
+    p.set("TIPO", "ALUNO");
 
     if (aluno["SEXO"] == 1) { 
         p.set("SEXO", "Masculino");

@@ -39,14 +39,11 @@ function dtConfigPadrao(nomeDado) {
 // Semelhante a função de configuração padrão do datatables, mas utiliza 
 // palavras-chave no 
 function dtConfigPadraoFem(nomeDado) {
-    return {...dtConfigPadrao(nomeDado),
-            ...{
-                language: {
-                    "zeroRecords": `Não encontrei nenhuma ${nomeDado} cadastrada`,
-                    "infoFiltered": `${nomeDado.capitalize()}s filtradas a partir do total de _MAX_ ${nomeDado}s)`,
-                }
-            }
-        }
+    let configPadrao = dtConfigPadrao(nomeDado);
+    configPadrao["language"]["zeroRecords"] = `Não encontrei nenhuma ${nomeDado} cadastrada`;
+    configPadrao["language"]["infoFiltered"] = `${nomeDado.capitalize()}s filtradas a partir do total de _MAX_ ${nomeDado}s)`;
+
+    return configPadrao;
 }
 
 var dtLanguage = {

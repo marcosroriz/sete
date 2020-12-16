@@ -208,3 +208,19 @@ var gerarMarcador = (lat, lng, icon, anchorX = 12, anchorY = 37) => {
 
     return p;
 }
+
+var selectPonto = (tipo) => {
+    return new ol.interaction.Select({
+        hitTolerance: 5,
+        multi: false,
+        condition: ol.events.condition.singleClick,
+        filter: (feature, layer) => {
+            if (feature.getGeometry().getType() == "Point" &&
+                feature.getProperties()["TIPO"] == tipo) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    });
+}
