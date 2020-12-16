@@ -230,10 +230,8 @@ function carregaVeiculoMotorista(veiculos, motoristas) {
             let motoristaJSON = parseMotoristaDB(motoristaRaw);
             $('#tipoMotorista').append(`<option value="${motoristaJSON["CPF"]}">${motoristaJSON["NOME"]}</option>`);
         }
-        $('#tipoMotorista').selectpicker({
-            noneSelectedText: "Escolha pelo menos um motorista"
-        });
-
+        $('#tipoMotorista').val(-1)
+        $('#tipoMotorista').selectpicker();
         motoristaInformadoPrev = true;
     } else {
         $('#tipoMotorista').removeClass("selectpicker")
