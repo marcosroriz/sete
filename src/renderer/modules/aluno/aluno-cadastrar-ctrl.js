@@ -176,13 +176,13 @@ $("#salvaraluno").on('click', () => {
     $("[name='turnoAluno']").valid();
     $("[name='nivelAluno']").valid();
     
-    var alunoJSON = GetAlunoFromForm();
-    var idEscola = $("#listaescola").val();
-
     var $valid = $('#wizardCadastrarAlunoForm').valid();
     if (!$valid) {
         return false;
     } else {
+        var alunoJSON = GetAlunoFromForm();
+        var idEscola = $("#listaescola").val();
+    
         if (action == "editarAluno") {
             var idAluno = estadoAluno["ID"];
 

@@ -218,8 +218,6 @@ if (action == "editarEscola") {
     // Revalida e reaplica os campos com as respectivas máscaras
     $('.cep').trigger('input');
     $(".telmask").trigger('input');
-    // $("#regestado").trigger("change");
-    // $("#regcidade").trigger("change");
 
     // Coloca marcador da escola caso tenha a localização
     if (estadoEscola["LOC_LONGITUDE"] != null && estadoEscola["LOC_LONGITUDE"] != undefined &&
@@ -240,10 +238,6 @@ if (action == "editarEscola") {
     
         mapaOL.addInteraction(translate);
     }
-    posicaoEscola = new ol.Feature(
-        new ol.geom.Point(ol.proj.fromLonLat([estadoEscola["LOC_LONGITUDE"],
-                                              estadoEscola["LOC_LATITUDE"]]))
-    );
 
     // Adiciona ação de cancelamento
     $("#cancelarAcao").on('click', () => {
@@ -267,8 +261,15 @@ $("#salvarescola").on('click', () => {
         return false;
     } else {
         var escolaJSON = GetEscolaFromForm();
+
         if (action == "editarEscola") {
-            AtualizarEscola(estadoEscola["ID_ESCOLA"], escolaJSON, onSaveCallBack);
+            var idEscola = estadoEscola["ID"];
+
+            loadingFn("Atualizando os dados da escola...")
+            dbAtualizarPromise(DB_TABLE_ESCOLA, escolaJSON, idEscola)
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao atualizar a escola.", err))
         } else {
             loadingFn("Cadastrando a escola ...")
 
