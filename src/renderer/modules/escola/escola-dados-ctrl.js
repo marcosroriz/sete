@@ -1,4 +1,9 @@
-// Cria mapa
+// escola-dados-ctrl.js
+// Este arquivo contém o script de controle da tela escola-dados-view. 
+// O mesmo serve tanto para detalhar os dados de um determinado aluno
+// Os dados do aluno estão na variável estadoAluno
+
+// Cria mapa na cidade atual
 var elat = estadoEscola["LOC_LATITUDE"];
 var elng = estadoEscola["LOC_LONGITUDE"]
 

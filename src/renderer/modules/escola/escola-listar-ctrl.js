@@ -152,3 +152,5 @@ adicionaDadosTabela = (res) => {
 
     dataTableEscolas.draw();
 }
+
+action = "listarEscola"

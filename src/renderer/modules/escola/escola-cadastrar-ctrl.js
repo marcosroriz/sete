@@ -2,6 +2,12 @@
 // Este arquivo contém o script de controle da tela escola-cadastrar-view. 
 // O mesmo serve tanto para cadastrar, quanto para alterar os dados de uma escola.
 
+// Verifica se é um cadastro novo ou é uma edição
+var estaEditando = false;
+if (action == "editarEscola") {
+    estaEditando = true;
+}
+
 // Posição da Escola (no Mapa)
 var posicaoEscola;
 var mapa = novoMapaOpenLayers("mapCadastroEscola", cidadeLatitude, cidadeLongitude);
@@ -188,7 +194,7 @@ $('.card-wizard').bootstrapWizard({
                 $($wizard).find('.btn-finish').hide();
             }
 
-            if (action == "editarEscola") {
+            if (estaEditando) {
                 $($wizard).find('#cancelarAcao').show();
             } else {
                 $($wizard).find('#cancelarAcao').hide();
@@ -212,7 +218,7 @@ var completeForm = () => {
     });
 }
 
-if (action == "editarEscola") {
+if (estaEditando) {
     PopulateEscolaFromState(estadoEscola); 
 
     // Revalida e reaplica os campos com as respectivas máscaras
@@ -262,7 +268,7 @@ $("#salvarescola").on('click', () => {
     } else {
         var escolaJSON = GetEscolaFromForm();
 
-        if (action == "editarEscola") {
+        if (estaEditando) {
             var idEscola = estadoEscola["ID"];
 
             loadingFn("Atualizando os dados da escola...")
@@ -282,3 +288,4 @@ $("#salvarescola").on('click', () => {
     }
 });
 
+action = "cadastrarEscola"
