@@ -70,7 +70,7 @@ var loadingFn = (msgTitle, msgDesc = "Aguarde, estamos processando...") => {
     })
 }
 
-// Função genérica para criar um diálogo de confirmação
+// Função genérica para criar um diálogo de confirmação de exclusão
 var confirmDialog = (msgTitle, msgDesc) => {
     return Swal2.fire({
         title: msgTitle,
@@ -81,6 +81,21 @@ var confirmDialog = (msgTitle, msgDesc) => {
         cancelButtonColor: '#3085d6',
         cancelButtonText: "Cancelar",
         confirmButtonText: 'Sim, remover'
+    })
+}
+
+// Função genérica para criar um diálogo de cancelamento de edição
+var cancelDialog = (msgTitle = "Cancelar Edição?", 
+                    msgDesc = "Se você cancelar nenhum alteração será feita.") => {
+    return Swal2.fire({
+        title: msgTitle,
+        text: msgDesc,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        cancelButtonText: "Voltar a editar",
+        confirmButtonText: 'Sim, cancelar'
     })
 }
 
