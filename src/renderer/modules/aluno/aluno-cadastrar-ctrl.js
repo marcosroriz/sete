@@ -4,6 +4,12 @@
 // Também é feito consultas nos dados de escolas para permitir vincular um aluno
 // a uma escola no momento de cadastro ou posteriormente.
 
+// Verifica se é um cadastro novo ou é uma edição
+var estaEditando = false;
+if (action == "editarAluno") {
+    estaEditando = true;
+}
+
 // Posição do Aluno (Mapa)
 var posicaoAluno;
 var mapa = novoMapaOpenLayers("mapCadastroAluno", cidadeLatitude, cidadeLongitude);
@@ -145,7 +151,7 @@ $('.card-wizard').bootstrapWizard({
                 $($wizard).find('.btn-finish').hide();
             }
 
-            if (action == "editarAluno") {
+            if (estaEditando) {
                 $($wizard).find('#cancelarAcao').show();
             } else {
                 $($wizard).find('#cancelarAcao').hide();
@@ -183,7 +189,7 @@ $("#salvaraluno").on('click', () => {
         var alunoJSON = GetAlunoFromForm();
         var idEscola = $("#listaescola").val();
     
-        if (action == "editarAluno") {
+        if (estaEditando) {
             var idAluno = estadoAluno["ID"];
 
             loadingFn("Atualizando os dados do(a) aluno(a) ...")
@@ -240,7 +246,7 @@ dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
 
     return res;
 })
-.then(() => { if (action == "editarAluno") preencheDadosParaEdicao() })
+.then(() => { if (estaEditando) preencheDadosParaEdicao() })
 .catch((err) => errorFn)
 
 
@@ -279,3 +285,5 @@ function preencheDadosParaEdicao() {
         })
     });
 }
+
+action = "cadastrarAluno"
