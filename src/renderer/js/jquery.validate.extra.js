@@ -119,12 +119,22 @@ window.$.validator.addMethod("cpfcnpj", function (value, element) {
 
 // Validar placa
 window.$.validator.addMethod("placa", function (value, element) {
-    return jsbrasil.validateBr.placa(value);
+    if (value) {
+        return value.length >= 6
+    } else {
+        return false;
+    }
+    // return jsbrasil.validateBr.placa(value);
 }, "Informe uma placa válida");
 
 // Validar renavam
 window.$.validator.addMethod("renavam", function (value, element) {
-    return jsbrasil.validateBr.renavam(value);
+    if (value) {
+        return value.length >= 12
+    } else {
+        return false;
+    }
+    // return jsbrasil.validateBr.renavam(value);
 }, "Informe um RENAVAM válido");
 
 

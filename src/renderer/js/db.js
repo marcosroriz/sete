@@ -13,10 +13,14 @@ var DB_TABLE_ALUNO = "alunos";
 var DB_TABLE_ESCOLA = "escolas";
 var DB_TABLE_ROTA = "rotas";
 var DB_TABLE_MOTORISTA = "motoristas";
+var DB_TABLE_VEICULO = "veiculos";
 var DB_TABLE_ESCOLA_TEM_ALUNOS = "escolatemalunos";
 var DB_TABLE_ROTA_ATENDE_ALUNO = "rotaatendealuno";
 var DB_TABLE_ROTA_PASSA_POR_ESCOLA = "rotapassaporescolas";
 var DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA = "rotadirigidapormotorista";
+var DB_TABLE_ROTA_POSSUI_POR_VEICULO = "rotapossuiveiculo";
+var DB_TABLE_GARAGEM_TEM_VEICULO = "garagemtemveiculo";
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Local Database (cache)
