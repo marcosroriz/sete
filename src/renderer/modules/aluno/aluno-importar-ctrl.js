@@ -86,7 +86,6 @@ $('#importarAlunos').on('click', () => {
 
         for (let linha of rows) {
             try {
-                debugger;
                 if (!(linha["NOME"].toLowerCase().includes("exemplo"))) {
                     var alunoJSON = {};
                     alunoJSON["NOME"] = linha["NOME"];
@@ -169,7 +168,6 @@ $('#importarAlunos').on('click', () => {
                     promiseAlunos.push(dbInserirPromise("alunos", alunoJSON, idAluno));
                 }
             } catch (err) {
-                debugger;
                 Swal2.close();
                 erroDeProcessamento = true;
                 errorFn("Erro ao importar os alunos", "Alguns campos estão faltando na planilha");

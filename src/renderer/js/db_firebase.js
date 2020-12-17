@@ -96,7 +96,7 @@ module.exports = {
     dbRemoverDadoSimplesPromise: (nomeColecao, coluna, id) => {
         return dbAcessarDados(nomeColecao)
                .where(coluna, "==", id)
-               .get({source: 'server'})
+               .get({source: module.exports.dbFonteDoDado})
                .then((snapshotDocumentos) => {
                    let delPromisseArray = new Array();
                    snapshotDocumentos.forEach(doc => delPromisseArray.push(doc.ref.delete()))
@@ -109,7 +109,7 @@ module.exports = {
         return dbAcessarDados(nomeColecao)
                .where(c1, "==", id1)
                .where(c2, "==", id2)
-               .get({source: 'server'})
+               .get({source: module.exports.dbFonteDoDado})
                .then((snapshotDocumentos) => {
                     let delPromisseArray = new Array();
                     snapshotDocumentos.forEach(doc => delPromisseArray.push(doc.ref.delete()))
