@@ -100,7 +100,12 @@ window.$.validator.addMethod("hora", function (value, element) {
 
 // Validar campo com CNH
 window.$.validator.addMethod("cnh", function (value, element) {
-    return jsbrasil.validateBr.cnh(value);
+    if (value) {
+        return value.length == 12
+    } else {
+        return false;
+    }
+    // return jsbrasil.validateBr.cnh(value);
 }, "Informe uma CNH válida");
 
 // Validar campo com CNPJ
