@@ -116,7 +116,7 @@ dataTablesOS.on('click', '.osView', function () {
     estadoOS = dataTablesOS.row($tr).data();
     action = "visualizarOS";
     Swal2.fire({
-        type: 'info',
+        icon: 'info',
         title: "Comentário da Ordem de Serviço",
         text: estadoOS["COMENTARIO"],
         confirmButtonText: 'Retornar a página de administração'

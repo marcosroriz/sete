@@ -92,11 +92,11 @@ dataTablesFornecedores.on('click', '.fornecedorRemove', function () {
             Swal2.fire({
                 title: "Sucesso!",
                 icon: "success",
-                text: "Motorista removido com sucesso!",
+                text: "Fornecedor removido com sucesso!",
                 confirmButtonText: 'Retornar a página de administração'
             });
         }
-    }).catch((err) => errorFn("Erro ao remover a escola", err))
+    }).catch((err) => errorFn("Erro ao remover o fornecedor", err))
 });
 
 dbBuscarTodosDadosPromise(DB_TABLE_FORNECEDOR)
