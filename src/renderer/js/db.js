@@ -15,6 +15,9 @@ var DB_TABLE_ROTA = "rotas";
 var DB_TABLE_MOTORISTA = "motoristas";
 var DB_TABLE_VEICULO = "veiculos";
 var DB_TABLE_GARAGEM = "garagem";
+var DB_TABLE_FORNECEDOR = "fornecedores";
+var DB_TABLE_ORDEM_DE_SERVICO = "ordemdeservico";
+
 var DB_TABLE_ESCOLA_TEM_ALUNOS = "escolatemalunos";
 var DB_TABLE_ROTA_ATENDE_ALUNO = "rotaatendealuno";
 var DB_TABLE_ROTA_PASSA_POR_ESCOLA = "rotapassaporescolas";
