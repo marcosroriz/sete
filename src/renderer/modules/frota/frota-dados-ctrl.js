@@ -72,7 +72,7 @@ var dataTableVeiculo = $("#dataTableDadosVeiculo").DataTable({
                     let listaPromisePraRemover = []
                     if (res.value) {
                         listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", estadoVeiculo["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_POR_VEICULO, "ID_VEICULO", estadoVeiculo["ID"]));
+                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", estadoVeiculo["ID"]));
                         listaPromisePraRemover.push(dbAtualizaVersao());
                     }
 

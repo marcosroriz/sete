@@ -83,7 +83,7 @@ dataTablesVeiculos.on('click', '.frotaRemove', function () {
         let listaPromisePraRemover = []
         if (res.value) {
             listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", idVeiculo));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_POR_VEICULO, "ID_VEICULO", idVeiculo));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", idVeiculo));
             listaPromisePraRemover.push(dbAtualizaVersao());
         }
 
