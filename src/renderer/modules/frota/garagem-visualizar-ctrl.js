@@ -1,6 +1,17 @@
-var posicaoGaragem;
+// garagem-visualizar-ctrl.js
+// Este arquivo contém o script de controle da tela garagem-visualizar-view. 
+// O mesmo serve para visualizar e salvar a posição da garagem no mapa.
+
+// Posição espacial da garagem
+var posicaoGaragem = null;
+
+// ID da garagem
 var idGaragem;
 
+// Ação atual
+action = "visualizarGaragem"
+
+// Dados básicos do mapa
 var mapa = novoMapaOpenLayers("mapVizGaragem", cidadeLatitude, cidadeLongitude);
 var vSource = mapa["vectorSource"];
 var vLayer = mapa["vectorSource"];
@@ -10,12 +21,37 @@ var mapaOL = mapa["map"];
 mapa["activateGeocoder"]();
 mapa["activateImageLayerSwitcher"]();
 
+window.onresize = function () {
+    setTimeout(function () {
+        if (mapaViz != null) { mapaViz["map"].updateSize(); }
+    }, 200);
+}
+
+// Plota garagem na tela
+var plotaGaragem = (lat, lon) => {
+    posicaoGaragem = gerarMarcador(lat, lon, "img/icones/garagem-icone.png", 25, 50);
+    vSource.addFeature(posicaoGaragem);
+
+    var translate = new ol.interaction.Translate({
+        features: new ol.Collection([posicaoGaragem])
+    });
+
+    translate.on('translateend', function (evt) {
+        var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
+        $("#reglat").val(lat.toPrecision(8));
+        $("#reglon").val(lon.toPrecision(8));
+    }, posicaoGaragem);
+
+    mapaOL.addInteraction(translate);
+}
+
+// Lida com click de usuário
 mapaOL.on('singleclick', function (evt) {
     if (evt.originalEvent.path.length > 21) {
         return;
     }
 
-    if (posicaoGaragem != null) {
+    if (posicaoGaragem != null && posicaoGaragem != undefined) {
         try {
             vSource.removeFeature(posicaoGaragem);
         } catch (err) {
@@ -23,26 +59,15 @@ mapaOL.on('singleclick', function (evt) {
         }
     }
 
-    posicaoGaragem = new ol.Feature(
-        new ol.geom.Point(evt.coordinate)
-    );
-    posicaoGaragem.setStyle(new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [25, 50],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            opacity: 1,
-            src: "img/icones/garagem-icone.png"
-        })
-    }));
-    vSource.addFeature(posicaoGaragem);
-
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-    $("#reglat").val(lat);
-    $("#reglon").val(lon);
+    $("#reglat").val(lat.toPrecision(8));
+    $("#reglon").val(lon.toPrecision(8));
     $("#reglat").valid();
     $("#reglon").valid();
+
+    plotaGaragem(lat, lon)
 });
+
 
 $('.card-wizard').bootstrapWizard({
     'tabClass': 'nav nav-pills',
@@ -65,65 +90,44 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
-// Callback para pegar dados da garagem
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFn("Erro ao visualizar a garagem!", err);
-    } else {
-        for (let garagemRaw of result) {
-            action = "editarGaragem";
-            idGaragem = garagemRaw["ID_GARAGEM"];
-            $("#reglat").val(garagemRaw["LOC_LATITUDE"]);
-            $("#reglon").val(garagemRaw["LOC_LONGITUDE"]);
-            $("#regcep").val(garagemRaw["LOC_CEP"]);
-            $("#regend").val(garagemRaw["LOC_ENDERECO"]);
+dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM)
+.then(res => processarGaragem(res))
 
-            posicaoGaragem = new ol.Feature(
-                new ol.geom.Point(ol.proj.fromLonLat([garagemRaw["LOC_LONGITUDE"],
-                garagemRaw["LOC_LATITUDE"]]))
-            );
-            posicaoGaragem.setStyle(new ol.style.Style({
-                image: new ol.style.Icon({
-                    anchor: [25, 40],
-                    anchorXUnits: 'pixels',
-                    anchorYUnits: 'pixels',
-                    opacity: 1,
-                    src: "img/icones/garagem-icone.png"
-                })
-            }));
-            vSource.addFeature(posicaoGaragem);
-        }
+// Processa garagem
+var processarGaragem = (res) => {
+    for (let garagemRaw of res) {
+        action = "editarGaragem";
+        idGaragem = garagemRaw["ID"]
+        $("#reglat").val(garagemRaw["LOC_LATITUDE"]);
+        $("#reglon").val(garagemRaw["LOC_LONGITUDE"]);
+        $("#regcep").val(garagemRaw["LOC_CEP"]);
+        $("#regend").val(garagemRaw["LOC_ENDERECO"]);
+
+        plotaGaragem(garagemRaw["LOC_LATITUDE"], garagemRaw["LOC_LONGITUDE"])
     }
-};
 
-BuscarTodosDados("Garagem", listaInicialCB);
+    if (!vSource.isEmpty()) {
+        mapa["map"].getView().fit(vSource.getExtent());
+        mapa["map"].updateSize();
+    }
+}
 
 var validadorFormulario = $("#wizardCadastrarGaragemForm").validate({
-    rules: {
-        reglat: {
-            required: true,
-            posicao: true
+    // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
+    ...configMostrarResultadoValidacao(),
+    ...{
+        rules: {
+            reglat: {
+                required: true,
+                posicao: true
+            },
+            reglon: {
+                required: true,
+                posicao: true
+            },
         },
-        reglon: {
-            required: true,
-            posicao: true
-        },
-    },
-    highlight: function (element) {
-        $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-        $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
-    },
-    success: function (element) {
-        $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-        $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
-    },
-    errorPlacement: function (error, element) {
-        console.log(error);
-        console.log(element);
-        $(element).closest('.form-group').append(error).addClass('has-error');
     }
 });
-
 
 // Botões
 var completeForm = () => {
@@ -140,12 +144,12 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-        .then(() => {
-            navigateDashboard("./modules/frota/frota-listar-view.html");
-        });
+    .then(() => {
+        navigateDashboard("./modules/frota/frota-listar-view.html");
+    });
 }
 
-$("#salvargaragem").click(() => {
+$("#salvargaragem").on('click', () => {
     var $valid = $('#wizardCadastrarGaragemForm').valid();
 
     $("#reglat").valid();
@@ -162,36 +166,26 @@ $("#salvargaragem").click(() => {
         garagemJSON["LOC_CEP"] = $("#regcep").val();
 
         if (action == "editarGaragem") {
-            AtualizarPromise("Garagem", garagemJSON, "ID_GARAGEM", idGaragem)
-                .then((res) => {
-                    completeForm();
-                })
-                .catch((err) => {
-                    errorFn("Erro ao atualizar a garagem!", err);
-                });
+            loadingFn("Atualizando os dados da garagem...")
+            
+            dbAtualizarPromise(DB_TABLE_GARAGEM, garagemJSON, idGaragem)
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao atualizar a escola.", err))
         } else {
-            InserirPromise("Garagem", garagemJSON)
-                .then((res) => {
-                    completeForm();
-                })
-                .catch((err) => {
-                    errorFn("Erro ao salvar a garagem!", err);
-                });
+            loadingFn("Cadastrando a garagem ...")
+
+            dbInserirPromise(DB_TABLE_GARAGEM, garagemJSON)
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao salvar a garagem.", err))
         }
     }
 });
 
-$("#cancelarAcao").click(() => {
-    Swal2.fire({
-        title: 'Cancelar Edição?',
-        text: "Se você cancelar nenhum alteração será feita nos dados da garagem.",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Voltar a editar",
-        confirmButtonText: 'Sim, cancelar'
-    }).then((result) => {
+$("#cancelarAcao").on('click', () => {
+    cancelDialog()
+    .then((result) => {
         if (result.value) {
             action = "visualizarGaragem";
             navigateDashboard("./modules/frota/frota-listar-view.html");
