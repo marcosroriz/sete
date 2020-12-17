@@ -184,6 +184,29 @@ function BuscarTodosAlunosPromise() {
     return knex("Alunos").select()
 }
 
+function ExisteAluno(NOME, NOME_RESPONSAVEL, alunoGrauResp) {
+  let parentesco;
+  alunoGrauResp = alunoGrauResp.toLowerCase();
+
+  if (alunoGrauResp.includes("pai") || alunoGrauResp.includes("mãe") ||
+            alunoGrauResp.includes("padrasto") || alunoGrauResp.includes("madrasta")) {
+    parentesco = 0;
+  } else if (alunoGrauResp.includes("avó") || alunoGrauResp.includes("avô")) {
+    parentesco = 1;
+  } else if (alunoGrauResp.includes("irmão") || alunoGrauResp.includes("irmã")) {
+    parentesco = 2;
+  } else if (alunoCor.includes("outro")) {
+    parentesco = 4;
+  }
+
+  return knex.select('NOME', 'NOME_RESPONSAVEL', 'GRAU_RESPONSAVEL').table('Alunos')
+    .where({
+      NOME: NOME,
+      NOME_RESPONSAVEL: NOME_RESPONSAVEL,
+      GRAU_RESPONSAVEL: parentesco
+    })
+}
+
 function BuscarTodosAlunos(callbackFn) {
     return BuscarTodosAlunosPromise()
         .then((res) => {
@@ -302,4 +325,8 @@ function DeleteAluno(row, id) {
         .del().then(() => { DeleteRow(row); })
         .catch((err) => { console.log(err); throw err })
         .finally(() => { });
+}
+
+function eaemano() {
+  console.log("OISSSS")
 }
