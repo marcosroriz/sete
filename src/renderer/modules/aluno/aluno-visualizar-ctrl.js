@@ -113,7 +113,10 @@ var plotarListaDeAlunos = (listaDeAlunos) => {
     listaDeAlunos.forEach((aluno) => {
         vSource.addFeature(plotarAluno(aluno));
     });
-    mapaViz["map"].getView().fit(vSource.getExtent());
+    if (!vSource.isEmpty()) {
+        mapaViz["map"].getView().fit(vSource.getExtent());
+        mapaViz["map"].updateSize();
+    }
 }
 
 // Cria feature de um aluno

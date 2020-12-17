@@ -72,14 +72,28 @@ var adicionaDadosNaTela = () => {
         $('#alunosAtendidos').append(`<option value="${aID}">${aNome}</option>`);
     })
 
-    // Alunos atendidos por outras escolas ou nenhuma
+    // Alunos atendidos por outras escolas
     let outrosAlunos = []
-    for (aID of naoAtendidosPorNenhuma) {
-        outrosAlunos.push(listaDeAlunos.get(aID))
-    }
+
     for (aID of atendidoPorOutraEscola) {
-        outrosAlunos.push(listaDeAlunos.get(aID))
+        aluno = listaDeAlunos.get(aID)
+        outrosAlunos.push({
+            "ID": aluno["ID_ALUNO"],
+            "NOME": aluno["NOME"],
+            "DATA_NASCIMENTO": aluno["DATA_NASCIMENTO"] 
+        })
     }
+
+    // Alunos atendidos por nenhuma
+    for (aID of naoAtendidosPorNenhuma) {
+        aluno = listaDeAlunos.get(aID)
+        outrosAlunos.push({
+            "ID": aluno["ID"],
+            "NOME": aluno["NOME"],
+            "DATA_NASCIMENTO": aluno["DATA_NASCIMENTO"] 
+        })
+    }
+
     outrosAlunos = outrosAlunos.sort((a, b) => a["NOME"].toLowerCase().localeCompare(b["NOME"].toLowerCase(), "pt-BR"))
     outrosAlunos.forEach((aluno) => {
         let aID = aluno["ID"];
@@ -161,6 +175,7 @@ $("#btnSalvar").on('click', () => {
         // Agora, vamos adicionar as novas relações
         var promiseArrayAdd = new Array();
         alunosAdicionar.forEach((aID) => {
+            console.log(aID, estadoEscola["ID_ESCOLA"])
             promiseArrayAdd.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
                 "ID_ESCOLA": String(estadoEscola["ID_ESCOLA"]), 
                 "ID_ALUNO": String(aID)

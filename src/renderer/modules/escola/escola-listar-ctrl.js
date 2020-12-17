@@ -61,7 +61,7 @@ $("#datatables_filter input").on('keyup', function () {
 
 dataTableEscolas.on('click', '.escolaStudent', function () {
     var $tr = getRowOnClick(this);
-
+    
     estadoEscola = dataTableEscolas.row($tr).data();
     action = "gerirAlunosEscola";
     navigateDashboard("./modules/escola/escola-gerir-alunos-view.html");
