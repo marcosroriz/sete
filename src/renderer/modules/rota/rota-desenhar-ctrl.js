@@ -67,15 +67,16 @@ var getGeomStyle = function (feature) {
             simplify = true;
         }
 
+        let numSegmento = 0;
         feature.getGeometry().forEachSegment(function (start, end) {
-            var rnd = Math.floor(Math.random() * 10 + 1);
-
+            // var rnd = Math.floor(Math.random() * 100 + 1);
             var dx = end[0] - start[0];
             var dy = end[1] - start[1];
             var rotation = Math.atan2(dy, dx);
 
-            if (simplify && rnd <= 9) {
-                return;
+            if (simplify) {
+                // Plota a cada 100 segmentos apenas
+                if (numSegmento++ % 100 != 0) return;
             }
 
             // arrows
@@ -748,7 +749,7 @@ $("#listarotas").on("change", (evt) => {
             }
     
         } catch (error) {
-           errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, errror)
+           errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, error)
         } finally {
             Swal2.close();
         }
