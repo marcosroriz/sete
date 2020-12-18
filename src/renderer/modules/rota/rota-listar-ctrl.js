@@ -153,8 +153,8 @@ var processarEscolasPorRota = (res) => {
 
 // Adiciona dados na tabela
 adicionaDadosTabela = (res) => {
-    res.forEach((escola) => {
-        dataTablesRotas.row.add(escola);
+    res.forEach((rota) => {
+        dataTablesRotas.row.add(rota);
     });
 
     dataTablesRotas.draw();

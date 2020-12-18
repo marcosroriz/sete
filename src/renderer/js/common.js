@@ -85,6 +85,7 @@ var confirmDialog = (msgTitle, msgDesc, buttonDesc = "Sim, remover") => {
     })
 }
 
+// Função genérica para crair um dialogo que questiona se o usuário tem certeza
 var goaheadDialog = (msgTitle, msgDesc) => {
     return Swal2.fire({
         title: msgTitle,
@@ -135,6 +136,14 @@ function navigateDashboard(target) {
 // Função de Navegação do Software
 function navigatePage(target) {
     document.location.href = target;
+}
+
+// Função que converte uma lista em um mapa
+function convertListToMap(list, campoID = "ID") {
+    let mapa = new Map()
+    list.forEach(l => mapa.set(String(l[campoID]), l))
+
+    return mapa;
 }
 
 // Estrutura básica de validação dos formulários
