@@ -105,77 +105,59 @@ dataTablesRotas.on('click', '.rotaRemove', function () {
 
 dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
 .then(res => processarRotas(res))
-
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
+.then((res) => processarAlunosPorRota(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then((res) => processarEscolasPorRota(res))
+.then((res) => adicionaDadosTabela(res))
+.catch((err) => errorFn("Erro ao listar as escolas!", err))
 
 // Processar rotas
 var processarRotas = (res) => {
-    $("#totalNumVeiculos").text(res.length);
-    for (let veiculoRaw of res) {
-        let veiculoJSON = parseVeiculoDB(veiculoRaw);
-        veiculoJSON["ID_VEICULO"] = veiculoJSON["ID"]
-        listaDeVeiculos.set(veiculoJSON["ID_VEICULO"], veiculoJSON);
+    $("#totalNumRotas").text(res.length);
+    for (let rotaRaw of res) {
+        let rotaJSON = parseRotaDB(rotaRaw);
+        rotaJSON["STRESCOLAS"] = "Não cadastrado";
+        rotaJSON["STRALUNOS"]  = "Não cadastrado";
+        rotaJSON["NUMESCOLAS"] = 0;
+        rotaJSON["NUMALUNOS"]  = 0;
+        rotaJSON["ALUNOS"]     = [];
+        rotaJSON["ESCOLAS"]    = [];
+        rotaJSON["ID_ROTA"]    = rotaJSON["ID"];
+        listaDeRotas.set(rotaJSON["ID"], rotaJSON);
     }
-    return listaDeVeiculos;
+    return listaDeRotas;
 }
 
-// Callback para pegar dados inicia da escolas
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFn("Erro ao listar as rotas", err);
-    } else {
-        $("#totalNumRotas").text(result.length);
-
-        for (let rotaRaw of result) {
-            let rotaJSON = parseRotaDB(rotaRaw);
-            rotaJSON["STRESCOLAS"] = "Não cadastrado"
-            rotaJSON["STRALUNOS"]  = "Não cadastrado"
-            rotaJSON["NUMESCOLAS"] = 0
-            rotaJSON["NUMALUNOS"]  = 0
-            listaDeRotas.set(rotaJSON["ID_ROTA"], rotaJSON);
-        }
-
-        var promiseArray = new Array();
-
-        listaDeRotas.forEach((rota) => {
-            promiseArray.push(ListarTodasAsEscolasAtendidasPorRotaPromise(rota["ID_ROTA"]))
-            promiseArray.push(ListarTodosOsAlunosAtendidosPorRotaPromise(rota["ID_ROTA"]))
-        });
-
-        Promise.all(promiseArray)
-        .then((res) => {
-            var handleEscolasAtendidas = new Array();
-            var handleAlunosAtendidos = new Array();
-            for (let i = 0; i < res.length; i++) {
-                if (i % 2 == 0) {
-                    handleEscolasAtendidas.push(res[i]);
-                } else {
-                    handleAlunosAtendidos.push(res[i]);
-                }
-            }
-
-            handleEscolasAtendidas.forEach((e) => {
-                if (e != null && e != undefined && e.length != 0) {
-                    let rotaJSON = listaDeRotas.get(e[0]["ID_ROTA"]);
-                    rotaJSON["NUMESCOLAS"] = e.length;
-                }
-            });
-            
-            handleAlunosAtendidos.forEach((a) => {
-                if (a != null && a != undefined && a.length != 0) {
-                    let rotaJSON = listaDeRotas.get(a[0]["ID_ROTA"]);
-                    rotaJSON["NUMALUNOS"] = a.length;
-                }
-            });
-            listaDeRotas.forEach((rota) => {
-                dataTablesRotas.row.add(rota);
-            });
-
-            dataTablesRotas.draw();
-        });
-
+// Processar alunos por rota
+var processarAlunosPorRota = (res) => {
+    for (let aluno of res) {
+        aluno = parseAlunoDB(aluno)
+        let rotaJSON = listaDeRotas.get(aluno["ID_ROTA"]);
+        rotaJSON["NUMALUNOS"] = rotaJSON["NUMALUNOS"] + 1;
+        rotaJSON["ALUNOS"].push(aluno);
     }
-};
+    return listaDeRotas;
+}
 
-BuscarTodosDados("Rotas", listaInicialCB);
+// Processar alunos por Escola
+var processarEscolasPorRota = (res) => {
+    for (let escola of res) {
+        escola = parseEscolaDB(escola)
+        let rotaJSON = listaDeRotas.get(escola["ID_ROTA"]);
+        rotaJSON["NUMESCOLAS"] = rotaJSON["NUMESCOLAS"] + 1;
+        rotaJSON["ESCOLAS"].push(escola);
+    }
+    return listaDeRotas;
+}
+
+// Adiciona dados na tabela
+adicionaDadosTabela = (res) => {
+    res.forEach((escola) => {
+        dataTablesRotas.row.add(escola);
+    });
+
+    dataTablesRotas.draw();
+}
 
 action = "listarRotas";
