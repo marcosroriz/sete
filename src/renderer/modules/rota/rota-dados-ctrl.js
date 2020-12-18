@@ -123,6 +123,18 @@ var plotarEscola = (escolaRaw) => {
     malhaSource.addFeature(marcador);
 }
 
+// Plota garagem na tela
+var plotarGaragem = (garagemRaw) => {
+    let lat = garagemRaw["LOC_LATITUDE"];
+    let lng = garagemRaw["LOC_LONGITUDE"];
+    let icon = "img/icones/garagem-icone.png";
+
+    let marcador = gerarMarcador(lat, lng, icon);
+    marcador.set("nome", "GARAGEM");
+    marcador.set("content", "GARAGEM");
+    malhaSource.addFeature(marcador);
+}
+
 // Acrescentando rota existente
 if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
     $("#avisoNaoGeoReferenciada").hide();
@@ -310,6 +322,20 @@ estadoRota["ESCOLAS"].forEach(escola => {
 dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA")
 .then(res => preprocessarRelacaoAlunoEscola(res))
 .then(() => adicionarDadosAlunoEscolaTabelaEMapa())
+
+dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM)
+.then(res => processarGaragem(res))
+
+// Processa garagem
+var processarGaragem = (res) => {
+    for (let garagemRaw of res) {
+        if (garagemRaw["LOC_LONGITUDE"] != null && garagemRaw["LOC_LONGITUDE"] != undefined &&
+            garagemRaw["LOC_LATITUDE"] != null && garagemRaw["LOC_LATITUDE"] != undefined) {
+            plotarGaragem(garagemRaw)
+        }
+    }
+}
+
 
 // Preprocessa relação aluno escola
 var preprocessarRelacaoAlunoEscola = (res) => {

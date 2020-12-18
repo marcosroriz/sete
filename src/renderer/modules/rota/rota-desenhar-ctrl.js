@@ -1,7 +1,11 @@
+// rota-desenhar-ctrl.js
+// Este arquivo contém o script de controle da tela rota-desenhar-view. 
+// O mesmo serve tanto para cadastrar, quanto para alterar o desenho de uma rota.
+
 // Lista com as rotas
 var listaDeRotas = new Map();
 var idRotaSelecionada = 0;
-
+var garagem;
 $(".km").hide();
 $(".tempo").hide();
 
@@ -9,6 +13,13 @@ $(".tempo").hide();
 var geojson = new ol.format.GeoJSON();
 var mapMalhas = {};
 var mapa = novoMapaOpenLayers("mapDesenhoRota", cidadeLatitude, cidadeLongitude);
+
+window.onresize = function () {
+    setTimeout(function () {
+        console.log("resize");
+        if (mapa != null) { mapa["map"].updateSize(); }
+    }, 200);
+}
 
 // Malha
 var mapaAluno = mapa["addLayer"]("Malha");
@@ -81,7 +92,6 @@ var getGeomStyle = function (feature) {
     }
     return styles;
 }
-
 
 mapaLayer.setStyle((feature) => {
     if (feature.getGeometry() instanceof ol.geom.LineString) {
@@ -451,6 +461,18 @@ var plotarEscola = (escolaRaw) => {
     vectorSource.addFeature(marcador);
 }
 
+// Plota garagem na tela
+var plotarGaragem = (garagemRaw) => {
+    let lat = garagemRaw["LOC_LATITUDE"];
+    let lng = garagemRaw["LOC_LONGITUDE"];
+    let icon = "img/icones/garagem-icone.png";
+
+    let marcador = gerarMarcador(lat, lng, icon);
+    marcador.set("nome", "GARAGEM");
+    marcador.set("content", "GARAGEM");
+    vectorSource.addFeature(marcador);
+}
+
 // Barra de Controle
 var mainbar = new ol.control.Bar();
 var editbar = new ol.control.Bar({
@@ -594,111 +616,150 @@ mainbar.addControl(editbar);
 mainbar.setPosition("top-left");
 mapaOL.addControl(mainbar);
 
-window.onresize = function () {
-    setTimeout(function () {
-        console.log("resize");
-        if (mapaDesenho != null) { mapaDesenho["map"].updateSize(); }
-    }, 200);
+// Callback para pegar dados inicia das rotas
+dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
+.then(res => {
+    for (let rotaRaw of res) {
+        rotaRaw["ALUNOS"] = [];
+        rotaRaw["ESCOLAS"] = [];
+        listaDeRotas.set(rotaRaw["ID"], rotaRaw);
+        $('#listarotas').append(`<option value="${rotaRaw["ID"]}">${rotaRaw["NOME"]}</option>`);
+    }
+})
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
+.then(res => processarAlunosPorRota(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then(res => processarEscolasPorRota(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
+.then(res => processarGaragem(res))
+.catch(err => errorFn("Erro ao listar as rotas", err))
+
+
+// Processa garagem
+var processarGaragem = (res) => {
+    for (let garagemRaw of res) {
+        if (garagemRaw["LOC_LONGITUDE"] != null && garagemRaw["LOC_LONGITUDE"] != undefined &&
+            garagemRaw["LOC_LATITUDE"] != null && garagemRaw["LOC_LATITUDE"] != undefined) {
+            plotarGaragem(garagemRaw)
+        }
+        garagem = garagemRaw;
+    }
+    if (!mapaSource.isEmpty()) {
+        mapaOL.getView().fit(vSource.getExtent());
+        mapaOL.updateSize();
+    }
 }
 
-// Callback para pegar dados inicia das rotas
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFn("Erro ao listar as rotas", err);
-    } else {
-        for (let rotaRaw of result) {
-            listaDeRotas.set(rotaRaw["ID_ROTA"], rotaRaw);
-            $('#listarotas').append(`<option value="${rotaRaw["ID_ROTA"]}">${rotaRaw["NOME"]}</option>`);
-        }
+// Processar alunos por rota
+var processarAlunosPorRota = (res) => {
+    for (let aluno of res) {
+        aluno = parseAlunoDB(aluno)
+        let rotaJSON = listaDeRotas.get(aluno["ID_ROTA"]);
+        rotaJSON["ALUNOS"].push(aluno);
     }
-};
+    return listaDeRotas;
+}
+
+// Processar alunos por Escola
+var processarEscolasPorRota = (res) => {
+    for (let escola of res) {
+        escola = parseEscolaDB(escola)
+        let rotaJSON = listaDeRotas.get(escola["ID_ROTA"]);
+        rotaJSON["ESCOLAS"].push(escola);
+    }
+    return listaDeRotas;
+}
 
 $("#listarotas").on("change", (evt) => {
     if (evt.currentTarget.value != "") {
-        idRotaSelecionada = parseInt(evt.currentTarget.value);
-        var rotaSelect = listaDeRotas.get(idRotaSelecionada);
-        var nomeRota = rotaSelect["NOME"];
-        Swal2.fire({
-            title: "Carregando rota",
-            text: "Carregando traçado da rota " + nomeRota,
-            type: "info",
-            icon: "info",
-            showCancelButton: false,
-            closeOnConfirm: false,
-            closeOnClickOutside: false,
-            allowOutsideClick: false,
-            showConfirmButton: false
-        });
+        try {
+            idRotaSelecionada = evt.currentTarget.value;
+            var rotaSelect = listaDeRotas.get(idRotaSelecionada);
+            var nomeRota = rotaSelect["NOME"];
+            Swal2.fire({
+                title: "Carregando rota",
+                text: "Carregando traçado da rota " + nomeRota,
+                type: "info",
+                icon: "info",
+                showCancelButton: false,
+                closeOnConfirm: false,
+                closeOnClickOutside: false,
+                allowOutsideClick: false,
+                showConfirmButton: false
+            });
 
-        // Limpando dados do mapa
-        vectorSource.clear();
-        mapaSource.clear();
+            // Limpando dados do mapa
+            vectorSource.clear();
+            mapaSource.clear();
 
-        // Acrescentando rota existente
-        if (rotaSelect["SHAPE"] != "" && rotaSelect["SHAPE"] != undefined) {
-            mapaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(rotaSelect["SHAPE"]))
-        }
+            // Acrescenta garagem
+            plotarGaragem(garagem);
 
-        // Tipo de Modal
-        var tipoModal = parseInt(rotaSelect["TIPO"]);
-        switch (tipoModal) {
-            case 1:
-                $(".tempo").hide();
-                $("#regkm").val(rotaSelect["KM"]);
-                $(".km").show();
-                break;
-            case 2:
-                $("#regtempo").val(rotaSelect["TEMPO"]);
-                $(".tempo").show();
-                $(".km").hide();
-                break;
-            case 3:
-                $(".tempo").val(rotaSelect["TEMPO"]);
-                $("#regkm").val(rotaSelect["KM"]);
-                $(".tempo").show();
-                $(".km").show();
-                break;
-            default:
-                $(".tempo").hide();
-                $("#regkm").val(rotaSelect["KM"]);
-                $(".km").show();
-        }
+            // Acrescentando rota existente
+            if (rotaSelect["SHAPE"] != "" && rotaSelect["SHAPE"] != undefined) {
+                mapaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(rotaSelect["SHAPE"]))
+            }
 
-        var buscarEscolasPromise = ListarTodasAsEscolasAtendidasPorRotaPromise(idRotaSelecionada);
-        var buscarAlunosPromise = ListarTodosOsAlunosAtendidosPorRotaPromise(idRotaSelecionada);
+            // Tipo de Modal
+            // var tipoModal = parseInt(rotaSelect["TIPO"]);
+            // switch (tipoModal) {
+            //     case 1:
+            //         $(".tempo").hide();
+            //         $("#regkm").val(rotaSelect["KM"]);
+            //         $(".km").show();
+            //         break;
+            //     case 2:
+            //         $("#regtempo").val(rotaSelect["TEMPO"]);
+            //         $(".tempo").show();
+            //         $(".km").hide();
+            //         break;
+            //     case 3:
+            //         $(".tempo").val(rotaSelect["TEMPO"]);
+            //         $("#regkm").val(rotaSelect["KM"]);
+            //         $(".tempo").show();
+            //         $(".km").show();
+            //         break;
+            //     default:
+            //         $(".tempo").hide();
+            //         $("#regkm").val(rotaSelect["KM"]);
+            //         $(".km").show();
+            // }
 
-        Promise.all([buscarEscolasPromise, buscarAlunosPromise])
-            .then((res) => {
-                // Processando Escolas
-                var escolasResult = res[0];
-                for (let escolaRaw of escolasResult) {
-                    plotarEscola(escolaRaw);
+            alunosRota = rotaSelect["ALUNOS"]
+            escolasRota = rotaSelect["ESCOLAS"]
+
+            alunosRota.forEach(aluno => {
+                if (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
+                    aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined) {
+                    plotarAluno(aluno);
                 }
-
-                // Processando Alunos
-                var alunosResult = res[1];
-                for (let alunoRaw of alunosResult) {
-                    plotarAluno(alunoRaw);
-                }
-
-                if (rotaSelect["SHAPE"] != "" && rotaSelect["SHAPE"] != undefined) {
-                    mapaOL.getView().fit(mapaSource.getExtent());
-                }
-
-                Swal2.close();
             })
-            .catch((err) => errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, err))
 
+            escolasRota.forEach(escola => {
+                if (escola["LOC_LONGITUDE"] != null && escola["LOC_LONGITUDE"] != undefined &&
+                    escola["LOC_LATITUDE"] != null && escola["LOC_LATITUDE"] != undefined) {
+                    plotarAluno(escola);
+                }
+            })
+
+            if (!mapaSource.isEmpty()) {
+                mapaOL.getView().fit(vSource.getExtent());
+                mapaOL.updateSize();
+            }
+    
+        } catch (error) {
+           errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, errror)
+        } finally {
+            Swal2.close();
+        }
     }
 })
-
-BuscarTodosDados("Rotas", listaInicialCB);
 
 var completeForm = () => {
     Swal2.fire({
         title: "Rota salva com sucesso",
         text: "A rota " + listaDeRotas.get(idRotaSelecionada)["NOME"] + " foi salva com sucesso. " +
-            "Clique abaixo para retornar ao painel.",
+              "Clique abaixo para retornar ao painel.",
         type: "success",
         icon: "success",
         showCancelButton: false,
@@ -709,45 +770,29 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-        .then(() => {
-            navigateDashboard("./modules/rota/rota-listar-view.html");
-        });
+    .then(() => {
+        navigateDashboard("./modules/rota/rota-listar-view.html");
+    });
 }
 
-$("#rota-malha-salvarNovaMalha").click(() => {
+$("#rota-malha-salvarNovaMalha").on('click', () => {
     if (idRotaSelecionada == 0) {
-        Swal2.fire(
-            "Escolha uma rota primeiro!",
-            "",
-            "error"
-        );
+        Swal2.fire("Escolha uma rota primeiro!", "", "error");
     } else {
         var rotasJSON = { "ID_ROTA": idRotaSelecionada };
-        rotasJSON["KM"] = $("#regkm").val();
-        rotasJSON["TEMPO"] = $("#regtempo").val();
+        // rotasJSON["KM"] = $("#regkm").val();
+        // rotasJSON["TEMPO"] = $("#regtempo").val();
         rotasJSON["SHAPE"] = new ol.format.GeoJSON().writeFeatures(mapaSource.getFeatures());
 
-        AtualizarPromise("Rotas", rotasJSON, "ID_ROTA", idRotaSelecionada)
-            .then((res) => {
-                completeForm();
-            })
-            .catch((err) => {
-                errorFn("Erro ao atualizar o motorista!", err);
-            });
+        dbAtualizarPromise(DB_TABLE_ROTA, rotasJSON, idRotaSelecionada)
+        .then(res => completeForm())
+        .catch(err => errorFn("Erro ao atualizar o motorista!", err))
     }
 });
 
-$("#cancelarAcao").click(() => {
-    Swal2.fire({
-        title: 'Cancelar Edição?',
-        text: "Se você cancelar nenhum alteração será feita no traçado da rota.",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Voltar a editar",
-        confirmButtonText: 'Sim, cancelar'
-    }).then((result) => {
+$("#cancelarAcao").on('click', () => {
+    cancelDialog()
+    .then((result) => {
         if (result.value) {
             navigateDashboard(lastPage);
         }
