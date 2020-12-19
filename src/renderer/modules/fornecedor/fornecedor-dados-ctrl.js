@@ -1,4 +1,12 @@
-var idFornecedor = estadoFornecedor["ID_FORNECEDOR"];
+// fornecedor-dados-ctrl.js
+// Este arquivo contém o script de controle da tela fornecedor-dados-view. 
+// O mesmo serve para detalhar os dados de um fornecedor (incluindo suas OS)
+
+var idFornecedor = estadoFornecedor["ID"];
+
+// Lista de Veiculos e OS
+var listaDeOS = new Array();
+var listaDeVeiculos = new Map();
 
 // Tira o btn group do datatable
 $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons';
@@ -63,31 +71,30 @@ var dataTableFornecedor = $("#dataTableDetalhes").DataTable({
             className: "btnApagar",
             action: function (e, dt, node, config) {
                 action = "apagarFornecedor";
-                Swal2.fire({
-                    title: 'Remover esse fornecedor?',
-                    text: "Ao remover esse fornecedor ele será retirado do sistema e dos serviços que possuir vínculo.",
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    cancelButtonText: "Cancelar",
-                    confirmButtonText: 'Sim, remover'
-                }).then((result) => {
-                    if (result.value) {
-                        RemoverPromise("Fornecedores", "ID_FORNECEDOR", idFornecedor)
-                            .then(() => {
-                                Swal2.fire({
-                                    type: 'success',
-                                    title: "Sucesso!",
-                                    text: "Fornecedor removido com sucesso!",
-                                    confirmButtonText: 'Retornar a página de administração'
-                                }).then(() => {
-                                    navigateDashboard("./modules/fornecedor/fornecedor-listar-view.html");
-                                });
-                            })
-                            .catch((err) => errorFn("Erro ao remover o fornecedor. ", err));
+                confirmDialog('Remover esse fornecedor?',
+                "Ao remover esse fornecedor ele será retirado do sistema e dos " +
+                "serviços que possuir vínculo."
+                ).then((res) => {
+                    let listaPromisePraRemover = []
+                    if (res.value) {
+                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_FORNECEDOR, "ID_FORNECEDOR", idFornecedor));
+                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ORDEM_DE_SERVICO, "ID_FORNECEDOR", idFornecedor));
+                        listaPromisePraRemover.push(dbAtualizaVersao());
                     }
-                })
+
+                    return Promise.all(listaPromisePraRemover)
+                }).then((res) => {
+                    if (res.length > 0) {
+                        dataTablesFornecedores.row($tr).remove();
+                        dataTablesFornecedores.draw();
+                        Swal2.fire({
+                            title: "Sucesso!",
+                            icon: "success",
+                            text: "Fornecedor removido com sucesso!",
+                            confirmButtonText: 'Retornar a página de administração'
+                        });
+                    }
+                }).catch((err) => errorFn("Erro ao remover o fornecedor", err))
             }
         },
     ]
@@ -109,6 +116,100 @@ var popularTabelaFornecedor = () => {
 }
 
 popularTabelaFornecedor();
+
+var dataTableListaDeServicos = $('#dataTableListaDeServicos').DataTable({
+    ...dtConfigPadraoFem("ordem de serviço"),
+    ...{
+        columns: [
+            { data: 'DATA', width: "90px" },
+            { data: 'TIPOSTR', width: "150px" },
+            { data: 'VEICULOSTR', width: "20%" },
+            { data: 'TERMINOSTR', width: "110px" },
+            { data: 'COMENTARIO', width: "30%" },
+        ],
+        // dom: 't<"detalheToolBar"B>',
+        columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50), type: 'locale-compare' } ],
+        buttons: [
+            {
+                text: "Voltar",
+                className: "btn-info",
+                action: function (e, dt, node, config) {
+                    navigateDashboard(lastPage);
+                }
+            },
+            {
+                extend: 'excel',
+                className: 'btnExcel',
+                filename: "ServiçosRealizados",
+                title: appTitle,
+                messageTop: "Serviços realizados pelo Fornecedor: " + estadoFornecedor["NOME"],
+                text: 'Exportar para Excel/LibreOffice',
+                customize: function (xlsx) {
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="A"]', sheet).attr('s', '2');
+                    $('row[r="1"] c[r^="A"]', sheet).attr('s', '27');
+                    $('row[r="2"] c[r^="A"]', sheet).attr('s', '3');
+                }
+            },
+            {
+                extend: 'pdfHtml5',
+                orientation: "landscape",
+                title: appTitle,
+                messageTop: "Serviços realizados pelo Fornecedor: " + estadoFornecedor["NOME"],
+                text: "Exportar para PDF",
+                exportOptions: {
+                    columns: [0, 1]
+                },
+                customize: function (doc) {
+                    doc = docReport(doc);
+                }
+            },
+        ]
+    }
+});
+
+dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+.then(res => processarVeiculos(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ORDEM_DE_SERVICO))
+.then(res => processarOS(res))
+.then(res => adicionaDadosOSNaTabela(res))
+
+// Processar veículos
+var processarVeiculos = (res) => {
+    for (let veiculoRaw of res) {
+        let veiculoJSON = parseVeiculoDB(veiculoRaw);
+        veiculoJSON["ID_VEICULO"] = veiculoJSON["ID"]
+        veiculoJSON["VEICULOSTR"] = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`;;
+        listaDeVeiculos.set(veiculoJSON["ID_VEICULO"], veiculoJSON);
+    }
+    return listaDeVeiculos;
+}
+
+// Processar ordem de serviço
+var processarOS = (res) => {
+    for (let osRaw of res) {
+        let osJSON = parseOSDB(osRaw);
+
+        if (osJSON["ID_FORNECEDOR"] == idFornecedor) {
+            osJSON["VEICULOSTR"] = listaDeVeiculos.get(osJSON["ID_VEICULO"])["VEICULOSTR"];
+            osJSON["COMENTARIO"] = osJSON["COMENTARIO"].length > 50 ? 
+                                   osJSON["COMENTARIO"].substr(0, 50) + '…' : 
+                                   osJSON["COMENTARIO"];
+            listaDeOS.push(osJSON);
+        }
+    }
+
+    return listaDeOS;
+}
+
+// Adiciona dados na tabela
+adicionaDadosOSNaTabela = (res) => {
+    res.forEach((os) => {
+        dataTableListaDeServicos.row.add(os);
+    });
+
+    dataTableListaDeServicos.draw();
+}
 
 $("#detalheInitBtn").click();
 

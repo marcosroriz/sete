@@ -1,5 +1,10 @@
+// relatorio-frota-ctrl.js
+// Este arquivo contém o script de controle da tela relatorio-frota-view. 
+
 // Preenchimento da Tabela via SQL
 var listaDeVeiculos = new Map();
+var listaDeRotas = new Map();
+
 var totalNumAlunosAtendidos = 0;
 
 // Dados para serem plotados
@@ -42,16 +47,7 @@ defaultTableConfig["columns"] = [
     }
 ]
 
-defaultTableConfig["columnDefs"] = [
-    {
-        targets: 0,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    },
-];
+defaultTableConfig["columnDefs"] = [ { targets: 0, render: renderAtMostXCharacters(50) } ];
 
 var dataTablesRelatorio = $("#datatables").DataTable(defaultTableConfig);
 
@@ -75,13 +71,18 @@ function CalcularEstatisticas() {
         totalCapacidadeVeiculo = totalCapacidadeVeiculo + parseInt(veiculo["CAPACIDADE"]);
     })
 
-    dataIdadeVeiculo["series"].push(Math.floor(totalIdadeVeiculo / totalVeiculos));
+    if (totalVeiculos != 0) {
+        dataIdadeVeiculo["series"].push(Math.floor(totalIdadeVeiculo / totalVeiculos));    
+        dataCapacidadeVeiculo["series"].push(totalCapacidadeVeiculo / totalVeiculos);
+        dataLotacaoVeiculo["series"].push(totalNumAlunosAtendidos / totalVeiculos);
+    } else {
+        dataIdadeVeiculo["series"].push(0);
+        dataCapacidadeVeiculo["series"].push(0);
+        dataLotacaoVeiculo["series"].push(0);
+    }
+
     dataIdadeVeiculo["labels"].push("Ano médio dos veículos utilizados");
-
-    dataCapacidadeVeiculo["series"].push(totalCapacidadeVeiculo / totalVeiculos);
     dataCapacidadeVeiculo["labels"].push("Média de Assentos Disponíveis por Veículos");
-
-    dataLotacaoVeiculo["series"].push(totalNumAlunosAtendidos / totalVeiculos);
     dataLotacaoVeiculo["labels"].push("Passageiros por Veículo");
 
     dataTipoVeiculo["series"] = [statTipo[1], statTipo[2], statTipo[3], statTipo[4], statTipo[5], statTipo[6], statTipo[7],
@@ -240,64 +241,94 @@ dataTablesRelatorio.on('click', '.frotaEdit', function () {
 dataTablesRelatorio.on('click', '.frotaRemove', function () {
     var $tr = getRowOnClick(this);
     estadoVeiculo = dataTablesRelatorio.row($tr).data();
-    var idVeiculo = estadoVeiculo["ID_VEICULO"];
+    var idVeiculo = estadoVeiculo["ID"];
 
     action = "apagarVeiculo";
-    Swal2.fire({
-        title: 'Remover esse veículo?',
-        text: "Ao remover esse veículo ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
-    }).then((result) => {
-        if (result.value) {
-            RemoverPromise("Veiculos", "ID_VEICULO", idVeiculo)
-                .then(() => {
-                    dataTablesRelatorio.row($tr).remove();
-                    dataTablesRelatorio.draw();
-                    Swal2.fire({
-                        type: 'success',
-                        title: "Sucesso!",
-                        text: "Veículo removido com sucesso!",
-                        confirmButtonText: 'Retornar a página de administração'
-                    });
-                })
-                .catch((err) => errorFn("Erro ao remover o veículo. ", err));
+    confirmDialog("Remover esse veículo?",
+                  "Ao remover esse veículo ele será retirado do sistema das "
+                + "rotas e das escolas que possuir vínculo."
+    ).then((res) => {
+        let listaPromisePraRemover = []
+        if (res.value) {
+            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", idVeiculo));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", idVeiculo));
+            listaPromisePraRemover.push(dbAtualizaVersao());
         }
-    })
+
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            dataTablesVeiculos.row($tr).remove();
+            dataTablesVeiculos.draw();
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Veículo removido com sucesso!",
+                confirmButtonText: 'Retornar a página de administração'
+            });
+        }
+    }).catch((err) => errorFn("Erro ao remover o veículo", err))
 });
 
-// Callback para pegar dados inicia da escolas
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFn("Erro ao listar os veículo", err);
-    } else {
-        $("#totalNumVeiculos").text(result.length);
+dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+.then(res => processarVeiculos(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+.then(res => processarAlunosPorRota(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA_POSSUI_VEICULO))
+.then((res) => processarVeiculosPorRota(res))
+.then(() => adicionaDadosTabela())
+.then(() => CalcularEstatisticas())
+.catch((err) => errorFn("Erro ao listar os veículos!", err))
 
-        for (let veiculoRaw of result) {
-            let veiculoJSON = parseVeiculoDB(veiculoRaw);
-            listaDeVeiculos.set(veiculoJSON["ID_VEICULO"], veiculoJSON);
-        }
+// Processar veiculos
+var processarVeiculos = (res) => {
+    for (let veiculoRaw of res) {
+        let veiculoJSON = parseVeiculoDB(veiculoRaw);
+        veiculoJSON["ID_VEICULO"] = veiculoJSON["ID"]
+        veiculoJSON["CAPACIDADE_ATUAL"] = 0
 
-        PegarCapacidadeAtualPromise()
-            .then((res) => {
-                res.forEach((v) => {
-                    totalNumAlunosAtendidos = totalNumAlunosAtendidos + parseInt(v["NUM_ALUNOS"]);
-                    listaDeVeiculos.get(parseInt(v["ID_VEICULO"]))["CAPACIDADE_ATUAL"] = parseInt(v["NUM_ALUNOS"]);
-                })
-                CalcularEstatisticas();
-
-                listaDeVeiculos.forEach((veiculo) => {
-                    dataTablesRelatorio.row.add(veiculo);
-                });
-                dataTablesRelatorio.draw();
-            })
+        listaDeVeiculos.set(veiculoJSON["ID_VEICULO"], veiculoJSON);
     }
-};
-BuscarTodosDados("Veiculos", listaInicialCB);
+    return listaDeVeiculos;
+}
 
+// Processar alunos por rota
+var processarAlunosPorRota = (res) => {
+    totalNumAlunosAtendidos = res.length;
+
+    for (let rota of res) {
+        rota = parseRotaDB(rota)
+        let idRota = rota["ID_ROTA"];
+        if (!listaDeRotas.has(idRota)) {
+            listaDeRotas.set(idRota, { "NUMALUNOS": 0 });    
+        }
+        let rotaJSON = listaDeRotas.get(idRota)
+        rotaJSON["NUMALUNOS"] = rotaJSON["NUMALUNOS"] + 1;
+        listaDeRotas.set(idRota, rotaJSON);    
+    }
+    return listaDeRotas;
+}
+
+
+// Processar veiculos por rota
+var processarVeiculosPorRota = (res) => {
+    for (let relVeiculoPorRota of res) {
+        let veiculo = listaDeVeiculos.get(relVeiculoPorRota["ID_VEICULO"])
+        let rota = listaDeRotas.get(relVeiculoPorRota["ID_ROTA"])
+
+        veiculo["CAPACIDADE_ATUAL"] = rota["NUMALUNOS"];
+        listaDeVeiculos.set(relVeiculoPorRota["ID_VEICULO"], veiculo);
+    }
+    return listaDeVeiculos;
+}
+
+// Adiciona dados na tabela
+adicionaDadosTabela = (res) => {
+    listaDeVeiculos.forEach((veiculo) => {
+        dataTablesRelatorio.row.add(veiculo);
+    });
+
+    dataTablesRelatorio.draw();
+}
 
 action = "relatorioFrota";

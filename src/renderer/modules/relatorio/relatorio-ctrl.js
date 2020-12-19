@@ -31,7 +31,11 @@ var chart = {
                     y: -10
                 },
                 labelInterpolationFnc: function (value) {
-                    return Math.round(value / pickedSeries.reduce(sum) * 100) + '%';
+                    if (pickedSeries.reduce(sum) == 0) {
+                        return 0 + "%";
+                    } else {
+                        return Math.round(value / pickedSeries.reduce(sum) * 100) + '%';
+                    }
                 }
             })
         ],
@@ -68,15 +72,15 @@ function plotGraphic(target, option) {
     pickedSeries = option["SERIE"]["series"];
 
     if (option["TIPO"] == "pizza") {
-        Chartist.Pie(target, option["SERIE"], chart["pizza"]);
+        return Chartist.Pie(target, option["SERIE"], chart["pizza"]);
     } else if (option["TIPO"] == "barra") {
-        Chartist.Bar(target, option["SERIE"], chart["barra"]);
+        return Chartist.Bar(target, option["SERIE"], chart["barra"]);
     } else if (option["TIPO"] == "total") {
-        $(target).append(`<div class='totalChart'>
+        return $(target).append(`<div class='totalChart'>
             <span>${roundToTwo(option["SERIE"]["series"][0])}</sṕan>
         </div>`)
     } else if (option["TIPO"] == "barraraw") {
-        Chartist.Bar(target, option["SERIE"], chart["barraraw"]);
+        return Chartist.Bar(target, option["SERIE"], chart["barraraw"]);
     }
 }
 
@@ -176,13 +180,14 @@ $("#btnExpJPEG").click(() => {
         showConfirmButton: false
     });
 
-    htmlToImage.toPng(document.getElementsByClassName("card-report")[0])
-        .then(function (dataUrl) {
-            var link = document.createElement('a');
-            link.download = 'mapa-relatorio.jpeg';
-            link.href = dataUrl;
-            link.click();
-            Swal2.close();
-        });
+    htmlToImage.toJpeg(document.getElementsByClassName("card-report")[0])
+    .then(function (dataUrl) {
+        var link = document.createElement('a');
+        link.download = 'mapa-relatorio.jpeg';
+        link.href = dataUrl;
+        link.click();
+        Swal2.close();
+    })
+    .catch((err) => errorFn("Erro ao gerar o gráfico."));
 })
 

@@ -70,50 +70,6 @@ var parseRotaDB = function (rotaRaw) {
     return rotaJSON;
 };
 
-function GetForm() {
-    var data = new Date();
-    return {
-        "id": _rota.id, //int primarykey
-        "nome": $("#nome").val(), // string
-        "quilometragem": $("#quilometragem").val(), // string
-        "funcionamento": ContactFuncionamento(), //integer
-        "hora_inicio": $("#hora_inicio").val(), //sring
-        "hora_retorno": $("#hora_retorno").val(), //sring
-        "motorista_id": $("#motorista_id").val(), //int
-        "data_criacao": data.getDate() + '/' + (data.getMonth() + 1) + '/' + data.getFullYear(),
-        "garagem_id_partida": $("#garagem_id_partida").val(), //int
-        "garagem_id_terminio": $("#garagem_id_terminio").val(), //int
-        "dificuldade_acesso": ContactDificuldadeAcesso() //int
-    };
-}
-
-function OfForm() {
-    $("#nome").val("");
-    $("#quilometragem").val("");
-    $("#hora_inicio").val("");
-    $("#hora_retorno").val("");
-    $("#motorista_id").val("");
-    $("#garagem_id_partida").val("");
-    $("#garagem_id_terminio").val("");
-    OnOfContactFuncionamento("");
-    OnOfContactDificuldadeAcesso("");
-}
-
-function OnForm(data) {
-    $("#nome").val(data.nome);
-    $("#quilometragem").val(data.quilometragem);
-    $("#hora_inicio").val(data.hora_inicio);
-    $("#hora_retorno").val(data.hora_retorno);
-    $("#motorista_id").val(data.motorista_id);
-    $("#garagem_id_partida").val(data.garagem_id_partida);
-    $("#garagem_id_terminio").val(data.garagem_id_terminio);
-
-    OnOfContactFuncionamento(data.funcionamento);
-    OnOfContactDificuldadeAcesso(data.dificuldade_acesso);
-
-    ShowCadastro();
-}
-
 function BuscarDadosVeiculoRotaPromise(idRota) {
     return knex("RotaPossuiVeiculo AS R")
         .select("V.*")

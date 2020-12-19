@@ -1,7 +1,11 @@
+// aluno-visualizar-ctrl.js
+// Este arquivo contém o script de controle da tela aluno-visualizar-view. 
+// O mesmo serve para visualizar a posição de alunos no mapa e de suas respectivas escolas.
+
 var alunoVisualizado = null;
 var listaDeAlunos = new Map();
 
-// Dados basicos do mapa
+// Dados básicos do mapa
 var mapaViz = novoMapaOpenLayers("mapVizAlunos", cidadeLatitude, cidadeLongitude);
 var vSource = mapaViz["vectorSource"];
 var vLayer = mapaViz["vectorSource"];
@@ -17,33 +21,12 @@ window.onresize = function () {
     }, 200);
 }
 
-// Função para relatar erro
-var errorFnAlunos = (err) => {
-    Swal2.fire({
-        title: "Ops... tivemos um problema!",
-        text: "Erro ao listar os alunos! Feche e abra o software novamente. \n" + err,
-        icon: "error",
-        button: "Fechar"
-    });
-}
-
 // Select para lidar com click no aluno
-var selectAluno = new ol.interaction.Select({
-    hitTolerance: 5,
-    multi: false,
-    condition: ol.events.condition.singleClick,
-    filter: (feature, layer) => {
-        if (feature.getGeometry().getType() == "Point") {
-            return true;
-        } else {
-            return false;
-        }
-    }
-});
+var selectAluno = selectPonto("ALUNO");
 
 // Popup aluno
 mapaViz["map"].addInteraction(selectAluno);
-var popup = new ol.Overlay.PopupFeature({
+var popupAluno = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectAluno,
     closeBox: true,
@@ -73,90 +56,91 @@ var popup = new ol.Overlay.PopupFeature({
         }
     }
 });
-mapaViz["map"].addOverlay(popup);
+mapaViz["map"].addOverlay(popupAluno);
+
+dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
+.then(res => preprocessarAlunos(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then(res => preprocessarEscolas(res))
+.then(res => plotarListaDeAlunos(res))
+.catch(err => errorFn("Erro ao visualizar os alunos", err))
+
+// Preprocessa alunos
+var preprocessarAlunos = (res) => {
+    for (let alunoRaw of res) {
+        let alunoJSON = parseAlunoDB(alunoRaw);
+        alunoJSON["ID_ALUNO"] = alunoJSON["ID"]
+
+        // Só adicionamos (mostraremos) os alunos que tem posição cadastrada!
+        if (alunoJSON["LOC_LONGITUDE"] != "" && alunoJSON["LOC_LONGITUDE"] != undefined &&
+            alunoJSON["LOC_LATITUDE"] != "" && alunoJSON["LOC_LONGITUDE"] != undefined) {
+            listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
+        }
+    }
+    return listaDeAlunos;
+}
+
+// Preprocessa escolas
+var preprocessarEscolas = (res) => {
+    for (let escolaRaw of res) {
+        let aID = escolaRaw["ID_ALUNO"];
+        let eID = escolaRaw["ID_ESCOLA"];
+        let eNome = escolaRaw["NOME"];
+
+        // Verifica se este aluno está na lista de alunos com posição
+        if (listaDeAlunos.has(aID)) {
+            let alunoJSON = listaDeAlunos.get(aID);
+            alunoJSON["ID_ESCOLA"] = eID;
+            alunoJSON["ESCOLA"] = eNome;
+            alunoJSON["ESCOLA_LOC_LATITUDE"] = escolaRaw["LOC_LATITUDE"];
+            alunoJSON["ESCOLA_LOC_LONGITUDE"] = escolaRaw["LOC_LONGITUDE"];
+            alunoJSON["ESCOLA_MEC_CO_UF"] = escolaRaw["MEC_CO_UF"];
+            alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = escolaRaw["MEC_CO_MUNICIPIO"];
+            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = escolaRaw["MEC_TP_LOCALIZACAO"];
+            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = escolaRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
+            alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = escolaRaw["CONTATO_RESPONSAVEL"];
+            alunoJSON["ESCOLA_CONTATO_TELEFONE"] = escolaRaw["CONTATO_TELEFONE"];
+    
+            listaDeAlunos.set(aID, alunoJSON);
+        }
+    }
+    return listaDeAlunos;
+};
+
+// Plota os alunos
+var plotarListaDeAlunos = (listaDeAlunos) => {
+    // Plotar alunos
+    listaDeAlunos.forEach((aluno) => {
+        vSource.addFeature(plotarAluno(aluno));
+    });
+    if (!vSource.isEmpty()) {
+        mapaViz["map"].getView().fit(vSource.getExtent());
+        mapaViz["map"].updateSize();
+    }
+}
 
 // Cria feature de um aluno
 var plotarAluno = (aluno) => {
     let alat = aluno["LOC_LATITUDE"];
     let alng = aluno["LOC_LONGITUDE"];
-    let p = new ol.Feature({
-        "geometry": new ol.geom.Point(ol.proj.fromLonLat([alng, alat]))
-    });
+    let p = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
+
     p.setId(aluno["ID_ALUNO"]);
     p.set("NOME", aluno["NOME"]);
     p.set("DATA_NASCIMENTO", aluno["DATA_NASCIMENTO"]);
     p.set("ESCOLA", aluno["ESCOLA"]);
     p.set("TURNOSTR", aluno["TURNOSTR"]);
     p.set("NIVELSTR", aluno["NIVELSTR"]);
+    p.set("TIPO", "ALUNO");
 
-    if (aluno["SEXO"] == 1) {
+    if (aluno["SEXO"] == 1) { 
         p.set("SEXO", "Masculino");
     } else {
         p.set("SEXO", "Feminino");
     }
 
-    p.setStyle(new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [12, 37],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            opacity: 1,
-            src: "img/icones/aluno-marcador.png"
-        })
-    }));
-
     return p;
 }
-
-
-// Callback para pegar dados de escolas dos alunos
-var listarEscolasAlunosCB = (err, result) => {
-    if (err) {
-        errorFnAlunos(err);
-    } else {
-        for (let alunoRaw of result) {
-            let aID = alunoRaw["ID_ALUNO"];
-            let eID = alunoRaw["ID_ESCOLA"];
-            let eNome = alunoRaw["NOME"];
-
-            let alunoJSON = listaDeAlunos.get(aID);
-            alunoJSON["ID_ESCOLA"] = eID;
-            alunoJSON["ESCOLA"] = eNome;
-            alunoJSON["ESCOLA_LOC_LATITUDE"] = alunoRaw["LOC_LATITUDE"];
-            alunoJSON["ESCOLA_LOC_LONGITUDE"] = alunoRaw["LOC_LONGITUDE"];
-            alunoJSON["ESCOLA_MEC_CO_UF"] = alunoRaw["MEC_CO_UF"];
-            alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = alunoRaw["MEC_CO_MUNICIPIO"];
-            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = alunoRaw["MEC_TP_LOCALIZACAO"];
-            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = alunoRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
-            alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = alunoRaw["CONTATO_RESPONSAVEL"];
-            alunoJSON["ESCOLA_CONTATO_TELEFONE"] = alunoRaw["CONTATO_TELEFONE"];
-
-            listaDeAlunos.set(aID, alunoJSON);
-        }
-
-        // Plotar alunos
-        listaDeAlunos.forEach((aluno) => {
-            let aID = aluno["ID_ALUNO"];
-            vSource.addFeature(plotarAluno(aluno));
-        });
-
-        mapaViz["map"].getView().fit(vSource.getExtent());
-
-    }
-};
-
-// Callback para pegar dados inicia dos alunos
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFn("Erro ao visualizar os alunos!", err);
-    } else {
-        for (let alunoRaw of result) {
-            let alunoJSON = parseAlunoDB(alunoRaw);
-            listaDeAlunos.set(alunoJSON["ID_ALUNO"], alunoJSON);
-        }
-        ListarEscolasDeAlunos(listarEscolasAlunosCB);
-    }
-};
 
 var addAlunoNivel = (nivel) => {
     listaDeAlunos.forEach((aluno) => {
@@ -275,8 +259,6 @@ $("#noite").on('change', function (e) {
 });
 
 
-BuscarTodosAlunos(listaInicialCB);
-
 // Botões
 $("#btnVoltar").on('click', () => {
     navigateDashboard(lastPage);
@@ -298,29 +280,30 @@ $("#btnExpJPEG").on('click', () => {
                 closeOnClickOutside: false,
                 allowOutsideClick: false,
                 showConfirmButton: false,
-                html: `Aguarde um segundinho...
-                `
+                html: `Aguarde um segundinho...`
             })
-            htmlToImage.toPng(document.getElementById("mapaCanvas"))
-                .then(function (dataUrl) {
-                    var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
-                    fs.writeFile(acao.filePath, base64Data, 'base64', (err) => {
-                        if (err) {
-                            errorFn("Erro ao salvar a imagem")
-                        } else {
-                            Swal2.fire({
-                                title: "Sucesso!",
-                                text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + acao.filePath,
-                                icon: "success",
-                                type: "success",
-                                button: "Fechar"
-                            });
-                        }
-                    });
-                });
+            return Promise.all([Promise.resolve(acao.filePath), 
+                                htmlToImage.toPng(document.getElementById("mapaCanvas"))])
         }
-
-
+    }).then((data) => {
+        var caminhoSalvar = data[0];
+        var dataUrl = data[1];
+        var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+        fs.writeFile(caminhoSalvar, base64Data, 'base64', (err) => {
+            if (err) {
+                errorFn("Erro ao salvar a imagem")
+            } else {
+                Swal2.fire({
+                    title: "Sucesso!",
+                    text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + caminhoSalvar,
+                    icon: "success",
+                    button: "Fechar"
+                });
+            }
+        });
+    }).catch((err) => {
+        Swal2.close()
+        errorFn("Erro ao salvar a imagem")
     });
 })
 
