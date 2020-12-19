@@ -45,6 +45,20 @@ var userData = {};
 var lastPage = "./dashboard-main.html";
 var currentPage = "./dashboard-main.html";
 
+// StackOverflow bug: https://stackoverflow.com/questions/49164924/electron-prevent-multiple-instance-with-middle-click
+// The following function will catch all non-left (middle and right) clicks
+function handleNonLeftClick (e) {
+    // e.button will be 1 for the middle mouse button.
+    if (e.button === 1) {
+        e.preventDefault();
+    }
+}
+
+window.onload = () => {
+    // Attach the listener to the whole document.
+    document.addEventListener("auxclick", handleNonLeftClick);
+}
+
 // Função genérica para relatar erros
 var errorFn = (msg, err = "", title = "Ops... tivemos um problema!") => {
     if (err != "") {
