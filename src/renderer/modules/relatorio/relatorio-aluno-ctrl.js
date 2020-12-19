@@ -303,37 +303,30 @@ dataTablesRelatorio.on('click', '.alunoRemove', function () {
 
     estadoAluno = dataTablesRelatorio.row($tr).data();
     action = "apagarAluno";
-    Swal2.fire({
-        title: 'Remover esse aluno?',
-        text: "Ao remover esse aluno ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
-    }).then((result) => {
+    confirmDialog('Remover esse aluno?',
+                "Ao remover esse aluno ele será retirado do sistema das rotas " + 
+                "e das escolas que possuir vínculo."
+    ).then((result) => {
+        let listaPromisePraRemover = []
         if (result.value) {
-            RemoverAluno(estadoAluno["ID_ALUNO"], (err, result) => {
-                if (result) {
-                    dataTablesRelatorio.row($tr).remove();
-                    dataTablesRelatorio.draw();
-                    Swal2.fire({
-                        type: 'success',
-                        title: "Sucesso!",
-                        text: "Aluno removido com sucesso!",
-                        confirmButtonText: 'Retornar a página de administração'
-                    });
-                } else {
-                    Swal2.fire({
-                        type: 'error',
-                        title: 'Oops...',
-                        text: 'Tivemos algum problema. Por favor, reinicie o software!',
-                    });
-                }
+            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", estadoAluno["ID"]));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
+            listaPromisePraRemover.push(dbAtualizaVersao());
+        }
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            dataTablesAlunos.row($tr).remove();
+            dataTablesAlunos.draw();
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Aluno(a) removido(a) com sucesso!",
+                confirmButtonText: 'Retornar a página de administração'
             });
         }
-    })
+    }).catch((err) => errorFn("Erro ao remover o(a) aluno(a)", err))
 });
 
 

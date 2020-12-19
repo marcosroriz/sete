@@ -1,3 +1,6 @@
+// relatorio-escola-ctrl.js
+// Este arquivo contém o script de controle da tela relatorio-escola-view. 
+
 // Preenchimento da Tabela via SQL
 var listaDeEscolas = new Map();
 var totalNumEscolas = 0;
@@ -41,14 +44,7 @@ defaultTableConfig["columnDefs"] = [
         "visible": false,
         "searchable": true
     },
-    {
-        targets: 0,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    },
+    { targets: 0, render: renderAtMostXCharacters(50) }
 ];
 
 var dataTablesRelatorio = $("#datatables").DataTable(defaultTableConfig);
@@ -84,10 +80,15 @@ function CalcularEstatisticas() {
         totalNumRotas = totalNumRotas + escola["NUM_ROTAS"];
     })
 
-    dataNumAtendimento["series"].push(totalNumAlunos / totalEscolas);
+    if (totalEscolas != 0) {
+        dataNumAtendimento["series"].push(totalNumAlunos / totalEscolas);
+        dataNumRotas["series"].push(totalNumRotas / totalEscolas);
+    } else {
+        dataNumAtendimento["series"].push(0);
+        dataNumRotas["series"].push(0);
+    }
+    
     dataNumAtendimento["labels"].push("Número médio de alunos transportados por escola");
-
-    dataNumRotas["series"].push(totalNumRotas / totalEscolas);
     dataNumRotas["labels"].push("Número médio de rotas cadastradas por escola");
 
     dataLocalidade["series"] = [statLocalizacao[1], statLocalizacao[2]]
@@ -236,103 +237,74 @@ dataTablesRelatorio.on('click', '.escolaRemove', function () {
 
     estadoEscola = dataTablesRelatorio.row($tr).data();
     action = "apagarEscola";
-    Swal2.fire({
-        title: 'Remover essa escola?',
-        text: "Ao remover uma escola os alunos remanescentes da mesma deverão ser alocados novamente a outra(s) escola(s).",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
-    }).then((result) => {
+    confirmDialog('Remover essa escola?',
+                  "Ao remover uma escola os alunos remanescentes da mesma " + 
+                  "deverão ser alocados novamente a outra(s) escola(s)."
+    ).then((result) => {
+        let listaPromisePraRemover = []
         if (result.value) {
-            RemoverEscola(estadoEscola["ID_ESCOLA"], (err, result) => {
-                if (result) {
-                    dataTablesRelatorio.row($tr).remove();
-                    dataTablesRelatorio.draw();
-                    Swal2.fire({
-                        type: 'success',
-                        title: "Sucesso!",
-                        text: "Escola removida com sucesso!",
-                        confirmButtonText: 'Retornar a página de administração'
-                    });
-                } else {
-                    Swal2.fire({
-                        type: 'error',
-                        title: 'Oops...',
-                        text: 'Tivemos algum problema. Por favor, reinicie o software!',
-                    });
-                }
-            })
+            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ESCOLA, "ID_ESCOLA", estadoEscola["ID"]));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", estadoEscola["ID"]));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", estadoEscola["ID"]));
+            listaPromisePraRemover.push(dbAtualizaVersao());
         }
-    })
+
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            dataTableEscolas.row($tr).remove();
+            dataTableEscolas.draw();
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Aluno(a) removido(a) com sucesso!",
+                confirmButtonText: 'Retornar a página de administração'
+            });
+        }
+    }).catch((err) => errorFn("Erro ao remover a escola", err))
 });
 
-// Função para relatar erro
-var errorFnEscolas = (err) => {
-    Swal2.fire({
-        title: "Ops... tivemos um problema!",
-        text: "Erro ao listar as escolas! Feche e abra o software novamente. \n" + err,
-        icon: "error",
-        button: "Fechar"
-    });
+dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
+.then(res => preprocessarEscolas(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA))
+.then(res => preprocessarRelacaoEscolaRota(res))
+.then(res => adicionaDadosTabela(res))
+.then(() => CalcularEstatisticas())
+.catch(err => errorFn("Erro ao listar as escolas!", err))
+
+// Preprocessa alunos
+var preprocessarEscolas = (res) => {
+    totalNumEscolas = res.length;
+    for (let escolaRaw of res) {
+        let escolaJSON = parseEscolaDB(escolaRaw);
+        escolaJSON["LOCALIZACAO"] = "Área " + escolaJSON["LOCALIZACAO"];
+        escolaJSON["NUM_ESCOLAS"] = 0;
+        listaDeEscolas.set(escolaJSON["ID"], escolaJSON);
+    }
+    return listaDeEscolas;
 }
 
-// Callback para pegar número de alunos da escola
-var listaNumAlunosCB = (err, result) => {
-    if (err) {
-        errorFnEscolas(err);
-    } else {
-        for (let escolaRaw of result) {
-            let eID = escolaRaw["ID_ESCOLA"];
-            let qtde = escolaRaw["NUM_ALUNOS"];
+// Preprocessa relação de escolas e rota para pegar o quantitativo entre eles
+var preprocessarRelacaoEscolaRota = (res) => {
+    for (let relEscolaAluno of res) {
+        let eID = relEscolaAluno["ID_ESCOLA"];
+        if (listaDeEscolas.has(eID)) {
             let escolaJSON = listaDeEscolas.get(eID);
-            escolaJSON["NUM_ALUNOS"] = qtde;
+            escolaJSON["NUM_ESCOLAS"] = escolaJSON["NUM_ESCOLAS"] + 1;
             listaDeEscolas.set(eID, escolaJSON);
         }
-
-        listaDeEscolas.forEach((escola) => {
-            dataTablesRelatorio.row.add(escola);
-        });
-
-        ListarTodasAsRotasAtendidasPorEscolaPromise()
-            .then((res) => {
-                for (let e of res) {
-                    var escolaRes = listaDeEscolas.get(e["ID_ESCOLA"]);
-                    escolaRes["NUM_ROTAS"] = e["NUM_ROTAS"]
-                }
-
-                dataTablesRelatorio.draw();
-                CalcularEstatisticas();
-            })
     }
-};
+    return listaDeEscolas;
+}
 
-// Callback para pegar dados inicia da escolas
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFnEscolas(err);
-    } else {
-        $("#totalNumEscolas").text(result.length);
-        for (let escolaRaw of result) {
-            let escolaJSON = parseEscolaDB(escolaRaw);
-            escolaJSON["LOCALIZACAO"] = "Área " + escolaJSON["LOCALIZACAO"];
-            escolaJSON["NUM_ESCOLAS"] = 0;
-            listaDeEscolas.set(escolaJSON["ID_ESCOLA"], escolaJSON);
-        }
-        NumeroDeAlunosEscolas(listaNumAlunosCB);
-    }
-};
+// Adiciona dados na tabela
+adicionaDadosTabela = (res) => {
+    res.forEach((escola) => {
+        dataTablesRelatorio.row.add(escola);
+    });
 
-var buscarTotalNumEscolasPromise = BuscarTodosDadosPromise("Escolas");
-var buscarTotalNumRotasPromise = BuscarTodosDadosPromise("Rotas");
-
-Promise.all([buscarTotalNumEscolasPromise, buscarTotalNumRotasPromise])
-    .then((res) => {
-        totalNumEscolas = res[0].length;
-        totalNumRotas = res[1].length;
-        BuscarTodasEscolas(listaInicialCB);
-    })
+    dataTablesRelatorio.draw();
+    return res;
+}
 
 action = "relatorioEscola";
