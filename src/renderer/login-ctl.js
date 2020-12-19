@@ -229,27 +229,36 @@ $(document).ready(function () {
                     }
                     userconfig.set("ID", firebaseUser.user.uid);
 
-                    // Checar se o usuário já fez a configuração inicial
-                    RecuperarUsuario(firebaseUser.user.uid).then((userData) => {
-                        if (userData.length == 0) {
-                            var remoteUserData = remotedb.collection("users").doc(firebaseUser.user.uid);
-                            remoteUserData.get().then((remoteDoc) => {
-                                var remoteData = remoteDoc.data();
-                                remoteData["INIT"] = false;
-                                InserirUsuario(remoteData).then(() => {
-                                    document.location.href = "./initconfig-view.html";
-                                });
-                            });
-                        } else {
-                            var hasInit = JSON.parse(userData[0]["INIT"]);
-                            var urldestino = "./initconfig-view.html";
-                            if (hasInit) {
-                                urldestino = "./dashboard.html";
-                            }
-                            document.location.href = urldestino;
-                        }
-                    });
+                    return firebaseUser.user.uid
                 })
+                .then((uid) => dbObterPerfilUsuario(uid)) // Obtém o perfil remoto do usuário
+                .then((remoteData) => {
+                    userconfig.set("COD_CIDADE", String(remoteData.COD_CIDADE))
+                    userconfig.set("COD_ESTADO", String(remoteData.COD_ESTADO))
+
+                    dadoUsuario = {
+                        "ID": remoteData["ID"],
+                        "NOME": remoteData["NOME"],
+                        "EMAIL": remoteData["EMAIL"],
+                        "CPF": remoteData["CPF"],
+                        "TELEFONE": remoteData["TELEFONE"],
+                        "CIDADE": remoteData["CIDADE"],
+                        "ESTADO": remoteData["ESTADO"],
+                        "PASSWORD": remoteData["PASSWORD"],
+                        "COD_CIDADE": parseInt(remoteData["COD_CIDADE"]),
+                        "COD_ESTADO": parseInt(remoteData["COD_ESTADO"])
+                    }
+
+                    return dadoUsuario
+                }).then((dadoUsuario) => {
+                    RecuperarUsuario(dadoUsuario["ID"]).then(userData => {
+                        if (userData.length == 0) {
+                            return InserirUsuario(dadoUsuario)
+                        } else {
+                            return true;
+                        }
+                    })
+                }).then(() => document.location.href = "./dashboard.html")
                 .catch((err) => {
                     if (err != null) {
                         console.log(err.message);
