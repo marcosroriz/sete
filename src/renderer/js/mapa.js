@@ -1,3 +1,7 @@
+// mapa.js
+// Este arquivo contém um conjunto de script para controlar as operações 
+// relacionados a criação e interação com mapas
+
 // Função para retornar um Mapa Clicável e Simples do OpenLayers
 var mapaCores = ["#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0",
     "#24796C", "#DAA51B", "#2F8AC4", "#764E9F", "#ED645A",
@@ -188,13 +192,13 @@ var mapPNGExportOptions = {
     }
 };
 
-var gerarMarcador = (lat, lng, icon) => {
+var gerarMarcador = (lat, lng, icon, anchorX = 12, anchorY = 37) => {
     let p = new ol.Feature({
         "geometry": new ol.geom.Point(ol.proj.fromLonLat([lng, lat]))
     });
     p.setStyle(new ol.style.Style({
         image: new ol.style.Icon({
-            anchor: [12, 37],
+            anchor: [anchorX, anchorY],
             anchorXUnits: 'pixels',
             anchorYUnits: 'pixels',
             opacity: 1,
@@ -203,4 +207,20 @@ var gerarMarcador = (lat, lng, icon) => {
     }));
 
     return p;
+}
+
+var selectPonto = (tipo) => {
+    return new ol.interaction.Select({
+        hitTolerance: 5,
+        multi: false,
+        condition: ol.events.condition.singleClick,
+        filter: (feature, layer) => {
+            if (feature.getGeometry().getType() == "Point" &&
+                feature.getProperties()["TIPO"] == tipo) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    });
 }

@@ -1,4 +1,6 @@
-var idVeiculo = estadoVeiculo["ID_VEICULO"];
+// frota-dados-ctrl.js
+// Este arquivo contém o script de controle da tela frota-dados-view. 
+// O mesmo serve para detalhar os dados de um veículo
 
 // Tira o btn group do datatable
 $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons';
@@ -63,31 +65,30 @@ var dataTableVeiculo = $("#dataTableDadosVeiculo").DataTable({
             className: "btnApagar",
             action: function(e, dt, node, config) {
                 action = "apagarVeiculo";
-                Swal2.fire({
-                    title: 'Remover esse veículo?',
-                    text: "Ao remover esse veículo ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    cancelButtonText: "Cancelar",
-                    confirmButtonText: 'Sim, remover'
-                }).then((result) => {
-                    if (result.value) {
-                        RemoverPromise("Veiculos", "ID_VEICULO", idMotorista)
-                        .then(() => {
-                            Swal2.fire({
-                                type: 'success',
-                                title: "Sucesso!",
-                                text: "Motorista removido com sucesso!",
-                                confirmButtonText: 'Retornar a página de administração'
-                            }).then(() => {
-                                navigateDashboard("./modules/motorista/motorista-listar-view.html");
-                            });
-                        })
-                        .catch((err) => errorFn("Erro ao remover o motorista. ", err));
+                confirmDialog("Remover esse veículo?",
+                  "Ao remover esse veículo ele será retirado do sistema das "
+                + "rotas e das escolas que possuir vínculo."
+                ).then((res) => {
+                    let listaPromisePraRemover = []
+                    if (res.value) {
+                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", estadoVeiculo["ID"]));
+                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", estadoVeiculo["ID"]));
+                        listaPromisePraRemover.push(dbAtualizaVersao());
                     }
-                })
+
+                    return Promise.all(listaPromisePraRemover)
+                }).then((res) => {
+                    if (res.length > 0) {
+                        Swal2.fire({
+                            icon: 'success',
+                            title: "Sucesso!",
+                            text: "Veículo removido com sucesso!",
+                            confirmButtonText: 'Retornar a página de administração'
+                        }).then(() => {
+                            navigateDashboard("./modules/frota/frota-listar-view.html");
+                        });
+                    }
+                }).catch((err) => errorFn("Erro ao remover o veículo", err))
             }
         },
     ]

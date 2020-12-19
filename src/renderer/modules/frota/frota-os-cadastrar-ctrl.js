@@ -1,88 +1,63 @@
+// frota-os-cadastrar-ctrl.js
+// Este arquivo contém o script de controle da tela frota-os-cadastrar-view. 
+// O mesmo serve tanto para cadastrar e alterar uma OS
+
 // Lista de veiculo e fornecedor anterior
 var antVeiculo;
 var antFornecedor;
 
 // Máscaras
-$(".datanasc").mask('00/00/0000');
+$(".datamask").mask('00/00/0000');
 
 var validadorFormulario = $("#wizardCadastrarOSForm").validate({
-    rules: {
-        tipoServico: {
-            required: true
+    // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
+    ...configMostrarResultadoValidacao(),
+    ...{
+        rules: {
+            tipoServico: {
+                required: true
+            },
+            regdata: {
+                required: true,
+                datavalida: true
+            },
+            tipoVeiculo: {
+                required: true,
+                mltselect: true
+            },
+            tipoFornecedor: {
+                required: true,
+                pickselect: true
+            },
         },
-        regdata: {
-            required: true,
-        },
-        tipoVeiculo: {
-            required: true,
-            mltselect: true
-        },
-        tipoFornecedor: {
-            required: true,
-            pickselect: true
-        },
-    },
-    highlight: function (element) {
-        $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-        $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
-    },
-    success: function (element) {
-        $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-        $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
-    },
-    errorPlacement: function (error, element) {
-        console.log(error);
-        console.log(element);
-        $(element).closest('.form-group').append(error).addClass('has-error');
     }
 });
 
 $('.card-wizard').bootstrapWizard({
-    'tabClass': 'nav nav-pills',
-    'nextSelector': '.btn-next',
-    'previousSelector': '.btn-back',
-
-    onNext: function (tab, navigation, index) {
-        var $valid = $('#wizardCadastrarOSForm').valid();
-        if (!$valid) {
-            validadorFormulario.focusInvalid();
-            return false;
-        } else {
-            window.scroll(0, 0);
+    ...configWizardBasico('#wizardCadastrarOSForm'),
+    ...{
+        onTabShow: function (tab, navigation, index) {
+            var $total = navigation.find('li').length;
+            var $current = index + 1;
+    
+            var $wizard = navigation.closest('.card-wizard');
+    
+            // If it's the last tab then hide the last button and show the finish instead
+            if ($current >= $total) {
+                $($wizard).find('.btn-next').hide();
+                $($wizard).find('.btn-finish').show();
+            } else {
+                $($wizard).find('.btn-next').show();
+                $($wizard).find('.btn-finish').hide();
+            }
+    
+            if (action == "editarFornecedor") {
+                $($wizard).find('#cancelarAcao').show();
+            } else {
+                $($wizard).find('#cancelarAcao').hide();
+            }
+    
         }
-    },
-
-    onTabClick: function (tab, navigation, index) {
-        var $valid = $('#wizardCadastrarOSForm').valid();
-        if (!$valid) {
-            return false;
-        } else {
-            window.scroll(0, 0);
-            return true;
-        }
-    },
-
-    onTabShow: function (tab, navigation, index) {
-        var $total = navigation.find('li').length;
-        var $current = index + 1;
-
-        var $wizard = navigation.closest('.card-wizard');
-
-        // If it's the last tab then hide the last button and show the finish instead
-        if ($current >= $total) {
-            $($wizard).find('.btn-next').hide();
-            $($wizard).find('.btn-finish').show();
-        } else {
-            $($wizard).find('.btn-next').show();
-            $($wizard).find('.btn-finish').hide();
-        }
-
-        if (action == "editarFornecedor") {
-            $($wizard).find('#cancelarAcao').show();
-        } else {
-            $($wizard).find('#cancelarAcao').hide();
-        }
-
     }
 });
 
@@ -108,76 +83,71 @@ var completeForm = () => {
 $("#salvaros").click(() => {
     var $valid = $('#wizardCadastrarOSForm').valid();
     var osJSON = GetOSFromForm();
+    osJSON["TERMINO"] = false;
 
     if (!$valid) {
         return false;
     } else {
         if (action == "editarOS") {
-            RemoverComposedPromise("OrdemDeServico",
-                "ID_FORNECEDOR", estadoOS["ID_FORNECEDOR"],
-                "ID_VEICULO", estadoOS["ID_VEICULO"])
-                .then(() => {
-                    InserirPromise("OrdemDeServico", osJSON)
-                        .then(() => {
-                            completeForm();
-                        })
-                        .catch((err) => {
-                            errorFn("Erro ao salvar a ordem de serviço!", err);
-                        });
-                });
+            // Seta termino para valor atual
+            osJSON["TERMINO"] = estadoOS["TERMINO"]
+            let osID = estadoOS["ID"]
+            
+            loadingFn("Atualizando a ordem de serviço ...")
+
+            dbAtualizarPromise(DB_TABLE_ORDEM_DE_SERVICO, osJSON, osID)
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao atualizar a ordem de serviço.", err))
         } else {
-            InserirPromise("OrdemDeServico", osJSON)
-                .then(() => {
-                    completeForm();
-                })
-                .catch((err) => {
-                    errorFn("Erro ao salvar a ordem de serviço!", err);
-                });
+            loadingFn("Cadastrando a ordem de serviço ...")
+                    
+            dbInserirPromise(DB_TABLE_ORDEM_DE_SERVICO, osJSON)
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao salvar a ordem de serviço.", err))
         }
     }
 });
 
+dbBuscarTodosDadosPromise(DB_TABLE_FORNECEDOR)
+.then(res => processarFornecedores(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
+.then(res => processarVeiculos(res))
+.then(() => verificaEdicao())
+.catch(err => errorFn("Erro ao carregar formulário de cadastro de OS", err))
 
-if (action == "editarOS") {
-    PopulateOSFromState(estadoOS);
-
-    $("#cancelarAcao").click(() => {
-        Swal2.fire({
-            title: 'Cancelar Edição?',
-            text: "Se você cancelar nenhum alteração será feita nos dados da ordem de serviço.",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            cancelButtonText: "Voltar a editar",
-            confirmButtonText: 'Sim, cancelar'
-        }).then((result) => {
-            if (result.value) {
-                navigateDashboard(lastPage);
-            }
-        })
-    });
+// Processar fornecedores
+var processarFornecedores = (res) => {
+    for (let fornecedorRaw of res) {
+        let fSTR = `${fornecedorRaw["NOME"]} (${fornecedorRaw["CNPJ"]})`;
+        $('#tipoFornecedor').append(`<option value="${fornecedorRaw["ID"]}">${fSTR}</option>`);
+    }
+    return true;
 }
 
-Promise.all([BuscarTodosDadosPromise("Veiculos"), BuscarTodosDadosPromise("Fornecedores")])
-    .then((res) => {
-        // Resultado
-        var veiculosRes = res[0];
-        var fornecedoresRes = res[1];
+// Processar veículos
+var processarVeiculos = (res) => {
+    for (let veiculoRaw of res) {
+        let veiculoJSON = parseVeiculoDB(veiculoRaw);
+        let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`;
+        $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID"]}">${vSTR}</option>`);
+    }
+    return true;
+}
 
-        for (let veiculoRaw of veiculosRes) {
-            let veiculoJSON = parseVeiculoDB(veiculoRaw);
-            let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`;
-            $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID_VEICULO"]}">${vSTR}</option>`);
+// Verifica se estamos editando o dado
+var verificaEdicao = () => {
+    if (action == "editarOS") {
+        PopulateOSFromState(estadoOS);
 
-            antVeiculo = veiculoJSON["ID_VEICULO"];
-        }
-
-        for (let fornecedorRaw of fornecedoresRes) {
-            let fSTR = `${fornecedorRaw["NOME"]} (${fornecedorRaw["CNPJ"]})`;
-            $('#tipoFornecedor').append(`<option value="${fornecedorRaw["ID_FORNECEDOR"]}">${fSTR}</option>`);
-
-            antFornecedor = fornecedorRaw["ID_FORNECEDOR"];
-        }
-
-    })
+        $("#cancelarAcao").click(() => {
+            cancelDialog()
+            .then((result) => {
+                if (result.value) {
+                    navigateDashboard(lastPage);
+                }
+            })
+        });
+    }
+}

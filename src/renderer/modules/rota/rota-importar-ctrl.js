@@ -1,3 +1,7 @@
+// rota-importar-ctrl.js
+// Este arquivo contém o script de controle da tela rota-importar-view. O mesmo
+// possibilita importar a rota de um arquivo GPX
+
 // Variáveis de Mapas
 var listaDeRotas = new Map();
 var mapa = novoMapaOpenLayers("mapRota", cidadeLatitude, cidadeLongitude);
@@ -51,36 +55,52 @@ mapa["activateImageLayerSwitcher"]();
 
 // Lista de Imports
 var togeojson = require('@mapbox/togeojson');
-var DOMParser = require('xmldom').DOMParser;
+var GPXDOMParser = require('xmldom').DOMParser;
+var simplify = require('simplify-geojson')
+
+var erroSwalAntigo = (msgTitle, msgDesc) => {
+    return swal({
+        title: msgTitle,
+        text: msgDesc,
+        icon: "error",
+        button: "Fechar",
+    });
+}
 
 $("#arqGPX").change(() => {
-    let gpxFile = $("#arqGPX")[0].files[0].path;
-    if (gpxFile != "") {
-        gpxDOM = new DOMParser().parseFromString(fs.readFileSync(gpxFile, "UTF8"));
-        gpx = togeojson.gpx(gpxDOM);
-        
-        var trackFeatures = new Array();
-        for (let i = 0; i < gpx.features.length; i++) {
-            if (gpx.features[i].geometry.type == "LineString") {
-                trackFeatures.push(gpx.features[i]);
+    try {
+        let gpxFile = $("#arqGPX")[0].files[0].path;
+        if (gpxFile != "") {
+            gpxDOM = new GPXDOMParser().parseFromString(fs.readFileSync(gpxFile, "UTF8"));
+            gpx = togeojson.gpx(gpxDOM);
+            
+            var trackFeatures = new Array();
+            for (let i = 0; i < gpx.features.length; i++) {
+                if (gpx.features[i].geometry.type == "LineString") {
+                    trackFeatures.push(gpx.features[i]);
+                }
             }
-        }
-        gpx["features"] = trackFeatures;
-        
-        malhaSource.clear();
-        malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(gpx, {
-            dataProjection: 'EPSG:4326',
-            featureProjection: 'EPSG:3857'
-        }))
+            gpx["features"] = trackFeatures;
+            
+            var gpxSimplificado = simplify(gpx, 0.00001)
 
-        mapa["map"].getView().fit(malhaSource.getExtent());
+            malhaSource.clear();
+            malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(gpxSimplificado, {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            }))
+
+            mapa["map"].getView().fit(malhaSource.getExtent());
+        }
+    } catch (error) {
+        erroSwalAntigo("Erro na leitura do arquivo GPX", "...")
     }
 });
 
 var completeForm = () => {
-    Swal2.fire({
+    swal({
         title: "Rota salva com sucesso",
-        text: "A rota " + listaDeRotas.get(parseInt($("#listarota").val())) + " foi salva com sucesso. " +
+        text: "A rota " + listaDeRotas.get($("#listarota").val()) + " foi salva com sucesso. " +
             "Clique abaixo para retornar ao painel.",
         type: "success",
         icon: "success",
@@ -93,11 +113,21 @@ var completeForm = () => {
         showConfirmButton: true
     })
     .then(() => {
-        navigateDashboard("./modules/rota/rota-listar-view.html");
+        document.location.href = "./dashboard.html";
+        // navigateDashboard("./modules/rota/rota-listar-view.html");
     });
 }
 
 $('#rota-salvar-rota').click(() => {
+    swal({
+        title: "Importando dados da Rota",
+        text: "Espere um segundinho...",
+        icon: "info",
+        buttons: false,
+        closeOnEsc: false,
+        closeOnClickOutside: false
+    });
+
     var idRota = $("#listarota").val();
     var km = Math.round(ol.sphere.getLength(malhaSource.getFeatures()[0].getGeometry()) / 1000 * 100) / 100;
     var rotasJSON = {
@@ -105,13 +135,9 @@ $('#rota-salvar-rota').click(() => {
         KM: km,
         SHAPE: new ol.format.GeoJSON().writeFeatures(malhaSource.getFeatures())
     }
-    AtualizarPromise("Rotas", rotasJSON, "ID_ROTA", idRota)
-        .then((res) => {
-            completeForm();
-        })
-        .catch((err) => {
-            errorFn("Erro ao salvar a Rota", err)
-        });
+    dbAtualizarPromise(DB_TABLE_ROTA, rotasJSON, idRota)
+    .then(res => completeForm())
+    .catch(err => erroSwalAntigo("Erro ao atualizar o motorista!", err))
 });
 
 // Wizard
@@ -122,13 +148,8 @@ $('.card-wizard').bootstrapWizard({
 
     onNext: function (tab, navigation, index) {
         if (gpx == "") {
-            Swal2.fire({
-                title: "Ops... tivemos um problema!",
-                text: "Por favor, selecione o arquivo GPX antes de prosseguir",
-                icon: "error",
-                type: "error",
-                button: "Fechar"
-            });
+            erroSwalAntigo("Ops... tivemos um problema", 
+                           "Por favor, selecione o arquivo GPX antes de prosseguir!")
             return false;
         }
         window.scroll(0, 0);
@@ -137,13 +158,8 @@ $('.card-wizard').bootstrapWizard({
 
     onTabClick: function (tab, navigation, index) {
         if (gpx == "") {
-            Swal2.fire({
-                title: "Ops... tivemos um problema!",
-                text: "Por favor, selecione o arquivo GPX antes de prosseguir",
-                icon: "error",
-                type: "error",
-                button: "Fechar"
-            });
+            erroSwalAntigo("Ops... tivemos um problema", 
+                           "Por favor, selecione o arquivo GPX antes de prosseguir!")
             return false;
         }
         window.scroll(0, 0);
@@ -182,15 +198,12 @@ window.onresize = function () {
     }, 200);
 }
 
-BuscarTodosDadosPromise("Rotas")
-    .then((res) => {
-        res.forEach((rota) => {
-            var rID = rota["ID_ROTA"];
-            var rNome = rota["NOME"];
-            listaDeRotas.set(parseInt(rID), rNome);
-            $('#listarota').append(`<option value="${rID}">${rNome}</option>`);
-        })
-    })
-    .catch((err) => {
-        errorFn("Erro ao listar as Rotas", err)
-    });
+dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
+.then(res => {
+    for (let rota of res) {
+        var rID = rota["ID"];
+        var rNome = rota["NOME"];
+        listaDeRotas.set(rID, rNome);
+        $('#listarota').append(`<option value="${rID}">${rNome}</option>`);
+    }
+}).catch((err) => erroSwalAntigo("Ops... tivemos um problema ao listar as rotas", err ));

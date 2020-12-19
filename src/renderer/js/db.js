@@ -1,37 +1,166 @@
-var path = require("path");
+// db.js
+// Este arquivo centraliza as chamadas ao banco de dados, permitindo assim
+// utilizar diferentes implementações. Atualmente, suportamos as seguintes
+// base de dados: ElectronStore (cache), Firebase (remota) e SQLite (local)
 
-// Google Firebase
-// Init Firebase
-var dbconfig = {
-    apiKey: "AIzaSyDOHCjGDkv-tsIjVhHxOcEt0rzusFJwQxc",
-    authDomain: "softwareter.firebaseapp.com",
-    databaseURL: "https://softwareter.firebaseio.com",
-    projectId: "softwareter",
-    storageBucket: "softwareter.appspot.com",
-    messagingSenderId: "881352897273"
-};
-firebase.initializeApp(dbconfig);
+// Tabelas (coleções) do banco de dados
+var DB_TABLES = ["alunos", "escolas", "escolatemalunos", "fornecedores", 
+"faztransporte", "garagem", "garagemtemveiculo", "motoristas", "municipios", 
+"ordemdeservico", "rotas", "rotaatendealuno", "rotadirigidapormotorista", 
+"rotapassaporescolas", "rotapossuiveiculo", "veiculos"]
 
-// Usuário do Firebase
+var DB_TABLE_ALUNO = "alunos";
+var DB_TABLE_ESCOLA = "escolas";
+var DB_TABLE_ROTA = "rotas";
+var DB_TABLE_MOTORISTA = "motoristas";
+var DB_TABLE_VEICULO = "veiculos";
+var DB_TABLE_GARAGEM = "garagem";
+var DB_TABLE_FORNECEDOR = "fornecedores";
+var DB_TABLE_ORDEM_DE_SERVICO = "ordemdeservico";
+
+var DB_TABLE_ESCOLA_TEM_ALUNOS = "escolatemalunos";
+var DB_TABLE_ROTA_ATENDE_ALUNO = "rotaatendealuno";
+var DB_TABLE_ROTA_PASSA_POR_ESCOLA = "rotapassaporescolas";
+var DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA = "rotadirigidapormotorista";
+var DB_TABLE_ROTA_POSSUI_VEICULO = "rotapossuiveiculo";
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Local Database (cache)
+////////////////////////////////////////////////////////////////////////////////
+var Store = require("electron-store");
+var userconfig = new Store();
+
+
+////////////////////////////////////////////////////////////////////////////////
+// INIT FIREBASE 
+////////////////////////////////////////////////////////////////////////////////
+// Carrega a implementação do banco no Firebase
+var firebaseImpl = require("./js/db_firebase.js");
+
+// Usuário do Firebase (começa como vazio)
 var firebaseUser = null;
 
-// Base de dados Firestore
+// Instancia o banco Firebase
 var remotedb = firebase.firestore();
 
-var dbPath = path.join(userDataDir, "db", "local.db");
-var knex = require("knex")({
-    client: "sqlite3",
-    connection: {
-        filename: dbPath,
-    },
-    useNullAsDefault: true,
-    pool: {
-        afterCreate: (conn, cb) => conn.run('PRAGMA foreign_keys = ON', cb)
+
+////////////////////////////////////////////////////////////////////////////////
+// INIT SQLITE /////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Carrega a implementação do banco no SQLite
+var sqliteImpl = require("./js/db_sqlite.js");
+var knex = sqliteImpl.knex;
+
+
+// Variável que controla a implementação a ser utilizada, por padrão é o Firebase
+var dbImpl = firebaseImpl;
+
+
+////////////////////////////////////////////////////////////////////////////////
+// FUNÇÕES DE CONSULTA
+////////////////////////////////////////////////////////////////////////////////
+
+function dbObterPerfilUsuario(uid) {
+    return dbImpl.dbObterPerfilUsuario(uid);
+}
+
+function dbInserirPromise(colecao, dado, id = "", merge = false) {
+    return dbImpl.dbInserirPromise(colecao, dado, id, merge);
+}
+
+function dbAtualizarPromise(colecao, dado, id) {
+    return dbImpl.dbAtualizarPromise(colecao, dado, id);
+}
+
+function dbRemoverDadoPorIDPromise(colecao, coluna, id) {
+    return dbImpl.dbRemoverDadoPorIDPromise(colecao, coluna, id);
+}
+
+function dbRemoverDadoSimplesPromise(colecao, coluna, id) {
+    return dbImpl.dbRemoverDadoSimplesPromise(colecao, coluna, id);
+}
+
+function dbRemoverDadoCompostoPromise(colecao, c1, id1, c2, id2) {
+    return dbImpl.dbRemoverDadoCompostoPromise(colecao, c1, id1, c2, id2);
+}
+
+function dbBuscarTodosDadosPromise(colecao) {
+    return dbImpl.dbBuscarTodosDadosPromise(colecao);
+}
+
+function dbBuscarDadosEspecificosPromise(colecao, coluna, valor, operador = "==") {
+    return dbImpl.dbBuscarDadosEspecificosPromise(colecao, coluna, valor, operador);
+}
+
+function dbLeftJoinPromise(colecao1, coluna1, colecao2, coluna2) {
+    return dbImpl.dbLeftJoinPromise(colecao1, coluna1, colecao2, coluna2)
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// FUNÇÕES DE CONSULTA LOCAL
+////////////////////////////////////////////////////////////////////////////////
+
+function dbLocalBuscarDadoEspecificoPromise(tabela, coluna, id) {
+    return sqliteImpl.BuscarDadoEspecificoPromise(tabela, coluna, id)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// FUNÇÕES DE SINCRONIZAÇÃO
+////////////////////////////////////////////////////////////////////////////////
+
+async function dbEstaSincronizado() {
+    let ultimaAtualizacao = userconfig.get("LAST_UPDATE");
+    if (ultimaAtualizacao == undefined) {
+        return false;
+    } else {
+        return dbImpl.dbEstaSincronizado(ultimaAtualizacao);
     }
-});
-knex.on('query', function (queryData) {
-    console.log(queryData);
-});
+}
+
+function dbAtualizaVersao(lastUpdate = new Date().toJSON()) {
+    dbImpl.dbFonteDoDado = "server";
+    return dbImpl.dbInserirPromise("status", { LAST_UPDATE: lastUpdate }, "atualizacao")
+                 .then(() => {
+                        dbImpl.dbFonteDoDado = "cache";
+                        userconfig.set("LAST_UPDATE", lastUpdate);
+                        return Promise.resolve(lastUpdate)
+                 })
+                 .catch((err) => Promise.reject(err))
+}
+
+function dbSalvaVersao(versao) {
+    dbImpl.dbFonteDoDado = "cache";
+    userconfig.set("LAST_UPDATE", versao);
+    return Promise.resolve(versao)   
+}
+
+function dbRecebeVersao() {
+    dbImpl.dbFonteDoDado = "server";
+    return dbImpl.dbBuscarUltimaVersaoSincronizacao()
+                 .then((lastUpdate) => {
+                     if (!lastUpdate) { // Não tem nenhuma versão!!!!
+                        return dbAtualizaVersao()
+                               .then(primeiraVersao => dbSalvaVersao(primeiraVersao))
+                     } else { // Salva ultima versao recebida
+                        return dbSalvaVersao(lastUpdate["LAST_UPDATE"]);
+                     }
+                 })
+                 .catch((err) => Promise.reject(err))
+}
+
+function dbSincronizar() {
+    dbImpl.dbFonteDoDado = "server";
+    
+    var sincPromisses = new Array();
+    DB_TABLES.forEach(db => sincPromisses.push(dbImpl.dbBuscarTodosDadosPromise(db)))
+
+    return Promise.all(sincPromisses)
+                  .then(() => dbRecebeVersao())
+                  .catch((err) => Promise.reject(err))
+}
+
 
 // Clear database
 function clearDBPromises() {
@@ -50,70 +179,46 @@ function clearDBPromises() {
 
 // Sync data with Firestore
 function fbSync() {
-    Swal2.fire({
-        title: "Sincronizando os dados com a nuvem...",
-        text: "Espere um minutinho...",
-        imageUrl: "img/icones/processing.gif",
-        icon: "img/icones/processing.gif",
-        buttons: false,
-        showSpinner: true,
-        closeOnClickOutside: false,
-        allowOutsideClick: false,
-        showConfirmButton: false
-    });
+    loadingFn("Sincronizando os dados com a nuvem...", "Espere um minutinho...");
 
-    var dbs = ["alunos", "escolatemalunos", "escolas", "faztransporte", "fornecedores",
-        "garagem", "garagemtemveiculo", "motoristas", "municipios", "ordemdeservico",
-        "rotaatendealuno", "rotadirigidapormotorista", "rotapassaporescolas", "rotapossuiveiculo",
-        "rotas", "veiculos"]
-
-    var localPromisesArray = new Array();
-    dbs.forEach((db) => localPromisesArray.push(BuscarTodosDadosPromise(db)));
-
-    Promise.all(localPromisesArray)
-        .then((res) => {
-            var updateObj = {};
-            for (let i = 0; i < res.length; i++) {
-                updateObj[dbs[i]] = res[i];
-            }
-
-            remotedb.collection("data").doc(firebaseUser.uid).set(updateObj, { merge: true })
-                .then(() => {
-                    Swal2.fire({
-                        title: "Sucesso!",
-                        text: "Dados sincronizados com sucesso. Clique em OK para voltar ao painel de gestão.",
-                        icon: "success",
-                        type: "success",
-                        showConfirmButton: true,
-                        closeOnClickOutside: true,
-                        allowOutsideClick: false,
-                    })
-                });
-        });
+    // Verifica se DB está sincronizado antes de colocar dados na tela do dashboard
+    dbEstaSincronizado()
+    .then((estaSincronizado) => {
+        if (!estaSincronizado) {
+            console.log("PRECISAMOS SINCRONIZAR")
+            return dbSincronizar()
+        } else {
+            return true;
+        }
+    })
+    .then(() => successDialog("Sucesso!", "Dados sincronizados com sucesso. Clique em OK para voltar ao painel de gestão."))
+    .catch(err => errorFn("Erro ao sincronizar, tente mais tarde", err))
 }
 
-// Dados da cidade
+////////////////////////////////////////////////////////////////////////////////
+// DADOS LOCAIS
+////////////////////////////////////////////////////////////////////////////////
+
 var cidadeLatitude = -16.8152409;
 var cidadeLongitude = -49.2756642;
 var codCidade = userconfig.get("COD_CIDADE");
 var codEstado = userconfig.get("COD_ESTADO");
 var minZoom = 15;
 
+if (!codCidade || !codEstado) {
+    
+}
+
 if (codCidade != null) {
     knex("IBGE_Municipios")
-        .select()
-        .where("codigo_ibge", userconfig.get("COD_CIDADE"))
-        .then(res => {
-            cidadeLatitude = res[0]["latitude"];
-            cidadeLongitude = res[0]["longitude"];
-
-        });
+    .select()
+    .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+    .then(res => {
+        cidadeLatitude = res[0]["latitude"];
+        cidadeLongitude = res[0]["longitude"];
+    });
 }
 
-// Funções comuns do banco de dados
-function InserirPromise(table, data) {
-    return knex(table).insert(data);
-}
 
 function Inserir(table, data, cb) {
     InserirPromise(table, data)
