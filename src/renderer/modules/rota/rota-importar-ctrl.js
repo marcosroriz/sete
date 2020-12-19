@@ -55,7 +55,7 @@ mapa["activateImageLayerSwitcher"]();
 
 // Lista de Imports
 var togeojson = require('@mapbox/togeojson');
-var DOMParser = require('xmldom').DOMParser;
+var GPXDOMParser = require('xmldom').DOMParser;
 var simplify = require('simplify-geojson')
 
 var erroSwalAntigo = (msgTitle, msgDesc) => {
@@ -71,7 +71,7 @@ $("#arqGPX").change(() => {
     try {
         let gpxFile = $("#arqGPX")[0].files[0].path;
         if (gpxFile != "") {
-            gpxDOM = new DOMParser().parseFromString(fs.readFileSync(gpxFile, "UTF8"));
+            gpxDOM = new GPXDOMParser().parseFromString(fs.readFileSync(gpxFile, "UTF8"));
             gpx = togeojson.gpx(gpxDOM);
             
             var trackFeatures = new Array();
