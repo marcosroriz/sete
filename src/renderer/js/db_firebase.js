@@ -57,6 +57,19 @@ module.exports = {
 
     dbEstaSincronizado: AsyncEstaSincronizado,
 
+    dbObterPerfilUsuario: (uid) => {
+        return remotedb.collection("users")
+                       .doc(uid)
+                       .get({ source: "server" })
+                       .then((res) => res.data())
+    },
+
+    dbBuscarUltimaVersaoSincronizacao: () => {
+        return dbAcessarDados("status").doc("atualizacao")
+               .get({ source: "server" })
+               .then((res) => res.data())
+    },
+
     dbBuscarTodosDadosPromise: (nomeColecao) => {
         return dbAcessarDados(nomeColecao)
                .get({ source: module.exports.dbFonteDoDado })

@@ -1,3 +1,15 @@
+// dashboard-ctrl.js
+// Este arquivo provê os scripts básicos para controlar a tela inicial do SETE
+
+// Mostra âncora de loading
+$(".content").hide();
+$(".preload").show();
+
+// Ativa links de navegação
+$(".link-dash").click(function () {
+    navigateDashboard("./modules/" + $(this).attr("name") + ".html");
+});
+
 // Firebase user
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
@@ -9,61 +21,66 @@ firebase.auth().onAuthStateChanged((user) => {
         })
     }
 });
-
-$(".link-dash").click(function () {
-    navigateDashboard("./modules/" + $(this).attr("name") + ".html");
-});
-
-var dashPromises = new Array();
-
-dashPromises.push(NumeroDeAlunosAtendidosPromise().then((res) => {
-    $("#alunosAtendidos").text(res[0]["NUMALUNOS"]);
-}))
-
-dashPromises.push(NumeroDeEscolasAtendidasPromise().then((res) => {
-    $("#escolasAtendidas").text(res[0]["NUMESCOLAS"]);
-}))
-
-dashPromises.push(NumeroDeVeiculosFuncionamentoPromise().then((res) => {
-    $("#veiculosFuncionamento").text(res[0]["NUMVEICULOS"]);
-}))
-
-dashPromises.push(NumeroDeVeiculosEmManutencaoPromise().then((res) => {
-    $("#veiculosNaoFuncionamento").text(res[0]["NUMVEICULOS"]);
-}))
-
-dashPromises.push(BuscarTodosDadosPromise("Rotas").then((res) => {
-    var totalRotas = res.length;
-    var totalKM = 0;
-    var totalKMMedio = 0;
-    var totalTempo = 0;
-    res.forEach((rota) => {
-        totalKM = totalKM + parseFloat(rota["KM"]);
-        totalTempo = totalTempo + parseFloat(rota["TEMPO"]);
-    });
-
-    if (totalRotas != 0) {
-        totalKMMedio = Math.round(totalKM / totalRotas);
-        totalTempo = Math.round(totalTempo / totalRotas);
+dbEstaSincronizado()
+.then((estaSincronizado) => {
+    if (!estaSincronizado) {
+        console.log("PRECISAMOS SINCRONIZAR")
+        return dbSincronizar();
+    } else {
+        console.log("ESTÁ SINCRONIZADO")
+        // Está sincronizado
+        return true;
     }
+})
+.then(() => preencheDashboard())
+.then(() => {
+    $(".preload").fadeOut(200, function () {
+        $(".content").fadeIn(200);
+    });
+})
+.catch((err) => {
+    console.error("ERROR", err);
+    $(".preload").fadeOut(200, function () {
+        $(".content").fadeIn(200);
+    });
+})
 
-    $("#qtdeRotas").text(totalRotas);
-    $("#kmTotal").text(Math.round(totalKM) + " km");
-    $("#kmMedio").text(totalKMMedio + " km");
-    $("#tempoMedio").text(totalTempo + " min");
+// Preenche Dashboard
+function preencheDashboard() {
+    var dashPromises = new Array();
 
-}))
+    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS).then((res) => {
+        $("#alunosAtendidos").text(res.length);
+        $("#escolasAtendidas").text(convertListToMap(res).size);
+    }))
 
-Promise.all(dashPromises)
-    .then(() => {
-        $(".preload").fadeOut(1000, function () {
-            $(".content").fadeIn(1000);
+    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_VEICULO).then((res) => {
+        let func = naofunc = 0;
+        res.forEach(veiculo => veiculo["MANUTENCAO"] ? func++ : naofunc++)
+        $("#veiculosFuncionamento").text(func);
+        $("#veiculosNaoFuncionamento").text(naofunc);
+    }))
+
+    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ROTA).then((res) => {
+        var totalRotas = res.length;
+        var totalKM = 0;
+        var totalKMMedio = 0;
+        var totalTempo = 0;
+        res.forEach((rota) => {
+            totalKM = totalKM + parseFloat(rota["KM"]);
+            totalTempo = totalTempo + parseFloat(rota["TEMPO"]);
         });
-    })
-    .catch((err) => {
-        console.log(err);
-        console.log("ERROR")
-        $(".preload").fadeOut(1000, function () {
-            $(".content").fadeIn(1000);
-        });
-    })
+
+        if (totalRotas != 0) {
+            totalKMMedio = Math.round(totalKM / totalRotas);
+            totalTempo = Math.round(totalTempo / totalRotas);
+        }
+
+        $("#qtdeRotas").text(totalRotas);
+        $("#kmTotal").text(Math.round(totalKM) + " km");
+        $("#kmMedio").text(totalKMMedio + " km");
+        $("#tempoMedio").text(totalTempo + " min");
+    }))
+
+    return Promise.all(dashPromises)
+}

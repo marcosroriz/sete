@@ -61,7 +61,10 @@ var dbImpl = firebaseImpl;
 // FUNÇÕES DE CONSULTA
 ////////////////////////////////////////////////////////////////////////////////
 
-// Funções comuns do banco de dados
+function dbObterPerfilUsuario(uid) {
+    return dbImpl.dbObterPerfilUsuario(uid);
+}
+
 function dbInserirPromise(colecao, dado, id = "", merge = false) {
     return dbImpl.dbInserirPromise(colecao, dado, id, merge);
 }
@@ -107,7 +110,7 @@ function dbLocalBuscarDadoEspecificoPromise(tabela, coluna, id) {
 // FUNÇÕES DE SINCRONIZAÇÃO
 ////////////////////////////////////////////////////////////////////////////////
 
-function dbEstaSincronizado() {
+async function dbEstaSincronizado() {
     let ultimaAtualizacao = userconfig.get("LAST_UPDATE");
     if (ultimaAtualizacao == undefined) {
         return false;
@@ -127,6 +130,17 @@ function dbAtualizaVersao(lastUpdate = new Date().toJSON()) {
                  .catch((err) => Promise.reject(err))
 }
 
+function dbRecebeVersao() {
+    dbImpl.dbFonteDoDado = "server";
+    return dbImpl.dbBuscarUltimaVersaoSincronizacao()
+                 .then((lastUpdate) => {
+                        dbImpl.dbFonteDoDado = "cache";
+                        userconfig.set("LAST_UPDATE", lastUpdate["LAST_UPDATE"]);
+                        return Promise.resolve(lastUpdate["LAST_UPDATE"])
+                 })
+                 .catch((err) => Promise.reject(err))
+}
+
 function dbSincronizar() {
     dbImpl.dbFonteDoDado = "server";
     
@@ -134,7 +148,7 @@ function dbSincronizar() {
     DB_TABLES.forEach(db => sincPromisses.push(dbImpl.dbBuscarTodosDadosPromise(db)))
 
     return Promise.all(sincPromisses)
-                  .then(() => dbAtualizaVersao())
+                  .then(() => dbRecebeVersao())
                   .catch((err) => Promise.reject(err))
 }
 
@@ -198,12 +212,19 @@ function fbSync() {
         });
 }
 
-// Dados da cidade
+////////////////////////////////////////////////////////////////////////////////
+// DADOS LOCAIS
+////////////////////////////////////////////////////////////////////////////////
+
 var cidadeLatitude = -16.8152409;
 var cidadeLongitude = -49.2756642;
 var codCidade = userconfig.get("COD_CIDADE");
 var codEstado = userconfig.get("COD_ESTADO");
 var minZoom = 15;
+
+if (!codCidade || !codEstado) {
+    
+}
 
 if (codCidade != null) {
     knex("IBGE_Municipios")
