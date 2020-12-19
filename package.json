@@ -1,7 +1,7 @@
 {
   "name": "sete",
   "productName": "sete",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "SETE Software Eletrônico de Gestão do Transporte Escolar",
   "main": "src/index.js",
   "scripts": {
