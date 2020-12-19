@@ -1,3 +1,6 @@
+// relatorio-aluno-ctrl.js
+// Este arquivo contém o script de controle da tela relatorio-aluno-view. 
+
 // Preenchimento da Tabela via SQL
 var listaDeAlunos = new Map();
 var totalNumEscolas = 0;
@@ -12,10 +15,9 @@ var dataRotaFilter = { series: [], labels: [] };
 var dataNivel = { series: [], labels: ["Creche", "Fundamental", "Médio", "Superior", "Outro"] };
 var dataTurno = { series: [], labels: ["Manhã", "Tarde", "Integral", "Noturno"] };
 var dataResidencia = { series: [], labels: ["Área Urbana", "Área Rural"] };
-var dataCor = { series: [], labels: ["Amarelo", "Branco", "Indígena", "Pardo", "Preto"] };
+var dataCor = { series: [], labels: ["Não informado", "Branco", "Preto", "Pardo", "Amarelo", "Indígena"] };
 var dataGenero = { series: [], labels: ["Masculino", "Feminino", "Não Informado"] };
 var dataResponsavel = { series: [], labels: ["Pai, Mãe, Padrasto ou Madrasta", "Avô ou Avó", "Irmão ou Irmã", "Outrou Parente"] };
-
 
 // DataTables
 var defaultTableConfig = GetTemplateDataTableConfig();
@@ -46,22 +48,8 @@ defaultTableConfig["columnDefs"] = [
         "visible": false,
         "searchable": true
     },
-    {
-        targets: 0,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    },
-    {
-        targets: 5,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    }
+    { targets: 0, render: renderAtMostXCharacters(50) },
+    { targets: 5, render: renderAtMostXCharacters(50) }
 ];
 
 var dataTablesRelatorio = $("#datatables").DataTable(defaultTableConfig)
@@ -75,7 +63,7 @@ function CalcularEstatisticas() {
     var statTurno = { 1: 0, 2: 0, 3: 0, 4: 0 }
     var statLocalizacao = { 1: 0, 2: 0 }
     var statNivel = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-    var statCor = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    var statCor = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
     var statGenero = { 1: 0, 2: 0, 3: 0 }
     var statResponsavel = { 0: 0, 1: 0, 2: 0, 4: 0 }
 
@@ -96,31 +84,41 @@ function CalcularEstatisticas() {
             statNumAtendidos++;
         }
 
-        if (statEscolas[aluno["ESCOLA"]] == null || statEscolas[aluno["ESCOLA"]] == undefined) {
-            statEscolas[aluno["ESCOLA"]] = 0;
+        if (aluno["ESCOLA"]) {
+            if (statEscolas[aluno["ESCOLA"]] == null || statEscolas[aluno["ESCOLA"]] == undefined) {
+                statEscolas[aluno["ESCOLA"]] = 0;
+            }
+            statEscolas[aluno["ESCOLA"]] = statEscolas[aluno["ESCOLA"]] + 1;
         }
-        statEscolas[aluno["ESCOLA"]] = statEscolas[aluno["ESCOLA"]] + 1;
     })
 
     for (let i in statRotas) {
         dataRotaFilter["series"].push(statRotas[i]);
         dataRotaFilter["labels"].push(i);
     }
-    dataRota["series"].push(statNumAtendidos / totalNumRotas);
+    if (totalNumRotas != 0) {
+        dataRota["series"].push(statNumAtendidos / totalNumRotas);
+    } else {
+        dataRota["series"].push(0);
+    }
     dataRota["labels"].push("Número médio de alunos transportados por rota");
 
     for (let i in statEscolas) {
         dataEscolaFilter["series"].push(statEscolas[i]);
         dataEscolaFilter["labels"].push(i);
     }
-    dataEscola["series"].push(statNumAtendidos / totalNumEscolas);
+    if (totalNumEscolas != 0) {
+        dataEscola["series"].push(statNumAtendidos / totalNumEscolas);
+    } else {
+        dataEscola["series"].push(0);
+    }
     dataEscola["labels"].push("Número médio de alunos transportados por escola");
 
     dataAtendimento["series"] = [(totalAlunos - statNumAtendidos), statNumAtendidos]
     dataNivel["series"] = [statNivel[1], statNivel[2], statNivel[3], statNivel[4], statNivel[5]]
     dataTurno["series"] = [statTurno[1], statTurno[2], statTurno[3], statTurno[4]]
     dataResidencia["series"] = [statLocalizacao[1], statLocalizacao[2]]
-    dataCor["series"] = [statCor[1], statCor[2], statCor[3], statCor[4], statCor[5]]
+    dataCor["series"] = [statCor[0], statCor[1], statCor[2], statCor[3], statCor[4], statCor[5]]
     dataGenero["series"] = [statGenero[1], statGenero[2], statGenero[3]]
     dataResponsavel["series"] = [statResponsavel[0], statResponsavel[1], statResponsavel[2], statResponsavel[4]]
 
@@ -254,6 +252,8 @@ $("#listaTipoRelatorio").change((e) => {
     })
 })
 
+var graficoAtual;
+
 $("#menuRelatorio a.list-group-item").click((e) => {
     $(".card-report").fadeOut(300, () => {
         e.preventDefault()
@@ -269,7 +269,7 @@ $("#menuRelatorio a.list-group-item").click((e) => {
 
         // Grafico
         $("#grafico").empty();
-        plotGraphic("#grafico", opt);
+        graficoAtual = plotGraphic("#grafico", opt);
 
         // Legenda
         $("#legendPlace").empty();
@@ -336,85 +336,76 @@ dataTablesRelatorio.on('click', '.alunoRemove', function () {
     })
 });
 
-// Função para relatar erro
-var errorFnAlunos = (err) => {
-    Swal2.fire({
-        title: "Ops... tivemos um problema!",
-        text: "Erro ao listar os alunos! Feche e abra o software novamente. \n" + err,
-        icon: "error",
-        button: "Fechar"
-    });
+
+dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
+.then(res => preprocessarAlunos(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then(res => preprocessarEscolas(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+.then(res => preprocessarRotas(res))
+.then(res => adicionaDadosTabela(res))
+.then(() => CalcularEstatisticas())
+.catch((err) => errorFn(err))
+
+
+// Preprocessa alunos
+var preprocessarAlunos = (res) => {
+    $("#totalNumAlunos").text(res.length);
+    for (let alunoRaw of res) {
+        let alunoJSON = parseAlunoDB(alunoRaw);
+        alunoJSON["LOCALIZACAO"] = "Área " + alunoJSON["LOCALIZACAO"];
+        listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
+    }
+    return listaDeAlunos;
 }
 
-// Callback para pegar número de alunos da escola
-var listarEscolasAlunosCB = (err, result) => {
-    if (err) {
-        errorFnAlunos(err);
-    } else {
-        for (let alunoRaw of result) {
-            let aID = alunoRaw["ID_ALUNO"];
-            let eID = alunoRaw["ID_ESCOLA"];
-            let eNome = alunoRaw["NOME"];
+// Preprocessa escolas
+var preprocessarEscolas = (res) => {
+    totalNumEscolas = res.length;
+    for (let escolaRaw of res) {
+        let aID = escolaRaw["ID_ALUNO"];
+        let eID = escolaRaw["ID_ESCOLA"];
+        let eNome = escolaRaw["NOME"];
 
-            let alunoJSON = listaDeAlunos.get(aID);
-            alunoJSON["ID_ESCOLA"] = eID;
-            alunoJSON["ESCOLA"] = eNome;
-            alunoJSON["ESCOLA_LOC_LATITUDE"] = alunoRaw["LOC_LATITUDE"];
-            alunoJSON["ESCOLA_LOC_LONGITUDE"] = alunoRaw["LOC_LONGITUDE"];
-            alunoJSON["ESCOLA_MEC_CO_UF"] = alunoRaw["MEC_CO_UF"];
-            alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = alunoRaw["MEC_CO_MUNICIPIO"];
-            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = alunoRaw["MEC_TP_LOCALIZACAO"];
-            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = alunoRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
-            alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = alunoRaw["CONTATO_RESPONSAVEL"];
-            alunoJSON["ESCOLA_CONTATO_TELEFONE"] = alunoRaw["CONTATO_TELEFONE"];
+        let alunoJSON = listaDeAlunos.get(aID);
+        alunoJSON["ID_ESCOLA"] = eID;
+        alunoJSON["ESCOLA"] = eNome;
+        alunoJSON["ESCOLA_LOC_LATITUDE"] = escolaRaw["LOC_LATITUDE"];
+        alunoJSON["ESCOLA_LOC_LONGITUDE"] = escolaRaw["LOC_LONGITUDE"];
+        alunoJSON["ESCOLA_MEC_CO_UF"] = escolaRaw["MEC_CO_UF"];
+        alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = escolaRaw["MEC_CO_MUNICIPIO"];
+        alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = escolaRaw["MEC_TP_LOCALIZACAO"];
+        alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = escolaRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
+        alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = escolaRaw["CONTATO_RESPONSAVEL"];
+        alunoJSON["ESCOLA_CONTATO_TELEFONE"] = escolaRaw["CONTATO_TELEFONE"];
 
-            listaDeAlunos.set(aID, alunoJSON);
-        }
-
-        ListarRotasDeAlunosPromise()
-            .then((res) => {
-                res.forEach((a) => {
-                    let aID = a["ID_ALUNO"];
-                    let alunoJSON = listaDeAlunos.get(aID);
-                    alunoJSON["ROTA"] = "ROTA " + a["NOME"];
-                    listaDeAlunos.set(aID, alunoJSON);
-                })
-
-                listaDeAlunos.forEach((aluno) => {
-                    dataTablesRelatorio.row.add(aluno);
-                });
-
-                dataTablesRelatorio.draw();
-                CalcularEstatisticas();
-            })
+        listaDeAlunos.set(aID, alunoJSON);
     }
+    return listaDeAlunos;
 };
 
-// Callback para pegar dados inicia da escolas
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFnAlunos(err);
-    } else {
-        $("#totalNumAlunos").text(result.length);
-
-        for (let alunoRaw of result) {
-            let alunoJSON = parseAlunoDB(alunoRaw);
-            alunoJSON["LOCALIZACAO"] = "Área " + alunoJSON["LOCALIZACAO"];
-            listaDeAlunos.set(alunoJSON["ID_ALUNO"], alunoJSON);
-        }
-
-        ListarEscolasDeAlunos(listarEscolasAlunosCB);
-    }
-};
-
-var buscarTotalNumEscolasPromise = BuscarTodosDadosPromise("Escolas");
-var buscarTotalNumRotasPromise = BuscarTodosDadosPromise("Rotas");
-
-Promise.all([buscarTotalNumEscolasPromise, buscarTotalNumRotasPromise])
-    .then((res) => {
-        totalNumEscolas = res[0].length;
-        totalNumRotas = res[1].length;
-        BuscarTodosAlunos(listaInicialCB);
+// Preprocessa rotas
+var preprocessarRotas = (res) => {
+    totalNumRotas = res.length;
+    res.forEach((rota) => {
+        let aID = rota["ID_ALUNO"];
+        let alunoJSON =  listaDeAlunos.get(aID);
+        
+        alunoJSON["ROTA"] = rota["NOME"];
+        listaDeAlunos.set(aID, alunoJSON);
     })
 
+    return listaDeAlunos;
+}
+
+// Adiciona dados na tabela
+adicionaDadosTabela = (res) => {
+    res.forEach((aluno) => {
+        dataTablesRelatorio.row.add(aluno);
+    });
+
+    dataTablesRelatorio.draw();
+
+    return res;
+}
 action = "relatorioAluno";
