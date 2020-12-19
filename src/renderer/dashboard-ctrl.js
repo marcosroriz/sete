@@ -17,7 +17,7 @@ firebase.auth().onAuthStateChanged((user) => {
         var userDocPromise = remotedb.collection("users").doc(firebaseUser.uid).get();
         userDocPromise.then((queryResult) => {
             userData = queryResult.data();
-            $("#userName").html(userData["NOME"]);
+            $("#userName").html(userData["NOME"].split(" ")[0]);
         })
     }
 });

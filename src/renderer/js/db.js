@@ -130,13 +130,22 @@ function dbAtualizaVersao(lastUpdate = new Date().toJSON()) {
                  .catch((err) => Promise.reject(err))
 }
 
+function dbSalvaVersao(versao) {
+    dbImpl.dbFonteDoDado = "cache";
+    userconfig.set("LAST_UPDATE", versao);
+    return Promise.resolve(versao)   
+}
+
 function dbRecebeVersao() {
     dbImpl.dbFonteDoDado = "server";
     return dbImpl.dbBuscarUltimaVersaoSincronizacao()
                  .then((lastUpdate) => {
-                        dbImpl.dbFonteDoDado = "cache";
-                        userconfig.set("LAST_UPDATE", lastUpdate["LAST_UPDATE"]);
-                        return Promise.resolve(lastUpdate["LAST_UPDATE"])
+                     if (!lastUpdate) { // Não tem nenhuma versão!!!!
+                        return dbAtualizaVersao()
+                               .then(primeiraVersao => dbSalvaVersao(primeiraVersao))
+                     } else { // Salva ultima versao recebida
+                        return dbSalvaVersao(lastUpdate["LAST_UPDATE"]);
+                     }
                  })
                  .catch((err) => Promise.reject(err))
 }
