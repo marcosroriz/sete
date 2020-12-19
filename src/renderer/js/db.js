@@ -170,46 +170,20 @@ function clearDBPromises() {
 
 // Sync data with Firestore
 function fbSync() {
-    Swal2.fire({
-        title: "Sincronizando os dados com a nuvem...",
-        text: "Espere um minutinho...",
-        imageUrl: "img/icones/processing.gif",
-        icon: "img/icones/processing.gif",
-        buttons: false,
-        showSpinner: true,
-        closeOnClickOutside: false,
-        allowOutsideClick: false,
-        showConfirmButton: false
-    });
+    loadingFn("Sincronizando os dados com a nuvem...", "Espere um minutinho...");
 
-    var dbs = ["alunos", "escolatemalunos", "escolas", "faztransporte", "fornecedores",
-        "garagem", "garagemtemveiculo", "motoristas", "municipios", "ordemdeservico",
-        "rotaatendealuno", "rotadirigidapormotorista", "rotapassaporescolas", "rotapossuiveiculo",
-        "rotas", "veiculos"]
-
-    var localPromisesArray = new Array();
-    dbs.forEach((db) => localPromisesArray.push(BuscarTodosDadosPromise(db)));
-
-    Promise.all(localPromisesArray)
-        .then((res) => {
-            var updateObj = {};
-            for (let i = 0; i < res.length; i++) {
-                updateObj[dbs[i]] = res[i];
-            }
-
-            remotedb.collection("data").doc(firebaseUser.uid).set(updateObj, { merge: true })
-                .then(() => {
-                    Swal2.fire({
-                        title: "Sucesso!",
-                        text: "Dados sincronizados com sucesso. Clique em OK para voltar ao painel de gestão.",
-                        icon: "success",
-                        type: "success",
-                        showConfirmButton: true,
-                        closeOnClickOutside: true,
-                        allowOutsideClick: false,
-                    })
-                });
-        });
+    // Verifica se DB está sincronizado antes de colocar dados na tela do dashboard
+    dbEstaSincronizado()
+    .then((estaSincronizado) => {
+        if (!estaSincronizado) {
+            console.log("PRECISAMOS SINCRONIZAR")
+            return dbSincronizar()
+        } else {
+            return true;
+        }
+    })
+    .then(() => successDialog("Sucesso!", "Dados sincronizados com sucesso. Clique em OK para voltar ao painel de gestão."))
+    .catch(err => errorFn("Erro ao sincronizar, tente mais tarde", err))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -228,13 +202,12 @@ if (!codCidade || !codEstado) {
 
 if (codCidade != null) {
     knex("IBGE_Municipios")
-        .select()
-        .where("codigo_ibge", userconfig.get("COD_CIDADE"))
-        .then(res => {
-            cidadeLatitude = res[0]["latitude"];
-            cidadeLongitude = res[0]["longitude"];
-
-        });
+    .select()
+    .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+    .then(res => {
+        cidadeLatitude = res[0]["latitude"];
+        cidadeLongitude = res[0]["longitude"];
+    });
 }
 
 

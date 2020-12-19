@@ -10,7 +10,7 @@ $(".link-dash").click(function () {
     navigateDashboard("./modules/" + $(this).attr("name") + ".html");
 });
 
-// Firebase user
+// Seta o usuário do firebase
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
         firebaseUser = user;
@@ -21,14 +21,16 @@ firebase.auth().onAuthStateChanged((user) => {
         })
     }
 });
+
+// Verifica se DB está sincronizado antes de colocar dados na tela do dashboard
 dbEstaSincronizado()
 .then((estaSincronizado) => {
     if (!estaSincronizado) {
         console.log("PRECISAMOS SINCRONIZAR")
         return dbSincronizar();
     } else {
-        console.log("ESTÁ SINCRONIZADO")
         // Está sincronizado
+        console.log("ESTÁ SINCRONIZADO")
         return true;
     }
 })
