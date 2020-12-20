@@ -326,7 +326,3 @@ function DeleteAluno(row, id) {
         .catch((err) => { console.log(err); throw err })
         .finally(() => { });
 }
-
-function eaemano() {
-  console.log("OISSSS")
-}

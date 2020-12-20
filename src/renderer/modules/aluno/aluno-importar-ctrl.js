@@ -1,6 +1,5 @@
 // Lista de Imports
 var readXlsxFile = require('read-excel-file/node');
-eaemano();
 var schema = {
     'Nome': {
         prop: 'NOME',
