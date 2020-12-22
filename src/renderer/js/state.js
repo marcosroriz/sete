@@ -2,6 +2,7 @@
 var action = "";
 
 // Variáveis globais
+var estadoUsuario;
 var estadoAluno;
 var estadoEscola;
 var estadoMotorista;

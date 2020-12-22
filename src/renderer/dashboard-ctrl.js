@@ -5,6 +5,7 @@ firebase.auth().onAuthStateChanged((user) => {
         var userDocPromise = remotedb.collection("users").doc(firebaseUser.uid).get();
         userDocPromise.then((queryResult) => {
             userData = queryResult.data();
+            console.log(userData);
             $("#userName").html(userData["NOME"]);
         })
     }
