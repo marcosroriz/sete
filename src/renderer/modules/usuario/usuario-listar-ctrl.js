@@ -1,81 +1,33 @@
 // Preenchimento da Tabela via SQL
-var listaDeUsuario = new Map();
+var listaDeTodosOsUsuarios = new Map();
+var listaDeUsuarios = new Map();
+var papelAdmin = false;
+
+// Por padrão não mostra opções de admin, somente se for o caso
+$("#btIncluirUsuario").hide();
 
 // DataTables
 var dataTablesUsuario = $("#datatables").DataTable({
-    // fixedHeader: true,
-    columns: [
-        { data: 'NOME', width: "40%" },
-        { data: 'CPF', width: "20%" },
-        { data: 'EMAIL', width: "40%" },
-        {
-            data: "ACOES",
-            width: "90px",
-            sortable: false,
-            defaultContent: '<a href="#" class="btn btn-link btn-primary usuarioView"><i class="fa fa-search"></i></a>' +
-                '<a href="#" class="btn btn-link btn-warning usuarioEdit"><i class="fa fa-edit"></i></a>' +
-                '<a href="#" class="btn btn-link btn-danger usuarioRemove"><i class="fa fa-times"></i></a>'
-        }
-    ],
-    columnDefs: [{
-        targets: 0,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    },
-    {
-        targets: 2,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    }],
-    autoWidth: false,
-    bAutoWidth: false,
-    lengthMenu: [[10, 50, -1], [10, 50, "Todos"]],
-    pagingType: "full_numbers",
-    order: [[0, "asc"]],
-    language: {
-        "search": "_INPUT_",
-        "searchPlaceholder": "Procurar usuários",
-        "lengthMenu": "Mostrar _MENU_ usuários por página",
-        "zeroRecords": "Não encontrei nenhum usuário cadastrado",
-        "info": "Mostrando página _PAGE_ de _PAGES_",
-        "infoEmpty": "Sem registros disponíveis",
-        "infoFiltered": "(Usuários filtrados a partir do total de _MAX_ usuários)",
-        "paginate": {
-            "first": "Primeira",
-            "last": "Última",
-            "next": "Próxima",
-            "previous": "Anterior"
-        },
-    },
-    dom: 'lfrtipB',
-    buttons: [
-        {
-            extend: 'pdfHtml5',
-            orientation: "landscape",
-            title: "Alunos cadastrados",
-            text: "Exportar para PDF",
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4]
-            },
-            customize: function (doc) {
-                doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                doc.images = doc.images || {};
-                doc.images["logo"] = baseImages.get("logo");
-                doc.content.splice(1, 0, {
-                    alignment: 'center',
-                    margin: [0, 0, 0, 12],
-                    image: "logo"
-                });
-                doc.styles.tableHeader.fontSize = 12;
+    ...dtConfigPadrao("usuário"),
+    ...{
+        columns: [
+            { data: 'NOME', width: "30%" },
+            { data: 'CPF', width: "15%" },
+            { data: 'EMAIL', width: "40%" },
+            { data: 'PAPEL', width: "15%", defaultContent: "EDITOR" },
+            {
+                data: "ACOES",
+                width: "140px",
+                sortable: false,
+                defaultContent: '<a href="#" class="btn btn-link btn-primary usuarioView"><i class="fa fa-search"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-warning usuarioEdit"><i class="fa fa-edit"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-danger usuarioRemove"><i class="fa fa-times"></i></a>'
             }
-        }
-    ]
+        ],
+        columnDefs: [{ targets: 0,  render: renderAtMostXCharacters(50) },
+                    { targets: 2,  render: renderAtMostXCharacters(50) }],
+        dom: 'lfrtip',
+    }
 });
 
 dataTablesUsuario.on('click', '.usuarioView', function () {
@@ -110,8 +62,6 @@ dataTablesUsuario.on('click', '.usuarioRemove', function () {
     }).then((result) => {
         if (result.value) {
             RemoverUsuario(estadoUsuario["ID"], (err, result) => {
-
-                debugger;
                 if (result) {
                     dataTablesUsuario.row($tr).remove();
                     dataTablesUsuario.draw();
@@ -158,37 +108,59 @@ var errorFnUsuario = (err) => {
     });
 }
 
+// Botão para tratar caso de inserção de usuário
+$("#btIncluirUsuario").on('click', () => navigateDashboard("./modules/usuario/usuario-cadastrar-view.html"))
 
+loadingFn("Buscando os usuários...")
 
-// Listar Usuarios no datatables
-var ListarUsuarios = (result) => {
+dbBuscarTodosUsuarios()
+.then((resUsuarios) => {
+    resUsuarios.forEach(usuario => listaDeTodosOsUsuarios.set(usuario.id, usuario.data()))
+    return listaDeTodosOsUsuarios
+})
+.then(() => dbBuscarUsuariosDoMunicipioPromise())
+.then((relUsuariosPermitidos) => processaUsuariosPermitidos(relUsuariosPermitidos))
+.then((listaDeUsuarios) => adicionaDadosTabela(listaDeUsuarios))
+.then(() => removeAcoesCasoUsuarioNaoAdmin())
+.then(() => Swal2.close())
+.catch((err) => errorFn("Erro ao acessar os dados dos usuários cadastrados", err))
 
-    result.forEach((usuario) => {
+// Processa os usuários permitidos
+processaUsuariosPermitidos = (relUsuariosPermitidos) => {
+let usuariosPermitidos = relUsuariosPermitidos.data()
+    usuariosPermitidos.users.forEach(idUsuario => listaDeUsuarios.set(idUsuario, listaDeTodosOsUsuarios.get(idUsuario)))
+    
+    $("#totalNumUsuarios").text(usuariosPermitidos.users.length);
+    
+    usuariosPermitidos.admin.forEach(idUsuarioAdmin => {
+        let usuarioAdmin = listaDeUsuarios.get(idUsuarioAdmin);
+        usuarioAdmin["PAPEL"] = "ADMINISTRADOR";
+        listaDeUsuarios.set(idUsuarioAdmin, usuarioAdmin);
+
+        if (idUsuarioAdmin == userconfig.get("ID")) {
+            papelAdmin = true;
+        }
+        
+    })
+    return listaDeUsuarios
+}
+
+// Adiciona dados na tabela
+adicionaDadosTabela = (res) => {
+    res.forEach((usuario) => {
+        if (!papelAdmin) {
+            usuario["ACOES"] = "NÃO POSSUI PERMISSÃO PARA ALTERAR"
+        }
         dataTablesUsuario.row.add(usuario);
     });
 
     dataTablesUsuario.draw();
-};
+}
 
-// Callback para pegar dados inicia dos usuarios
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFnUsuario(err);
-    } else {
-        $("#totalNumUsuarios").text(result.length);
+// Remove campos de inserção de usuário caso o mesmo não seja admin
+mostraCamposAdmin = () => {
+    if (papelAdmin) $("#btIncluirUsuario").show();
+    return true;
+}
 
-        for (let usuarioRaw of result) {
-            let usuarioJSON = parseUsuarioDB(usuarioRaw);
-            listaDeUsuario.set(usuarioJSON["ID"], usuarioJSON);
-        }
-        ListarUsuarios(listaDeUsuario);
-    }
-};
-
-BuscarTodosUsuarios(listaInicialCB);
-
-action = "listarAluno";
-
-$("#btIncluirUsuario").click(function () {
-    navigateDashboard("./modules/usuario/usuario-cadastrar-view.html");
-})
+action = "listarUsuario";

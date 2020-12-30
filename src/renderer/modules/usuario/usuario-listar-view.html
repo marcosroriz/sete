@@ -11,14 +11,16 @@
                     <div class="row">
                         <div class="col-12 text-center">
                             <div class="totalText">
-                                Total de Usuários
+                                Total de usuários habilitados para acesso neste município
                                 <span id="totalNumUsuarios" class="badge badge-success badge-total"></span>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12 text-center">
-                            <img src="./img/icones/add48.png" title="Incluir usuário" id="btIncluirUsuario">
+                            <button type="button" class="btn btn-labeled btn-success" id="btIncluirUsuario">
+                                <span class="btn-label"><i class="fa fa-plus"></i></span> Adicionar um novo usuário
+                            </button>
                         </div>
                     </div>
                     <div class="fresh-datatables">
@@ -29,6 +31,7 @@
                                     <th>Nome</th>
                                     <th>CPF</th>
                                     <th>Email</th>
+                                    <th>Papel</th>
                                     <th class="disabled-sorting text-center">Ações</th>
                                 </tr>
                             </thead>
@@ -44,3 +47,19 @@
 
 <script src="./modules/usuario/usuario-model.js" type="text/javascript"></script>
 <script src="./modules/usuario/usuario-listar-ctrl.js" type="text/javascript"></script>
+
+<style>
+    .btn-label {
+        position: relative;
+        left: -12px;
+        display: inline-block;
+        padding: 6px 12px;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 3px 0 0 3px;
+    }
+
+    .btn-labeled {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+</style>

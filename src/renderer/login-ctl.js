@@ -348,9 +348,10 @@ $(document).ready(function () {
                     var dataConfig = remotedb.collection("config").doc(localizacao.cidade.value);
                     dataConfig.get().then(function (doc) {
                         if (!doc.exists) {
-                            remotedb.collection("config").doc(localizacao.cidade.value).set({ "users": [] }).then(function () {
-                                criarColecaoMunicipio(localizacao.cidade.value);
-                            });
+                            remotedb.collection("config")
+                                .doc(localizacao.cidade.value)
+                                .set({"admin": [], "users": []})
+                                .then(() => criarColecaoMunicipio(localizacao.cidade.value))
                         }
                     })
 

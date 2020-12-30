@@ -67,6 +67,19 @@ var parseUsuarioDB = function (usuarioRaw) {
     return usuarioJSON;
 };
 
+// Função que recupera todo os usuários cadastrados (independente se estão ou não ativos neste município)
+function dbBuscarTodosUsuarios() {
+    return remotedb.collection("users")
+                   .get({source: "server"})
+}
+
+// Função que recupera todos os usuários habilitados naquele município
+function dbBuscarUsuariosDoMunicipioPromise() {
+    return remotedb.collection("config")
+                   .doc(codCidade)
+                   .get({source: "server"})
+}
+
 /*function InserirUsuarioPromise(alunoJSON) {
     return knex("Usuarios").insert(alunoJSON);
 }*/
