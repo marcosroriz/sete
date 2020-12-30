@@ -192,6 +192,7 @@ function fbSync() {
         }
     })
     .then(() => successDialog("Sucesso!", "Dados sincronizados com sucesso. Clique em OK para voltar ao painel de gestão."))
+    .then(() => navigateDashboard("./dashboard-main.html"))
     .catch(err => errorFn("Erro ao sincronizar, tente mais tarde", err))
 }
 
@@ -199,15 +200,29 @@ function fbSync() {
 // DADOS LOCAIS
 ////////////////////////////////////////////////////////////////////////////////
 
+// Esta função pega o codigo da cidade na base de dado remota
+function getCodigoCidadeUsuario() {
+    let uidFirebase = userconfig.get("ID");
+    console.log(uidFirebase);
+    var data = remotedb.collection("users").doc(uidFirebase);
+    data.get().then(function (doc) {
+        if (doc.exists) {
+            let arData = doc.data();
+            return arData.COD_CIDADE;
+        } else {
+            // doc.data() will be undefined in this case
+            console.log("No such document!");
+        }
+    }).catch(function (error) {
+        console.log("Error getting document:", error);
+    });
+}
+
 var cidadeLatitude = -16.8152409;
 var cidadeLongitude = -49.2756642;
 var codCidade = userconfig.get("COD_CIDADE");
 var codEstado = userconfig.get("COD_ESTADO");
 var minZoom = 15;
-
-if (!codCidade || !codEstado) {
-    
-}
 
 if (codCidade != null) {
     knex("IBGE_Municipios")
