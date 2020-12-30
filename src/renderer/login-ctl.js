@@ -1,3 +1,8 @@
+// Instanciação 
+emailjs.init("user_319iA49jzZ51Sa7qehcii");
+const SERVICE_ID = 'service_ij3p8cb';
+const TEMPLATE_ID = 'template_5mqem8f';
+
 // Localização do Usuário
 var localizacao;
 
@@ -179,7 +184,6 @@ $(document).ready(function () {
     });
 
     // Ações do teclado para Login (pressionar Enter para logar)
-
     $("#loginemail, #loginpassword").keypress((e) => {
         if(e.which === 13) {
             $("#loginsubmit").click();
@@ -218,7 +222,7 @@ $(document).ready(function () {
                 .signInWithEmailAndPassword(email, password)
                 .then((firebaseUser) => {
                     // Set local config 
-                    if (loginlembrar) {
+                    if (lembrarlogin) {
                         userconfig.set("LEMBRAR", true);
                         userconfig.set("EMAIL", email);
                         userconfig.set("PASSWORD", password);
@@ -228,13 +232,13 @@ $(document).ready(function () {
                         userconfig.delete("PASSWORD");
                     }
                     userconfig.set("ID", firebaseUser.user.uid);
-
                     return firebaseUser.user.uid
                 })
                 .then((uid) => dbObterPerfilUsuario(uid)) // Obtém o perfil remoto do usuário
                 .then((remoteData) => {
                     userconfig.set("COD_CIDADE", String(remoteData.COD_CIDADE))
                     userconfig.set("COD_ESTADO", String(remoteData.COD_ESTADO))
+                    userconfig.set("ID", remoteData["ID"])
 
                     dadoUsuario = {
                         "ID": remoteData["ID"],
@@ -248,9 +252,25 @@ $(document).ready(function () {
                         "COD_CIDADE": parseInt(remoteData["COD_CIDADE"]),
                         "COD_ESTADO": parseInt(remoteData["COD_ESTADO"])
                     }
-
-                    return dadoUsuario
+                    userconfig.set("DADO_USUARIO", dadoUsuario)
+                    return dadoUsuario;
                 }).then((dadoUsuario) => {
+                    let cod_cidade = userconfig.get("COD_CIDADE");
+                    return remotedb.collection("config").doc(cod_cidade).get({ source: "server" });
+                }).then((docConfig) => {
+                    let acessoLiberado = false;
+                    if (docConfig.exists) {
+                      arDataConfig = docConfig.data();
+                      if (arDataConfig.users.indexOf(firebaseUser.user.uid) > -1) {
+                          acessoLiberado = true;
+                          // TODO: Checar o campo INIT posteriormente
+                      }
+                    } else {
+                      throw new Exception("Acesso ainda não foi liberado");
+                    }
+                    return acessoLiberado;
+                }).then(() => {
+                    let dadoUsuario = userconfig.get("DADO_USUARIO");
                     RecuperarUsuario(dadoUsuario["ID"]).then(userData => {
                         if (userData.length == 0) {
                             return InserirUsuario(dadoUsuario)
@@ -268,7 +288,6 @@ $(document).ready(function () {
                 });
         }
     });
-
     // recoversubmit
     $("#recoversubmit").click(() => {
         var email = $("#recoveremail").val();
@@ -339,15 +358,25 @@ $(document).ready(function () {
                         "COD_ESTADO": localizacao.estado.value
                     };
 
+                    emailjs.send(SERVICE_ID, TEMPLATE_ID, userData)
+                        .then(function (response) {
+                            console.log('SUCCESS!', response.status, response.text);
+                        }, function (error) {
+                            console.log('FAILED...', error);
+                        });
+                    //Alimenta a coleção config com os documentos do municipio
+                    var dataConfig = remotedb.collection("config").doc(localizacao.cidade.value);
+                    dataConfig.get().then(function (doc) {
+                        if (!doc.exists) {
+                            remotedb.collection("config").doc(localizacao.cidade.value).set({ "users": [] }).then(function () {
+                                criarColecaoMunicipio(localizacao.cidade.value);
+                            });
+                        }
+                    })
+
+
                     var promiseArray = new Array();
                     promiseArray.push(remotedb.collection("users").doc(fbuser.user.uid).set(userData));
-                    promiseArray.push(remotedb.collection("data").doc(fbuser.user.uid).set({
-                        "alunos": [], "escolatemalunos": [], "escolas": [], "faztransporte": [], "fornecedores": [],
-                        "garagem": [], "garagemtemveiculo": [], "motoristas": [], "municipios": [], "ordemdeservico": [],
-                        "rotaatendealuno": [], "rotadirigidapormotorista": [], "rotapassaporescolas": [], "rotapossuiveiculo": [],
-                        "rotas": [], "veiculos": [],
-                        "INIT": false
-                    }));
                     promiseArray.push(InserirUsuario(userData));
 
                     Promise.all(promiseArray).then(() => {
@@ -388,5 +417,26 @@ $(document).ready(function () {
     $("#regpasswordrepeat").change(() => {
         $("#regpasswordrepeat").valid();
     });
+
+    function criarColecaoMunicipio(codMunicipio) {
+
+        //Cria a coleção dos dados para o municipio caso não tenha sido criado ainda
+        var dataFirebase = remotedb.collection("data").doc(codMunicipio);
+        dataFirebase.get().then(function (doc) {
+            if (!doc.exists) {
+                //console.log("Cidade Não existe");
+                remotedb.collection("data").doc(codMunicipio).set({
+                    "alunos": [], "escolatemalunos": [], "escolas": [], "faztransporte": [], "fornecedores": [],
+                    "garagem": [], "garagemtemveiculo": [], "motoristas": [], "municipios": [], "ordemdeservico": [],
+                    "rotaatendealuno": [], "rotadirigidapormotorista": [], "rotapassaporescolas": [], "rotapossuiveiculo": [],
+                    "rotas": [], "veiculos": [],
+                    "INIT": false
+                });
+            }
+        })
+
+
+    }
+
 
 });
