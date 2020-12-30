@@ -1,72 +1,53 @@
+// motorista-listar-ctrl.js
+// Este arquivo contém o script de controle da tela motorista-listar-view. O mesmo
+// apresenta os motoristas cadastrados em uma tabela.
+
 // Preenchimento da Tabela via SQL
 var listaDeMotoristas = new Map();
 
 // DataTables
 var dataTablesMotoristas = $("#datatables").DataTable({
-    columns: [
-        { data: 'NOME', width: "40%" },
-        { data: 'TELEFONE', width: "25%" },
-        { data: 'TURNOSTR', width: "300px" },
-        {
-            data: "ACOES",
-            width: "110px",
-            sortable: false,
-            defaultContent: '<a href="#" class="btn btn-link btn-primary motoristaView"><i class="fa fa-search"></i></a>' +
-                '<a href="#" class="btn btn-link btn-warning motoristaEdit"><i class="fa fa-edit"></i></a>' +
-                '<a href="#" class="btn btn-link btn-danger motoristaRemove"><i class="fa fa-times"></i></a>'
-        }
-    ],
-    columnDefs: [{
-        targets: 0,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    }],
-    autoWidth: false,
-    bAutoWidth: false,
-    lengthMenu: [[10, 50, -1], [10, 50, "Todos"]],
-    pagingType: "full_numbers",
-    order: [[0, "asc"]],
-    language: {
-        "search": "_INPUT_",
-        "searchPlaceholder": "Procurar motoristas",
-        "lengthMenu": "Mostrar _MENU_ motoristas por página",
-        "zeroRecords": "Não encontrei nenhum motorista cadastrado",
-        "info": "Mostrando página _PAGE_ de _PAGES_",
-        "infoEmpty": "Sem registros disponíveis",
-        "infoFiltered": "(Motoristas filtrados a partir do total de _MAX_ motoristas)",
-        "paginate": {
-            "first": "Primeira",
-            "last": "Última",
-            "next": "Próxima",
-            "previous": "Anterior"
-        },
-    },
-    dom: 'lfrtipB',
-    buttons: [
-        {
-            extend: 'pdfHtml5',
-            orientation: "landscape",
-            title: "Motoristas cadastrados",
-            text: "Exportar para PDF",
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4]
-            },
-            customize: function (doc) {
-                doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                doc.images = doc.images || {};
-                doc.images["logo"] = baseImages.get("logo");
-                doc.content.splice(1, 0, {
-                    alignment: 'center',
-                    margin: [0, 0, 0, 12],
-                    image: "logo"
-                });
-                doc.styles.tableHeader.fontSize = 12;
+    // A função abaixo inicia nossa pré-configuração do datatable
+    // ver detalhe da função em js/datatable.extra.js
+    ...dtConfigPadrao("motorista"),
+    ...{
+        columns: [
+            { data: 'NOME', width: "40%" },
+            { data: 'TELEFONE', width: "25%" },
+            { data: 'TURNOSTR', width: "300px" },
+            {
+                data: "ACOES",
+                width: "110px",
+                sortable: false,
+                defaultContent: '<a href="#" class="btn btn-link btn-primary motoristaView"><i class="fa fa-search"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-warning motoristaEdit"><i class="fa fa-edit"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-danger motoristaRemove"><i class="fa fa-times"></i></a>'
             }
-        }
-    ]
+        ],
+        columnDefs: [{ targets: 0,  render: renderAtMostXCharacters(50) }],
+        buttons: [
+            {
+                extend: 'pdfHtml5',
+                orientation: "landscape",
+                title: "Motoristas cadastrados",
+                text: "Exportar para PDF",
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4]
+                },
+                customize: function (doc) {
+                    doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
+                    doc.images = doc.images || {};
+                    doc.images["logo"] = baseImages.get("logo");
+                    doc.content.splice(1, 0, {
+                        alignment: 'center',
+                        margin: [0, 0, 0, 12],
+                        image: "logo"
+                    });
+                    doc.styles.tableHeader.fontSize = 12;
+                }
+            }
+        ]
+    }
 });
 
 dataTablesMotoristas.on('click', '.motoristaView', function () {
@@ -91,53 +72,54 @@ dataTablesMotoristas.on('click', '.motoristaRemove', function () {
     var idMotorista = estadoMotorista["CPF"];
 
     action = "apagarMotorista";
-    Swal2.fire({
-        title: 'Remover esse motorista?',
-        text: "Ao remover esse motorista ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
-    }).then((result) => {
-        if (result.value) {
-            RemoverPromise("Motoristas", "CPF", idMotorista)
-            .then(() => {
-                dataTablesMotoristas.row($tr).remove();
-                dataTablesMotoristas.draw();
-                Swal2.fire({
-                    type: 'success',
-                    title: "Sucesso!",
-                    text: "Motorista removido com sucesso!",
-                    confirmButtonText: 'Retornar a página de administração'
-                });
-            })
-            .catch((err) => errorFn("Erro ao remover o motorista. ", err));
+    confirmDialog('Remover esse motorista?',
+                  "Ao remover esse motorista ele será retirado do sistema das  " + 
+                  "rotas e das escolas que possuir vínculo."
+    ).then((res) => {
+        let listaPromisePraRemover = []
+        if (res.value) {
+            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
+            listaPromisePraRemover.push(dbAtualizaVersao());
         }
-    })
+
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            dataTableEscolas.row($tr).remove();
+            dataTableEscolas.draw();
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Motorista removido com sucesso!",
+                confirmButtonText: 'Retornar a página de administração'
+            });
+        }
+    }).catch((err) => errorFn("Erro ao remover a escola", err))
 });
 
-// Callback para pegar dados inicia da escolas
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFn("Erro ao listar os motoristas", err);
-    } else {
-        $("#totalNumMotoristas").text(result.length);
+dbBuscarTodosDadosPromise(DB_TABLE_MOTORISTA)
+.then(res => processarMotoristas(res))
+.then(res => adicionaDadosTabela(res))
+.catch((err) => errorFn("Erro ao listar os motoristas!", err))
 
-        for (let motoristaRaw of result) {
-            let motoristaJSON = parseMotoristaDB(motoristaRaw);
-            listaDeMotoristas.set(motoristaJSON["CPF"], motoristaJSON);
-        }
-
-        listaDeMotoristas.forEach((motorista) => {
-            dataTablesMotoristas.row.add(motorista);
-        });
-
-        dataTablesMotoristas.draw();
+// Processar motoristas
+var processarMotoristas = (res) => {
+    $("#totalNumMotoristas").text(res.length);
+    for (let motoristaRaw of res) {
+        let motoristaJSON = parseMotoristaDB(motoristaRaw);
+        listaDeMotoristas.set(motoristaJSON["ID"], motoristaJSON);
     }
-};
+    return listaDeMotoristas;
+}
 
-BuscarTodosDados("Motoristas", listaInicialCB);
+// Adiciona dados na tabela
+adicionaDadosTabela = (res) => {
+    res.forEach((motorista) => {
+        dataTablesMotoristas.row.add(motorista);
+    });
+
+    dataTablesMotoristas.draw();
+}
 
 action = "listarMotoristas";

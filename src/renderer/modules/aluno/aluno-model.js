@@ -1,10 +1,10 @@
 function GetAlunoFromForm() {
     return {
-        "LOC_LATITUDE": Number(String($("#reglat").val()).replace(',','.')), // real
-        "LOC_LONGITUDE": Number(String($("#reglon").val()).replace(',','.')), // real
+        "LOC_LATITUDE": $("#reglat").val(), // real
+        "LOC_LONGITUDE": $("#reglon").val(), // real
         "LOC_ENDERECO": $("#regend").val(), // string
         "LOC_CEP": $("#regcep").val(), // string
-        "MEC_TP_LOCALIZACAO": $("input[name='areaUrbana']:checked").val(), // int
+        "MEC_TP_LOCALIZACAO": parseInt($("input[name='areaUrbana']:checked").val()), // int
         "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
         "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
         "DA_COLCHETE": $("#temColchete").is(":checked"), // bool
@@ -17,44 +17,44 @@ function GetAlunoFromForm() {
         "NOME_RESPONSAVEL": $("#regnomeresp").val(), // string
         "TELEFONE_RESPONSAVEL": $("#regtelresp").val(), // string
         "GRAU_RESPONSAVEL": $("#listareggrauresp").val(),
-        "SEXO": $("input[name='modoSexo']:checked").val(), // int
-        "COR": $("input[name='corAluno']:checked").val(), // int
+        "SEXO": parseInt($("input[name='modoSexo']:checked").val()), // int
+        "COR": parseInt($("input[name='corAluno']:checked").val()), // int
         "DEF_CAMINHAR": $("#temDeCaminhar").is(":checked"), // bool
         "DEF_OUVIR": $("#temDeOuvir").is(":checked"), // bool
         "DEF_ENXERGAR": $("#temDeEnxergar").is(":checked"), // bool
         "DEF_MENTAL": $("#temDefMental").is(":checked"), // bool
 
-        "TURNO": $("input[name='turnoAluno']:checked").val(), // int
-        "NIVEL": $("input[name='nivelAluno']:checked").val(), // int
+        "TURNO": parseInt($("input[name='turnoAluno']:checked").val()), // int
+        "NIVEL": parseInt($("input[name='nivelAluno']:checked").val()), // int
     };
 }
 
 function PopulateAlunoFromState(estadoAlunoJSON) {
-    $(".pageTitle").html("Atualizar Aluno");
-    $("#reglat").val(estadoAlunoJSON["LOC_LATITUDE"]);
-    $("#reglon").val(estadoAlunoJSON["LOC_LONGITUDE"]);
-    $("#regend").val(estadoAlunoJSON["LOC_ENDERECO"]);
-    $("#regcep").val(estadoAlunoJSON["LOC_CEP"]);
+    if (estadoAlunoJSON["LOC_LATITUDE"]) $("#reglat").val(estadoAlunoJSON["LOC_LATITUDE"]);
+    if (estadoAlunoJSON["LOC_LONGITUDE"]) $("#reglon").val(estadoAlunoJSON["LOC_LONGITUDE"]);
+    if (estadoAlunoJSON["LOC_ENDERECO"]) $("#regend").val(estadoAlunoJSON["LOC_ENDERECO"]);
+    if (estadoAlunoJSON["LOC_CEP"]) $("#regcep").val(estadoAlunoJSON["LOC_CEP"]);
 
     $("input[name='areaUrbana']").filter(`[value="${estadoAlunoJSON["MEC_TP_LOCALIZACAO"]}"]`).prop("checked", true);
-    $("#temPorteira").prop("checked", estadoAlunoJSON["DA_PORTEIRA"]);
-    $("#temMataBurro").prop("checked", estadoAlunoJSON["DA_MATABURRO"]);
-    $("#temColchete").prop("checked", estadoAlunoJSON["DA_COLCHETE"]);
-    $("#temAtoleiro").prop("checked", estadoAlunoJSON["DA_ATOLEIRO"]);
-    $("#temPonte").prop("checked", estadoAlunoJSON["DA_PONTERUSTICA"]);
+    if (estadoAlunoJSON["DA_PORTEIRA"]) $("#temPorteira").prop("checked", estadoAlunoJSON["DA_PORTEIRA"]);
+    if (estadoAlunoJSON["DA_MATABURRO"]) $("#temMataBurro").prop("checked", estadoAlunoJSON["DA_MATABURRO"]);
+    if (estadoAlunoJSON["DA_COLCHETE"]) $("#temColchete").prop("checked", estadoAlunoJSON["DA_COLCHETE"]);
+    if (estadoAlunoJSON["DA_ATOLEIRO"]) $("#temAtoleiro").prop("checked", estadoAlunoJSON["DA_ATOLEIRO"]);
+    if (estadoAlunoJSON["DA_PONTERUSTICA"]) $("#temPonte").prop("checked", estadoAlunoJSON["DA_PONTERUSTICA"]);
 
     $("#regnome").val(estadoAlunoJSON["NOME"]);
     $("#regcpf").val(estadoAlunoJSON["CPF"]);
     $("#regdata").val(estadoAlunoJSON["DATA_NASCIMENTO"]);
-    $("#regnomeresp").val(estadoAlunoJSON["NOME_RESPONSAVEL"]);
-    $("#regtelresp").val(estadoAlunoJSON["TELEFONE_RESPONSAVEL"]);
-    $("#listareggrauresp").val(estadoAlunoJSON["GRAU_RESPONSAVEL"]);
+    if (estadoAlunoJSON["NOME_RESPONSAVEL"]) $("#regnomeresp").val(estadoAlunoJSON["NOME_RESPONSAVEL"]);
+    if (estadoAlunoJSON["TELEFONE_RESPONSAVEL"]) $("#regtelresp").val(estadoAlunoJSON["TELEFONE_RESPONSAVEL"]);
+    if (estadoAlunoJSON["GRAU_RESPONSAVEL"]) $("#listareggrauresp").val(estadoAlunoJSON["GRAU_RESPONSAVEL"]);
+
     $("input[name='modoSexo']").val([estadoAlunoJSON["SEXO"]]);
     $("input[name='corAluno']").val([estadoAlunoJSON["COR"]]);
-    $("#temDeCaminhar").prop("checked", estadoAlunoJSON["DEF_CAMINHAR"]);
-    $("#temDeOuvir").prop("checked", estadoAlunoJSON["DEF_OUVIR"]);
-    $("#temDeEnxergar").prop("checked", estadoAlunoJSON["DEF_ENXERGAR"]);
-    $("#temDefMental").prop("checked", estadoAlunoJSON["DEF_MENTAL"]);
+    if (estadoAlunoJSON["DEF_CAMINHAR"]) $("#temDeCaminhar").prop("checked", estadoAlunoJSON["DEF_CAMINHAR"]);
+    if (estadoAlunoJSON["DEF_OUVIR"]) $("#temDeOuvir").prop("checked", estadoAlunoJSON["DEF_OUVIR"]);
+    if (estadoAlunoJSON["DEF_ENXERGAR"]) $("#temDeEnxergar").prop("checked", estadoAlunoJSON["DEF_ENXERGAR"]);
+    if (estadoAlunoJSON["DEF_MENTAL"]) $("#temDefMental").prop("checked", estadoAlunoJSON["DEF_MENTAL"]);
 
     $("input[name='turnoAluno']").val([estadoAlunoJSON["TURNO"]]);
     $("input[name='nivelAluno']").val([estadoAlunoJSON["NIVEL"]]);
@@ -241,8 +241,8 @@ function AtualizarEscolaPromise(idAluno, alunoJSON) {
 function GetAlunoForm() {
     return {
         "ID_ALUNO": _aluno.ID_ALUNO, //int primary key
-        "LATITUDE": Number(String($("#reglat").val()).replace(',','.')), // real
-        "LONGITUDE": Number(String($("#reglon").val()).replace(',','.')), // real
+        "LATITUDE": $("#reglat").val(), //real
+        "LONGITUDE": $("#reglon").val(), //real
         "ENDERECO": $("#regend").val(), //string
         "CEP": $("#regcep").val(), //int
         "DA_PORTEIRA": $("#temPorteira").is(":checked"), //bool

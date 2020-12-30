@@ -41,7 +41,6 @@
                                     <div class="col-12 obr">
                                         <label class="control-label">
                                             <b>Localização da Residência do Aluno (clique no mapa)</b>
-                                            <star>*</star>
                                         </label>
                                         <div class="row">
                                             <div id="mapCadastroAluno" class="mb-2 mapawiz"
@@ -50,15 +49,14 @@
                                     </div>
 
                                     <div class="col-12 mt-1">
-                                        <div class="form-group obr">
+                                        <div class="form-group">
                                             <div class="row justify-content-center">
                                                 <div class="col-6 ">
                                                     <div class="row">
-                                                        <div class="obrlabel">
-                                                            Obrigatório
+                                                        <div class="optlabel">
+                                                            Optativo
                                                         </div>
                                                         <label class="col-4 control-label latlon-label"><b>Latitude</b>
-                                                            <star>*</star>
                                                         </label>
                                                         <div class="col-5">
                                                             <input class="form-control" type="text" id="reglat"
@@ -69,12 +67,10 @@
                                                 <div class="col-6">
                                                     <div class="row">
                                                         <label class="col-4 control-label latlon-label"><b>Longitude</b>
-                                                            <star>*</star>
                                                         </label>
                                                         <div class="col-5">
                                                             <input class="form-control" type="text" id="reglon"
-                                                                name="reglon" required="true"
-                                                                placeholder="Longitude:" />
+                                                                name="reglon" placeholder="Longitude:" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -269,14 +265,13 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group obr">
+                                        <div class="form-group">
                                             <div class="row">
-                                                <div class="obrlabel">
-                                                    Obrigatório
+                                                <div class="optlabel">
+                                                    Optativo
                                                 </div>
                                                 <label class="col-4 control-label">
                                                     <b>Nome do Responsável</b>
-                                                    <star>*</star>
                                                 </label>
                                                 <div class="col-6">
                                                     <input id="regnomeresp" name="regnomeresp" type="text"
@@ -306,18 +301,18 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group obr">
+                                        <div class="form-group">
                                             <div class="row">
                                                 <div class="obrlabel">
-                                                    Obrigatório
+                                                    Optativo
                                                 </div>
                                                 <label class="control-label">
                                                     <b>Grau de Parentesco do Responsável</b>
-                                                    <star>*</star>
                                                 </label>
                                                 <div class="col-6">
                                                     <select id="listareggrauresp" name="listareggrauresp"
                                                         class="form-control">
+                                                        <option value="-1">Não Informado</option>
                                                         <option value="0">Pai, Mãe, Padrasto ou Madrasta</option>
                                                         <option value="1">Avô ou Avó</option>
                                                         <option value="2">Irmão ou Irmã</option>
@@ -377,7 +372,7 @@
                                                     Obrigatório
                                                 </div>
                                                 <label class="control-label">
-                                                    <b>A cor ou raça do aluno é?</b>
+                                                    <b>A cor do aluno é?</b>
                                                     <star>*</star>
                                                 </label>
                                                 <div class="form-check form-check-radio">
@@ -508,14 +503,16 @@
 
                                     <div class="col-12">
                                         <div class="form-group obr">
-                                            <div class="row">
-                                                <div class="obrlabel">
-                                                    Obrigatório
-                                                </div>
+                                            <div class="col-12 mb-3">
                                                 <label class="control-label">
                                                     <b>Qual o turno que o aluno estuda?</b>
                                                     <star>*</star>
                                                 </label>
+                                            </div>
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Obrigatório
+                                                </div>
                                                 <div class="form-check form-check-radio">
                                                     <label class="form-check-label">
                                                         <input class="form-check-input" type="radio" name="turnoAluno"

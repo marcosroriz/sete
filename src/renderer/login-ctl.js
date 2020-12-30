@@ -183,6 +183,18 @@ $(document).ready(function () {
         }
     });
 
+    // Ações do teclado para Login (pressionar Enter para logar)
+    $("#loginemail, #loginpassword").keypress((e) => {
+        if(e.which === 13) {
+            $("#loginsubmit").click();
+        }
+    });
+    $("#recoveremail").keypress((e) => {
+        if(e.which === 13) {
+            $("#recoversubmit").click();
+        }
+    });
+    
     // Ações para cada click
 
     // No caso de login iremos fazer o login com o Firebase as preferências
@@ -220,48 +232,53 @@ $(document).ready(function () {
                         userconfig.delete("PASSWORD");
                     }
                     userconfig.set("ID", firebaseUser.user.uid);
-                    var data = remotedb.collection("users").doc(firebaseUser.user.uid);
-                    data.get().then(function (doc) {
-                        if (doc.exists) {
-                            let arData = doc.data();
-                            userconfig.set("COD_CIDADE", arData.COD_CIDADE);
-                            //firebaseUser = user;
-                            var userDocPromise = remotedb.collection("data").doc(arData.COD_CIDADE).get();
-                            userDocPromise.then((queryResult) => {
-                                userData = queryResult.data();
-                                var configData = remotedb.collection("config").doc(arData.COD_CIDADE);
-                                configData.get().then(function (docConfig) {
-                                    if (docConfig.exists) {
-                                        arDataConfig = docConfig.data();
-                                        if (arDataConfig.users.indexOf(firebaseUser.user.uid) > -1) {
-                                            if (userData.INIT) {
-                                                urldestino = "./dashboard.html";
-                                            } else {
-                                                urldestino = "./initconfig-view.html";
-                                            }
-                                            document.location.href = urldestino;
-                                        } else {
-                                            errorFn(`Usuário não configurado no municipio! Entre em contato com o CECATE (cecateufg@gmail.com).`)
-                                            return;
-                                        }
-                                    } else {
-                                        errorFn(`Municipio não configurado na tag config! Entre em contato com o CECATE (cecateufg@gmail.com).`)
-                                        return;
-                                    }
-                                });
-                            }).catch((err) => {
-                                if (err != null) {
-                                    console.log(err.message);
-                                    errorFn(`Dados do Municipio não encontrados! Entre em contato com o CECATE (cecateufg@gmail.com).`)
-                                    return;
-                                }
-                            })
+                    return firebaseUser.user.uid
+                })
+                .then((uid) => dbObterPerfilUsuario(uid)) // Obtém o perfil remoto do usuário
+                .then((remoteData) => {
+                    userconfig.set("COD_CIDADE", String(remoteData.COD_CIDADE))
+                    userconfig.set("COD_ESTADO", String(remoteData.COD_ESTADO))
+                    userconfig.set("ID", remoteData["ID"])
+
+                    dadoUsuario = {
+                        "ID": remoteData["ID"],
+                        "NOME": remoteData["NOME"],
+                        "EMAIL": remoteData["EMAIL"],
+                        "CPF": remoteData["CPF"],
+                        "TELEFONE": remoteData["TELEFONE"],
+                        "CIDADE": remoteData["CIDADE"],
+                        "ESTADO": remoteData["ESTADO"],
+                        "PASSWORD": remoteData["PASSWORD"],
+                        "COD_CIDADE": parseInt(remoteData["COD_CIDADE"]),
+                        "COD_ESTADO": parseInt(remoteData["COD_ESTADO"])
+                    }
+                    userconfig.set("DADO_USUARIO", dadoUsuario)
+                    return dadoUsuario;
+                }).then((dadoUsuario) => {
+                    let cod_cidade = userconfig.get("COD_CIDADE");
+                    return remotedb.collection("config").doc(cod_cidade).get({ source: "server" });
+                }).then((docConfig) => {
+                    let acessoLiberado = false;
+                    if (docConfig.exists) {
+                      arDataConfig = docConfig.data();
+                      if (arDataConfig.users.indexOf(firebaseUser.user.uid) > -1) {
+                          acessoLiberado = true;
+                          // TODO: Checar o campo INIT posteriormente
+                      }
+                    } else {
+                      throw new Exception("Acesso ainda não foi liberado");
+                    }
+                    return acessoLiberado;
+                }).then(() => {
+                    let dadoUsuario = userconfig.get("DADO_USUARIO");
+                    RecuperarUsuario(dadoUsuario["ID"]).then(userData => {
+                        if (userData.length == 0) {
+                            return InserirUsuario(dadoUsuario)
                         } else {
-                            // doc.data() will be undefined in this case
-                            console.log("No such document!");
+                            return true;
                         }
                     })
-                })
+                }).then(() => document.location.href = "./dashboard.html")
                 .catch((err) => {
                     if (err != null) {
                         console.log(err.message);

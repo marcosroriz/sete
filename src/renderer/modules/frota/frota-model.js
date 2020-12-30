@@ -1,7 +1,7 @@
 function GetVeiculoFromForm() {
     return {
-        "MODO": $("input[name='tipoModal']:checked").val(), // boolean
-        "MARCA": $("#tipoMarca").val(), // boolean
+        "MODO": $("input[name='tipoModal']:checked").val(), // int
+        "MARCA": $("#tipoMarca").val(), // int
         "TIPO": $("#tipoVeiculo").val(), // int
         "MODELO": $("#listamodelo").val(),
         "ANO": $("#reganoaquisicao").val(),
@@ -12,7 +12,7 @@ function GetVeiculoFromForm() {
         "KM_INICIAL": $("#regkm").val(),
         "KM_ATUAL": $("#regkm").val(),
         "CAPACIDADE": $("#capacidade").val(),
-        "MANUTENCAO": $("input[name='manutencao']:checked").val(), // boolean
+        "MANUTENCAO": Boolean(parseInt($("input[name='manutencao']:checked").val())), // boolean
     };
 }
 
@@ -60,7 +60,11 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
     $("#regrenavam").val(estadoVeiculoJSON["RENAVAM"]);
     $("#regkm").val(estadoVeiculoJSON["KM_INICIAL"]);
     $("#capacidade").val(estadoVeiculoJSON["CAPACIDADE"]);
-    $("input[name='manutencao']").val([estadoVeiculoJSON["MANUTENCAO"]]);
+    if (estadoVeiculoJSON["MANUTENCAO"]) {
+        $("input[name='manutencao'][value='1']").prop('checked', true)
+    } else {
+        $("input[name='manutencao'][value='0']").prop('checked', true)
+    }
 }
 
 // Transformar linha do DB para JSON
@@ -120,9 +124,10 @@ var parseVeiculoDB = function (veiculoRaw) {
     switch (parseInt(veiculoRaw["MARCA"])) {
         case 1: veiculoJSON["MARCASTR"] = "IVECO"; break;
         case 2: veiculoJSON["MARCASTR"] = "MERCEDES-BENZ"; break;
-        case 3: veiculoJSON["MARCASTR"] = "VOLKSWAGEN"; break;
-        case 4: veiculoJSON["MARCASTR"] = "VOLARE"; break;
-        case 5: veiculoJSON["MARCASTR"] = "OUTRA"; break;
+        case 3: veiculoJSON["MARCASTR"] = "RENAULT"; break;
+        case 4: veiculoJSON["MARCASTR"] = "VOLKSWAGEN"; break;
+        case 5: veiculoJSON["MARCASTR"] = "VOLARE"; break;
+        case 10: veiculoJSON["MARCASTR"] = "OUTRA"; break;
         default: veiculoJSON["MARCASTR"] = "OUTRA";
     }
 
