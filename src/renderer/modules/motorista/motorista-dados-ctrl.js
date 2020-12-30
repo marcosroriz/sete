@@ -1,3 +1,7 @@
+// motorista-dados-ctrl.js
+// Este arquivo contém o script de controle da tela motorista-dados-view. 
+// O mesmo serve para detalhar os dados de um motorista
+
 var idMotorista = estadoMotorista["CPF"];
 
 // Tira o btn group do datatable
@@ -63,31 +67,30 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
             className: "btnApagar",
             action: function(e, dt, node, config) {
                 action = "apagarMotorista";
-                Swal2.fire({
-                    title: 'Remover esse motorista?',
-                    text: "Ao remover esse motorista ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    cancelButtonText: "Cancelar",
-                    confirmButtonText: 'Sim, remover'
-                }).then((result) => {
-                    if (result.value) {
-                        RemoverPromise("Motoristas", "CPF", idMotorista)
-                        .then(() => {
-                            Swal2.fire({
-                                type: 'success',
-                                title: "Sucesso!",
-                                text: "Motorista removido com sucesso!",
-                                confirmButtonText: 'Retornar a página de administração'
-                            }).then(() => {
-                                navigateDashboard("./modules/motorista/motorista-listar-view.html");
-                            });
-                        })
-                        .catch((err) => errorFn("Erro ao remover o motorista. ", err));
+                confirmDialog('Remover esse motorista?',
+                               "Ao remover esse motorista ele será retirado do sistema das  " + 
+                               "rotas e das escolas que possuir vínculo."
+                ).then((res) => {
+                    let listaPromisePraRemover = []
+                    if (res.value) {
+                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
+                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
+                        listaPromisePraRemover.push(dbAtualizaVersao());
                     }
-                })
+
+                    return Promise.all(listaPromisePraRemover)
+                }).then((res) => {
+                    if (res.length > 0) {
+                        Swal2.fire({
+                            title: "Sucesso!",
+                            icon: "success",
+                            text: "Motorista removido com sucesso!",
+                            confirmButtonText: 'Retornar a página de administração'
+                        }).then(() => {
+                            navigateDashboard("./modules/motorista/motorista-listar-view.html");
+                        });
+                    }
+                }).catch((err) => errorFn("Erro ao remover a escola", err))
             }
         },
     ]
@@ -113,8 +116,9 @@ var popularTabelaMotorista = () => {
         dataTableMotorista.row.add(["Número do doc. de Antecedentes Criminais", "Não informado"]);
     }
 
-    if (estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"] == null || 
-        estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"] != "") {
+    if (estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"] != null &&
+        estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"] != "" &&
+        estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"] != undefined) {
         dataTableMotorista.row.add(["Anexo dos documentos pessoais", 
         `<button type="button" id="docAnexos" class="btn btn-primary btn-sm">
                 Ver documentos em anexos (PDF)

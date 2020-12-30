@@ -50,8 +50,9 @@
                                     <thead>
                                         <tr>
                                             <th>Data</th>
-                                            <th>Veículo</th>
                                             <th>Tipo de Serviço</th>
+                                            <th>Veículo</th>
+                                            <th>Término?</th>
                                             <th>Comentário</th>
                                         </tr>
                                     </thead>
@@ -71,3 +72,17 @@
 
 <script src="./modules/fornecedor/fornecedor-model.js" type="text/javascript"></script>
 <script src="./modules/fornecedor/fornecedor-dados-ctrl.js" type="text/javascript"></script>
+
+<style>
+    div#dataTableListaDeServicos_length {
+        float: left;
+    }  
+    
+    #dataTableListaDeServicos_wrapper ul.pagination {
+        margin: 10px;
+        margin-bottom: 20px;
+    }
+    .card .table tbody td:last-child, .card .table thead th:last-child {
+        display: table-cell;
+    }
+</style>

@@ -1,70 +1,92 @@
-// Firebase user
+// dashboard-ctrl.js
+// Este arquivo provê os scripts básicos para controlar a tela inicial do SETE
+
+// Mostra âncora de loading
+$(".content").hide();
+$(".preload").show();
+
+// Ativa links de navegação
+$(".link-dash").click(function () {
+    navigateDashboard("./modules/" + $(this).attr("name") + ".html");
+});
+
+// Seta o usuário do firebase
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
         firebaseUser = user;
         var userDocPromise = remotedb.collection("users").doc(firebaseUser.uid).get();
         userDocPromise.then((queryResult) => {
             userData = queryResult.data();
-            console.log(userData);
-            $("#userName").html(userData["NOME"]);
+            $("#userName").html(userData["NOME"].split(" ")[0]);
         })
     }
 });
 
-$(".link-dash").click(function () {
-    navigateDashboard("./modules/" + $(this).attr("name") + ".html");
-});
-
-var dashPromises = new Array();
-
-dashPromises.push(NumeroDeAlunosAtendidosPromise().then((res) => {
-    $("#alunosAtendidos").text(res[0]["NUMALUNOS"]);
-}))
-
-dashPromises.push(NumeroDeEscolasAtendidasPromise().then((res) => {
-    $("#escolasAtendidas").text(res[0]["NUMESCOLAS"]);
-}))
-
-dashPromises.push(NumeroDeVeiculosFuncionamentoPromise().then((res) => {
-    $("#veiculosFuncionamento").text(res[0]["NUMVEICULOS"]);
-}))
-
-dashPromises.push(NumeroDeVeiculosEmManutencaoPromise().then((res) => {
-    $("#veiculosNaoFuncionamento").text(res[0]["NUMVEICULOS"]);
-}))
-
-dashPromises.push(BuscarTodosDadosPromise("Rotas").then((res) => {
-    var totalRotas = res.length;
-    var totalKM = 0;
-    var totalKMMedio = 0;
-    var totalTempo = 0;
-    res.forEach((rota) => {
-        totalKM = totalKM + parseFloat(rota["KM"]);
-        totalTempo = totalTempo + parseFloat(rota["TEMPO"]);
-    });
-
-    if (totalRotas != 0) {
-        totalKMMedio = Math.round(totalKM / totalRotas);
-        totalTempo = Math.round(totalTempo / totalRotas);
+// Verifica se DB está sincronizado antes de colocar dados na tela do dashboard
+dbEstaSincronizado()
+.then((estaSincronizado) => {
+    if (!estaSincronizado) {
+        console.log("PRECISAMOS SINCRONIZAR")
+        return dbSincronizar();
+    } else {
+        // Está sincronizado
+        console.log("ESTÁ SINCRONIZADO")
+        return true;
     }
+})
+.then(() => preencheDashboard())
+.then(() => {
+    $(".preload").fadeOut(200, function () {
+        $(".content").fadeIn(200);
+    });
+})
+.catch((err) => {
+    console.error("ERROR", err);
+    $(".preload").fadeOut(200, function () {
+        $(".content").fadeIn(200);
+    });
+})
 
-    $("#qtdeRotas").text(totalRotas);
-    $("#kmTotal").text(Math.round(totalKM) + " km");
-    $("#kmMedio").text(totalKMMedio + " km");
-    $("#tempoMedio").text(totalTempo + " min");
+// Preenche Dashboard
+function preencheDashboard() {
+    var dashPromises = new Array();
 
-}))
+    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS).then((res) => {
+        $("#alunosAtendidos").text(res.length);
 
-Promise.all(dashPromises)
-    .then(() => {
-        $(".preload").fadeOut(1000, function () {
-            $(".content").fadeIn(1000);
+        let escolasAtendidas = new Set()
+        res.forEach(relEscolaAluno => escolasAtendidas.add(relEscolaAluno["ID_ESCOLA"]))
+        
+        $("#escolasAtendidas").text(escolasAtendidas.size);
+    }))
+
+    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_VEICULO).then((res) => {
+        let func = naofunc = 0;
+        res.forEach(veiculo => veiculo["MANUTENCAO"] ? func++ : naofunc++)
+        $("#veiculosFuncionamento").text(func);
+        $("#veiculosNaoFuncionamento").text(naofunc);
+    }))
+
+    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ROTA).then((res) => {
+        var totalRotas = res.length;
+        var totalKM = 0;
+        var totalKMMedio = 0;
+        var totalTempo = 0;
+        res.forEach((rota) => {
+            totalKM = totalKM + parseFloat(rota["KM"]);
+            totalTempo = totalTempo + parseFloat(rota["TEMPO"]);
         });
-    })
-    .catch((err) => {
-        console.log(err);
-        console.log("ERROR")
-        $(".preload").fadeOut(1000, function () {
-            $(".content").fadeIn(1000);
-        });
-    })
+
+        if (totalRotas != 0) {
+            totalKMMedio = Math.round(totalKM / totalRotas);
+            totalTempo = Math.round(totalTempo / totalRotas);
+        }
+
+        $("#qtdeRotas").text(totalRotas);
+        $("#kmTotal").text(Math.round(totalKM) + " km");
+        $("#kmMedio").text(totalKMMedio + " km");
+        $("#tempoMedio").text(totalTempo + " min");
+    }))
+
+    return Promise.all(dashPromises)
+}

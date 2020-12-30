@@ -1,10 +1,22 @@
+// fornecedor-cadastrar-ctrl.js
+// Este arquivo contém o script de controle da tela foirnecedor-cadastrar-view. 
+// O mesmo serve tanto para cadastrar, quanto para alterar os dados de um fornecedor.
+
+// Verifica se é um cadastro novo ou é uma edição
+var estaEditando = false;
+if (action == "editarFornecedor") {
+    estaEditando = true;
+}
+
 // Máscaras
 $('.cep').mask("00000-000");
 $(".telmask").mask(telmaskbehaviour, teloptions);
-// $(".cnpj").mask("00.000.000/0000-00", { reverse: true });
+$(".cnpj").mask("00.000.000/0000-00", { reverse: true });
 
-// Posição da Escola (no Mapa)
+// Posição do Fornecedor
 var posicaoFornecedor;
+
+// Mapa
 var mapa = novoMapaOpenLayers("mapCadastroFornecedor", cidadeLatitude, cidadeLongitude);
 var vectorSource = mapa["vectorSource"];
 var vectorLayer = mapa["vectorLayer"];
@@ -13,6 +25,30 @@ var mapaOL = mapa["map"];
 // Ativa busca e camadas
 mapa["activateGeocoder"]();
 mapa["activateImageLayerSwitcher"]();
+
+window.onresize = function () {
+    setTimeout(function () {
+        if (mapaViz != null) { mapaViz["map"].updateSize(); }
+    }, 200);
+}
+
+// Plota fornecedor na tela
+var plotaFornecedor = (lat, lon) => {
+    posicaoFornecedor = gerarMarcador(lat, lon, "img/icones/fornecedor-marcador.png", 25, 50);
+    vectorSource.addFeature(posicaoFornecedor);
+
+    var translate = new ol.interaction.Translate({
+        features: new ol.Collection([posicaoFornecedor])
+    });
+
+    translate.on('translateend', function (evt) {
+        var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
+        $("#reglat").val(lat.toPrecision(8));
+        $("#reglon").val(lon.toPrecision(8));
+    }, posicaoFornecedor);
+
+    mapaOL.addInteraction(translate);
+}
 
 // Lida com click de usuário
 mapaOL.on('singleclick', function (evt) {
@@ -28,114 +64,60 @@ mapaOL.on('singleclick', function (evt) {
         }
     }
 
-    posicaoFornecedor = new ol.Feature(
-        new ol.geom.Point(evt.coordinate)
-    );
-    posicaoFornecedor.setStyle(new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [25, 50],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            opacity: 1,
-            src: "img/icones/fornecedor-marcador.png"
-        })
-    }));
-    vectorSource.addFeature(posicaoFornecedor);
-
-    var translate = new ol.interaction.Translate({
-        features: new ol.Collection([posicaoFornecedor])
-    });
-
-    translate.on('translateend', function (evt) {
-        var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-        $("#reglat").val(parseFloat(lat).toFixed(10));
-        $("#reglon").val(parseFloat(lon).toFixed(10));
-    }, posicaoFornecedor);
-
-    mapaOL.addInteraction(translate);
-
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-    $("#reglat").val(parseFloat(lat).toFixed(10));
-    $("#reglon").val(parseFloat(lon).toFixed(10));
+    $("#reglat").val(lat.toPrecision(8));
+    $("#reglon").val(lon.toPrecision(8));
     $("#reglat").valid();
     $("#reglon").valid();
+
+    plotaFornecedor(lat, lon)
 });
 
 var validadorFormulario = $("#wizardCadastrarFornecedorForm").validate({
-    rules: {
-        regnome: {
-            required: true
+    // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
+    ...configMostrarResultadoValidacao(),
+    ...{
+        rules: {
+            regnome: {
+                required: true
+            },
+            regcnpj: {
+                required: true,
+                cpfcnpj: true
+            },
+            'temServico[]': {
+                required: true,
+                minlength: 1
+            },
         },
-        regcnpj: {
-            required: true,
-            cpfcnpj: true
-        },
-        'temServico[]': {
-            required: true,
-            minlength: 1
-        },
-    },
-    highlight: function (element) {
-        $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-        $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
-    },
-    success: function (element) {
-        $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-        $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
-    },
-    errorPlacement: function (error, element) {
-        console.log(error);
-        console.log(element);
-        $(element).closest('.form-group').append(error).addClass('has-error');
     }
 });
 
 $('.card-wizard').bootstrapWizard({
-    'tabClass': 'nav nav-pills',
-    'nextSelector': '.btn-next',
-    'previousSelector': '.btn-back',
+    // Configura ações básica do wizard (ver função em common.js)
+    ...configWizardBasico('#wizardCadastrarFornecedorForm'),
+    ...{
+        onTabShow: function (tab, navigation, index) {
+            var $total = navigation.find('li').length;
+            var $current = index + 1;
 
-    onNext: function (tab, navigation, index) {
-        var $valid = $('#wizardCadastrarFornecedorForm').valid();
-        if (!$valid) {
-            validadorFormulario.focusInvalid();
-            return false;
-        } else {
-            window.scroll(0, 0);
+            var $wizard = navigation.closest('.card-wizard');
+
+            // If it's the last tab then hide the last button and show the finish instead
+            if ($current >= $total) {
+                $($wizard).find('.btn-next').hide();
+                $($wizard).find('.btn-finish').show();
+            } else {
+                $($wizard).find('.btn-next').show();
+                $($wizard).find('.btn-finish').hide();
+            }
+
+            if (estaEditando) {
+                $($wizard).find('#cancelarAcao').show();
+            } else {
+                $($wizard).find('#cancelarAcao').hide();
+            }
         }
-    },
-
-    onTabClick: function (tab, navigation, index) {
-        var $valid = $('#wizardCadastrarFornecedorForm').valid();
-        if (!$valid) {
-            return false;
-        } else {
-            window.scroll(0, 0);
-            return true;
-        }
-    },
-
-    onTabShow: function (tab, navigation, index) {
-        var $total = navigation.find('li').length;
-        var $current = index + 1;
-
-        var $wizard = navigation.closest('.card-wizard');
-
-        // If it's the last tab then hide the last button and show the finish instead
-        if ($current >= $total) {
-            $($wizard).find('.btn-next').hide();
-            $($wizard).find('.btn-finish').show();
-        } else {
-            $($wizard).find('.btn-next').show();
-            $($wizard).find('.btn-finish').hide();
-        }
-
-        if (action == "editarFornecedor") {
-            $($wizard).find('#cancelarAcao').show();
-        } else {
-            $($wizard).find('#cancelarAcao').hide();
-        }
-
     }
 });
 
@@ -153,12 +135,12 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-        .then(() => {
-            $("a[name='fornecedor/fornecedor-listar-view']").click();
-        });
+    .then(() => {
+        $("a[name='fornecedor/fornecedor-listar-view']").click();
+    });
 }
 
-$("#salvarfornecedor").click(() => {
+$("#salvarfornecedor").on('click', () => {
     $("#regnome").valid();
     $("#regcnpj").valid();
     $("[name='temServico[]']").valid();
@@ -169,62 +151,48 @@ $("#salvarfornecedor").click(() => {
     if (!$valid) {
         return false;
     } else {
-        if (action == "editarFornecedor") {
-            AtualizarPromise("Fornecedores", fornecedorJSON, "ID_FORNECEDOR", estadoFornecedor["ID_FORNECEDOR"])
-                .then((res) => {
-                    completeForm();
-                })
-                .catch((err) => {
-                    errorFn("Erro ao atualizar o fornecedor!", err);
-                });
+        if (estaEditando) {
+            loadingFn("Editando o fornecedor ...")
+
+            dbAtualizarPromise(DB_TABLE_FORNECEDOR, fornecedorJSON, estadoFornecedor["ID"])
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao atualizar o fornecedor.", err))
         } else {
-            InserirPromise("Fornecedores", fornecedorJSON)
-                .then((res) => {
-                    completeForm();
-                })
-                .catch((err) => {
-                    errorFn("Erro ao salvar o fornecedor!", err);
-                });
+            loadingFn("Cadastrando o fornecedor ...")
+                    
+            dbInserirPromise(DB_TABLE_FORNECEDOR, fornecedorJSON)
+            .then(() => dbAtualizaVersao())
+            .then(() => completeForm())
+            .catch((err) => errorFn("Erro ao salvar o fornecedor.", err))
         }
     }
 });
 
-
-if (action == "editarFornecedor") {
+if (estaEditando) {
     PopulateFornecedorFromState(estadoFornecedor);
-    if (estadoFornecedor["LOC_LATITUDE"] != null && estadoFornecedor["LOC_LATITUDE"] != "" && 
-        estadoFornecedor["LOC_LONGITUDE"] != null && estadoFornecedor["LOC_LONGITUDE"] != "") {
-        posicaoFornecedor = new ol.Feature(
-            new ol.geom.Point(ol.proj.fromLonLat(
-                [estadoFornecedor["LOC_LONGITUDE"], estadoFornecedor["LOC_LATITUDE"]])
-            )
-        );
-        posicaoFornecedor.setStyle(new ol.style.Style({
-            image: new ol.style.Icon({
-                anchor: [25, 40],
-                anchorXUnits: 'pixels',
-                anchorYUnits: 'pixels',
-                opacity: 1,
-                src: "img/icones/fornecedor-marcador.png"
-            })
-        }));
-        vectorSource.addFeature(posicaoFornecedor);
+    if (estadoFornecedor["LOC_LATITUDE"] != null && estadoFornecedor["LOC_LATITUDE"] != undefined && 
+        estadoFornecedor["LOC_LONGITUDE"] != null && estadoFornecedor["LOC_LONGITUDE"] != undefined) {
+        plotaFornecedor(estadoFornecedor["LOC_LATITUDE"], estadoFornecedor["LOC_LONGITUDE"]);
+
+        if (!vectorSource.isEmpty()) {
+            mapa["map"].getView().fit(vectorSource.getExtent());
+            mapa["map"].updateSize();
+        }
     }
 
-    $("#cancelarAcao").click(() => {
-        Swal2.fire({
-            title: 'Cancelar Edição?',
-            text: "Se você cancelar nenhum alteração será feita nos dados do fornecedor.",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            cancelButtonText: "Voltar a editar",
-            confirmButtonText: 'Sim, cancelar'
-        }).then((result) => {
+    $('.cep').trigger('input');
+    $(".telmask").trigger('input');
+    $(".cnpj").trigger('input');
+
+    $("#cancelarAcao").on('click', () => {
+        cancelDialog()
+        .then((result) => {
             if (result.value) {
                 navigateDashboard(lastPage);
             }
         })
     });
 }
+
+action = "cadastrarFornecedor"

@@ -93,3 +93,4 @@ out/
 
 # Binaries
 bin/sete-*
+.vscode/launch.json

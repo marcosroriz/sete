@@ -1,85 +1,64 @@
-// Preenchimento da Tabela via SQL
+// aluno-listar-ctrl.js
+// Este arquivo contém o script de controle da tela aluno-listar-view. O memso
+// apresenta os alunos cadastrados em uma tabela. Para tal, é feito uma consulta
+// dos alunos no banco de dados. Também é feito consultas nos dados de escolas e
+// coleções para apresentar dados adicionais na tabela dos alunos
+
+// Variável que armazena os alunos apresentados (será preenchida)
 var listaDeAlunos = new Map();
 
-// DataTables
+// Configura o DataTables
 var dataTablesAlunos = $("#datatables").DataTable({
-    // fixedHeader: true,
-    columns: [
-        { data: 'NOME', width: "25%" },
-        { data: 'LOCALIZACAO', width: "15%" },
-        { data: 'ROTA', width: "15%" },
-        { data: 'ESCOLA', width: "25%" },
-        { data: 'NIVELSTR', width: "200px" },
-        { data: 'TURNOSTR', width: "200px" },
-        {
-            data: "ACOES",
-            width: "90px",
-            sortable: false,
-            defaultContent: '<a href="#" class="btn btn-link btn-primary alunoView"><i class="fa fa-search"></i></a>' +
-                '<a href="#" class="btn btn-link btn-warning alunoEdit"><i class="fa fa-edit"></i></a>' +
-                '<a href="#" class="btn btn-link btn-danger alunoRemove"><i class="fa fa-times"></i></a>'
-        }
-    ],
-    columnDefs: [{
-        targets: 0,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    },
-    {
-        targets: 2,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    }],
-    autoWidth: false,
-    bAutoWidth: false,
-    lengthMenu: [[10, 50, -1], [10, 50, "Todos"]],
-    pagingType: "full_numbers",
-    order: [[0, "asc"]],
-    language: {
-        "search": "_INPUT_",
-        "searchPlaceholder": "Procurar alunos",
-        "lengthMenu": "Mostrar _MENU_ alunos por página",
-        "zeroRecords": "Não encontrei nenhum aluno cadastrado",
-        "info": "Mostrando página _PAGE_ de _PAGES_",
-        "infoEmpty": "Sem registros disponíveis",
-        "infoFiltered": "(Alunos filtrados a partir do total de _MAX_ alunos)",
-        "paginate": {
-            "first": "Primeira",
-            "last": "Última",
-            "next": "Próxima",
-            "previous": "Anterior"
-        },
-    },
-    dom: 'lfrtipB',
-    buttons: [
-        {
-            extend: 'pdfHtml5',
-            orientation: "landscape",
-            title: "Alunos cadastrados",
-            text: "Exportar para PDF",
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4]
-            },
-            customize: function (doc) {
-                doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                doc.images = doc.images || {};
-                doc.images["logo"] = baseImages.get("logo");
-                doc.content.splice(1, 0, {
-                    alignment: 'center',
-                    margin: [0, 0, 0, 12],
-                    image: "logo"
-                });
-                doc.styles.tableHeader.fontSize = 12;
+    // A função abaixo inicia nossa pré-configuração do datatable
+    // ver detalhe da função em js/datatable.extra.js
+    ...dtConfigPadrao("aluno"),
+    ...{
+        columns: [
+            { data: 'NOME', width: "25%" },
+            { data: 'LOCALIZACAO', width: "15%" },
+            { data: 'ROTA', width: "15%" },
+            { data: 'ESCOLA', width: "25%" },
+            { data: 'NIVELSTR', width: "200px" },
+            { data: 'TURNOSTR', width: "200px" },
+            {
+                data: "ACOES",
+                width: "90px",
+                sortable: false,
+                defaultContent: '<a href="#" class="btn btn-link btn-primary alunoView"><i class="fa fa-search"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-warning alunoEdit"><i class="fa fa-edit"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-danger alunoRemove"><i class="fa fa-times"></i></a>'
             }
-        }
-    ]
+        ],
+        columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50), type: 'locale-compare' },
+                     { targets: 2, render: renderAtMostXCharacters(50) }],
+        buttons: [
+            {
+                extend: 'pdfHtml5',
+                orientation: "landscape",
+                title: "Alunos cadastrados",
+                text: "Exportar para PDF",
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4]
+                },
+                customize: function (doc) {
+                    doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
+                    doc.images = doc.images || {};
+                    doc.images["logo"] = baseImages.get("logo");
+                    doc.content.splice(1, 0, {
+                        alignment: 'center',
+                        margin: [0, 0, 0, 12],
+                        image: "logo"
+                    });
+                    doc.styles.tableHeader.fontSize = 12;
+                }
+            }
+        ]
+    }
 });
+
+$("#datatables_filter input").on('keyup', function () {
+    dataTablesAlunos.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+})
 
 dataTablesAlunos.on('click', '.alunoView', function () {
     var $tr = getRowOnClick(this);
@@ -102,110 +81,97 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
 
     estadoAluno = dataTablesAlunos.row($tr).data();
     action = "apagarAluno";
-    Swal2.fire({
-        title: 'Remover esse aluno?',
-        text: "Ao remover esse aluno ele será retirado do sistema das rotas e das escolas que possuir vínculo.",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
-    }).then((result) => {
+    confirmDialog('Remover esse aluno?',
+                  "Ao remover esse aluno ele será retirado do sistema das rotas " + 
+                  "e das escolas que possuir vínculo."
+    ).then((result) => {
+        let listaPromisePraRemover = []
         if (result.value) {
-            RemoverAluno(estadoAluno["ID_ALUNO"], (err, result) => {
-                if (result) {
-                    dataTablesAlunos.row($tr).remove();
-                    dataTablesAlunos.draw();
-                    Swal2.fire({
-                        type: 'success',
-                        title: "Sucesso!",
-                        text: "Aluno removido com sucesso!",
-                        confirmButtonText: 'Retornar a página de administração'
-                    });
-                } else {
-                    Swal2.fire({
-                        type: 'error',
-                        title: 'Oops...',
-                        text: 'Tivemos algum problema. Por favor, reinicie o software!',
-                    });
-                }
+            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", estadoAluno["ID"]));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
+            listaPromisePraRemover.push(dbAtualizaVersao());
+        }
+
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            dataTablesAlunos.row($tr).remove();
+            dataTablesAlunos.draw();
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Aluno(a) removido(a) com sucesso!",
+                confirmButtonText: 'Retornar a página de administração'
             });
         }
-    })
+    }).catch((err) => errorFn("Erro ao remover o(a) aluno(a)", err))
 });
 
 
-// Função para relatar erro
-var errorFnAlunos = (err) => {
-    Swal2.fire({
-        title: "Ops... tivemos um problema!",
-        text: "Erro ao listar os alunos! Feche e abra o software novamente. \n" + err,
-        icon: "error",
-        button: "Fechar"
-    });
+dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
+.then(res => preprocessarAlunos(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then(res => preprocessarEscolas(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+.then(res => preprocessarRotas(res))
+.then((res) => adicionaDadosTabela(res))
+.catch((err) => errorFn(err))
+
+// Preprocessa alunos
+var preprocessarAlunos = (res) => {
+    $("#totalNumAlunos").text(res.length);
+    for (let alunoRaw of res) {
+        let alunoJSON = parseAlunoDB(alunoRaw);
+        listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
+    }
+    return listaDeAlunos;
 }
 
-// Callback para pegar número de alunos da escola
-var listarEscolasAlunosCB = (err, result) => {
-    if (err) {
-        errorFnAlunos(err);
-    } else {
-        for (let alunoRaw of result) {
-            let aID = alunoRaw["ID_ALUNO"];
-            let eID = alunoRaw["ID_ESCOLA"];
-            let eNome = alunoRaw["NOME"];
+// Preprocessa escolas
+var preprocessarEscolas = (res) => {
+    for (let escolaRaw of res) {
+        let aID = escolaRaw["ID_ALUNO"];
+        let eID = escolaRaw["ID_ESCOLA"];
+        let eNome = escolaRaw["NOME"];
 
-            let alunoJSON = listaDeAlunos.get(aID);
-            alunoJSON["ID_ESCOLA"] = eID;
-            alunoJSON["ESCOLA"] = eNome;
-            alunoJSON["ESCOLA_LOC_LATITUDE"] = alunoRaw["LOC_LATITUDE"];
-            alunoJSON["ESCOLA_LOC_LONGITUDE"] = alunoRaw["LOC_LONGITUDE"];
-            alunoJSON["ESCOLA_MEC_CO_UF"] = alunoRaw["MEC_CO_UF"];
-            alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = alunoRaw["MEC_CO_MUNICIPIO"];
-            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = alunoRaw["MEC_TP_LOCALIZACAO"];
-            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = alunoRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
-            alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = alunoRaw["CONTATO_RESPONSAVEL"];
-            alunoJSON["ESCOLA_CONTATO_TELEFONE"] = alunoRaw["CONTATO_TELEFONE"];
+        let alunoJSON = listaDeAlunos.get(aID);
+        alunoJSON["ID_ESCOLA"] = eID;
+        alunoJSON["ESCOLA"] = eNome;
+        alunoJSON["ESCOLA_LOC_LATITUDE"] = escolaRaw["LOC_LATITUDE"];
+        alunoJSON["ESCOLA_LOC_LONGITUDE"] = escolaRaw["LOC_LONGITUDE"];
+        alunoJSON["ESCOLA_MEC_CO_UF"] = escolaRaw["MEC_CO_UF"];
+        alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = escolaRaw["MEC_CO_MUNICIPIO"];
+        alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = escolaRaw["MEC_TP_LOCALIZACAO"];
+        alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = escolaRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
+        alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = escolaRaw["CONTATO_RESPONSAVEL"];
+        alunoJSON["ESCOLA_CONTATO_TELEFONE"] = escolaRaw["CONTATO_TELEFONE"];
 
-            listaDeAlunos.set(aID, alunoJSON);
-        }
-
-        ListarRotasDeAlunosPromise()
-        .then((res) => {
-            res.forEach((a) => {
-                let aID = a["ID_ALUNO"];
-                let alunoJSON =  listaDeAlunos.get(aID);
-                
-                alunoJSON["ROTA"] = a["NOME"];
-                listaDeAlunos.set(aID, alunoJSON);
-            })
-
-            listaDeAlunos.forEach((aluno) => {
-                dataTablesAlunos.row.add(aluno);
-            });
-
-            dataTablesAlunos.draw();
-        })
+        listaDeAlunos.set(aID, alunoJSON);
     }
+    return listaDeAlunos;
 };
 
-// Callback para pegar dados inicia da escolas
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFnAlunos(err);
-    } else {
-        $("#totalNumAlunos").text(result.length);
+// Preprocessa rotas
+var preprocessarRotas = (res) => {
+    res.forEach((rota) => {
+        let aID = rota["ID_ALUNO"];
+        let alunoJSON =  listaDeAlunos.get(aID);
+        
+        alunoJSON["ROTA"] = rota["NOME"];
+        listaDeAlunos.set(aID, alunoJSON);
+    })
 
-        for (let alunoRaw of result) {
-            let alunoJSON = parseAlunoDB(alunoRaw);
-            listaDeAlunos.set(alunoJSON["ID_ALUNO"], alunoJSON);
-        }
+    return listaDeAlunos;
+}
 
-        ListarEscolasDeAlunos(listarEscolasAlunosCB);
-    }
-};
+// Adiciona dados na tabela
+adicionaDadosTabela = (res) => {
+    res.forEach((aluno) => {
+        dataTablesAlunos.row.add(aluno);
+    });
 
-BuscarTodosAlunos(listaInicialCB);
+    dataTablesAlunos.draw();
+}
 
 action = "listarAluno";

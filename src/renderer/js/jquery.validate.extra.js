@@ -85,8 +85,16 @@ window.$.validator.addMethod("mltselect", function (value, element) {
 // Validar campo com data de nascimento no formato dd-mm-yyyy
 window.$.validator.addMethod("datanasc", function (value, element) {
     // return this.optional(element) || /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/.test(value);
-    return moment(value, "DD/MM/YYYY").isValid();
+    return moment(value, "DD/MM/YYYY", true).isValid();
 }, "Informe uma data de nascimento válida");
+
+
+// Validar campo com data de nascimento no formato dd-mm-yyyy
+window.$.validator.addMethod("datavalida", function (value, element) {
+    // return this.optional(element) || /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/.test(value);
+    return moment(value, "DD/MM/YYYY", true).isValid();
+}, "Informe uma data válida (DD/MM/YYYY)");
+
 
 // Validar ano
 window.$.validator.addMethod("ano", function (value, element) {
@@ -100,7 +108,12 @@ window.$.validator.addMethod("hora", function (value, element) {
 
 // Validar campo com CNH
 window.$.validator.addMethod("cnh", function (value, element) {
-    return jsbrasil.validateBr.cnh(value);
+    if (value) {
+        return value.length == 12
+    } else {
+        return false;
+    }
+    // return jsbrasil.validateBr.cnh(value);
 }, "Informe uma CNH válida");
 
 // Validar campo com CNPJ
@@ -114,12 +127,22 @@ window.$.validator.addMethod("cpfcnpj", function (value, element) {
 
 // Validar placa
 window.$.validator.addMethod("placa", function (value, element) {
-    return jsbrasil.validateBr.placa(value);
+    if (value) {
+        return value.length >= 6
+    } else {
+        return false;
+    }
+    // return jsbrasil.validateBr.placa(value);
 }, "Informe uma placa válida");
 
 // Validar renavam
 window.$.validator.addMethod("renavam", function (value, element) {
-    return jsbrasil.validateBr.renavam(value);
+    if (value) {
+        return value.length >= 12
+    } else {
+        return false;
+    }
+    // return jsbrasil.validateBr.renavam(value);
 }, "Informe um RENAVAM válido");
 
 

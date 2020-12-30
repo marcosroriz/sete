@@ -1,3 +1,6 @@
+// relatorio-rota-ctrl.js
+// Este arquivo contém o script de controle da tela relatorio-aluno-view. 
+
 // Preenchimento da Tabela via SQL
 var listaDeRotas = new Map();
 var totalNumRotas = 0;
@@ -245,91 +248,92 @@ dataTablesRelatorio.on('click', '.rotaRemove', function () {
     var idRota = estadoRota["ID_ROTA"];
 
     action = "apagarMotorista";
-    Swal2.fire({
-        title: 'Remover essa rota?',
-        text: "Ao remover essa rota ela será retirado do sistema e os alunos e escolas que possuir vínculo deverão ser rearranjados novamente.",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
-    }).then((result) => {
-        if (result.value) {
-            RemoverPromise("Rotas", "ID_ROTA", idRota)
-                .then(() => {
-                    dataTablesRelatorio.row($tr).remove();
-                    dataTablesRelatorio.draw();
-                    Swal2.fire({
-                        type: 'success',
-                        title: "Sucesso!",
-                        text: "Rota removida com sucesso!",
-                        confirmButtonText: 'Retornar a página de administração'
-                    });
-                })
-                .catch((err) => errorFn("Erro ao remover a rota. ", err));
+    confirmDialog("Remover essa rota?",
+                  "Ao remover essa rota ela será retirado do sistema e os alunos e "
+                + "escolas que possuir vínculo deverão ser rearranjadas novamente."
+    ).then((res) => {
+        let listaPromisePraRemover = []
+        if (res.value) {
+            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ROTA, "ID_ROTA", idRota));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", idRota));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ROTA", idRota));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_ROTA", idRota));
+            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_ROTA", idRota));
+            listaPromisePraRemover.push(dbAtualizaVersao());
         }
-    })
+
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            dataTablesRotas.row($tr).remove();
+            dataTablesRotas.draw();
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Rota removida com sucesso!",
+                confirmButtonText: 'Retornar a página de administração'
+            });
+        }
+    }).catch((err) => errorFn("Erro ao remover a rota", err))
 });
 
-// Callback para pegar dados inicia da escolas
-var listaInicialCB = (err, result) => {
-    if (err) {
-        errorFn("Erro ao listar as rotas", err);
-    } else {
-        totalNumRotas = result.length;
+dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
+.then(res => processarRotas(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
+.then((res) => processarAlunosPorRota(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then((res) => processarEscolasPorRota(res))
+.then((res) => adicionaDadosTabela(res))
+.then(() => CalcularEstatisticas())
+.catch((err) => errorFn("Erro ao listar as escolas!", err))
 
-        for (let rotaRaw of result) {
-            let rotaJSON = parseRotaDB(rotaRaw);
-            rotaJSON["STRESCOLAS"] = "Não cadastrado"
-            rotaJSON["STRALUNOS"] = "Não cadastrado"
-            rotaJSON["NUMESCOLAS"] = 0
-            rotaJSON["NUMALUNOS"] = 0
-            listaDeRotas.set(rotaJSON["ID_ROTA"], rotaJSON);
-        }
-
-        var promiseArray = new Array();
-
-        listaDeRotas.forEach((rota) => {
-            promiseArray.push(ListarTodasAsEscolasAtendidasPorRotaPromise(rota["ID_ROTA"]))
-            promiseArray.push(ListarTodosOsAlunosAtendidosPorRotaPromise(rota["ID_ROTA"]))
-        });
-
-        Promise.all(promiseArray)
-            .then((res) => {
-                var handleEscolasAtendidas = new Array();
-                var handleAlunosAtendidos = new Array();
-                for (let i = 0; i < res.length; i++) {
-                    if (i % 2 == 0) {
-                        handleEscolasAtendidas.push(res[i]);
-                    } else {
-                        handleAlunosAtendidos.push(res[i]);
-                    }
-                }
-
-                handleEscolasAtendidas.forEach((e) => {
-                    if (e != null && e != undefined && e.length != 0) {
-                        let rotaJSON = listaDeRotas.get(e[0]["ID_ROTA"]);
-                        rotaJSON["NUMESCOLAS"] = e.length;
-                    }
-                });
-
-                handleAlunosAtendidos.forEach((a) => {
-                    if (a != null && a != undefined && a.length != 0) {
-                        let rotaJSON = listaDeRotas.get(a[0]["ID_ROTA"]);
-                        rotaJSON["NUMALUNOS"] = a.length;
-                    }
-                });
-                listaDeRotas.forEach((rota) => {
-                    dataTablesRelatorio.row.add(rota);
-                });
-                dataTablesRelatorio.draw();
-                CalcularEstatisticas();
-            });
-
+// Processar rotas
+var processarRotas = (res) => {
+    totalNumRotas = res.length;
+    for (let rotaRaw of res) {
+        let rotaJSON = parseRotaDB(rotaRaw);
+        rotaJSON["STRESCOLAS"] = "Não cadastrado";
+        rotaJSON["STRALUNOS"]  = "Não cadastrado";
+        rotaJSON["NUMESCOLAS"] = 0;
+        rotaJSON["NUMALUNOS"]  = 0;
+        rotaJSON["ALUNOS"]     = [];
+        rotaJSON["ESCOLAS"]    = [];
+        rotaJSON["ID_ROTA"]    = rotaJSON["ID"];
+        listaDeRotas.set(rotaJSON["ID"], rotaJSON);
     }
-};
+    return listaDeRotas;
+}
 
-BuscarTodosDados("Rotas", listaInicialCB);
+// Processar alunos por rota
+var processarAlunosPorRota = (res) => {
+    totalNumAlunosAtendidos = res.length;
+    for (let aluno of res) {
+        aluno = parseAlunoDB(aluno)
+        let rotaJSON = listaDeRotas.get(aluno["ID_ROTA"]);
+        rotaJSON["NUMALUNOS"] = rotaJSON["NUMALUNOS"] + 1;
+        rotaJSON["ALUNOS"].push(aluno);
+    }
+    return listaDeRotas;
+}
+
+// Processar alunos por Escola
+var processarEscolasPorRota = (res) => {
+    for (let escola of res) {
+        escola = parseEscolaDB(escola)
+        let rotaJSON = listaDeRotas.get(escola["ID_ROTA"]);
+        rotaJSON["NUMESCOLAS"] = rotaJSON["NUMESCOLAS"] + 1;
+        rotaJSON["ESCOLAS"].push(escola);
+    }
+    return listaDeRotas;
+}
+
+// Adiciona dados na tabela
+adicionaDadosTabela = (res) => {
+    res.forEach((rota) => {
+        dataTablesRelatorio.row.add(rota);
+    });
+
+    dataTablesRelatorio.draw();
+}
 
 action = "relatorioRota";
