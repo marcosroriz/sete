@@ -53,7 +53,11 @@ function preencheDashboard() {
 
     dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS).then((res) => {
         $("#alunosAtendidos").text(res.length);
-        $("#escolasAtendidas").text(convertListToMap(res).size);
+
+        let escolasAtendidas = new Set()
+        res.forEach(relEscolaAluno => escolasAtendidas.add(relEscolaAluno["ID_ESCOLA"]))
+        
+        $("#escolasAtendidas").text(escolasAtendidas.size);
     }))
 
     dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_VEICULO).then((res) => {
