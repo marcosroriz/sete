@@ -192,6 +192,7 @@ function fbSync() {
         }
     })
     .then(() => successDialog("Sucesso!", "Dados sincronizados com sucesso. Clique em OK para voltar ao painel de gestão."))
+    .then(() => navigateDashboard("./dashboard-main.html"))
     .catch(err => errorFn("Erro ao sincronizar, tente mais tarde", err))
 }
 

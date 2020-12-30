@@ -6,17 +6,6 @@ const TEMPLATE_ID = 'template_5mqem8f';
 // Localização do Usuário
 var localizacao;
 
-function errorFn(msg) {
-    Swal2.fire({
-        icon: 'error',
-        type: 'error',
-        title: 'Oops...',
-        text: msg,
-        confirmButtonClass: "btn btn-danger",
-        buttonsStyling: false
-    })
-}
-
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {
@@ -24,8 +13,11 @@ $(document).ready(function () {
     $("#footer").load("./footer.html");
 
     // Ativa a aba de login por padrão
-    $("#login-tab").click();
-    $("#reglink").click(() => $("#registrar-tab").click());
+    $("#login-tab").trigger('click');
+
+    // Vincula o click do botão de registrar a aba de registro
+    $("#reglink").on('click', () => $("#registrar-tab").trigger('click'));
+
     // Popula o campo de email e senha se o usuário tiver logado previamente
     // Para isso, vamos ver se exite a chave / valor lembrar no arquivo de configuração local do usuário
     if (userconfig.get("LEMBRAR")) {
@@ -45,141 +37,117 @@ $(document).ready(function () {
 
     // Cria a validação para os formulários
     $("#loginform").validate({
-        rules: {
-            loginemail: {
-                required: true,
-                email: true
+        ...configMostrarResultadoValidacao(),
+        ...{
+            rules: {
+                loginemail: {
+                    required: true,
+                    email: true
+                },
+                loginpassword: {
+                    required: true,
+                    minlength: 6
+                }
             },
-            loginpassword: {
-                required: true,
-                minlength: 6
+            messages: {
+                loginemail: {
+                    required: "Por favor digite seu endereço de e-mail",
+                    email: "Por favor digite um endereço de e-mail válido"
+                },
+                loginpassword: {
+                    required: "Por favor digite sua senha",
+                    minlength: "Por favor digite uma senha com no mínimo seis caracteres"
+                }
             }
-        },
-        messages: {
-            loginemail: {
-                required: "Por favor digite seu endereço de e-mail",
-                email: "Por favor digite um endereço de e-mail válido"
-            },
-            loginpassword: {
-                required: "Por favor digite sua senha",
-                minlength: "Por favor digite uma senha com no mínimo seis caracteres"
-            }
-        },
-        highlight: function (element) {
-            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-            $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
-        },
-        success: function (element) {
-            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-            $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
-        },
-        errorPlacement: function (error, element) {
-            $(element).closest('.form-group').append(error).addClass('has-error');
         }
     });
 
     $("#recoveryform").validate({
-        rules: {
-            recoveremail: {
-                required: true,
-                email: true
-            }
-        },
-        messages: {
-            recoveremail: {
-                required: "Por favor digite seu endereço de e-mail",
-                email: "Por favor digite um endereço de e-mail válido"
-            }
-        },
-        highlight: function (element) {
-            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-            $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
-        },
-        success: function (element) {
-            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-            $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
-        },
-        errorPlacement: function (error, element) {
-            $(element).closest('.form-group').append(error).addClass('has-error');
+        ...configMostrarResultadoValidacao(),
+        ...{
+            rules: {
+                recoveremail: {
+                    required: true,
+                    email: true
+                }
+            },
+            messages: {
+                recoveremail: {
+                    required: "Por favor digite seu endereço de e-mail",
+                    email: "Por favor digite um endereço de e-mail válido"
+                }
+            },
         }
     });
 
     $("#registerform").validate({
-        rules: {
-            regnome: {
-                required: true,
-                lettersonly: true
+        ...configMostrarResultadoValidacao(),
+        ...{
+            rules: {
+                regnome: {
+                    required: true,
+                    lettersonly: true
+                },
+                regcpf: {
+                    required: true,
+                    cpf: true
+                },
+                regtel: {
+                    required: true,
+                    minlength: 10
+                },
+                regemail: {
+                    required: true,
+                    email: true
+                },
+                regpassword: {
+                    required: true,
+                    minlength: 6
+                },
+                regpasswordrepeat: {
+                    required: true,
+                    minlength: 6,
+                    equalTo: "#regpassword"
+                },
+                regestado: {
+                    required: true,
+                    pickstate: true
+                },
+                regcidade: {
+                    required: true,
+                    pickcity: true
+                }
             },
-            regcpf: {
-                required: true,
-                cpf: true
+            messages: {
+                regnome: {
+                    required: "Por favor digite seu endereço de e-mail",
+                },
+                regcpf: {
+                    required: "Por favor digite um CPF válido"
+                },
+                regtel: {
+                    required: "Por favor digite um telefone válido com DDD"
+                },
+                regemail: {
+                    required: "Por favor digite um e-mail válido",
+                    email: "Por favor digite um e-mail válido"
+                },
+                regpassword: {
+                    required: "Por favor digite uma senha",
+                    minlength: "Por favor digite uma senha com no mínimo seis caracteres"
+                },
+                regpasswordrepeat: {
+                    required: "Por favor confirme sua senha",
+                    minlength: "Por favor digite uma senha com no mínimo seis caracteres",
+                    equalTo: "As senhas são diferentes"
+                },
+                regestado: {
+                    required: "Por favor selecione seu Estado"
+                },
+                regcidade: {
+                    required: "Por favor selecione seu Município"
+                }
             },
-            regtel: {
-                required: true,
-                minlength: 10
-            },
-            regemail: {
-                required: true,
-                email: true
-            },
-            regpassword: {
-                required: true,
-                minlength: 6
-            },
-            regpasswordrepeat: {
-                required: true,
-                minlength: 6,
-                equalTo: "#regpassword"
-            },
-            regestado: {
-                required: true,
-                pickstate: true
-            },
-            regcidade: {
-                required: true,
-                pickcity: true
-            }
-        },
-        messages: {
-            regnome: {
-                required: "Por favor digite seu endereço de e-mail",
-            },
-            regcpf: {
-                required: "Por favor digite um CPF válido"
-            },
-            regtel: {
-                required: "Por favor digite um telefone válido com DDD"
-            },
-            regemail: {
-                required: "Por favor digite um e-mail válido",
-                email: "Por favor digite um e-mail válido"
-            },
-            regpassword: {
-                required: "Por favor digite uma senha",
-                minlength: "Por favor digite uma senha com no mínimo seis caracteres"
-            },
-            regpasswordrepeat: {
-                required: "Por favor confirme sua senha",
-                minlength: "Por favor digite uma senha com no mínimo seis caracteres",
-                equalTo: "As senhas são diferentes"
-            },
-            regestado: {
-                required: "Por favor selecione seu Estado"
-            },
-            regcidade: {
-                required: "Por favor selecione seu Município"
-            }
-        },
-        highlight: function (element) {
-            $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-            $(element).closest('.form-check').removeClass('has-success').addClass('has-error');
-        },
-        success: function (element) {
-            $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-            $(element).closest('.form-check').removeClass('has-error').addClass('has-success');
-        },
-        errorPlacement: function (error, element) {
-            $(element).closest('.form-group').append(error).addClass('has-error');
         }
     });
 
@@ -255,23 +223,24 @@ $(document).ready(function () {
                     userconfig.set("DADO_USUARIO", dadoUsuario)
                     return dadoUsuario;
                 }).then((dadoUsuario) => {
-                    let cod_cidade = userconfig.get("COD_CIDADE");
+                    let cod_cidade = String(dadoUsuario["COD_CIDADE"]);
                     return remotedb.collection("config").doc(cod_cidade).get({ source: "server" });
                 }).then((docConfig) => {
                     let acessoLiberado = false;
                     if (docConfig.exists) {
                       arDataConfig = docConfig.data();
-                      if (arDataConfig.users.indexOf(firebaseUser.user.uid) > -1) {
+                      let idUsuario = userconfig.get("ID");
+                      if (arDataConfig.users.indexOf(idUsuario) > -1) {
                           acessoLiberado = true;
                           // TODO: Checar o campo INIT posteriormente
                       }
                     } else {
-                      throw new Exception("Acesso ainda não foi liberado");
+                      throw new Exception("Acesso ainda não foi liberado pela equipe do CECATE-UFG");
                     }
                     return acessoLiberado;
                 }).then(() => {
                     let dadoUsuario = userconfig.get("DADO_USUARIO");
-                    RecuperarUsuario(dadoUsuario["ID"]).then(userData => {
+                    return RecuperarUsuario(dadoUsuario["ID"]).then(userData => {
                         if (userData.length == 0) {
                             return InserirUsuario(dadoUsuario)
                         } else {
@@ -281,15 +250,26 @@ $(document).ready(function () {
                 }).then(() => document.location.href = "./dashboard.html")
                 .catch((err) => {
                     if (err != null) {
-                        console.log(err.message);
-                        errorFn(`Login inválido! ${err}`)
-                        return;
+                        if (err.code == "auth/wrong-password") {
+                            errorFn("Senha incorreta")
+                        } else if (err.code == "auth/user-not-found") {
+                            errorFn("Usuário não encontrado")
+                        } else if (err.code == "auth/network-request-failed") {
+                            errorFn("Internet não está funcionando. Verifique a rede")
+                        } else if (err.code == "permission-denied") {
+                            errorFn(`Usuário ainda não foi ativado pela equipe do CECATE-UFG. 
+                                    Aguarde mais um pouquinho ou entre em contato com a
+                                    equipe do CECATE-UFG através do email (cecateufg@gmail.com).`)
+                        } else {
+                            errorFn("Erro ao tentar realizar login. Contate a equipe de suporte do CECATE (cecateufg@gmail.com)")
+                        }
                     }
                 });
         }
     });
-    // recoversubmit
-    $("#recoversubmit").click(() => {
+
+    // Recuperar senha
+    $("#recoversubmit").on('click', () => {
         var email = $("#recoveremail").val();
         $("#recoveryform").validate();
 
@@ -318,7 +298,7 @@ $(document).ready(function () {
 
     // No caso de registro temos que fazer a validação do formulário
     // e criar os documentos básicos (/users e /data) 
-    $("#regsubmit").click(() => {
+    $("#regsubmit").on('click', () => {
         $("#registerform").validate();
 
         if ($("#registerform").valid()) {
@@ -383,7 +363,7 @@ $(document).ready(function () {
                         Swal2.close();
                         Swal2.fire({
                             title: "Parabéns!",
-                            text: "Sua conta foi criada com sucesso. Você já pode fazer o login.",
+                            text: "Sua conta foi criada com sucesso. Ela será analisada pela equipe do CECATE e em breve você já poderá realizar o login.",
                             icon: "success",
                             type: "success",
                             button: "Fechar"
@@ -419,13 +399,12 @@ $(document).ready(function () {
     });
 
     function criarColecaoMunicipio(codMunicipio) {
-
         //Cria a coleção dos dados para o municipio caso não tenha sido criado ainda
-        var dataFirebase = remotedb.collection("data").doc(codMunicipio);
+        var dataFirebase = remotedb.collection("municipios").doc(codMunicipio);
         dataFirebase.get().then(function (doc) {
             if (!doc.exists) {
                 //console.log("Cidade Não existe");
-                remotedb.collection("data").doc(codMunicipio).set({
+                remotedb.collection("municipios").doc(codMunicipio).set({
                     "alunos": [], "escolatemalunos": [], "escolas": [], "faztransporte": [], "fornecedores": [],
                     "garagem": [], "garagemtemveiculo": [], "motoristas": [], "municipios": [], "ordemdeservico": [],
                     "rotaatendealuno": [], "rotadirigidapormotorista": [], "rotapassaporescolas": [], "rotapossuiveiculo": [],
