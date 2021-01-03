@@ -18,14 +18,14 @@
                 <ul class="nav">
                     <li>
                         <a name="config/configuracoes-view" class="mt-2 link-menu profile-dropdown" href="#">
-                            <i class="ml-1 fa fa-cog menu-icon" aria-hidden="true"></i>
-                            <span class="sidebar-normal">Configurações</span>
+                            <i class="ml-1 fa fa-address-book menu-icon" aria-hidden="true"></i>
+                            <span class="sidebar-normal">Meu Perfil</span>
                         </a>
                     </li>
                     <li>
-                        <a name="usuario/usuario-listar-view" class="mt-2 link-menu profile-dropdown" href="#">
+                        <a name="usuario/usuario-listar-view" class="link-menu profile-dropdown" href="#">
                             <i class="ml-1 fa fa-users menu-icon" aria-hidden="true"></i>
-                            <span class="sidebar-normal">Usuários</span>
+                            <span class="sidebar-normal">Outros Usuários</span>
                         </a>
                     </li>
                     <li>
@@ -320,7 +320,9 @@
         });
 
         // Sync
-        $("#syncBtn").click(() => {
+        $("#syncBtn").on('click', () => {
+            $(".activeLink").removeClass("activeLink");
+            $("#syncBtn").parent().addClass("activeLink");
             fbSync();
         });
 

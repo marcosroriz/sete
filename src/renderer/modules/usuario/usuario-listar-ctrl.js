@@ -121,7 +121,7 @@ dbBuscarTodosUsuarios()
 .then(() => dbBuscarUsuariosDoMunicipioPromise())
 .then((relUsuariosPermitidos) => processaUsuariosPermitidos(relUsuariosPermitidos))
 .then((listaDeUsuarios) => adicionaDadosTabela(listaDeUsuarios))
-.then(() => removeAcoesCasoUsuarioNaoAdmin())
+.then(() => mostraCamposAdmin())
 .then(() => Swal2.close())
 .catch((err) => errorFn("Erro ao acessar os dados dos usuários cadastrados", err))
 
