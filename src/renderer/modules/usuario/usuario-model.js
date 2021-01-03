@@ -80,6 +80,42 @@ function dbBuscarUsuariosDoMunicipioPromise() {
                    .get({source: "server"})
 }
 
+// Função que verifica se existe algum usuário com um dado CPF
+function dbBuscarUsuarioPorCPFPromise(cpf) {
+    return remotedb.collection("users")
+                   .where("CPF", "==", cpf)
+                   .get({source: "server"})
+}
+
+// Função que insere um usuário no Firebase
+function dbInsereUsuarioFirebasePromise(uid, userdata) {
+    return remotedb.collection("users").doc(uid).set(userdata)
+}
+
+// Função que habilita um usuário na coleção de configuração
+function dbHabilitaUsuarioConfigPromise(uid, papel) {
+    switch (parseInt(papel)) {
+        case 0: // admin
+            return remotedb.collection("config").doc(codCidade).update({
+                "admin": firebase.firestore.FieldValue.arrayUnion(uid),
+                "users": firebase.firestore.FieldValue.arrayUnion(uid)
+            })
+        case 1: //
+            return remotedb.collection("config").doc(codCidade).update({
+                "users": firebase.firestore.FieldValue.arrayUnion(uid)
+            })
+        case 2:
+            return remotedb.collection("config").doc(codCidade).update({
+                "readers": firebase.firestore.FieldValue.arrayUnion(uid)
+            })
+        default:
+            return remotedb.collection("config").doc(codCidade).update({
+                "users": firebase.firestore.FieldValue.arrayUnion(uid)
+            })
+
+    }
+}
+
 /*function InserirUsuarioPromise(alunoJSON) {
     return knex("Usuarios").insert(alunoJSON);
 }*/

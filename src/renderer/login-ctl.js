@@ -204,6 +204,8 @@ $(document).ready(function () {
                 })
                 .then((uid) => dbObterPerfilUsuario(uid)) // Obtém o perfil remoto do usuário
                 .then((remoteData) => {
+                    userconfig.set("CIDADE", String(remoteData.CIDADE))
+                    userconfig.set("ESTADO", String(remoteData.ESTADO))
                     userconfig.set("COD_CIDADE", String(remoteData.COD_CIDADE))
                     userconfig.set("COD_ESTADO", String(remoteData.COD_ESTADO))
                     userconfig.set("ID", remoteData["ID"])
@@ -350,7 +352,7 @@ $(document).ready(function () {
                         if (!doc.exists) {
                             remotedb.collection("config")
                                 .doc(localizacao.cidade.value)
-                                .set({"admin": [], "users": []})
+                                .set({"admin": [], "users": [], "readers": []})
                                 .then(() => criarColecaoMunicipio(localizacao.cidade.value))
                         }
                     })
