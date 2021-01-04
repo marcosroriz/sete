@@ -5,6 +5,7 @@ var papelAdmin = false;
 
 // Por padrão não mostra opções de admin, somente se for o caso
 $("#btIncluirUsuario").hide();
+$(".ul-dica").hide();
 
 // DataTables
 var dataTablesUsuario = $("#datatables").DataTable({
@@ -19,22 +20,15 @@ var dataTablesUsuario = $("#datatables").DataTable({
                 data: "ACOES",
                 width: "140px",
                 sortable: false,
-                defaultContent: '<a href="#" class="btn btn-link btn-primary usuarioView"><i class="fa fa-search"></i></a>' +
-                    '<a href="#" class="btn btn-link btn-warning usuarioEdit"><i class="fa fa-edit"></i></a>' +
+                defaultContent: '<a href="#" class="btn btn-link btn-warning usuarioEdit"><i class="fa fa-edit"></i></a>' +
                     '<a href="#" class="btn btn-link btn-danger usuarioRemove"><i class="fa fa-times"></i></a>'
             }
         ],
         columnDefs: [{ targets: 0,  render: renderAtMostXCharacters(50) },
-                    { targets: 2,  render: renderAtMostXCharacters(50) }],
+                     { targets: 2,  render: renderAtMostXCharacters(50) }],
         dom: 'lfrtip',
+        order: [[3, "asc"]],
     }
-});
-
-dataTablesUsuario.on('click', '.usuarioView', function () {
-    var $tr = getRowOnClick(this);
-    estadoUsuario = dataTablesUsuario.row($tr).data();
-    action = "visualizarUsuario";
-    navigateDashboard("./modules/usuario/usuario-visualizar-view.html");
 });
 
 dataTablesUsuario.on('click', '.usuarioEdit', function () {
@@ -42,7 +36,7 @@ dataTablesUsuario.on('click', '.usuarioEdit', function () {
 
     estadoUsuario = dataTablesUsuario.row($tr).data();
     action = "editarUsuario";
-    navigateDashboard("./modules/usuario/usuario-alterar-view.html");
+    navigateDashboard("./modules/usuario/usuario-cadastrar-view.html");
 });
 
 dataTablesUsuario.on('click', '.usuarioRemove', function () {
@@ -156,7 +150,10 @@ adicionaDadosTabela = (res) => {
 
 // Remove campos de inserção de usuário caso o mesmo não seja admin
 mostraCamposAdmin = () => {
-    if (papelAdmin) $("#btIncluirUsuario").show();
+    if (papelAdmin) {
+        $("#btIncluirUsuario").show();
+        $(".ul-dica").show();
+    }
     return true;
 }
 
