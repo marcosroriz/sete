@@ -116,34 +116,36 @@ function dbHabilitaUsuarioConfigPromise(uid, papel) {
     }
 }
 
-/*function InserirUsuarioPromise(alunoJSON) {
-    return knex("Usuarios").insert(alunoJSON);
-}*/
-
-function BuscarTodosUsuariosPromise() {
-    return knex("Usuarios").select()
+function dbRemoverUsuarioPromise(uid) {
+    return remotedb.collection("users").doc(uid).delete()
 }
 
-function BuscarTodosUsuarios(callbackFn) {
-    return BuscarTodosUsuariosPromise()
-        .then((res) => {
-            callbackFn(false, res);
-        })
-        .catch((err) => {
-            callbackFn(err);
-        });
+function dbDesabilitaUsuarioConfigPromise(uid, papel) {
+    switch (parseInt(papel)) {
+        case 0: // admin
+            return remotedb.collection("config").doc(codCidade).update({
+                "admin": firebase.firestore.FieldValue.arrayRemove(uid),
+                "users": firebase.firestore.FieldValue.arrayRemove(uid)
+            })
+        case 1: //
+            return remotedb.collection("config").doc(codCidade).update({
+                "users": firebase.firestore.FieldValue.arrayRemove(uid)
+            })
+        case 2:
+            return remotedb.collection("config").doc(codCidade).update({
+                "readers": firebase.firestore.FieldValue.arrayRemove(uid)
+            })
+        default:
+            return remotedb.collection("config").doc(codCidade).update({
+                "users": firebase.firestore.FieldValue.arrayRemove(uid)
+            })
+    }
 }
 
-function RemoverUsuario(idUsuario, callbackFn) {
-    knex("Usuarios")
-        .where("ID", idUsuario)
-        .del()
-        .then((res) => {
-            callbackFn(false, res);
-        })
-        .catch((err) => {
-            callbackFn(err);
-        })
+function RemoverUsuarioLocalPromise(uid) {
+    return knex("Usuarios")
+           .where("ID", uid)
+           .del()
 }
 
 function AtualizarUsuarioPromise(idUsuario, usuarioJSON) {

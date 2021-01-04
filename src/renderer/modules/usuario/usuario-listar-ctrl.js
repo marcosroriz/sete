@@ -49,52 +49,41 @@ dataTablesUsuario.on('click', '.usuarioRemove', function () {
     var $tr = getRowOnClick(this);
 
     estadoUsuario = dataTablesUsuario.row($tr).data();
+    if (estadoUsuario["ID"] == userconfig.get("ID")) {
+        Swal2.fire({
+            title: "Ops.. operação não suportada",
+            text: "Não é possível remover o usuário que se encontra logado.",
+            icon: "error",
+            confirmButtonColor: '#d33',
+            confirmButtonText: "Fechar"
+        });
+
+        return false;
+    }
+
     action = "apagarUsuario";
-    Swal2.fire({
-        title: 'Remover esse usuário?',
-        text: "Ao confirmar essa operação não será mais possível desfazer a exclusão.",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        cancelButtonText: "Cancelar",
-        confirmButtonText: 'Sim, remover'
-    }).then((result) => {
+    confirmDialog('Remover esse usuário?',
+                  "Ao confirmar essa operação não será mais possível desfazer a exclusão.",
+    ).then((result) => {
+        let listaPromisePraRemover = []
         if (result.value) {
-            RemoverUsuario(estadoUsuario["ID"], (err, result) => {
-                if (result) {
-                    dataTablesUsuario.row($tr).remove();
-                    dataTablesUsuario.draw();
-                    Swal2.fire({
-                        type: 'success',
-                        title: "Sucesso!",
-                        text: "Usuário  removido com sucesso!",
-                        confirmButtonText: 'Retornar a página de administração'
-                    }).then(() => {
-                        remotedb.collection("users").doc(estadoUsuario["ID"]).delete().then(function () {
-                            console.log("Document successfully deleted!");
-
-                            navigateDashboard(currentPage);
-
-                        }).catch(function (error) {
-                            Swal2.fire({
-                                type: 'error',
-                                title: 'Oops...',
-                                text: 'Tivemos algum problema. Por favor, reinicie o software!' + error,
-                            });
-                        });
-
-                    });
-                } else {
-                    Swal2.fire({
-                        type: 'error',
-                        title: 'Oops...',
-                        text: 'Tivemos algum problema. Por favor, reinicie o software!' + err,
-                    });
-                }
+            listaPromisePraRemover.push(RemoverUsuarioLocalPromise(estadoUsuario["ID"]))
+            listaPromisePraRemover.push(dbRemoverUsuarioPromise(estadoUsuario["ID"]))
+            listaPromisePraRemover.push(dbDesabilitaUsuarioConfigPromise(estadoUsuario["ID"], estadoUsuario["PAPELNUM"]))
+        }
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            dataTablesUsuario.row($tr).remove();
+            dataTablesUsuario.draw();
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Usuário removido(a) com sucesso!",
+                confirmButtonText: 'Retornar a página de administração'
             });
         }
-    })
+    }).catch((err) => errorFn("Erro ao remover o usuário", err))
 });
 
 
@@ -126,23 +115,31 @@ dbBuscarTodosUsuarios()
 .catch((err) => errorFn("Erro ao acessar os dados dos usuários cadastrados", err))
 
 // Processa os usuários permitidos
-processaUsuariosPermitidos = (relUsuariosPermitidos) => {
-let usuariosPermitidos = relUsuariosPermitidos.data()
-    usuariosPermitidos.users.forEach(idUsuario => listaDeUsuarios.set(idUsuario, listaDeTodosOsUsuarios.get(idUsuario)))
-    
+function processaUsuariosPermitidos(relUsuariosPermitidos) {
+    let usuariosPermitidos = relUsuariosPermitidos.data()   
     $("#totalNumUsuarios").text(usuariosPermitidos.users.length);
-    
-    usuariosPermitidos.admin.forEach(idUsuarioAdmin => {
-        let usuarioAdmin = listaDeUsuarios.get(idUsuarioAdmin);
-        usuarioAdmin["PAPEL"] = "ADMINISTRADOR";
-        listaDeUsuarios.set(idUsuarioAdmin, usuarioAdmin);
 
+    insereDadoNaLista(usuariosPermitidos.users, "EDITOR", 1)
+    insereDadoNaLista(usuariosPermitidos.admin, "ADMINISTRADOR", 0)
+    insereDadoNaLista(usuariosPermitidos.readers, "LEITOR", 2)
+
+    usuariosPermitidos.admin.forEach(idUsuarioAdmin => {
         if (idUsuarioAdmin == userconfig.get("ID")) {
             papelAdmin = true;
         }
-        
     })
-    return listaDeUsuarios
+
+    return listaDeUsuarios;
+}
+
+function insereDadoNaLista(listaEspecificaDeUsuarios, papelSTR, papelNUM) {
+    listaEspecificaDeUsuarios.forEach(idUsuario => {
+        let usuarioAlvo = listaDeTodosOsUsuarios.get(idUsuario);
+        usuarioAlvo["PAPEL"] = papelSTR;
+        usuarioAlvo["PAPELNUM"] = papelNUM;
+        
+        listaDeUsuarios.set(idUsuario, usuarioAlvo)
+    })
 }
 
 // Adiciona dados na tabela
