@@ -865,6 +865,7 @@ h3.listaSelect {
 .ul-dica .fa-li {
     font-size: 12px;
     color: #ecac2e;
+    margin: -2px;
 }
 
 .ul-dica i {
@@ -1127,4 +1128,18 @@ img#censoIcon {
 
 li.media {
     margin-top: 20px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    background: #ffbc31ed;
+}
+ 
+::-webkit-scrollbar-track {
+   background: #6b6b6b;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background: #ffaa00ed;
 }

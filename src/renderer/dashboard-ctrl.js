@@ -12,7 +12,7 @@ $(".link-dash").click(function () {
 
 // Seta o usuário do firebase
 firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
+    if (user && user.uid == userconfig.get("ID")) {
         firebaseUser = user;
         var userDocPromise = remotedb.collection("users").doc(firebaseUser.uid).get();
         userDocPromise.then((queryResult) => {
