@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row justify-content-center mb-3">
-        <img id="pageIcon" src="./img/icones/tab-settings.png">
-        <p class="pageTitle">Configurações de uso do Software</p>
+        <img id="pageIcon" src="./img/icones/tab-perfil.png">
+        <p class="pageTitle">Meu Perfil</p>
     </div>
 
     <div class="row">
@@ -20,8 +20,8 @@
                             <li class="nav-item col-6 tab-2-fix">
                                 <a class="nav-link" href="#tab-dados-transporte" data-toggle="tab" role="tab"
                                     aria-controls="tab2" aria-selected="true">
-                                    <i class="fa fa-bus tab-icon" aria-hidden="true"></i>
-                                    Dados de Transporte
+                                    <i class="fa fa-lock tab-icon" aria-hidden="true"></i>
+                                    Dados de Acesso
                                 </a>
                             </li>
                         </ul>
@@ -34,14 +34,6 @@
                                             <label>Nome completo:</label>
                                             <input id="regnome" name="regnome" type="text"
                                                 placeholder="Digite seu nome:" class="form-control">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label>E-mail:</label>
-                                            <input id="regemail" name="regemail" type="email"
-                                                placeholder="Endereço de e-mail:" class="form-control">
                                         </div>
                                     </div>
 
@@ -79,10 +71,57 @@
                             <!-- Fim aba dados pessoais -->
 
                             <div class="tab-pane fade" id="tab-dados-transporte" role="tabpanel">
-                                <h6 class="mb-3 text-center text-space">Forneça as informações básicas a
-                                    respeito do Transporte Escolar no município</h6>
+                                <h6 class="mb-3 text-center text-space">Abaixo você encontra os dados de acesso ao sistema</h6>
                                 <div class="row justify-content-center">
                                     <div class="col-12">
+                                        <div class="form-group">
+                                            <label>E-mail:</label>
+                                            <input id="emailAtual" name="emailAtual" type="email"
+                                            disabled class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Senha atual</label>
+                                            <input id="senhaAtual" name="senhaAtual" disabled class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <hr class="hr-form" />
+
+                                <div class="row justify-content-center">
+                                    <h6 class="mt-3 mb-3 text-center text-space">Caso queira modificar o email ou senha, digite os novos dados abaixo e clique em atualizar perfil</h6>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Novo E-mail:</label>
+                                            <input id="regemail" name="regemail" type="email"
+                                                placeholder="Endereço de e-mail:" class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Nova Senha (mínimo de seis caracteres)</label>
+                                            <input id="regpassword" name="regpassword"
+                                            type="password" placeholder="Senha:"
+                                            class="form-control">
+                                            
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Repetir Nova Senha</label>
+                                            <input id="regpasswordrepeat" name="regpasswordrepeat"
+                                            type="password" placeholder="Senha:"
+                                            class="form-control">
+                                        </div>
+                                    </div>
+
+                                    <!-- Campos de dados adicionais (formas de transporte, outros municipios atendidos, etc) -->
+                                    <!-- <div class="col-12">
                                         <div class="form-group">
                                             <label>Em relação aos modos de transporte, o município
                                                 oferece transporte escolar (marcar todos que se
@@ -105,9 +144,8 @@
                                                 </label>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="col-12">
+                                    </div> -->
+                                    <!-- <div class="col-12">
                                         <div class="form-group">
                                             <label>O município possui bicicletas do programa Caminho da
                                                 Escola?</label>
@@ -128,9 +166,8 @@
                                                 </label>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="col-12">
+                                    </div> -->
+                                    <!-- <div class="col-12">
                                         <div class="form-group">
                                             <label>Existem monitores que atuam dentro dos veículos do
                                                 transporte escolar do seu município?</label>
@@ -152,8 +189,8 @@
                                                 </label>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-12">
+                                    </div> -->
+                                    <!-- <div class="col-12">
                                         <div class="form-group">
                                             <label>Qual é a distância mínima entre a residência e a
                                                 escola para que o aluno seja beneficiado com o
@@ -200,9 +237,8 @@
                                                 </label>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="col-12">
+                                    </div> -->
+                                    <!-- <div class="col-12">
                                         <div class="form-group">
                                             <label>O município oferece transporte escolar para alunos
                                                 com destino a outras cidades?</label>
@@ -224,9 +260,9 @@
                                                 </label>
                                             </div>
                                         </div>
-                                    </div>
-                                    <hr>
-                                    <div id="outrosMunicipios" class="col-12 d-none">
+                                    </div> -->
+                                    <!-- <hr> -->
+                                    <!-- <div id="outrosMunicipios" class="col-12 d-none">
                                         <hr class="hr-form" />
                                         <div name="outros" id="outros" class="form-group">
                                             <label>
@@ -271,7 +307,7 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                             <!-- Fim aba dados de transporte -->
@@ -296,5 +332,6 @@
     </div>
 </div>
 
+<script src="./modules/usuario/usuario-model.js" type="text/javascript"></script>
 <script src="./modules/config/config-model.js" type="text/javascript"></script>
 <script src="./modules/config/configuracoes-ctrl.js" type="text/javascript"></script>
