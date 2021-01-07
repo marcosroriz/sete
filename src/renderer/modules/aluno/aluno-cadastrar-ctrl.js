@@ -173,15 +173,15 @@ var completeForm = () => {
         closeOnConfirm: false,
         allowOutsideClick: false,
     })
-    .then(() => {
-        navigateDashboard("./modules/aluno/aluno-listar-view.html");
-    });
+        .then(() => {
+            navigateDashboard("./modules/aluno/aluno-listar-view.html");
+        });
 }
 
 $("#salvaraluno").on('click', () => {
     $("[name='turnoAluno']").valid();
     $("[name='nivelAluno']").valid();
-    
+
     var $valid = $('#wizardCadastrarAlunoForm').valid();
     if (!$valid) {
         return false;
@@ -201,7 +201,6 @@ $("#salvaraluno").on('click', () => {
                     promiseArray.push(dbRemoverDadoCompostoPromise(DB_TABLE_ESCOLA_TEM_ALUNOS,
                                       "ID_ESCOLA", String(idEscolaAnterior), 
                                       "ID_ALUNO", idAluno))
-
                     if (idEscola != 0) {
                         promiseArray.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
                             "ID_ESCOLA": idEscola, 
@@ -234,7 +233,6 @@ $("#salvaraluno").on('click', () => {
         }
     }
 });
-
 
 dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
 .then((res) => {

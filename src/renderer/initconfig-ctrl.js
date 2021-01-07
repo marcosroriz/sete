@@ -410,18 +410,23 @@ function getDadosMunicipio() {
 }
 
 function finishConfig() {
-    Swal2.fire({
-        title: "Sucesso!",
-        text: "Perfil configurado com sucesso. Entrando no painel de gestão.",
-        icon: "success",
-        type: "success",
-        showConfirmButton: false,
-        closeOnClickOutside: false,
-        allowOutsideClick: false,
+
+    remotedb.collection("data").doc(userconfig.get("COD_CIDADE")).set({
+        "INIT": true
+    }).then(() => {
+        Swal2.fire({
+            title: "Sucesso!",
+            text: "Perfil configurado com sucesso. Entrando no painel de gestão.",
+            icon: "success",
+            type: "success",
+            showConfirmButton: false,
+            closeOnClickOutside: false,
+            allowOutsideClick: false,
+        })
+        setTimeout(() => {
+            document.location.href = "./dashboard.html";
+        }, 1000)
     })
-    setTimeout(() => {
-        document.location.href = "./dashboard.html";
-    }, 1000)
 }
 
 function processConfig(promisseArray) {

@@ -39,7 +39,7 @@ $("input[name='tipoModal']").on("change", (evt) => {
         $(".tipoAqua").show();
 
         $("#tipoVeiculo").val($('.tipoAqua')[0].value);
-        $("#tipoMarca").val($('.tipoAqua')[0].value);
+        $("#tipoMarca").val(6);
     }
 });
 
