@@ -9,16 +9,22 @@
             <div class="card card-wizard wiz-fixes">
                 <div class="card-body ">
                     <ul class="nav nav-tabs">
-                        <li class="nav-item col-6 tab-2-fix">
+                        <li class="nav-item col-4 tab-2-fix">
                             <a class="nav-link active" href="#tab-resumo" data-toggle="tab" role="tab">
                                 <img src="./img/icones/tab-resumo.png" class="wiz-icon">
                                 Resumo
                             </a>
                         </li>
-                        <li class="nav-item col-6 tab-2-fix">
+                        <li class="nav-item col-4 tab-2-fix">
                             <a class="nav-link" href="#tab-detalhe" data-toggle="tab" role="tab">
                                 <img src="./img/icones/tab-detalhe.png" class="wiz-icon">
                                 Detalhes
+                            </a>
+                        </li>
+                        <li class="nav-item col-4 tab-2-fix">
+                            <a class="nav-link" href="#tab-exportar" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-detalhe.png" class="wiz-icon">
+                                Exportar
                             </a>
                         </li>
                     </ul>
@@ -113,6 +119,68 @@
                                 </table>
                             </div>
                         </div>
+                        <style>
+                            .relatorioCheckboxContainer {
+                                display: flex;
+                                flex-direction: column;
+                                margin: 0 auto;
+                            }
+                        </style>
+                        <!--######################################################################################-->
+                        <div class="tab-pane tab-wiz fade" id="tab-exportar" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <div class="totalText">
+                                        Opções disponíveis
+                                    </div>
+                                </div>
+                            </div> 
+                            <div class="row">
+                                <div class="relatorioCheckboxContainer">
+                                    <div>
+                                        <label for="nomeCh">Nome</label>
+                                        <input type="checkbox" name="nomeCh" id="nomeCh" checked>
+                                    </div> 
+                                    <div>
+                                        <label for="sexoCh">Sexo</label>
+                                        <input type="checkbox" name="sexoCh" id="sexoCh">
+                                    </div>
+                                    <div>
+                                        <label for="cor-racaCh">Cor/Raça</label>
+                                        <input type="checkbox" name="cor-racaCh" id="cor-racaCh">
+                                    </div>
+                                    <div>
+                                        <label for="nomeRespCh">Nome do Responsável</label>
+                                        <input type="checkbox" name="nomeRespCh" id="nomeRespCh">
+                                    </div>
+                                    <div>
+                                        <label for="grauRespCh">Grau Responsável</label>
+                                        <input type="checkbox" name="grauRespCh" id="grauRespCh">
+                                    </div>
+                                    <div>
+                                        <label for="localCh">Localização do Aluno</label>
+                                        <input type="checkbox" name="localCh" id="localCh">
+                                    </div>
+                                    <div>
+                                        <label for="escolaCh">Escola</label>
+                                        <input type="checkbox" name="escolaCh" id="escolaCh">
+                                    </div>
+                                    <div>
+                                        <label for="nivelCh">Nível</label>
+                                        <input type="checkbox" name="nivelCh" id="nivelCh">
+                                    </div>
+                                    <div>
+                                        <label for="turnoCh">Turno</label>
+                                        <input type="checkbox" name="turnoCh" id="turnoCh">
+                                    </div>
+                                    <div>
+                                        <label for="rotaCh">Rota</label>
+                                        <input type="checkbox" name="rotaCh" id="rotaCh">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--######################################################################################-->
                     </div>
 
                     <div class="card-footer text-center">

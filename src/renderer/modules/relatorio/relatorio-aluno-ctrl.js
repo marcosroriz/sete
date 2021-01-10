@@ -21,6 +21,7 @@ var dataResponsavel = { series: [], labels: ["Pai, Mãe, Padrasto ou Madrasta", 
 
 // DataTables
 var defaultTableConfig = GetTemplateDataTableConfig();
+console.log(defaultTableConfig);
 defaultTableConfig["columns"] = [
     { data: 'NOME', width: "20%" },
     { data: 'SEXOSTR' },
@@ -257,7 +258,7 @@ var graficoAtual;
 $("#menuRelatorio a.list-group-item").click((e) => {
     $(".card-report").fadeOut(300, () => {
         e.preventDefault()
-        var $that = $(e.target);
+        var $that = $(e.target); 
         $($that).parent().find('a').removeClass('active');
         $that.addClass('active');
 
