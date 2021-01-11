@@ -119,6 +119,7 @@
                                 </table>
                             </div>
                         </div>
+                        <!--######################################################################################-->
                         <style>
                             .relatorioCheckboxContainer {
                                 display: flex;
@@ -126,7 +127,6 @@
                                 margin: 0 auto;
                             }
                         </style>
-                        <!--######################################################################################-->
                         <div class="tab-pane tab-wiz fade" id="tab-exportar" role="tabpanel">
                             <div class="row">
                                 <div class="col-12 text-center">
@@ -136,7 +136,7 @@
                                 </div>
                             </div> 
                             <div class="row">
-                                <div class="relatorioCheckboxContainer">
+                                <div class="relatorioCheckboxContainer" id="exportarCh">
                                     <div>
                                         <label for="nomeCh">Nome</label>
                                         <input type="checkbox" name="nomeCh" id="nomeCh" checked>
@@ -177,7 +177,11 @@
                                         <label for="rotaCh">Rota</label>
                                         <input type="checkbox" name="rotaCh" id="rotaCh">
                                     </div>
+                                    <div>
+                                        <button class="btn btn-secondary buttons-html5" onclick="exportPdf()"><span>Exportar para PDF</span></button>
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                         <!--######################################################################################-->

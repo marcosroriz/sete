@@ -21,7 +21,7 @@ var dataResponsavel = { series: [], labels: ["Pai, Mãe, Padrasto ou Madrasta", 
 
 // DataTables
 var defaultTableConfig = GetTemplateDataTableConfig();
-console.log(defaultTableConfig);
+
 defaultTableConfig["columns"] = [
     { data: 'NOME', width: "20%" },
     { data: 'SEXOSTR' },
@@ -403,3 +403,58 @@ adicionaDadosTabela = (res) => {
     return res;
 }
 action = "relatorioAluno";
+
+
+function exportPdf() {
+    var checkedArr = [
+        $("#nomeCh").prop("checked"),
+        $("#sexoCh").prop("checked"),
+        $("#cor-racaCh").prop("checked"),
+        $("#nomeRespCh").prop("checked"),
+        $("#grauRespCh").prop("checked"),
+        $("#localCh").prop("checked"),
+        $("#escolaCh").prop("checked"),
+        $("#nivelCh").prop("checked"),
+        $("#turnoCh").prop("checked"),
+        $("#rotaCh").prop("checked"),
+    ];
+
+    var onlyFiveCheck = 1;
+    defaultTableConfig["buttons"][1]["exportOptions"]["columns"] = [];
+    checkedArr.forEach((item, index) => {
+        if(item && onlyFiveCheck <= 7) {
+            defaultTableConfig["buttons"][1]["exportOptions"]["columns"].push(index);
+            onlyFiveCheck++;
+        }
+    });
+
+    
+    var tableContentWidths = [];
+    switch(onlyFiveCheck - 1) {
+        case 1:
+            tableContentWidths = ["100%"];
+            break;
+        case 2:
+            tableContentWidths = ["50%", "50%"];
+            break;
+        case 3:
+            tableContentWidths = ["40%", "30%", "30%"];
+            break;
+        case 4:
+            tableContentWidths = ["40%", "20%", "20%", "20%"];
+            break;
+        case 5:
+            tableContentWidths = ["30%", "15%", "20%", "20%", "15%"];
+            break;
+        case 6:
+            tableContentWidths = ["30%", "15%", "15%", "15%", "15%", "10%"];
+            break;
+        case 7:
+            tableContentWidths = ["30%", "10%", "15%", "10%", "15%", "10%", "10%"];
+            break;
+    };
+    //essa variável está em relatorio-ctrl
+    relatorioAlunoExportarPdfWidthArr = tableContentWidths;
+
+    $(".btn.btn-secondary.buttons-pdf.buttons-html5").click();
+}
