@@ -9,22 +9,16 @@
             <div class="card card-wizard wiz-fixes">
                 <div class="card-body ">
                     <ul class="nav nav-tabs">
-                        <li class="nav-item col-4 tab-2-fix">
+                        <li class="nav-item col-6 tab-2-fix">
                             <a class="nav-link active" href="#tab-resumo" data-toggle="tab" role="tab">
                                 <img src="./img/icones/tab-resumo.png" class="wiz-icon">
                                 Resumo
                             </a>
                         </li>
-                        <li class="nav-item col-4 tab-2-fix">
+                        <li class="nav-item col-6 tab-2-fix">
                             <a class="nav-link" href="#tab-detalhe" data-toggle="tab" role="tab">
                                 <img src="./img/icones/tab-detalhe.png" class="wiz-icon">
                                 Detalhes
-                            </a>
-                        </li>
-                        <li class="nav-item col-4 tab-2-fix">
-                            <a class="nav-link" href="#tab-exportar" data-toggle="tab" role="tab">
-                                <img src="./img/icones/tab-detalhe.png" class="wiz-icon">
-                                Exportar
                             </a>
                         </li>
                     </ul>
@@ -118,20 +112,23 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                        <!--######################################################################################-->
-                        <style>
-                            .relatorioCheckboxContainer {
-                                display: flex;
-                                flex-direction: column;
-                                margin: 0 auto;
-                            }
-                        </style>
-                        <div class="tab-pane tab-wiz fade" id="tab-exportar" role="tabpanel">
-                            <div class="row">
+                            <style>
+                                .relatorioCheckboxContainer {
+                                    display: flex;
+                                    flex-direction: column;
+                                    margin: 0 auto;
+                                }
+                                .tempFix {
+                                    margin-top: 40px;
+                                }
+                                #datatables_wrapper .dt-buttons.btn-group {
+                                    visibility: hidden;
+                                }
+                            </style>
+                            <div class="row tempFix">
                                 <div class="col-12 text-center">
                                     <div class="totalText">
-                                        Opções disponíveis
+                                        Opções de exportação
                                     </div>
                                 </div>
                             </div> 
@@ -177,14 +174,13 @@
                                         <label for="rotaCh">Rota</label>
                                         <input type="checkbox" name="rotaCh" id="rotaCh">
                                     </div>
-                                    <div>
-                                        <button class="btn btn-secondary buttons-html5" onclick="exportPdf()"><span>Exportar para PDF</span></button>
+                                    <div> 
+                                        <button class="btn btn-secondary buttons-excel buttons-html5 btnExcel" onclick="exportExel()"><span>Exportar para Planilha</span></button> 
+                                        <button class="btn btn-secondary buttons-pdf buttons-html5" onclick="exportPdf()"><span>Exportar para PDF</span></button>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-                        <!--######################################################################################-->
                     </div>
 
                     <div class="card-footer text-center">

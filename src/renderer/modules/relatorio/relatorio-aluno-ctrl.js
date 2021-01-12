@@ -419,18 +419,18 @@ function exportPdf() {
         $("#rotaCh").prop("checked"),
     ];
 
-    var onlyFiveCheck = 1;
+    var onlySevenCount = 1;
     defaultTableConfig["buttons"][1]["exportOptions"]["columns"] = [];
     checkedArr.forEach((item, index) => {
-        if(item && onlyFiveCheck <= 7) {
+        if(item && onlySevenCount <= 7) {
             defaultTableConfig["buttons"][1]["exportOptions"]["columns"].push(index);
-            onlyFiveCheck++;
+            onlySevenCount++;
         }
     });
 
     
     var tableContentWidths = [];
-    switch(onlyFiveCheck - 1) {
+    switch(onlySevenCount - 1) {
         case 1:
             tableContentWidths = ["100%"];
             break;
@@ -456,5 +456,9 @@ function exportPdf() {
     //essa variável está em relatorio-ctrl
     relatorioAlunoExportarPdfWidthArr = tableContentWidths;
 
-    $(".btn.btn-secondary.buttons-pdf.buttons-html5").click();
+    $(".dt-buttons.btn-group .buttons-pdf").click();
+}
+
+function exportExel() {
+    $(".dt-buttons.btn-group .buttons-excel").click();
 }
