@@ -87,7 +87,7 @@
     "html-to-image": "^0.1.1",
     "jquery": "^3.5.1",
     "jquery-mask-plugin": "^1.14.16",
-    "jquery-validation": "^1.19.2",
+    "jquery-validation": "^1.19.3",
     "jsts": "^2.5.1",
     "knex": "^0.21.5",
     "lodash": "^4.17.20",
