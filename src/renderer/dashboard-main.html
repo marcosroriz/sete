@@ -181,3 +181,28 @@
 <script src="./modules/escola/escola-model.js" type="text/javascript"></script>
 <script src="./modules/frota/frota-model.js" type="text/javascript"></script>
 <script src="./dashboard-ctrl.js" type="text/javascript"></script>
+
+<script>
+    $(document).ready(function () {
+        // DESABILITA OS BOTTÕES
+        $('div[class="card card-stats card-atalho"] > a[name="aluno/aluno-cadastrar-view"]').attr('name', 'aluno-cadastrar-view');
+        $('div[class="card card-stats card-atalho"] > a[name="aluno/aluno-listar-view"]').attr('name', 'aluno-listar-view');
+
+        // Links
+        $(".link-dash").on('click', function () {
+            const module_name = $(this).attr("name")
+            if (StateNetwork()){ // SE TIVER ONLINE ATIVA
+                console.log('ONLINE!');
+                $('div[class="card card-stats card-atalho"] > a[name="'+module_name+'"]').attr('name', 'aluno/'+module_name);
+            } else { // SE NÃO AVISE O CLIENTE E DESATIVA
+                errorFn("Internet não está funcionando. Verifique a rede");
+                console.log('OFFLINE!');
+                $('div[class="card card-stats card-atalho"] > a[name="aluno/aluno-cadastrar-view"]').attr('name', 'aluno-cadastrar-view');
+                $('div[class="card card-stats card-atalho"] > a[name="aluno/aluno-listar-view"]').attr('name', 'aluno-listar-view');
+            }
+            $(document).ready(function () {
+                $('div[class="card card-stats card-atalho"] > a[name="aluno/'+module_name+'"]').click();
+            });
+        });
+    });
+</script>
