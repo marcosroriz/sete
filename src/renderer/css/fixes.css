@@ -1143,3 +1143,30 @@ li.media {
 ::-webkit-scrollbar-thumb {
     background: #ffaa00ed;
 }
+
+ul#list-menus-navs {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+ul#list-menus-navs li{
+    width: 25% !important;
+}
+
+ul#list-menus-navs li a span {
+    font-size: 13px !important;
+}
+
+ul#list-menus-navs li a i {
+    font-size: 34px !important;
+    height: auto !important;
+}
+
+ul#list-menus-navs li a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+}

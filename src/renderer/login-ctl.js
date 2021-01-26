@@ -153,16 +153,16 @@ $(document).ready(function () {
 
     // Ações do teclado para Login (pressionar Enter para logar)
     $("#loginemail, #loginpassword").keypress((e) => {
-        if(e.which === 13) {
+        if (e.which === 13) {
             $("#loginsubmit").click();
         }
     });
     $("#recoveremail").keypress((e) => {
-        if(e.which === 13) {
+        if (e.which === 13) {
             $("#recoversubmit").click();
         }
     });
-    
+
     // Ações para cada click
 
     // No caso de login iremos fazer o login com o Firebase as preferências
@@ -230,14 +230,14 @@ $(document).ready(function () {
                 }).then((docConfig) => {
                     let acessoLiberado = false;
                     if (docConfig.exists) {
-                      arDataConfig = docConfig.data();
-                      let idUsuario = userconfig.get("ID");
-                      if (arDataConfig.users.indexOf(idUsuario) > -1) {
-                          acessoLiberado = true;
-                          // TODO: Checar o campo INIT posteriormente
-                      }
+                        arDataConfig = docConfig.data();
+                        let idUsuario = userconfig.get("ID");
+                        if (arDataConfig.users.indexOf(idUsuario) > -1) {
+                            acessoLiberado = true;
+                            // TODO: Checar o campo INIT posteriormente
+                        }
                     } else {
-                      throw new Exception("Acesso ainda não foi liberado pela equipe do CECATE-UFG");
+                        throw new Exception("Acesso ainda não foi liberado pela equipe do CECATE-UFG");
                     }
                     return acessoLiberado;
                 }).then(() => {
@@ -352,7 +352,7 @@ $(document).ready(function () {
                         if (!doc.exists) {
                             remotedb.collection("config")
                                 .doc(localizacao.cidade.value)
-                                .set({"admin": [], "users": [], "readers": []})
+                                .set({ "admin": [], "users": [], "readers": [] })
                                 .then(() => criarColecaoMunicipio(localizacao.cidade.value))
                         }
                     })
@@ -417,8 +417,50 @@ $(document).ready(function () {
             }
         })
 
-
     }
 
+    $("#chk-usarproxy").click(function () {
+        var checado = false;
+        if ($(this).is(':checked'))
+            checado = true;
+
+        if (checado) {
+            $('#endereco-proxy').prop('disabled', false);
+            $('#porta-proxy').prop('disabled', false);
+        } else {
+            $('#endereco-proxy').val('');
+            $('#porta-proxy').val('');
+            $('#endereco-proxy').prop('disabled', true);
+            $('#porta-proxy').prop('disabled', true);
+        }
+    });
+
+    $("#proxy-tab").click(function () {
+        var proxy = userconfig.get('proxy');
+        if (proxy.is_usa_proxy === 1) {
+            $('#chk-usarproxy').prop('checked', true);
+            $('#endereco-proxy').val(proxy.servidor);
+            $('#porta-proxy').val(proxy.porta);
+            $('#endereco-proxy').prop('disabled', false);
+            $('#porta-proxy').prop('disabled', false);
+        } else {
+            $('#endereco-proxy').prop('disabled', true);
+            $('#porta-proxy').prop('disabled', true);
+        }
+    });
+
+    $("#proxysubmit").click(function () {
+        var checado = $("#chk-usarproxy").is(':checked')
+        var endereco = $("#endereco-proxy").val()
+        var porta = $("#porta-proxy").val()
+        if (checado && (endereco === "" || porta === "")) {
+            errorFn("Preencha o endereço e porta corretamente!");
+        } else {
+            AtualizarProxy(checado, endereco, porta)
+        }
+        if (!checado) {
+            AtualizarProxy(checado, endereco, porta);
+        }
+    });
 
 });

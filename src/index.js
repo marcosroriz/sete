@@ -33,8 +33,21 @@ const spatialiteDB = new spatialite.Database(dbPath);
 // Malha Update
 const MalhaUpdate = require("./main/malha/malha-update.js");
 
+//Carrega módulo de configuração do Proxy
+const Proxy = require("./main/proxy/proxy.js");
+
 // Route Optimization
 const RouteOptimization = require("./main/routing/routing-optimization.js");
+
+//Inicia checagem da configuração de Proxy
+var Store = require("electron-store");
+var proxyconfig = new Store();
+var respostaProxy = {};
+//Consulta a configuração de Proxy
+let configProxy = new Proxy(sqliteDB);
+configProxy.obterConfiguracao().then(function (resp) {
+    proxyconfig.set('proxy', resp[0]);
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -72,7 +85,7 @@ const createEntryWindow = () => {
             e.preventDefault();
         } else if (!(url.includes("file:"))) {
             e.preventDefault();
-        } 
+        }
     });
 
     appWindow.on("ready-to-show", () => {
@@ -94,6 +107,13 @@ const createEntryWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
+respostaProxy = proxyconfig.get('proxy');
+//se o proxy configurado seta a configuração do Chromium
+if (Number(respostaProxy.is_usa_proxy) === 1) {
+    app.commandLine.appendSwitch("proxy-server", `${respostaProxy.servidor}:${respostaProxy.porta}`);
+}
+
 app.on('ready', createEntryWindow);
 
 // Quit when all windows are closed.
@@ -136,3 +156,10 @@ ipcMain.on("start:malha-update", (event, newOSMFile) => {
 app.on("finish-update", (event, arg) => {
     console.log(arg);
 });
+
+// Salvar configuração do Proxy para ser recuperada na inicialização do sistema
+ipcMain.on("start:proxy", (event, proxyArgs) => {
+    let storage = new Store();
+    storage.set('proxy', proxyArgs);
+    app.quit();
+})
