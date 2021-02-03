@@ -347,7 +347,8 @@
         // Links
         $(".link-menu").on('click', function () {
             const module_name = $(this).attr("name")
-            if (module_name.includes("cadastrar") | module_name.includes("listar")) { // CADASTRO E GERENCIA SO COM INTERNET
+            console.log(module_name)
+            if (module_name.includes("cadastrar") | module_name.includes("listar") | module_name.includes("importar")) { // CADASTRO E GERENCIA SO COM INTERNET
                 if (StateNetwork()){ // SE TIVER ONLINE ENTRA
                     $(".activeLink").removeClass("activeLink");
                     $(this.parentElement).addClass("activeLink");
