@@ -15,7 +15,7 @@ init:
 
 # Install scripts
 install:
-  # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
   # Get the latest LTS version of Node.js in Windows
   - ps: Install-Product node $env:nodejs_version x64
@@ -68,5 +68,5 @@ artifacts:
 on_finish:
   - cmd: ECHO Exiting...
   - sh: echo Exiting...
-  # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
