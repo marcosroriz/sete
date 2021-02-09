@@ -7,7 +7,7 @@ platform:
 
 environment:
   APPVEYOR_YML_DISABLE_PS_LINUX: true
-  nodejs_version: "12"
+  nodejs_version: "12.18.3"
 
 # Init (set x64 VC) on Windows
 init:
@@ -15,7 +15,7 @@ init:
 
 # Install scripts
 install:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
   # Get the latest LTS version of Node.js in Windows
   - ps: Install-Product node $env:nodejs_version x64
@@ -41,7 +41,8 @@ install:
 
   # Rebuild native packages
   # Install SQLite from Source (Native Module)
-  - npm install sqlite3 --build-from-source --runtime=electron --target=8.5.2 --dist-url=https://electronjs.org/headers
+  # Previous --target=8.5.2
+  - npm install sqlite3 --build-from-source --runtime=electron --target=11.2.2 --dist-url=https://electronjs.org/headers
   
 build_script:
   - cmd: set PATH=C:\projects\sete\node_modules\.bin;%PATH%
@@ -68,5 +69,5 @@ artifacts:
 on_finish:
   - cmd: ECHO Exiting...
   - sh: echo Exiting...
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
