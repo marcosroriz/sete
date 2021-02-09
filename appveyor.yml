@@ -42,7 +42,7 @@ install:
   # Rebuild native packages
   # Install SQLite from Source (Native Module)
   # Previous --target=8.5.2
-  - npm install sqlite3 --build-from-source --runtime=electron --target=11.2.2 --dist-url=https://electronjs.org/headers
+  # - npm install sqlite3 --build-from-source --runtime=electron --target=11.2.2 --dist-url=https://electronjs.org/headers
   
 build_script:
   - cmd: set PATH=C:\projects\sete\node_modules\.bin;%PATH%
