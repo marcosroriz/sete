@@ -51,6 +51,15 @@ $("#datatables_filter input").on('keyup', function () {
     dataTableCenso.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
 })
 
+function tiraUndefined(obj) {
+    Object.keys(obj).forEach(key => {
+        if (obj[key] === undefined) {
+            delete obj[key];
+        }
+    });
+    return obj;
+}
+
 function callbackPreprocessCenso(err, arqProcessado, baseDadosProcessada) {
     dataTableCenso.clear();
     dataTableCenso.draw();
@@ -171,6 +180,7 @@ function realizaImportacao(rawDados) {
             relEscolaAluno[idEscola].push(idAluno);
 
             // Insere o Aluno no Banco de Dados
+            aluno = tiraUndefined(aluno)
             promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
                                                .then(() => updateProgresso()))
         }
@@ -179,6 +189,7 @@ function realizaImportacao(rawDados) {
         delete escola["ALUNOS"];
 
         // Adiciona esta escola no banco de dados
+        escola = tiraUndefined(escola)
         promiseArray.push(dbInserirPromise("escolas", escola, String(idEscola))
                                           .then(() => updateProgresso()))
     })
