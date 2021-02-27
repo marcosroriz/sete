@@ -40,7 +40,7 @@ $(".cpfmask").mask('000.000.000-00', { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".datanasc").mask('00/00/0000');
 $('.numbermask').mask('00000000');
-$(".kmmask").mask("0000,00", { reverse: true });
+$(".kmmask").mask("000000,00", { reverse: true });
 $('.cnh').mask('000000000-00', { reverse: true });
 
 var validadorFormulario = $("#wizardCadastrarRotaForm").validate({
