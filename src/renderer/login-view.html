@@ -50,7 +50,7 @@
                         <div class="col-md-10 mt-3 ml-auto mr-auto">
                             <div class="card card-wizard wiz-fixes">
                                 <div class="card-body ">
-                                    <ul class="nav nav-tabs nav-front">
+                                    <ul id="list-menus-navs" class="nav nav-tabs nav-front">
                                         <li class="nav-item">
                                             <a id="login-tab" class="nav-link active" href="#login-body"
                                                 data-toggle="tab" role="tab">
@@ -69,6 +69,13 @@
                                                 data-toggle="tab" role="tab">
                                                 <i class="fa fa-registered"></i>
                                                 <span>Registrar</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a id="proxy-tab" class="nav-link" href="#proxy-body" data-toggle="tab"
+                                                role="tab">
+                                                <i class="fa fa-cogs"></i>
+                                                <span>Proxy</span>
                                             </a>
                                         </li>
                                     </ul>
@@ -168,7 +175,6 @@
                                                 Para registrar seu usuário, por favor preencha o formulário abaixo:
                                             </p>
                                             <form id="registerform">
-
                                                 <div class="col-12">
                                                     <div class="form-group reg-group">
                                                         <div class="row">
@@ -276,7 +282,6 @@
                                                     </div>
                                                 </div>
 
-
                                                 <div class="row-mt-2">
                                                     <p>
                                                         Selecione abaixo o estado e município em que você atua:
@@ -311,6 +316,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
                                                 <div class="col-12">
                                                     <div class="form-group obr">
                                                         <div class="row mt-3 text-center">
@@ -322,9 +328,125 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </form>
+                                        </div>
+
+                                        <div class="tab-pane tab-wiz fade show" id="proxy-body" role="tabpanel">
+                                            <p class="category text-muted">
+                                                Configure abaixo as opções do servidor <em>proxy</em>.
+                                            </p>
+                                            <form id="proxyform">
+                                                <div class="form-group">
+                                                    <div class="row mt-3 text-center">
+                                                        <div class="col-2"></div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label text-uppercase">
+                                                                <input id="chk-usarproxy" name="chk-usarproxy" class="form-check-input"
+                                                                       type="checkbox" value="">
+                                                                <span class="form-check-sign"></span>
+                                                                Usar servidor proxy?
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group reg-group">
+                                                            <div class="row">
+                                                                <label class="col-4 control-label">
+                                                                    <b>Tipo de Proxy:</b>
+                                                                </label>
+                                                                <div class="col-6">
+                                                                    <select id="tipo-proxy" name="tipo-proxy" class="form-control">
+                                                                        <option value="http">HTTP</option>
+                                                                        <option value="https">HTTPS</option>
+                                                                        <option value="socks4">SOCKS4</option>
+                                                                        <option value="socks5">SOCKS5</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group reg-group">
+                                                            <div class="row">
+                                                                <label class="col-4 control-label">
+                                                                    <b>Endereço:</b>
+                                                                </label>
+                                                                <div class="col-6">
+                                                                    <input id="endereco-proxy" name="endereco-proxy"
+                                                                    placeholder="Endereço do servidor proxy"
+                                                                    class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group reg-group">
+                                                            <div class="row">
+                                                                <label class="col-4 control-label">
+                                                                    <b>Porta:</b>
+                                                                </label>
+                                                                <div class="col-6">
+                                                                    <input id="porta-proxy" name="porta-proxy" type="number"
+                                                                            placeholder="Porta" class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-3 text-center">
+                                                        <div class="col-2"></div>
+                                                        <div class="form-check">
+                                                            <label class="form-check-label text-uppercase">
+                                                                <input id="chk-autenticarproxy" class="form-check-input"
+                                                                        type="checkbox" value="">
+                                                                <span class="form-check-sign"></span>
+                                                                É necessário autenticar o Proxy?
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div id="proxyUserFields">
+                                                        <div class="col-12">
+                                                            <div class="form-group reg-group">
+                                                                <div class="row">
+                                                                    <label class="col-4 control-label">
+                                                                        <b>Usuário:</b>
+                                                                    </label>
+                                                                    <div class="col-6">
+                                                                        <input id="proxy-user" name="proxy-user"
+                                                                        placeholder="Nome de usuário proxy"
+                                                                        class="form-control">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="form-group reg-group">
+                                                                <div class="row">
+                                                                    <label class="col-4 control-label">
+                                                                        <b>Senha:</b>
+                                                                    </label>
+                                                                    <div class="col-6">
+                                                                        <input id="proxy-password" name="proxy-password"
+                                                                        type="password" placeholder="Senha"
+                                                                        class="form-control">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-3 text-center">
+                                                        <div class="col-12">
+                                                            <button id="proxysubmit" class="col-3 btn btn-fill btn-warning m-3" type="button">
+                                                                Salvar configurações
+                                                            </button>
+                                                            <button id="proxycancel" class="col-3 btn btn-fill btn-default m-3" type="button">
+                                                                Cancelar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
-                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -363,4 +485,15 @@
 <script type="text/javascript" src="login-model.js"></script>
 <script type="text/javascript" src="login-ctl.js"></script>
 
+<!-- Custom CSS for login -->
+<style>
+.form-group.has-error .error {
+    padding: 0px;
+     margin: 0px;
+    margin-left: 34%;
+    text-align: left;
+    display: block;
+    font-variant: petite-caps;
+}
+</style>
 </html>
