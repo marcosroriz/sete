@@ -333,21 +333,34 @@
 
                                         <div class="tab-pane tab-wiz fade show" id="proxy-body" role="tabpanel">
                                             <p class="category text-muted">
-                                                Configure abaixo as opções de Proxy.
+                                                Caso seja necessário, configure abaixo as opções de Proxy.
                                             </p>
 
                                             <div class="col-12">
                                                 <form id="proxyform">
                                                     <div class="form-group">
                                                         <div class="row mt-3 text-center">
-                                                            <div class="col-4"></div>
-                                                            <div class="form-check col-3">
+                                                            <div class="col-2"></div>
+                                                            <div class="form-check">
                                                                 <label class="form-check-label">
                                                                     <input id="chk-usarproxy" class="form-check-input"
                                                                         type="checkbox" value="">
                                                                     <span class="form-check-sign"></span>
                                                                     Usar servidor proxy?
                                                                 </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row pt-3">
+                                                            <label class="col-4 control-label">
+                                                                <b>Tipo de Proxy:</b>
+                                                            </label>
+                                                            <div class="col-6">
+                                                                <select id="tipo-proxy" name="tipo-proxy" class="form-control">
+                                                                    <option value="http">HTTP</option>
+                                                                    <option value="https">HTTPS</option>
+                                                                    <option value="socks4">SOCKS4</option>
+                                                                    <option value="socks5">SOCKS5</option>
+                                                                </select>
                                                             </div>
                                                         </div>
                                                         <div class="row pt-3">
@@ -370,12 +383,44 @@
                                                             </div>
                                                         </div>
                                                         <div class="row mt-3 text-center">
-                                                            <div class="col-4"></div>
-
-                                                            <button id="proxysubmit"
-                                                                class="col-3 btn btn-fill btn-warning" type="button">
-                                                                Salvar configurações
-                                                            </button>
+                                                            <div class="col-2"></div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input id="chk-autenticarproxy" class="form-check-input"
+                                                                           type="checkbox" value="">
+                                                                    <span class="form-check-sign"></span>
+                                                                    É necessário autenticar o Proxy?
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div id="proxyUserFields" class="d-none">
+                                                            <div class="row pt-3">
+                                                                <label class="col-4 control-label">
+                                                                    <b>Usuário:</b>
+                                                                </label>
+                                                                <div class="col-6">
+                                                                    <input id="proxy-user" name="proxy-user"
+                                                                        placeholder="Nome de Usuário"
+                                                                        class="form-control">
+                                                                </div>
+                                                            </div>
+                                                            <div class="row mt-2">
+                                                                <label class="col-4 control-label">
+                                                                    <b>Senha:</b>
+                                                                </label>
+                                                                <div class="col-6">
+                                                                    <input id="proxy-password" name="proxy-password"
+                                                                           type="password" placeholder="Senha"
+                                                                           class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mt-3 text-center">
+                                                            <div class="col-12">
+                                                                <button id="proxysubmit" class="col-3 btn btn-fill btn-warning" type="button">
+                                                                    Salvar configurações
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </form>
