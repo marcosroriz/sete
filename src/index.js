@@ -4,9 +4,9 @@ const { app, BrowserWindow, ipcMain, shell } = electron;
 const path = require("path");
 const fs = require("fs-extra");
 
-// Installer Check
-const squirrel = require("./main/installer/squirrel.js");
-squirrel();
+// Basic app config (variables)
+var Store = require('electron-store');
+var appconfig = new Store();
 
 // Database Creator
 const dbPath = path.join(app.getPath('userData'), "db", "local.db");
@@ -39,16 +39,6 @@ const Proxy = require("./main/proxy/proxy.js");
 // Route Optimization
 const RouteOptimization = require("./main/routing/routing-optimization.js");
 
-//Inicia checagem da configuração de Proxy
-var Store = require("electron-store");
-var proxyconfig = new Store();
-var respostaProxy = {};
-//Consulta a configuração de Proxy
-let configProxy = new Proxy(sqliteDB);
-configProxy.obterConfiguracao().then(function (resp) {
-    proxyconfig.set('proxy', resp[0]);
-});
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let appWindow;
@@ -69,17 +59,32 @@ const createEntryWindow = () => {
         }
     });
 
+    // hide menubar
     appWindow.setMenuBarVisibility(false);
 
-    // and load the entry.html of the app.
-    appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
+    // now load the entry.html of the app.
+    let usingProxy = appconfig.get("PROXY_USE");
+    if (!usingProxy) {
+        appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
+    } else {
+        let proxyType = appconfig.get("PROXY_TYPE");
+        let proxyAddress = appconfig.get("PROXY_ADDRESS");
+        let proxyPort = appconfig.get("PROXY_PORT");
+        let proxyString = `${proxyType}://${proxyAddress}:${proxyPort},direct://`
+        console.log("PROXY STRING", proxyString)
+
+        appWindow.webContents.session.setProxy({ proxyRules: proxyString }).then(() => {
+            appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
+        });
+    }
 
     // Open the DevTools.
-    // appWindow.webContents.openDevTools();
+    appWindow.webContents.openDevTools();
 
     // Prevent External Navigation
     appWindow.webContents.on("will-navigate", (e, url) => {
         console.log("WILL-NAVIGATE", url);
+
         if (url.includes("censobasico.inep.gov")) {
             shell.openExternal(url);
             e.preventDefault();
@@ -108,11 +113,18 @@ const createEntryWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 
-respostaProxy = proxyconfig.get('proxy');
-//se o proxy configurado seta a configuração do Chromium
-if (Number(respostaProxy.is_usa_proxy) === 1) {
-    app.commandLine.appendSwitch("proxy-server", `${respostaProxy.servidor}:${respostaProxy.porta}`);
-}
+// Evento chamado quando precisamos logar o proxy
+app.on('login', (event, webContents, details, authInfo, callback) => {
+    event.preventDefault()
+    console.log(authInfo)
+
+    let proxyTemAutenticacao = appconfig.get("PROXY_HASAUTENTICATION");
+    if (proxyTemAutenticacao) {
+        let proxyUser = appconfig.get("PROXY_USER");
+        let proxyPassword = appconfig.get("PROXY_PASSWORD");
+        callback(proxyUser, proxyPassword);
+    }
+})
 
 app.on('ready', createEntryWindow);
 
@@ -157,9 +169,3 @@ app.on("finish-update", (event, arg) => {
     console.log(arg);
 });
 
-// Salvar configuração do Proxy para ser recuperada na inicialização do sistema
-ipcMain.on("start:proxy", (event, proxyArgs) => {
-    let storage = new Store();
-    storage.set('proxy', proxyArgs);
-    app.quit();
-})
