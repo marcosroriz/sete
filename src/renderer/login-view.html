@@ -333,16 +333,15 @@
 
                                         <div class="tab-pane tab-wiz fade show" id="proxy-body" role="tabpanel">
                                             <p class="category text-muted">
-                                                Caso seja necessário, configure abaixo as opções de Proxy.
+                                                Configure abaixo as opções do servidor <em>proxy</em>.
                                             </p>
-
                                             <div class="col-12">
                                                 <form id="proxyform">
                                                     <div class="form-group">
                                                         <div class="row mt-3 text-center">
                                                             <div class="col-2"></div>
                                                             <div class="form-check">
-                                                                <label class="form-check-label">
+                                                                <label class="form-check-label text-uppercase">
                                                                     <input id="chk-usarproxy" class="form-check-input"
                                                                         type="checkbox" value="">
                                                                     <span class="form-check-sign"></span>
@@ -378,14 +377,14 @@
                                                                 <b>Porta:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="porta-proxy" name="porta-proxy" type="text"
+                                                                <input id="porta-proxy" name="porta-proxy" type="number"
                                                                     placeholder="Porta" class="form-control">
                                                             </div>
                                                         </div>
                                                         <div class="row mt-3 text-center">
                                                             <div class="col-2"></div>
                                                             <div class="form-check">
-                                                                <label class="form-check-label">
+                                                                <label class="form-check-label text-uppercase">
                                                                     <input id="chk-autenticarproxy" class="form-check-input"
                                                                            type="checkbox" value="">
                                                                     <span class="form-check-sign"></span>
@@ -393,14 +392,14 @@
                                                                 </label>
                                                             </div>
                                                         </div>
-                                                        <div id="proxyUserFields" class="d-none">
+                                                        <div id="proxyUserFields">
                                                             <div class="row pt-3">
                                                                 <label class="col-4 control-label">
                                                                     <b>Usuário:</b>
                                                                 </label>
                                                                 <div class="col-6">
                                                                     <input id="proxy-user" name="proxy-user"
-                                                                        placeholder="Nome de Usuário"
+                                                                        placeholder="Nome de usuário proxy"
                                                                         class="form-control">
                                                                 </div>
                                                             </div>
@@ -417,8 +416,11 @@
                                                         </div>
                                                         <div class="row mt-3 text-center">
                                                             <div class="col-12">
-                                                                <button id="proxysubmit" class="col-3 btn btn-fill btn-warning" type="button">
+                                                                <button id="proxysubmit" class="col-3 btn btn-fill btn-warning m-3" type="button">
                                                                     Salvar configurações
+                                                                </button>
+                                                                <button id="proxycancel" class="col-3 btn btn-fill btn-default m-3" type="button">
+                                                                    Cancelar
                                                                 </button>
                                                             </div>
                                                         </div>
