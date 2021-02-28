@@ -25,6 +25,39 @@ $(document).ready(function () {
         $("#loginpassword").val(userconfig.get("PASSWORD"));
     }
 
+    // Popula o campo de proxy se tiver
+    let usaproxy = userconfig.get('PROXY_USE');
+    if (usaproxy) {
+        let tipoProxy = userconfig.get('PROXY_TYPE');
+        let enderecoProxy = userconfig.get('PROXY_ADDRESS');
+        let portaProxy = userconfig.get('PROXY_PORT');
+        let temAutenticacao = userconfig.get('PROXY_HASAUTENTICATION');
+        let usuarioProxy = userconfig.get('PROXY_USER');
+        let senhaProxy = userconfig.get('PROXY_PASSWORD');
+
+        $("#chk-usarproxy").prop("checked", true);
+        $("#tipo-proxy").val(tipoProxy);
+        $("#endereco-proxy").val(enderecoProxy);
+        $("#porta-proxy").val(portaProxy);
+        
+        if (temAutenticacao) {
+            $("#chk-autenticarproxy").prop("checked", true);
+            $("#proxy-user").val(usuarioProxy)
+            $("#proxy-password").val(senhaProxy);
+        } else {
+            $("#proxyUserFields").hide();
+        }
+    } else {
+        $("#chk-usarproxy").prop('disabled', true);
+        $("#tipo-proxy").prop('disabled', true);
+        $("#endereco-proxy").prop('disabled', true);
+        $("#porta-proxy").prop('disabled', true);
+        $("#chk-autenticarproxy").prop('disabled', true);
+        $("#proxy-user").prop('disabled', true);
+        $("#proxy-password").prop('disabled', true);
+        $("#proxyUserFields").hide();
+    }
+
     // Inicia o campo de estados/cidade na aba de registro
     localizacao = new dgCidadesEstados({
         cidade: document.getElementById('regcidade'),
@@ -146,6 +179,42 @@ $(document).ready(function () {
                 },
                 regcidade: {
                     required: "Por favor selecione seu Município"
+                }
+            },
+        }
+    });
+
+    $("#proxyform").validate({
+        ...configMostrarResultadoValidacao(),
+        ...{
+            rules: {
+                "endereco-proxy": {
+                    required: true,
+                },
+                "porta-proxy": {
+                    required: true
+                },
+                "proxy-user": {
+                    required: {
+                        depends: function () {
+                            return $('#chk-autenticarproxy').is(':checked'); 
+                        }
+                    }
+                },
+                "proxy-password": {
+                    required: {
+                        depends: function () {
+                            return $('#chk-autenticarproxy').is(':checked'); 
+                        }
+                    }
+                }
+            },
+            messages: {
+                "endereco-proxy": {
+                    required: "Por favor digite o endereço do servidor proxy",
+                },
+                "porta-proxy": {
+                    required: "Por favor digite a porta do servidor proxy",
                 }
             },
         }
@@ -419,48 +488,98 @@ $(document).ready(function () {
 
     }
 
-    $("#chk-usarproxy").click(function () {
+    $("#chk-usarproxy").on('click', function () {
         var checado = false;
         if ($(this).is(':checked'))
             checado = true;
 
         if (checado) {
+            $('#tipo-proxy').prop('disabled', false );
+            $('#endereco-proxy').prop('disabled', false);
             $('#endereco-proxy').prop('disabled', false);
             $('#porta-proxy').prop('disabled', false);
+            $('#chk-autenticarproxy').prop('disabled', false);
+            $("#proxy-user").prop('disabled', false);
+            $("#proxy-password").prop('disabled', false);
         } else {
             $('#endereco-proxy').val('');
             $('#porta-proxy').val('');
+            $('#tipo-proxy').prop('disabled', true );
             $('#endereco-proxy').prop('disabled', true);
             $('#porta-proxy').prop('disabled', true);
+            $('#chk-autenticarproxy').prop('disabled', true);
+            $('#chk-autenticarproxy').prop('checked', false);
+            $("#proxy-user").prop('disabled', true);
+            $("#proxy-password").prop('disabled', true);
+            $("#proxyUserFields").hide();
         }
     });
 
-    $("#proxy-tab").click(function () {
-        var proxy = userconfig.get('proxy');
-        if (proxy.is_usa_proxy === 1) {
-            $('#chk-usarproxy').prop('checked', true);
-            $('#endereco-proxy').val(proxy.servidor);
-            $('#porta-proxy').val(proxy.porta);
-            $('#endereco-proxy').prop('disabled', false);
-            $('#porta-proxy').prop('disabled', false);
-        } else {
-            $('#endereco-proxy').prop('disabled', true);
-            $('#porta-proxy').prop('disabled', true);
-        }
+    $("#chk-autenticarproxy").on('click', function () {
+        $("#proxyUserFields").toggle();
     });
 
-    $("#proxysubmit").click(function () {
+    $("#proxy-tab").on('click', function () {
+        Swal2.fire({
+            title: "Cuidado",
+            text: `A utilização de um proxy altera a forma com que o SETE
+                   se conecta à Internet. Antes de fazer alterações, 
+                   consulte a equipe técnica do seu setor. Tem certeza que 
+                   deseja prosseguir?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            cancelButtonText: "Cancelar",
+            confirmButtonText: 'Sim'
+        }).then((res) => {
+            if (!res.value) {
+                // Usuário não tem certeza, voltamos pra tela de login
+                $("#login-tab").trigger('click');
+            } else {
+                $("#chk-usarproxy").prop('disabled', false);
+            }
+        })
+    });
+
+    $("#proxysubmit").on('click', function () {
         var checado = $("#chk-usarproxy").is(':checked')
-        var endereco = $("#endereco-proxy").val()
-        var porta = $("#porta-proxy").val()
-        if (checado && (endereco === "" || porta === "")) {
-            errorFn("Preencha o endereço e porta corretamente!");
-        } else {
-            AtualizarProxy(checado, endereco, porta)
-        }
+
         if (!checado) {
-            AtualizarProxy(checado, endereco, porta);
+            // Remove Proxy
+            userconfig.set("PROXY_USE", false);
+            successDialog("Parabéns",
+                         "Operação executado com sucesso. Por favor, feche e " +
+                         " reabra o software para as alterações surtirem efeitos.")
+
+        } else {
+            let proxyValido = $("#proxyform").valid();
+            if (proxyValido) {
+                userconfig.set("PROXY_USE", true);
+                userconfig.set('PROXY_TYPE', $("#tipo-proxy").val());
+                userconfig.set('PROXY_ADDRESS', $("#endereco-proxy").val());
+                userconfig.set('PROXY_PORT', $("#porta-proxy").val());
+
+                let temAutenticacao = $("#chk-autenticarproxy").is(':checked');
+                if (temAutenticacao) {
+                    // TODO: fazer md5/sha1
+                    userconfig.set('PROXY_HASAUTENTICATION', true);
+                    userconfig.set('PROXY_USER', $("#proxy-user").val());
+                    userconfig.set('PROXY_PASSWORD', $("#proxy-password").val());
+                } else {
+                    userconfig.set('PROXY_HASAUTENTICATION', false);
+                }
+
+                successDialog("Parabéns",
+                             "Operação executado com sucesso. Por favor, feche e " +
+                             " reabra o software para as alterações surtirem efeitos.")
+            }
         }
     });
+
+    $("#proxycancel").on('click', function () {
+        // Usuário não tem certeza, voltamos pra tela de login
+        $("#login-tab").trigger('click');
+    })
 
 });
