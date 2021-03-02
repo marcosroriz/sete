@@ -694,7 +694,9 @@ $("#listarotas").on("change", (evt) => {
             mapaSource.clear();
 
             // Acrescenta garagem
-            plotarGaragem(garagem);
+            if (garagem != undefined) {
+                plotarGaragem(garagem);
+            }
 
             // Acrescentando rota existente
             if (rotaSelect["SHAPE"] != "" && rotaSelect["SHAPE"] != undefined) {
@@ -744,10 +746,10 @@ $("#listarotas").on("change", (evt) => {
             })
 
             if (!mapaSource.isEmpty()) {
-                mapaOL.getView().fit(vSource.getExtent());
+                mapaOL.getView().fit(mapaSource.getExtent());
                 mapaOL.updateSize();
             }
-    
+  
         } catch (error) {
            errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, error)
         } finally {

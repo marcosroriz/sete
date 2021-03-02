@@ -277,7 +277,7 @@ button.btn.btn-default.btn-wd.btn-back.pull-left.disabled {
 }
 
 div#content {
-    background: #EFF2F7;
+    background: #eff2f78c;
     /* #e8e8e8b8 */
     min-height: 90vh;
 }
@@ -306,7 +306,7 @@ div#content {
     box-shadow: none;
     /* border: none; */
     border-radius: 20px;
-    border-color: #e8e2e2;
+    border-color: #adadad;
     border-top: none;
     border-top-right-radius: 0px;
     border-top-left-radius: 0px;
@@ -315,7 +315,8 @@ div#content {
 .wiz-fixes .card-body {
     padding-top: 0px;
     padding-bottom: 0px;
-    padding-left: 16px;
+    padding-left: 14px;
+    padding-right: 16px;
 }
 
 .wiz-fixes .card-body .nav {
@@ -677,7 +678,7 @@ span.gcd-road {
 .card.data-tables {
     box-shadow: none;
     border-radius: 20px;
-    border-color: #cdcfd4;
+    border-color: #adadad;
     padding-top: 10px;
     padding-bottom: 10px;
 }
