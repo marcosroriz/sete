@@ -227,12 +227,20 @@ function processRegistro30(registro) {
     var codEscola = Number(registro.data[1]);
     var codPessoa = registro.data[2];
 
+    if (codPessoa == "") {
+        codPessoa = registro.data[3];
+    }
+    
     baseDados[codEscola]["PESSOAS"][codPessoa] = pessoa;
 }
 
 function processRegistro40(registro) {
     var codEscola = Number(registro.data[1]);
     var codGestor = registro.data[2];
+
+    if (codGestor == "") {
+        codGestor = registro.data[3];
+    }
 
     if (codGestor in baseDados[codEscola]["PESSOAS"]) {
         gestor = baseDados[codEscola]["PESSOAS"][codGestor];
@@ -253,6 +261,11 @@ function processRegistro60(registro) {
             // adicionar ao campo de aluno da escola
             var codEscola = registro.data[1];
             var codAluno = registro.data[2];
+
+            if (codAluno == "") {
+                codAluno = registro.data[3];
+            }
+
             var codTurma = registro.data[4];
 
             if (codAluno in baseDados[codEscola]["PESSOAS"]) {

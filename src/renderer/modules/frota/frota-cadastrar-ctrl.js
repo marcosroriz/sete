@@ -21,7 +21,7 @@ $(".placa").mask("SSS-ZZZZ", {
     }
 });
 $(".renavam").mask("0000000000-0");
-$(".kmmask").mask("0000,00", { reverse: true });
+$(".kmmask").mask("000000,00", { reverse: true });
 
 // Esconde tipo de veículo
 $(".tipoRodo").hide();
