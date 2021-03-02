@@ -13,7 +13,7 @@ O Sistema Eletrônico de Gestão do Transporte Escolar (SETE) é um software de 
 ## Baixando o Sete
 Para baixar o _software_, basta clicar na versão abaixo do seu sistema operacional.
 
-<a href="http://www.wikiportes.com.br/its/SETEEXE.exe"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarwindows.png" alt="baixar sete para windows" width="279" height="114" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="http://wikiportes.com.br/its/sete-darwin-x64-1.0.0.zip"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarmac.png" alt="baixar sete para mac" width="282" height="115" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="http://wikiportes.com.br/its/sete_1.0.0_amd64.deb"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarlinux.png" alt="baixar sete para linux" width="274" height="112" /></a></p>
+<a href="https://github.com/marcosroriz/sete/releases/download/SETE-v1.3.0/sete-1.3.0-windows64.msi"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarwindows.png" alt="baixar sete para windows" width="279" height="114" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="http://wikiportes.com.br/its/sete-darwin-x64-1.0.0.zip"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarmac.png" alt="baixar sete para mac" width="282" height="115" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="https://github.com/marcosroriz/sete/releases/download/SETE-v1.3.0/sete-1.3.0-linux64.deb"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarlinux.png" alt="baixar sete para linux" width="274" height="112" /></a></p>
 
 
 
