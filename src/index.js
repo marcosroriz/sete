@@ -79,7 +79,7 @@ const createEntryWindow = () => {
     }
 
     // Open the DevTools.
-    appWindow.webContents.openDevTools();
+    // appWindow.webContents.openDevTools();
 
     // Prevent External Navigation
     appWindow.webContents.on("will-navigate", (e, url) => {
@@ -168,4 +168,3 @@ ipcMain.on("start:malha-update", (event, newOSMFile) => {
 app.on("finish-update", (event, arg) => {
     console.log(arg);
 });
-
