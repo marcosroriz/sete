@@ -348,15 +348,15 @@
 
         // Links
         $(".link-menu").on('click', function () {
-            module_name = $(this).attr("name")
-            if (module_name.includes("cadastrar") | module_name.includes("listar") | module_name.includes("importar")) { // CADASTRO E GERENCIA SO COM INTERNET
+            module_name = $(this).attr("name");
+            if (module_name.includes("cadastrar") | module_name.includes("importar")) { // CADASTRO E GERENCIA SO COM INTERNET
                 if (StateNetwork()){ // SE TIVER ONLINE ENTRA
                     $(".activeLink").removeClass("activeLink");
                     $(this.parentElement).addClass("activeLink");
                     try {
                         clearInterval(timerId);
                     } catch(error){
-                        console.log(error)
+                        console.log(error);
                     }
                     timerId = setInterval(return_dashboard, 10000); // INICIANDO FUN A CADA 10s
                     navigateDashboard("./modules/" + module_name + ".html");
@@ -365,7 +365,7 @@
                     try {
                         clearInterval(timerId);
                         } catch(error){
-                            console.log(error)
+                            console.log(error);
                         }
                     }
             } else { // CASO CONTRARIO ACESSE NORMALMENTE
@@ -374,11 +374,13 @@
                 try {
                     clearInterval(timerId);
                 } catch(error){
-                    console.log(error)
+                    console.log(error);
+                }
+                if (module_name.includes("listar")) {
+                    timerId = setInterval(disable_edit, 50); // RODANDO EM SEGUNDO PLANO A FUNÇÃO QUE DESABILITA O BOTÕES DE EDITAR
                 }
                 navigateDashboard("./modules/" + module_name + ".html");
             }
-
         });
     });
 </script>
