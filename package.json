@@ -73,6 +73,7 @@
   "dependencies": {
     "@mapbox/togeojson": "^0.16.0",
     "bootstrap": "^4.5.2",
+    "dom-to-image": "^2.6.0",
     "electron-compile": "^6.4.4",
     "electron-config": "^2.0.0",
     "electron-squirrel-startup": "^1.0.0",

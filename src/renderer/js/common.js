@@ -35,6 +35,8 @@ var moment = require('moment');
 var swal = require("sweetalert");
 var Swal2 = require("sweetalert2");
 var htmlToImage = require("html-to-image");
+var domtoimage = require('dom-to-image');
+
 const { debug } = require('console');
 
 // Variáveis Basicas
