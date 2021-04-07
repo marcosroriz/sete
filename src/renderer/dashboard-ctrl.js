@@ -3,10 +3,17 @@
 
 // Mostra âncora de loading
 $(".content").hide();
-$(".preload").show();
+
+if (firstAcess) {
+    loadingFn("Sincronizando os dados com a nuvem...", "Espere um minutinho...");
+    $(".preload").hide();
+} else {
+    $(".preload").show();
+}
+
 
 // Ativa links de navegação
-$(".link-dash").click(function () {
+$(".link-dash").on('click', function () {
     navigateDashboard("./modules/" + $(this).attr("name") + ".html");
 });
 
@@ -39,9 +46,11 @@ dbEstaSincronizado()
     $(".preload").fadeOut(200, function () {
         $(".content").fadeIn(200);
     });
+    Swal2.close()
+    firstAcess = false;
 })
 .catch((err) => {
-    console.error("ERROR", err);
+    errorFn("Erro ao sincronizar, tente mais tarde", err)
     $(".preload").fadeOut(200, function () {
         $(".content").fadeIn(200);
     });
