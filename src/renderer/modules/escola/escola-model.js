@@ -97,8 +97,8 @@ var parseEscolaDB = function (escolaRaw) {
 
     var horarioEnsino = new Array();
     if (escolaRaw["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
-    if (escolaRaw["HORARIO_NOTURNO"]) horarioEnsino.push("Tarde");
-    if (escolaRaw["HORARIO_VESPERTINO"]) horarioEnsino.push("Noite");
+    if (escolaRaw["HORARIO_VESPERTINO"]) horarioEnsino.push("Tarde");
+    if (escolaRaw["HORARIO_NOTURNO"]) horarioEnsino.push("Noite");
     
     if (horarioEnsino != 0)
         escolaJSON["HORARIO"] = horarioEnsino.join(", ");
