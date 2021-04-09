@@ -24,7 +24,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                     '<a href="#" class="btn btn-link btn-danger motoristaRemove"><i class="fa fa-times"></i></a>'
             }
         ],
-        columnDefs: [{ targets: 0,  render: renderAtMostXCharacters(50) }],
+        columnDefs: [{ targets: 0,  type: 'locale-compare', render: renderAtMostXCharacters(50) }],
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -32,17 +32,11 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                 title: "Motoristas cadastrados",
                 text: "Exportar para PDF",
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
+                    columns: [0, 1, 2]
                 },
                 customize: function (doc) {
-                    doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                    doc.images = doc.images || {};
-                    doc.images["logo"] = baseImages.get("logo");
-                    doc.content.splice(1, 0, {
-                        alignment: 'center',
-                        margin: [0, 0, 0, 12],
-                        image: "logo"
-                    });
+                    doc.content[1].table.widths = ['50%', '20%', '30%'];
+                    docReport(doc)
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
