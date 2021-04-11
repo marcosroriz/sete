@@ -65,7 +65,7 @@ window.onload = () => {
 // Função genérica para relatar erros
 var errorFn = (msg, err = "", title = "Ops... tivemos um problema!") => {
     if (err != "") {
-        msg = msg + "\n Caso o erro persista, informe a seguinte mensagem para a equipe de suporte (cecateufg@gmail.com): \n" + err
+        msg = msg + "\n Caso o erro persista, contate a equipe de suporte (0800 616161): \n"
     }
     Swal2.fire({
         title: title,
