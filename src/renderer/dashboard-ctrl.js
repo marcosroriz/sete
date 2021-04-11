@@ -71,7 +71,7 @@ function preencheDashboard() {
 
     dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_VEICULO).then((res) => {
         let func = naofunc = 0;
-        res.forEach(veiculo => veiculo["MANUTENCAO"] ? func++ : naofunc++)
+        res.forEach(veiculo => veiculo["MANUTENCAO"] ? naofunc++ : func++)
         $("#veiculosFuncionamento").text(func);
         $("#veiculosNaoFuncionamento").text(naofunc);
     }))

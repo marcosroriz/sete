@@ -43,7 +43,10 @@ function docReport(doc) {
         fontSize: 13,
         bold: true,
     }
-
+    doc.styles["tableHeader"] = {
+        ...doc.styles["tableHeader"],
+        alignment: "left"
+    }
     doc.images = doc.images || {};
     doc.images["logo"] = baseImages.get("logosete");
     doc.content.splice(1, 0, {
