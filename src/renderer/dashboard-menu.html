@@ -331,7 +331,7 @@
 
     var habilitaLinksMenu = () => {
         $("li.nav-item").has("a[name*='cadastrar'], a[name*='importar']").removeClass("disabled");
-        $("a[name*='cadastrar'], a[name*='importar']").unbind("click");
+        $("li.nav-item a[name*='cadastrar'], li.nav-item a[name*='importar']").unbind("click");
         $(".link-menu").unbind("click");
         $(".link-menu").on('click', function () {
             $(".activeLink").removeClass("activeLink");
