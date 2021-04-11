@@ -139,7 +139,7 @@ function realizaImportacao(rawDados) {
     dados.forEach((escolaSelecionada) => {
         numAlunos += Object.keys(baseDados[escolaSelecionada["ID"]]["ALUNOS"]).length
     })
-    var totalOperacoes = numEscolas + numAlunos + numAlunos; 
+    var totalOperacoes = numEscolas + numAlunos + numAlunos + numAlunos; 
 
     // Barra de progresso (valor atual)
     var progresso = 0;
@@ -183,6 +183,22 @@ function realizaImportacao(rawDados) {
             aluno = tiraUndefined(aluno)
             promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
                                                .then(() => updateProgresso()))
+
+            // Remove da escola atual (se tiver matriculado)
+            remotedb.collection("municipios")
+                    .doc(codCidade)
+                    .collection("escolatemalunos")
+                    .where("ID_ALUNO", "==", idAluno)
+                    .get({ source: "cache" })
+                    .then((snapshotDocumentos) => {
+                        snapshotDocumentos.forEach(doc => {
+                            promiseArray.push(doc.ref.delete())
+                            updateProgresso()
+                        })
+                    })
+            // // Remove da escola atual (se tiver matriculado)
+            // promiseArray.push(dbRemoverDadoSimplesPromise("escolatemalunos", "ID_ALUNO", idAluno)
+            //                                               .then(() => updateProgresso()))
         }
 
         // Apaga o atributo aluno da escola
