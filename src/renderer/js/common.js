@@ -42,6 +42,7 @@ const { debug } = require('console');
 // Variáveis Basicas
 var appTitle = "SETE - Software Eletrônico de Gestão do Transporte Escolar"
 var userData = {};
+var userRole = "";
 
 // Variáveis globais utilizadas para navegação
 var lastPage = "./dashboard-main.html";

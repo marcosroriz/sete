@@ -50,7 +50,7 @@ dbEstaSincronizado()
     firstAcess = false;
 })
 .catch((err) => {
-    errorFn("Erro ao sincronizar, tente mais tarde", err)
+    errorFn("Erro ao sincronizar, sem conexão com a Internet")
     $(".preload").fadeOut(200, function () {
         $(".content").fadeIn(200);
     });

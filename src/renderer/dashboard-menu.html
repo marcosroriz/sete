@@ -311,6 +311,51 @@
 </div>
 
 <script>
+    // Variável que indica se as funções foram ou não desabilitadas
+    var linksHabilitado = true;
+
+    // Funções para desabilitar/habilitar links quando usuário estiver offline
+    var desabilitaLinksMenu = (msg = 'Esta função só está habilitada se você estiver conectado à Internet.') => {
+        $("li.nav-item").has("a[name*='cadastrar'], a[name*='importar']").addClass("disabled");
+        $("a[name*='cadastrar'], a[name*='importar']").unbind("click");
+        $("a[name*='cadastrar'], a[name*='importar']").bind("click", () => {
+            Swal2.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: msg,
+            })
+        });
+
+        linksHabilitado = false;
+    }
+
+    var habilitaLinksMenu = () => {
+        $("li.nav-item").has("a[name*='cadastrar'], a[name*='importar']").removeClass("disabled");
+        $("a[name*='cadastrar'], a[name*='importar']").unbind("click");
+        $(".link-menu").unbind("click");
+        $(".link-menu").on('click', function () {
+            $(".activeLink").removeClass("activeLink");
+            $(this.parentElement).addClass("activeLink");
+            navigateDashboard("./modules/" + $(this).attr("name") + ".html");
+        });
+    }
+
+    // Função para verifica se o usuário está online
+    function isOnline() {
+        return navigator.onLine;
+    }
+
+    var funcMonitorRede = window.setInterval(function () {
+        if (!isOnline() || userRole == "EDITOR") {
+            if (linksHabilitado) {
+                desabilitaLinksMenu();
+            }
+            $("td a[class*='Student'], td a[class*='Edit'], td a[class*='Remove']").remove();
+        } else {
+            habilitaLinksMenu();
+        }
+    }, 5000);
+
     $(document).ready(function () {
         // Logo
         $("#logosete").click(() => {
@@ -344,11 +389,21 @@
             }, 1000)
         });
 
-        // Links
-        $(".link-menu").on('click', function () {
-            $(".activeLink").removeClass("activeLink");
-            $(this.parentElement).addClass("activeLink");
-            navigateDashboard("./modules/" + $(this).attr("name") + ".html");
-        });
+        // Habilita ou desabilita menus com base no perfil do usuário
+        return remotedb.collection("config")
+            .doc(codCidade)
+            .get({ source: "server" })
+            .then((res) => {
+                let config = res.data();
+                config.readers.forEach(idReader => {
+                    if (idReader == userconfig.get("ID")) {
+                        userRole = "EDITOR";
+                    }
+                })
+                habilitaLinksMenu();
+                if (userRole == "EDITOR") {
+                    desabilitaLinksMenu("Você não possui permissão para cadastrar ou alterar os dados deste município");
+                }
+            })
     });
 </script>

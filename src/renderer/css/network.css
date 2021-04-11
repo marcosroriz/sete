@@ -1,0 +1,8 @@
+.sidebar .show li.nav-item.disabled {
+    background: #5a4949;
+}
+
+.sidebar .show li.nav-item.disabled span.sidebar-normal {
+    color: #afafaf;
+}
+

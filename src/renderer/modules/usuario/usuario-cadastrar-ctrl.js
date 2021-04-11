@@ -144,13 +144,7 @@ function cadastraNovoUsuario() {
     dbBuscarUsuarioPorCPFPromise(cpf)
     .then((res) => {
         if (res.size != 0) {
-            Swal2.fire({
-                title: "Atenção!",
-                text: "CPF já cadastrado. Por favor informe outro CPF ou " +
-                        "entre em contato com a equipe do CECATE-UFG.",
-                icon: "warning",
-                button: "Fechar"
-            });
+            return Promise.reject({code: "cpf-existente"});
         } else {
             return firebase.auth().createUserWithEmailAndPassword(email, password)
         }
@@ -189,6 +183,9 @@ function cadastraNovoUsuario() {
                 errmsg = "O e-mail informado já foi cadastrado."
             } else if (err.code == "auth/network-request-failed") {
                 errmsg = "Erro de conexão com a Internet."
+            } else if (err.code == "cpf-existente") {
+                errmsg = "CPF já cadastrado. Por favor informe outro CPF ou " +
+                         "entre em contato com a equipe do CECATE-UFG."
             }
             errorFn(errmsg)
         }
