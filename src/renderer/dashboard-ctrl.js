@@ -11,7 +11,6 @@ if (firstAcess) {
     $(".preload").show();
 }
 
-
 // Ativa links de navegação
 $(".link-dash").on('click', function () {
     navigateDashboard("./modules/" + $(this).attr("name") + ".html");
@@ -47,14 +46,40 @@ dbEstaSincronizado()
         $(".content").fadeIn(200);
     });
     Swal2.close()
+
+    mostraSeTemUpdate(firstAcess);
     firstAcess = false;
 })
 .catch((err) => {
-    errorFn("Erro ao sincronizar, tente mais tarde", err)
+    errorFn("Erro ao sincronizar, sem conexão com a Internet")
     $(".preload").fadeOut(200, function () {
         $(".content").fadeIn(200);
     });
 })
+
+// Mostra se update (ver github version)
+function mostraSeTemUpdate(firstAcess) {
+    if (firstAcess) {
+        fetch("https://raw.githubusercontent.com/marcosroriz/sete/master/package.json")
+        .then(res => res.json())
+        .then(pkg => {
+            let upVersion = pkg.version;
+            let currentVersion = app.getVersion();
+            if (upVersion != currentVersion) {
+                $.notify({
+                    icon: 'ml-1 fa fa-cloud-download menu-icon',
+                    title: 'Saiu uma nova versão do SETE',
+                    message: 'Clique aqui para entrar na página do SETE',
+                    url: 'https://www.gov.br/fnde/pt-br/assuntos/sistemas/sete-sistema-eletronico-de-gestao-do-transporte-escolar',
+                    target: '_blank'
+                }, {
+                    type: "warning",
+                    delay: 0
+                })
+            }
+        })
+    }
+}
 
 // Preenche Dashboard
 function preencheDashboard() {

@@ -6,139 +6,144 @@
 
     <div class="row">
         <div class="col-md-10 ml-auto mr-auto">
-            <form id="registerform">
-                <div class="col-12">
-                    <div class="form-group reg-group">
-                        <div class="row">
-                            <label class="col-4 control-label">
-                                <b>Nome completo:</b>
-                            </label>
-                            <div class="col-6">
-                                <input id="regnome" name="regnome" type="text" placeholder="Digite seu nome:"
-                                    class="form-control">
+            <div class="card">
+                <div class="card-body">
+                    <form id="registerform">
+                        <div class="col-12">
+                            <div class="form-group reg-group">
+                                <div class="row">
+                                    <label class="col-4 control-label">
+                                        <b>Nome completo:</b>
+                                    </label>
+                                    <div class="col-6">
+                                        <input id="regnome" name="regnome" type="text" placeholder="Digite seu nome:"
+                                            class="form-control">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-12">
-                    <div class="form-group reg-group">
-                        <div class="row">
-                            <label class="col-4 control-label">
-                                <b>CPF:</b>
-                            </label>
-                            <div class="col-6">
-                                <input id="regcpf" name="regcpf" type="text" placeholder="Digite seu CPF:"
-                                    class="form-control cpfmask">
+                        <div class="col-12">
+                            <div class="form-group reg-group">
+                                <div class="row">
+                                    <label class="col-4 control-label">
+                                        <b>CPF:</b>
+                                    </label>
+                                    <div class="col-6">
+                                        <input id="regcpf" name="regcpf" type="text" placeholder="Digite seu CPF:"
+                                            class="form-control cpfmask">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-12">
-                    <div class="form-group reg-group">
-                        <div class="row">
-                            <label class="col-4 control-label">
-                                <b>Telefone:</b>
-                            </label>
-                            <div class="col-6">
-                                <input id="regtel" name="regtel" type="text" placeholder="Digite seu Telefone:"
-                                    class="form-control telmask">
+                        <div class="col-12">
+                            <div class="form-group reg-group">
+                                <div class="row">
+                                    <label class="col-4 control-label">
+                                        <b>Telefone:</b>
+                                    </label>
+                                    <div class="col-6">
+                                        <input id="regtel" name="regtel" type="text" placeholder="Digite seu Telefone:"
+                                            class="form-control telmask">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-12">
-                    <div class="form-group reg-group">
-                        <div class="row">
-                            <label class="col-4 control-label">
-                                <b>E-mail:</b>
-                            </label>
-                            <div class="col-6">
-                                <input id="regemail" name="regemail" type="email" placeholder="Endereço de e-mail:"
-                                    class="form-control">
+                        <div class="col-12">
+                            <div class="form-group reg-group">
+                                <div class="row">
+                                    <label class="col-4 control-label">
+                                        <b>E-mail:</b>
+                                    </label>
+                                    <div class="col-6">
+                                        <input id="regemail" name="regemail" type="email"
+                                            placeholder="Endereço de e-mail:" class="form-control">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-12">
-                    <div class="form-group reg-group">
-                        <div class="row">
-                            <label class="col-4 control-label">
-                                <b>Papel do Usuário:</b>
-                            </label>
-                            <div class="col-6">
-                                <select id="regpapel" name="regpapel" class="form-control">
-                                    <option value="0">Administrador (realiza qualquer operação)</option>
-                                    <option value="1" selected="selected">Editor (pode ler, inserir, remover e atualizar dados)</option>
-                                    <option value="2">Leitor (apenas visualiza dados)</option>
-                                </select>
+                        <div class="col-12">
+                            <div class="form-group reg-group">
+                                <div class="row">
+                                    <label class="col-4 control-label">
+                                        <b>Papel do Usuário:</b>
+                                    </label>
+                                    <div class="col-6">
+                                        <select id="regpapel" name="regpapel" class="form-control">
+                                            <option value="0">Administrador (realiza qualquer operação)</option>
+                                            <option value="1" selected="selected">Editor (pode ler, inserir, remover e
+                                                atualizar dados)</option>
+                                            <option value="2">Leitor (apenas visualiza dados)</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-12">
-                    <div class="form-group reg-group">
-                        <div class="row">
-                            <label class="col-4 control-label">
-                                <b>Senha:</b>
-                            </label>
-                            <div class="col-6">
-                                <input id="regpassword" name="regpassword" type="password" placeholder="Senha:"
-                                    class="form-control">
+                        <div class="col-12">
+                            <div class="form-group reg-group">
+                                <div class="row">
+                                    <label class="col-4 control-label">
+                                        <b>Senha:</b>
+                                    </label>
+                                    <div class="col-6">
+                                        <input id="regpassword" name="regpassword" type="password" placeholder="Senha:"
+                                            class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4"></div>
+                                    <div class="col-6 regadditionalinfo">
+                                        <span>
+                                            Mínimo de seis caracteres
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-4"></div>
-                            <div class="col-6 regadditionalinfo">
-                                <span>
-                                    Mínimo de seis caracteres
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="col-12">
-                    <div class="form-group reg-group">
-                        <div class="row">
-                            <label class="col-4 control-label">
-                                <b>Repetir Senha:</b>
-                            </label>
-                            <div class="col-6">
-                                <input id="regpasswordrepeat" name="regpasswordrepeat" type="password"
-                                    placeholder="Senha:" class="form-control">
+                        <div class="col-12">
+                            <div class="form-group reg-group">
+                                <div class="row">
+                                    <label class="col-4 control-label">
+                                        <b>Repetir Senha:</b>
+                                    </label>
+                                    <div class="col-6">
+                                        <input id="regpasswordrepeat" name="regpasswordrepeat" type="password"
+                                            placeholder="Senha:" class="form-control">
 
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4"></div>
+                                    <div class="col-6 regadditionalinfo">
+                                        <span>
+                                            Mínimo de seis caracteres
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-4"></div>
-                            <div class="col-6 regadditionalinfo">
-                                <span>
-                                    Mínimo de seis caracteres
-                                </span>
+
+                        <div class="col-12">
+                            <div class="row mt-3 text-center">
+                                <div class="col-4"></div>
+                                <button id="regsubmit" class="col-4 btn btn-fill btn-warning" type="button">
+                                    Registrar
+                                </button>
+                                <button id="btCancelarCadastroUsuario" class="col-4 btn btn-fill btn-primary"
+                                    type="button">
+                                    Cancelar
+                                </button>
                             </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
+            </div>
 
-                <div class="col-12">
-                    <div class="form-group obr">
-                        <div class="row mt-3 text-center">
-                            <div class="col-4"></div>
-                            <button id="regsubmit" class="col-4 btn btn-fill btn-warning" type="button">
-                                Registrar
-                            </button>
-                            <button id="btCancelarCadastroUsuario" class="col-4 btn btn-fill btn-primary" type="button">
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 </div>

@@ -238,7 +238,7 @@ function realizaImportacao(rawDados) {
         navigateDashboard("./dashboard-main.html");
     })
     .catch(err => {
-        errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em cecateufg@gmail.com")
+        errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em 0800 616161")
     })
 
 }

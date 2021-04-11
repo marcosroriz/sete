@@ -93,6 +93,13 @@ const createEntryWindow = () => {
         }
     });
 
+    appWindow.webContents.on('new-window', function (e, url) {
+        console.log('NEW-WINDOW', url)
+        e.preventDefault();
+        shell.openExternal(url);
+    });
+
+
     appWindow.on("ready-to-show", () => {
         appWindow.maximize();
         appWindow.show();

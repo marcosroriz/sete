@@ -330,9 +330,9 @@ $(document).ready(function () {
                         } else if (err.code == "permission-denied") {
                             errorFn(`Usuário ainda não foi ativado pela equipe do CECATE-UFG. 
                                     Aguarde mais um pouquinho ou entre em contato com a
-                                    equipe do CECATE-UFG através do email (cecateufg@gmail.com).`)
+                                    equipe de suporte (0800 616161)`)
                         } else {
-                            errorFn("Erro ao tentar realizar login. Contate a equipe de suporte do CECATE (cecateufg@gmail.com)")
+                            errorFn("Erro ao tentar realizar login. Contate a equipe de suporte do CECATE-UFG (0800 616161)")
                         }
                     }
                 });
