@@ -158,6 +158,9 @@ function realizaImportacao(rawDados) {
     // Vamos Inserir os Alunos e as Escolas
     var promiseArray = new Array();
     
+    // Promessas de Relações Antigas
+    var promiseArrayRelacoesAntigas = new Array();
+    
     // Para cada escola
     dados.forEach((escolaSelecionada) => {
         // Obtem uma cópia da escola
@@ -191,9 +194,9 @@ function realizaImportacao(rawDados) {
                     .where("ID_ALUNO", "==", idAluno)
                     .get({ source: "cache" })
                     .then((snapshotDocumentos) => {
+                        updateProgresso()
                         snapshotDocumentos.forEach(doc => {
-                            promiseArray.push(doc.ref.delete())
-                            updateProgresso()
+                            promiseArrayRelacoesAntigas.push(doc.ref.delete())
                         })
                     })
             // // Remove da escola atual (se tiver matriculado)
@@ -210,7 +213,11 @@ function realizaImportacao(rawDados) {
                                           .then(() => updateProgresso()))
     })
 
-    Promise.all(promiseArray).then(() => {
+    Promise.all(promiseArray)
+    .then(() => {
+        return Promise.all(promiseArrayRelacoesAntigas);
+    })
+    .then(() => {
         var promiseArrayRelacoes = new Array();
         for (let [idEscola, alunos] of Object.entries(relEscolaAluno)) {
             for (let idAluno of Object.values(alunos)) {
