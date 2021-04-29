@@ -17,7 +17,7 @@ var dataTurno = { series: [], labels: ["Manhã", "Tarde", "Integral", "Noturno"]
 var dataResidencia = { series: [], labels: ["Área Urbana", "Área Rural"] };
 var dataCor = { series: [], labels: ["Não informado", "Branco", "Preto", "Pardo", "Amarelo", "Indígena"] };
 var dataGenero = { series: [], labels: ["Masculino", "Feminino", "Não Informado"] };
-var dataResponsavel = { series: [], labels: ["Pai, Mãe, Padrasto ou Madrasta", "Avô ou Avó", "Irmão ou Irmã", "Outrou Parente"] };
+var dataResponsavel = { series: [], labels: ["Pai, Mãe, Padrasto ou Madrasta", "Avô ou Avó", "Irmão ou Irmã", "Outro Parente"] };
 
 // DataTables
 var defaultTableConfig = GetTemplateDataTableConfig();
@@ -333,9 +333,9 @@ dataTablesRelatorio.on('click', '.alunoRemove', function () {
 dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
 .then(res => preprocessarAlunos(res))
 .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-.then(res => preprocessarEscolas(res))
+.then(res => preprocessarEscolasTemAlunos(res))
 .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-.then(res => preprocessarRotas(res))
+.then(res => preprocessarRotaTemAlunos(res))
 .then(res => adicionaDadosTabela(res))
 .then(() => CalcularEstatisticas())
 .catch((err) => errorFn(err))
@@ -347,13 +347,19 @@ var preprocessarAlunos = (res) => {
     for (let alunoRaw of res) {
         let alunoJSON = parseAlunoDB(alunoRaw);
         alunoJSON["LOCALIZACAO"] = "Área " + alunoJSON["LOCALIZACAO"];
+
+        if (alunoJSON["NOME_RESPONSAVEL"] == undefined || 
+            alunoJSON["NOME_RESPONSAVEL"] == null) {
+            alunoJSON["NOME_RESPONSAVEL"] = "Não informado";
+        }
+
         listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
     }
     return listaDeAlunos;
 }
 
 // Preprocessa escolas
-var preprocessarEscolas = (res) => {
+var preprocessarEscolasTemAlunos = (res) => {
     totalNumEscolas = res.length;
     for (let escolaRaw of res) {
         let aID = escolaRaw["ID_ALUNO"];
@@ -378,7 +384,7 @@ var preprocessarEscolas = (res) => {
 };
 
 // Preprocessa rotas
-var preprocessarRotas = (res) => {
+var preprocessarRotaTemAlunos = (res) => {
     totalNumRotas = res.length;
     res.forEach((rota) => {
         let aID = rota["ID_ALUNO"];

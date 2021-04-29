@@ -309,6 +309,10 @@ var popularTabelaAluno = () => {
 
     }
 
+    if (estadoAluno["ROTA"]) {
+        dataTableAluno.row.add(["ROTA", estadoAluno["ROTA"]]);
+    }
+
     dataTableAluno.draw();
 }
 

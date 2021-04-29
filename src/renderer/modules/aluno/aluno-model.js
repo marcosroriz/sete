@@ -68,6 +68,10 @@ var parseAlunoDB = function (alunoRaw) {
     alunoJSON["ROTA"] = "Sem rota cadastrada";
     alunoJSON["ID_ESCOLA"] = 0;
 
+    if (alunoRaw["NOME_RESPONSAVEL"] == undefined ||
+        alunoRaw["NOME_RESPONSAVEL"] == null) {
+        alunoJSON["NOME_RESPONSAVEL"] = "Não informado";
+    }
     switch (alunoRaw["MEC_TP_LOCALIZACAO"]) {
         case 1:
             alunoJSON["LOCALIZACAO"] = "Urbana";
