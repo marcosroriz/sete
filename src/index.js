@@ -20,6 +20,18 @@ if (!fs.existsSync(dbPath)) {
     console.log("USANDO BASE DE DADOS:", dbPath)
 }
 
+// Malha Creator
+const malhaTemplatePath = path.join(app.getPath('userData'), "db", "osm_road_template");
+const rawMalhaTemplatePath = path.join(__dirname, "db", "osm_road_template");
+
+if (!fs.existsSync(malhaTemplatePath)) {
+    fs.copySync(rawMalhaTemplatePath, malhaTemplatePath);
+    console.log("COPIANDO O TEMPLATE DE MALHA DE: ", rawMalhaTemplatePath)
+    console.log("PARA: ", malhaTemplatePath)
+} else {
+    console.log("USANDO BASE DE DADOS:", malhaTemplatePath)
+}
+
 const sqliteDB = require("knex")({
     client: "sqlite3",
     connection: {
