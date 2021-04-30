@@ -77,7 +77,7 @@ function errorFn(msg, err = "", title = "Ops... tivemos um problema!") {
 }
 
 // Função genérica para relatar carregamento
-var loadingFn = (msgTitle, msgDesc = "Aguarde, estamos processando...") => {
+function loadingFn(msgTitle, msgDesc = "Aguarde, estamos processando...") {
     return Swal2.fire({
         title: msgTitle,
         imageUrl: "img/icones/processing.gif",
