@@ -314,8 +314,13 @@ var processarAlunosPorRota = (res) => {
 var processarVeiculosPorRota = (res) => {
     for (let relVeiculoPorRota of res) {
         let veiculo = listaDeVeiculos.get(relVeiculoPorRota["ID_VEICULO"])
-        let rota = listaDeRotas.get(relVeiculoPorRota["ID_ROTA"])
+        let idRota = relVeiculoPorRota["ID_ROTA"];
 
+        if (!listaDeRotas.has(idRota)) {
+            listaDeRotas.set(idRota, { "NUMALUNOS": 0 });    
+        }
+        
+        let rota = listaDeRotas.get(idRota)
         veiculo["CAPACIDADE_ATUAL"] = rota["NUMALUNOS"];
         listaDeVeiculos.set(relVeiculoPorRota["ID_VEICULO"], veiculo);
     }

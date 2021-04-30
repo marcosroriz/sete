@@ -1,8 +1,8 @@
 .bgentry {
     /* background: url("file:///src/img/entry-bg.jpg") fixed no-repeat bottom center; */
-    /*    background: url("../img/entry-bg.jpg") fixed no-repeat bottom center; */
+    background: url("../img/entry-bg.jpg") fixed no-repeat bottom center;
     background-size: cover;
-    background: #EFF2F7;
+    /* background: #EFF2F7; */
     min-height: 100vh;
 }
 
@@ -261,4 +261,13 @@ i.tab-icon {
 
 .commentArea {
     height: 100px;
+}
+
+.sidebar:before {
+    opacity: .7;
+    background: #414550;;
+}
+
+.card-wizard .nav-tabs {
+    margin-left: -13px;
 }

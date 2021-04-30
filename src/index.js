@@ -4,9 +4,9 @@ const { app, BrowserWindow, ipcMain, shell } = electron;
 const path = require("path");
 const fs = require("fs-extra");
 
-// Installer Check
-const squirrel = require("./main/installer/squirrel.js");
-squirrel();
+// Basic app config (variables)
+var Store = require('electron-store');
+var appconfig = new Store();
 
 // Database Creator
 const dbPath = path.join(app.getPath('userData'), "db", "local.db");
@@ -33,6 +33,9 @@ const spatialiteDB = new spatialite.Database(dbPath);
 // Malha Update
 const MalhaUpdate = require("./main/malha/malha-update.js");
 
+//Carrega módulo de configuração do Proxy
+const Proxy = require("./main/proxy/proxy.js");
+
 // Route Optimization
 const RouteOptimization = require("./main/routing/routing-optimization.js");
 
@@ -56,10 +59,24 @@ const createEntryWindow = () => {
         }
     });
 
+    // hide menubar
     appWindow.setMenuBarVisibility(false);
 
-    // and load the entry.html of the app.
-    appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
+    // now load the entry.html of the app.
+    let usingProxy = appconfig.get("PROXY_USE");
+    if (!usingProxy) {
+        appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
+    } else {
+        let proxyType = appconfig.get("PROXY_TYPE");
+        let proxyAddress = appconfig.get("PROXY_ADDRESS");
+        let proxyPort = appconfig.get("PROXY_PORT");
+        let proxyString = `${proxyType}://${proxyAddress}:${proxyPort},direct://`
+        console.log("PROXY STRING", proxyString)
+
+        appWindow.webContents.session.setProxy({ proxyRules: proxyString }).then(() => {
+            appWindow.loadURL(`file://${__dirname}/renderer/login-view.html`);
+        });
+    }
 
     // Open the DevTools.
     // appWindow.webContents.openDevTools();
@@ -67,13 +84,21 @@ const createEntryWindow = () => {
     // Prevent External Navigation
     appWindow.webContents.on("will-navigate", (e, url) => {
         console.log("WILL-NAVIGATE", url);
+
         if (url.includes("censobasico.inep.gov")) {
             shell.openExternal(url);
             e.preventDefault();
         } else if (!(url.includes("file:"))) {
             e.preventDefault();
-        } 
+        }
     });
+
+    appWindow.webContents.on('new-window', function (e, url) {
+        console.log('NEW-WINDOW', url)
+        e.preventDefault();
+        shell.openExternal(url);
+    });
+
 
     appWindow.on("ready-to-show", () => {
         appWindow.maximize();
@@ -94,6 +119,20 @@ const createEntryWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
+// Evento chamado quando precisamos logar o proxy
+app.on('login', (event, webContents, details, authInfo, callback) => {
+    event.preventDefault()
+    console.log(authInfo)
+
+    let proxyTemAutenticacao = appconfig.get("PROXY_HASAUTENTICATION");
+    if (proxyTemAutenticacao) {
+        let proxyUser = appconfig.get("PROXY_USER");
+        let proxyPassword = appconfig.get("PROXY_PASSWORD");
+        callback(proxyUser, proxyPassword);
+    }
+})
+
 app.on('ready', createEntryWindow);
 
 // Quit when all windows are closed.

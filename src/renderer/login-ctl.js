@@ -25,6 +25,39 @@ $(document).ready(function () {
         $("#loginpassword").val(userconfig.get("PASSWORD"));
     }
 
+    // Popula o campo de proxy se tiver
+    let usaproxy = userconfig.get('PROXY_USE');
+    if (usaproxy) {
+        let tipoProxy = userconfig.get('PROXY_TYPE');
+        let enderecoProxy = userconfig.get('PROXY_ADDRESS');
+        let portaProxy = userconfig.get('PROXY_PORT');
+        let temAutenticacao = userconfig.get('PROXY_HASAUTENTICATION');
+        let usuarioProxy = userconfig.get('PROXY_USER');
+        let senhaProxy = userconfig.get('PROXY_PASSWORD');
+
+        $("#chk-usarproxy").prop("checked", true);
+        $("#tipo-proxy").val(tipoProxy);
+        $("#endereco-proxy").val(enderecoProxy);
+        $("#porta-proxy").val(portaProxy);
+        
+        if (temAutenticacao) {
+            $("#chk-autenticarproxy").prop("checked", true);
+            $("#proxy-user").val(usuarioProxy)
+            $("#proxy-password").val(senhaProxy);
+        } else {
+            $("#proxyUserFields").hide();
+        }
+    } else {
+        $("#chk-usarproxy").prop('disabled', true);
+        $("#tipo-proxy").prop('disabled', true);
+        $("#endereco-proxy").prop('disabled', true);
+        $("#porta-proxy").prop('disabled', true);
+        $("#chk-autenticarproxy").prop('disabled', true);
+        $("#proxy-user").prop('disabled', true);
+        $("#proxy-password").prop('disabled', true);
+        $("#proxyUserFields").hide();
+    }
+
     // Inicia o campo de estados/cidade na aba de registro
     localizacao = new dgCidadesEstados({
         cidade: document.getElementById('regcidade'),
@@ -151,18 +184,54 @@ $(document).ready(function () {
         }
     });
 
+    $("#proxyform").validate({
+        ...configMostrarResultadoValidacao(),
+        ...{
+            rules: {
+                "endereco-proxy": {
+                    required: true,
+                },
+                "porta-proxy": {
+                    required: true
+                },
+                "proxy-user": {
+                    required: {
+                        depends: function () {
+                            return $('#chk-autenticarproxy').is(':checked'); 
+                        }
+                    }
+                },
+                "proxy-password": {
+                    required: {
+                        depends: function () {
+                            return $('#chk-autenticarproxy').is(':checked'); 
+                        }
+                    }
+                }
+            },
+            messages: {
+                "endereco-proxy": {
+                    required: "Por favor digite o endereço do servidor proxy",
+                },
+                "porta-proxy": {
+                    required: "Por favor digite a porta do servidor proxy",
+                }
+            },
+        }
+    });
+
     // Ações do teclado para Login (pressionar Enter para logar)
     $("#loginemail, #loginpassword").keypress((e) => {
-        if(e.which === 13) {
+        if (e.which === 13) {
             $("#loginsubmit").click();
         }
     });
     $("#recoveremail").keypress((e) => {
-        if(e.which === 13) {
+        if (e.which === 13) {
             $("#recoversubmit").click();
         }
     });
-    
+
     // Ações para cada click
 
     // No caso de login iremos fazer o login com o Firebase as preferências
@@ -230,14 +299,14 @@ $(document).ready(function () {
                 }).then((docConfig) => {
                     let acessoLiberado = false;
                     if (docConfig.exists) {
-                      arDataConfig = docConfig.data();
-                      let idUsuario = userconfig.get("ID");
-                      if (arDataConfig.users.indexOf(idUsuario) > -1) {
-                          acessoLiberado = true;
-                          // TODO: Checar o campo INIT posteriormente
-                      }
+                        arDataConfig = docConfig.data();
+                        let idUsuario = userconfig.get("ID");
+                        if (arDataConfig.users.indexOf(idUsuario) > -1) {
+                            acessoLiberado = true;
+                            // TODO: Checar o campo INIT posteriormente
+                        }
                     } else {
-                      throw new Exception("Acesso ainda não foi liberado pela equipe do CECATE-UFG");
+                        throw new Exception("Acesso ainda não foi liberado pela equipe do CECATE-UFG");
                     }
                     return acessoLiberado;
                 }).then(() => {
@@ -261,9 +330,9 @@ $(document).ready(function () {
                         } else if (err.code == "permission-denied") {
                             errorFn(`Usuário ainda não foi ativado pela equipe do CECATE-UFG. 
                                     Aguarde mais um pouquinho ou entre em contato com a
-                                    equipe do CECATE-UFG através do email (cecateufg@gmail.com).`)
+                                    equipe de suporte (0800 616161)`)
                         } else {
-                            errorFn("Erro ao tentar realizar login. Contate a equipe de suporte do CECATE (cecateufg@gmail.com)")
+                            errorFn("Erro ao tentar realizar login. Contate a equipe de suporte do CECATE-UFG (0800 616161)")
                         }
                     }
                 });
@@ -352,7 +421,7 @@ $(document).ready(function () {
                         if (!doc.exists) {
                             remotedb.collection("config")
                                 .doc(localizacao.cidade.value)
-                                .set({"admin": [], "users": [], "readers": []})
+                                .set({ "admin": [], "users": [], "readers": [] })
                                 .then(() => criarColecaoMunicipio(localizacao.cidade.value))
                         }
                     })
@@ -417,8 +486,100 @@ $(document).ready(function () {
             }
         })
 
-
     }
 
+    $("#chk-usarproxy").on('click', function () {
+        var checado = false;
+        if ($(this).is(':checked'))
+            checado = true;
+
+        if (checado) {
+            $('#tipo-proxy').prop('disabled', false );
+            $('#endereco-proxy').prop('disabled', false);
+            $('#endereco-proxy').prop('disabled', false);
+            $('#porta-proxy').prop('disabled', false);
+            $('#chk-autenticarproxy').prop('disabled', false);
+            $("#proxy-user").prop('disabled', false);
+            $("#proxy-password").prop('disabled', false);
+        } else {
+            $('#endereco-proxy').val('');
+            $('#porta-proxy').val('');
+            $('#tipo-proxy').prop('disabled', true );
+            $('#endereco-proxy').prop('disabled', true);
+            $('#porta-proxy').prop('disabled', true);
+            $('#chk-autenticarproxy').prop('disabled', true);
+            $('#chk-autenticarproxy').prop('checked', false);
+            $("#proxy-user").prop('disabled', true);
+            $("#proxy-password").prop('disabled', true);
+            $("#proxyUserFields").hide();
+        }
+    });
+
+    $("#chk-autenticarproxy").on('click', function () {
+        $("#proxyUserFields").toggle();
+    });
+
+    $("#proxy-tab").on('click', function () {
+        Swal2.fire({
+            title: "Cuidado",
+            text: `A utilização de um proxy altera a forma com que o SETE
+                   se conecta à Internet. Antes de fazer alterações, 
+                   consulte a equipe técnica do seu setor. Tem certeza que 
+                   deseja prosseguir?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            cancelButtonText: "Cancelar",
+            confirmButtonText: 'Sim'
+        }).then((res) => {
+            if (!res.value) {
+                // Usuário não tem certeza, voltamos pra tela de login
+                $("#login-tab").trigger('click');
+            } else {
+                $("#chk-usarproxy").prop('disabled', false);
+            }
+        })
+    });
+
+    $("#proxysubmit").on('click', function () {
+        var checado = $("#chk-usarproxy").is(':checked')
+
+        if (!checado) {
+            // Remove Proxy
+            userconfig.set("PROXY_USE", false);
+            successDialog("Parabéns",
+                         "Operação executado com sucesso. Por favor, feche e " +
+                         " reabra o software para as alterações surtirem efeitos.")
+
+        } else {
+            let proxyValido = $("#proxyform").valid();
+            if (proxyValido) {
+                userconfig.set("PROXY_USE", true);
+                userconfig.set('PROXY_TYPE', $("#tipo-proxy").val());
+                userconfig.set('PROXY_ADDRESS', $("#endereco-proxy").val());
+                userconfig.set('PROXY_PORT', $("#porta-proxy").val());
+
+                let temAutenticacao = $("#chk-autenticarproxy").is(':checked');
+                if (temAutenticacao) {
+                    // TODO: fazer md5/sha1
+                    userconfig.set('PROXY_HASAUTENTICATION', true);
+                    userconfig.set('PROXY_USER', $("#proxy-user").val());
+                    userconfig.set('PROXY_PASSWORD', $("#proxy-password").val());
+                } else {
+                    userconfig.set('PROXY_HASAUTENTICATION', false);
+                }
+
+                successDialog("Parabéns",
+                             "Operação executado com sucesso. Por favor, feche e " +
+                             " reabra o software para as alterações surtirem efeitos.")
+            }
+        }
+    });
+
+    $("#proxycancel").on('click', function () {
+        // Usuário não tem certeza, voltamos pra tela de login
+        $("#login-tab").trigger('click');
+    })
 
 });

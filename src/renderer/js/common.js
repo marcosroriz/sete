@@ -35,11 +35,14 @@ var moment = require('moment');
 var swal = require("sweetalert");
 var Swal2 = require("sweetalert2");
 var htmlToImage = require("html-to-image");
+var domtoimage = require('dom-to-image');
+
 const { debug } = require('console');
 
 // Variáveis Basicas
 var appTitle = "SETE - Software Eletrônico de Gestão do Transporte Escolar"
 var userData = {};
+var userRole = "";
 
 // Variáveis globais utilizadas para navegação
 var lastPage = "./dashboard-main.html";
@@ -62,7 +65,7 @@ window.onload = () => {
 // Função genérica para relatar erros
 var errorFn = (msg, err = "", title = "Ops... tivemos um problema!") => {
     if (err != "") {
-        msg = msg + "\n Caso o erro persista, informe a seguinte mensagem para a equipe de suporte (cecateufg@gmail.com): \n" + err
+        msg = msg + "\n Caso o erro persista, contate a equipe de suporte (0800 616161): \n"
     }
     Swal2.fire({
         title: title,

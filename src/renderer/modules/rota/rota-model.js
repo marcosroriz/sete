@@ -56,7 +56,12 @@ var parseRotaDB = function (rotaRaw) {
     if (rotaRaw["TURNO_MATUTINO"]) turno.push("Manhã");
     if (rotaRaw["TURNO_VESPERTINO"]) turno.push("Tarde");
     if (rotaRaw["TURNO_NOTURNO"]) turno.push("Noite");
-    rotaJSON["TURNOSTR"] = turno.join(", ");
+    if (turno.length == 0) {
+        rotaJSON["TURNOSTR"] = "Não informado"
+    } else {
+        rotaJSON["TURNOSTR"] = turno.join(", ");
+    }
+    
 
 
     var dificuldadesAcesso = new Array();

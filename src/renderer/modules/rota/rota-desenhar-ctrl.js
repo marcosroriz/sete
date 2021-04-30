@@ -6,7 +6,7 @@
 var listaDeRotas = new Map();
 var idRotaSelecionada = 0;
 var garagem;
-$(".km").hide();
+// $(".km").hide();
 $(".tempo").hide();
 
 // Variáveis de Mapas
@@ -133,8 +133,7 @@ var pointerMoveHandler = function (evt) {
     helpTooltipElement.classList.remove('hidden');
 };
 
-var formatLengthAll = () => {
-    var length = 0;
+var formatLengthAll = (length = 0) => {
     var output = 0;
     mapaSource.getFeatures().forEach((f) => {
         if (f.getGeometry() instanceof ol.geom.LineString) {
@@ -384,7 +383,8 @@ draw.on('drawend', function (drawEndEvent) {
 
     // Seta quilometragem
     $(measureTooltipElement).css("display", "none");
-    $("#regkm").val(formatLengthAll());
+    let length = ol.sphere.getLength(drawEndEvent.feature.getGeometry());
+    $("#regkm").val(formatLengthAll(length));
     // measureTooltipElement.innerHTML = formatLengthAll();
     // measureTooltipElement.className = 'ol-tooltip ol-tooltip-static';
     // measureTooltip.setOffset([0, -7]);
@@ -694,7 +694,9 @@ $("#listarotas").on("change", (evt) => {
             mapaSource.clear();
 
             // Acrescenta garagem
-            plotarGaragem(garagem);
+            if (garagem != undefined) {
+                plotarGaragem(garagem);
+            }
 
             // Acrescentando rota existente
             if (rotaSelect["SHAPE"] != "" && rotaSelect["SHAPE"] != undefined) {
@@ -725,7 +727,8 @@ $("#listarotas").on("change", (evt) => {
             //         $("#regkm").val(rotaSelect["KM"]);
             //         $(".km").show();
             // }
-
+            $("#regkm").val(rotaSelect["KM"]);
+            $(".km").show();
             alunosRota = rotaSelect["ALUNOS"]
             escolasRota = rotaSelect["ESCOLAS"]
 
@@ -744,10 +747,10 @@ $("#listarotas").on("change", (evt) => {
             })
 
             if (!mapaSource.isEmpty()) {
-                mapaOL.getView().fit(vSource.getExtent());
+                mapaOL.getView().fit(mapaSource.getExtent());
                 mapaOL.updateSize();
             }
-    
+  
         } catch (error) {
            errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, error)
         } finally {
@@ -781,7 +784,7 @@ $("#rota-malha-salvarNovaMalha").on('click', () => {
         Swal2.fire("Escolha uma rota primeiro!", "", "error");
     } else {
         var rotasJSON = { "ID_ROTA": idRotaSelecionada };
-        // rotasJSON["KM"] = $("#regkm").val();
+        rotasJSON["KM"] = String(formatLengthAll()).replace(".", ",");
         // rotasJSON["TEMPO"] = $("#regtempo").val();
         rotasJSON["SHAPE"] = new ol.format.GeoJSON().writeFeatures(mapaSource.getFeatures());
 

@@ -139,7 +139,7 @@ function realizaImportacao(rawDados) {
     dados.forEach((escolaSelecionada) => {
         numAlunos += Object.keys(baseDados[escolaSelecionada["ID"]]["ALUNOS"]).length
     })
-    var totalOperacoes = numEscolas + numAlunos + numAlunos; 
+    var totalOperacoes = numEscolas + numAlunos + numAlunos + numAlunos; 
 
     // Barra de progresso (valor atual)
     var progresso = 0;
@@ -157,6 +157,9 @@ function realizaImportacao(rawDados) {
     
     // Vamos Inserir os Alunos e as Escolas
     var promiseArray = new Array();
+    
+    // Promessas de Relações Antigas
+    var promiseArrayRelacoesAntigas = new Array();
     
     // Para cada escola
     dados.forEach((escolaSelecionada) => {
@@ -183,6 +186,22 @@ function realizaImportacao(rawDados) {
             aluno = tiraUndefined(aluno)
             promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
                                                .then(() => updateProgresso()))
+
+            // Remove da escola atual (se tiver matriculado)
+            remotedb.collection("municipios")
+                    .doc(codCidade)
+                    .collection("escolatemalunos")
+                    .where("ID_ALUNO", "==", idAluno)
+                    .get({ source: "cache" })
+                    .then((snapshotDocumentos) => {
+                        updateProgresso()
+                        snapshotDocumentos.forEach(doc => {
+                            promiseArrayRelacoesAntigas.push(doc.ref.delete())
+                        })
+                    })
+            // // Remove da escola atual (se tiver matriculado)
+            // promiseArray.push(dbRemoverDadoSimplesPromise("escolatemalunos", "ID_ALUNO", idAluno)
+            //                                               .then(() => updateProgresso()))
         }
 
         // Apaga o atributo aluno da escola
@@ -194,7 +213,11 @@ function realizaImportacao(rawDados) {
                                           .then(() => updateProgresso()))
     })
 
-    Promise.all(promiseArray).then(() => {
+    Promise.all(promiseArray)
+    .then(() => {
+        return Promise.all(promiseArrayRelacoesAntigas);
+    })
+    .then(() => {
         var promiseArrayRelacoes = new Array();
         for (let [idEscola, alunos] of Object.entries(relEscolaAluno)) {
             for (let idAluno of Object.values(alunos)) {
@@ -222,7 +245,7 @@ function realizaImportacao(rawDados) {
         navigateDashboard("./dashboard-main.html");
     })
     .catch(err => {
-        errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em cecateufg@gmail.com")
+        errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em 0800 616161")
     })
 
 }

@@ -168,7 +168,7 @@ function GetTemplateDataTableConfig() {
 }
 
 
-$("#btnExpJPEG").click(() => {
+$("#btnExpJPEG").on('click', () => {
     Swal2.fire({
         title: "Exportando imagem...",
         imageUrl: "img/icones/processing.gif",
@@ -180,14 +180,14 @@ $("#btnExpJPEG").click(() => {
         showConfirmButton: false
     });
 
-    htmlToImage.toJpeg(document.getElementsByClassName("card-report")[0])
-    .then(function (dataUrl) {
-        var link = document.createElement('a');
-        link.download = 'mapa-relatorio.jpeg';
-        link.href = dataUrl;
-        link.click();
-        Swal2.close();
-    })
-    .catch((err) => errorFn("Erro ao gerar o gráfico."));
+    domtoimage.toPng(document.getElementsByClassName("card-report")[0])
+        .then(function (dataUrl) {
+            var link = document.createElement('a');
+            link.download = 'imagemRelatorio.jpeg';
+            link.href = dataUrl;
+            link.click();
+            Swal2.close();
+        })
+        .catch((err) => errorFn("Erro ao gerar o gráfico." + err));
 })
 

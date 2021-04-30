@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="css/dashboard.css" />
     <link rel="stylesheet" href="css/ol-fixes.css">
     <link rel="stylesheet" href="css/fixes.css" />
+    <link rel="stylesheet" href="css/network.css" />
 
     <!-- Icons -->
     <link rel="apple-touch-icon" sizes="76x76" href="img/icones/setelogosmall.png">
@@ -45,7 +46,7 @@
 
     <div class="wrapper">
         <!-- <div id="sidebar" class="sidebar" data-color="black" data-image="file://img/sidebar-5.jpg"></div> -->
-        <div id="sidebar" class="sidebar" data-color="black"></div>
+        <div id="sidebar" class="sidebar"></div>
         <div class="main-panel">
             <div id="content" class="content"></div>
             <footer id="footer" class="footer p-1"></footer>
@@ -69,7 +70,7 @@
 <script type="text/javascript" src="js/core/ol.6.0.1.js"></script>
 <script type="text/javascript" src="js/core/ol-ext.js"></script>
 <script type="text/javascript" src="../../node_modules/ol-geocoder/dist/ol-geocoder.js"></script>
-<script type="text/javascript" src="../../node_modules/geojson-vt/geojson-vt.js"></script>
+<!-- <script type="text/javascript" src="../../node_modules/geojson-vt/geojson-vt.js"></script> -->
 <script type="text/javascript" src="../../node_modules/osmtogeojson/osmtogeojson.js"></script>
 <script type="text/javascript" src="../../node_modules/jsts/dist/jsts.js"></script>
 
@@ -130,6 +131,7 @@
 <script type="text/javascript" src="js/db.js"></script>
 
 <script type="text/javascript">
+    var firstAcess = true;
     $(document).ready(function () {
         $("#sidebar").load("dashboard-menu.html");
         $("#content").load("dashboard-main.html");

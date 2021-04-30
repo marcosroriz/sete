@@ -45,7 +45,8 @@ function DesempacotaComoDicionario(snapshotDocumentos) {
 // Função que verifica se o banco de dados está sincronizado com o firebase
 async function AsyncEstaSincronizado(ultimaAtualizacao) {
     let sync = false;
-    let atualizacaoServidor = await dbAcessarDados("status").doc("atualizacao").get();
+    let atualizacaoServidor = await dbAcessarDados("status")
+                                    .doc("atualizacao").get({ source: "server" });
     if (atualizacaoServidor.exists) {
         sync = ultimaAtualizacao == atualizacaoServidor.data()["LAST_UPDATE"];
     }
