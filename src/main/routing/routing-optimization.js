@@ -13,7 +13,7 @@ module.exports = class RoutingOptimization {
         this.reverseMap = new Map();
 
         routingParams["stops"].forEach((s) => {
-            var key = s["lat"] + "-" + s["lng"];
+            var key = Number(s["lat"]).toFixed(10) + "-" + Number(s["lng"]).toFixed(10);
             this.reverseMap.set(key, s);
         });
     }
@@ -21,7 +21,7 @@ module.exports = class RoutingOptimization {
     getStops(rawCluster) {
         var stops = new Array();
         rawCluster.forEach((rc) => {
-            var key = rc[0] + "-" + rc[1];
+            var key = Number(rc[0]).toFixed(10) + "-" + Number(rc[1]).toFixed(10);
             var obj = this.reverseMap.get(key)
             stops.push(obj)
         });
