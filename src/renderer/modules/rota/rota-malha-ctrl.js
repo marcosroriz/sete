@@ -35,7 +35,6 @@ relation['highway']['highway'!='footway']['highway'!='pedestrian']['-highway'!='
                 title: "Malha baixada com sucesso!",
                 text: "Arquivo localizado em: " + arqDestino
             })
-
         });
     });
 }
@@ -54,8 +53,6 @@ $("#baixarMalha").on('click', () => {
         let arqOrigem = path.join(userDataDir, "malha.osm");
         console.log("Copiando de: ", arqOrigem, arqDestino);
         baixarMalhaDoOSM(arqDestino);
-    } else {
-        errorFn("Erro ao copiar arquivo OSM")
     }
 });
 
