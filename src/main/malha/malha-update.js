@@ -25,10 +25,10 @@ class MalhaUpdate {
 
         let spatialiteBinPath = path.join(app.getAppPath(), "bin", binName);
         let sqlQuery = `BEGIN;
-        SELECT DropTable(NULL, 'malha');
-        SELECT DropTable(NULL, 'malha_net');
-        SELECT DropTable(NULL, 'malha_nodes');
-        SELECT DropTable(NULL, 'malha_data');
+        SELECT DropTable(NULL, 'malha', 1);
+        SELECT DropTable(NULL, 'malha_net', 1);
+        SELECT DropTable(NULL, 'malha_nodes', 1);
+        SELECT DropTable(NULL, 'malha_data', 1);
         DROP TABLE IF EXISTS osm_tmp_nodes;
         DROP TABLE IF EXISTS road_nodes;
         DROP TABLE IF EXISTS graph_nodes;
