@@ -2,12 +2,14 @@
 // It calls each individual algorithm
 
 // Imports and Algorithms
-const ClarkeWrightSchoolBusRouting = require("./clarke-wright-schoolbus-routing.js");
-const TwoOpt = require("./twoopt.js");
-const SchoolBusKMeans = require("./kmeans.js");
+var ClarkeWrightSchoolBusRouting = require("./clarke-wright-schoolbus-routing.js");
+var TwoOpt = require("./twoopt.js");
+var SchoolBusKMeans = require("./kmeans.js");
+var { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 
-module.exports = class RoutingOptimization {
-    constructor(routingParams, spatialiteDB) {
+class RoutingOptimizationWorker {
+    constructor(cachedODMatrix, routingParams, spatialiteDB) {
+        this.cachedODMatrix = cachedODMatrix;
         this.routingParams = routingParams;
         this.spatialiteDB = spatialiteDB;
         this.reverseMap = new Map();
@@ -63,7 +65,7 @@ module.exports = class RoutingOptimization {
                             })
                             param["schools"] = clusterSchools;
 
-                            let cwalg = new ClarkeWrightSchoolBusRouting(param, this.spatialiteDB);
+                            let cwalg = new ClarkeWrightSchoolBusRouting(this.cachedODMatrix, param, this.spatialiteDB);
                             clarkAlgorithmsPromise.push(cwalg.spatialRoute());
                             routers.push(cwalg);
                         })
@@ -76,10 +78,29 @@ module.exports = class RoutingOptimization {
                         // Bus Routes
                         busRoutes = busRoutesGenerated;
 
-                        // Routing Graph
+                        // Routing Graph and rebuilding cache
                         var matrixMap = new Map();
                         routers.forEach((alg) => {
                             matrixMap = new Map([...matrixMap, ...alg.graph.matrix])
+
+                            this.cachedODMatrix.nodes = {
+                                ...this.cachedODMatrix.nodes,
+                                ...alg.graph.cachedODMatrix.nodes
+                            }
+
+                            for (let n in alg.graph.cachedODMatrix.dist) {
+                                this.cachedODMatrix.dist[n] = {
+                                    ...this.cachedODMatrix.dist[n],
+                                    ...alg.graph.cachedODMatrix.dist[n]
+                                }
+                            }
+
+                            for (let n in alg.graph.cachedODMatrix.cost) {
+                                this.cachedODMatrix.cost[n] = {
+                                    ...this.cachedODMatrix.cost[n],
+                                    ...alg.graph.cachedODMatrix.cost[n]
+                                }
+                            }
                         })
                         routingGraph = routers[0].graph;
                         routingGraph.setMatrix(matrixMap);
@@ -119,29 +140,75 @@ module.exports = class RoutingOptimization {
                             var ckey = r["path"].map(a => a["id"]).join("-")
                             fc.set(ckey, r);
                         })
-                        console.log([...fc.values()])
-                        resolve([...fc.values()])
+                        console.log([...fc.values()]),
+                            resolve([this.cachedODMatrix, ...fc.values()])
                     })
             })
         });
     };
 }
 
-               //  schoolBusRouter.buildDistMatrix()
-                                    //  .then())
-                // let busRoutes = schoolBusRouter.route();
-                // console.time("2-opt");
-                // let optimizedRoutes = new Array();
-                // busRoutes.forEach((r) => {
-                //   let optRoute = new TwoOpt(r, schoolBusRouter.graph).optimize();
-                //   optimizedRoutes.push(optRoute);
-                // });
-                // console.timeEnd("2-opt");
 
-                // console.time("route-to-json")
-                // let routesJSON = new Array();
-                // optimizedRoutes.forEach((r) => {
-                //   routesJSON.push(r.toPlainJSON(schoolBusRouter.graph));
-                // });
-                // console.timeEnd("route-to-json");
-                    // return routesJSON;
+if (isMainThread) {
+    module.exports = class RoutingOptimization {
+        constructor(app, dbPath) {
+            this.app = app;
+            this.dbPath = dbPath;
+
+            this.worker = new Worker(__filename, {
+                workerData: {
+                    "dbPath": this.dbPath
+                }
+            });
+
+            this.worker.on('message', (payload) => {
+                if (!payload.error) {
+                    app.emit("done:route-generation", payload.result)
+                } else {
+                    app.emit("error:route-generation", payload.result)
+                }
+            });
+
+            this.worker.on('error', (err) => {
+                app.emit("error:route-generation", err)
+            });
+
+            this.worker.on('exit', (code) => {
+                console.log("WORKER EXITING WITH CODE", code)
+            });
+        }
+
+        quit() {
+            this.worker.terminate();
+        }
+
+        optimize(cachedODMatrix, routingParams) {
+            this.worker.postMessage({ cachedODMatrix, routingParams })
+        }
+    }
+} else {
+    console.log("WORKER STARTED");
+    console.log(workerData)
+
+    let { dbPath } = workerData;
+
+    var spatialite = require("spatialite");
+    var spatialiteDB = new spatialite.Database(dbPath);
+
+    parentPort.on('message', processData => {
+        let { cachedODMatrix, routingParams } = processData;
+        var routerWorker = new RoutingOptimizationWorker(cachedODMatrix, routingParams, spatialiteDB)
+        routerWorker.optimize()
+            .then((res) => {
+                console.log("WORKER FINISHED")
+                parentPort.postMessage({ error: false, result: res })
+                // process.exit(0)
+            })
+            .catch((err) => {
+                console.log("WORKER ERROR")
+                parentPort.postMessage({ error: true, result: err })
+                // process.exit(1)
+            })
+
+    })
+}

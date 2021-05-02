@@ -7,10 +7,9 @@ const child_process = require("child_process");
 const fs = require("fs-extra");
 
 class MalhaUpdate {
-    constructor(osmFilePath, dbPath, sqliteDB) {
+    constructor(osmFilePath, dbPath) {
         this.newOSMFile = osmFilePath;
         this.dbPath = dbPath;
-        this.sqliteDB = sqliteDB;
     }
 
     clearNetwork() {
