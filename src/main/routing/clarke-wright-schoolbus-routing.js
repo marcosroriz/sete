@@ -1,8 +1,11 @@
 // Implements a varition of the Clarke and Wright algorithm (1964) based on:
 // SCHOOL BUS ROUTING BY COMPUTER
-// By: Brian T. Bennet and Denos C. Gazis
 // See: https://www.sciencedirect.com/science/article/abs/pii/004116477290072X
 //      https://doi.org/10.1016/0041-1647(72)90072-X
+//
+// Using the strategy described in 
+// SpeedRoute: Fast, efficient solutions for school bus routing problems
+// See https://doi.org/10.1016/j.trb.2018.09.004 
 
 const Heap = require("heap");
 const RoutingGraph = require("./routing-graph.js");
@@ -21,7 +24,7 @@ class ClarkeWrightSchoolBusRouting {
         this.optTarget = inputData["optTarget"];
         this.numVehicles = inputData["numVehicles"];
         this.maxCapacity = inputData["maxCapacity"];
-        this.busSpeed = 11.11; // 11.11 m/s ~= 40 km/h
+        this.busSpeed = inputData["busSpeed"];
 
         // Garage
         this.garage = inputData["garage"];
