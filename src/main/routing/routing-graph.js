@@ -129,7 +129,7 @@ module.exports = class RoutingGraph {
         let cnodeID = c.get("dbNodeID");
         let dnodeID = d.get("dbNodeID");
 
-        let sqlQuery = `SELECT *, ST_LENGTH(geometry, 1) AS dist, AsGeoJSON(geometry) AS js
+        let sqlQuery = `SELECT *, ST_LENGTH(geometry, 1) AS dist
                         FROM malha_net
                         WHERE NodeFrom = ${cnodeID} AND NodeTo = ${dnodeID}
                         LIMIT 1`;
@@ -149,7 +149,7 @@ module.exports = class RoutingGraph {
         let lng = c.get("lng");
         let lat = c.get("lat");
 
-        let sqlQuery = `SELECT ST_Distance(ST_GeomFromText('POINT(${lng} ${lat})', 4326), linha.geometry, 1) AS dist, 
+        let sqlQuery = `SELECT ST_Distance(ST_GeomFromText('POINT(${lng} ${lat})', 4326), linha.geometry) AS dist, 
                                node_id
                         FROM malha_nodes AS linha
                         ORDER BY dist
