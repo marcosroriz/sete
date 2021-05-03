@@ -82,6 +82,7 @@
     "emailjs-com": "^2.6.4",
     "fs-extra": "^9.0.1",
     "geojson": "^0.5.0",
+    "geojson-vt": "^3.2.1",
     "geolib": "^3.3.1",
     "haversine-distance": "^1.2.1",
     "heap": "^0.2.6",
