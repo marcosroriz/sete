@@ -31,23 +31,72 @@ var escolas = new Array();
 loadingFn("Preparando a ferramenta")
 
 loadOSMFile()
-    .then(dataOSM => convertOSMToGeoJSON(dataOSM))
-    .then(osmGeoJSON => plotMalha(osmGeoJSON))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
-    .then(res => preprocessarAlunos(res))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
-    .then(res => preprocessarEscolas(res))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
-    .then(res => preprocessarGaragem(res))
-    .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-    .then(res => processarVinculoAlunoEscolas(res))
-    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-    .then(res => processarVinculoAlunoRota(res))
-    .then(() => listaElementos())
+.then(dataOSM => convertOSMToGeoJSON(dataOSM))
+.then(osmGeoJSON => plotMalha(osmGeoJSON))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
+.then(res => preprocessarAlunos(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
+.then(res => preprocessarEscolas(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
+.then(res => preprocessarGaragem(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then(res => processarVinculoAlunoEscolas(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+.then(res => processarVinculoAlunoRota(res))
+.then(() => listaElementos())
+.catch((err) => {
+    let code = err.code;
+    if (code == "erro:malha") {
+        informarNaoExistenciaDado("Malha não cadastrada", 
+                                  "Cadastrar malha",
+                                  "a[name='rota/rota-malha-view']")
+    } else if (code == "erro:garagem") {
+        informarNaoExistenciaDado("Garagem não cadastrada", 
+                                  "Cadastrar garagem",
+                                  "a[name='frota/garagem-visualizar-view']")
+    } else if (code == "erro:aluno") {
+        informarNaoExistenciaDado("Não há nenhum aluno georeferenciado", 
+                                  "Gerenciar alunos",
+                                  "a[name='aluno/aluno-listar-view']")
+    } else if (code == "erro:escola") {
+        informarNaoExistenciaDado("Não há nenhuma escola georeferenciada", 
+                                  "Gerenciar escolas",
+                                  "a[name='escola/escola-listar-view']")
+    } else if (code == "erro:vinculo") {
+        informarNaoExistenciaDado("As escolas dos alunos escolhidos não estão georeferenciadas", 
+                                  "Escolas: " + err.data,
+                                  "a[name='escola/escola-listar-view']")
+    } else {
+        errorFn(`Erro ao utilizar a ferramenta de sugestão de rotas. 
+                 Entre em contato com a equipe de suporte`);
+    }
+})
+
+// Informar não existência de dado
+var informarNaoExistenciaDado = (titulo, msgConfirmacao, pagCadastroDado) => {
+    return Swal2.fire({
+        title: titulo,
+        text: "Para utilizar a ferramenta de sugestão de rotas é necessário realizar esta ação antes",
+        icon: "error",
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        cancelButtonText: "Retornar",
+        confirmButtonText: msgConfirmacao
+    }).then((result) => {
+        if (result.value) {
+            $(pagCadastroDado).click();
+        } else {
+            navigateDashboard(lastPage);
+        }
+    })
+}
 
 
 // Preprocessa alunos
 function preprocessarAlunos(res) {
+    let numTemGPS = 0;
+    
     for (let alunoRaw of res) {
         let alunoJSON = parseAlunoDB(alunoRaw);
 
@@ -56,6 +105,7 @@ function preprocessarAlunos(res) {
             alunoJSON["LOC_LATITUDE"] != null && alunoJSON["LOC_LONGITUDE"] != null) {
 
             alunoJSON["GPS"] = true;
+            numTemGPS++;
         } else {
             alunoJSON["GPS"] = false;
         }
@@ -71,11 +121,18 @@ function preprocessarAlunos(res) {
 
         alunoMap.set(String(alunoJSON["ID"]), alunoJSON);
     }
-    return alunoMap;
+
+    if (numTemGPS == 0) {
+        Promise.reject({ code: "erro:aluno" })
+    } else {
+        return alunoMap;
+    }
 }
 
 // Preprocessa escolas
 function preprocessarEscolas(res) {
+    let numTemGPS = 0;
+
     for (let escolaRaw of res) {
         let escolaJSON = parseEscolaDB(escolaRaw);
 
@@ -84,6 +141,7 @@ function preprocessarEscolas(res) {
             escolaJSON["LOC_LATITUDE"] != null && escolaJSON["LOC_LONGITUDE"] != null) {
 
             escolaJSON["GPS"] = true;
+            numTemGPS++;
         } else {
             escolaJSON["GPS"] = false;
         }
@@ -91,11 +149,20 @@ function preprocessarEscolas(res) {
 
         escolaMap.set(String(escolaJSON["ID"]), escolaJSON);
     }
-    return escolaMap;
+
+    if (numTemGPS == 0) {
+        Promise.reject({ code: "erro:escola" })
+    } else {
+        return escolaMap;
+    }
 }
 
 // Preprocessa garagens
 function preprocessarGaragem(res) {
+    if (res.length == 0) {
+        return Promise.reject({ code: "erro:garagem" });
+    }
+
     for (let g of res) {
         if (g["LOC_LATITUDE"] != "" && g["LOC_LONGITUDE"] != "" &&
             g["LOC_LATITUDE"] != undefined && g["LOC_LONGITUDE"] != undefined &&
@@ -114,6 +181,8 @@ function preprocessarGaragem(res) {
 
 // Filtrar os alunos e escolas que estão georeferenciados
 function processarVinculoAlunoEscolas(res) {
+    let numVinculo = 0;
+    let escolasVinculo = new Array();
     for (let vinculoRaw of res) {
         let aID = String(vinculoRaw["ID_ALUNO"]);
         let eID = String(vinculoRaw["ID_ESCOLA"]);
@@ -132,9 +201,17 @@ function processarVinculoAlunoEscolas(res) {
 
             escolaAluno["TEM_ALUNO_COM_GPS"] = true;
             escolaMap.set(eID, escolaAluno);
+            
+            numVinculo++;
+            escolasVinculo.push(eNome)
         }
     }
-    return alunoMap;
+
+    if (numVinculo == 0) {
+        Promise.reject({ code: "erro:vinculo", data: escolasVinculo.join(", ") })
+    } else {
+        return alunoMap;
+    }
 };
 
 // Filtrar os alunos que já possuem rota
@@ -798,7 +875,7 @@ function loadOSMFile() {
     let arqOrigem = path.join(userDataDir, "malha.osm");
     return new Promise((resolve, reject) => {
         fs.readFile(arqOrigem, (err, dataOSM) => {
-            if (err) reject("erro:malha")
+            if (err) reject({ code: "erro:malha" })
 
             resolve(dataOSM)
         })
