@@ -91,7 +91,7 @@ $('.card-wizard').bootstrapWizard({
 });
 
 dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM)
-.then(res => processarGaragem(res))
+    .then(res => processarGaragem(res))
 
 // Processa garagem
 var processarGaragem = (res) => {
@@ -144,9 +144,9 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-    .then(() => {
-        navigateDashboard("./modules/frota/frota-listar-view.html");
-    });
+        .then(() => {
+            navigateDashboard("./modules/frota/frota-listar-view.html");
+        });
 }
 
 $("#salvargaragem").on('click', () => {
@@ -167,28 +167,30 @@ $("#salvargaragem").on('click', () => {
 
         if (action == "editarGaragem") {
             loadingFn("Atualizando os dados da garagem...")
-            
+
             dbAtualizarPromise(DB_TABLE_GARAGEM, garagemJSON, idGaragem)
-            .then(() => dbAtualizaVersao())
-            .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao atualizar a escola.", err))
+                .then(() => dbAtualizaVersao())
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao atualizar a escola.", err))
         } else {
             loadingFn("Cadastrando a garagem ...")
 
             dbInserirPromise(DB_TABLE_GARAGEM, garagemJSON)
-            .then(() => dbAtualizaVersao())
-            .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao salvar a garagem.", err))
+                .then(() => dbAtualizaVersao())
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao salvar a garagem.", err))
         }
     }
 });
 
 $("#cancelarAcao").on('click', () => {
     cancelDialog()
-    .then((result) => {
-        if (result.value) {
-            action = "visualizarGaragem";
-            navigateDashboard("./modules/frota/frota-listar-view.html");
-        }
-    })
+        .then((result) => {
+            if (result.value) {
+                action = "visualizarGaragem";
+                navigateDashboard("./modules/frota/frota-listar-view.html");
+            }
+        })
 });
+
+$("#regcep").mask("00000-000");
