@@ -151,6 +151,7 @@ app.on('ready', createEntryWindow);
 app.on('window-all-closed', () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
+    routeOptimizer.quit();
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -164,16 +165,20 @@ app.on('activate', () => {
     }
 });
 
+let routeOptimizer = new RouteOptimization(app, dbPath);
+
 // Route Generation Algorithm
 ipcMain.on("start:route-generation", (event, routingArgs) => {
-    new RouteOptimization(routingArgs, spatialiteDB).optimize().then((optRoutes) => {
-        appWindow.webContents.send("end:route-generation", optRoutes);
+    let cachedODMatrix = appconfig.get("OD", {
+        nodes: {}, dist: {}, cost: {}
     });
+
+    routeOptimizer.optimize(cachedODMatrix, routingArgs)
 })
 
 // Malha Update
 ipcMain.on("start:malha-update", (event, newOSMFile) => {
-    let malha = new MalhaUpdate(newOSMFile, dbPath, sqliteDB);
+    let malha = new MalhaUpdate(newOSMFile, dbPath);
     malha.update()
         .then((updateData) => {
             appWindow.webContents.send("end:malha-update", true);
@@ -187,3 +192,17 @@ ipcMain.on("start:malha-update", (event, newOSMFile) => {
 app.on("finish-update", (event, arg) => {
     console.log(arg);
 });
+
+app.on("done:route-generation", (res) => {
+    // Set new cache
+    let newODCache = res[0];
+    appconfig.set("OD", newODCache);
+
+    // Send generated routes
+    let optRoutes = res.slice(1);
+    appWindow.webContents.send("end:route-generation", optRoutes);
+})
+
+app.on("error:route-generation", (err) => {
+    appWindow.webContents.send("error:route-generation", err);
+})
