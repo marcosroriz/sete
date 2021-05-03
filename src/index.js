@@ -126,7 +126,8 @@ const createEntryWindow = () => {
     });
 };
 
-// app.disableHardwareAcceleration();
+// Desabilita aceleração de hardware (vga) para evitar tela branca
+app.disableHardwareAcceleration();
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
