@@ -111,7 +111,6 @@ const createEntryWindow = () => {
         shell.openExternal(url);
     });
 
-
     appWindow.on("ready-to-show", () => {
         appWindow.maximize();
         appWindow.show();
@@ -182,6 +181,7 @@ ipcMain.on("start:malha-update", (event, newOSMFile) => {
     let malha = new MalhaUpdate(newOSMFile, dbPath);
     malha.update()
         .then((updateData) => {
+            appconfig.delete("OD");
             appWindow.webContents.send("end:malha-update", true);
         })
         .catch((err) => {

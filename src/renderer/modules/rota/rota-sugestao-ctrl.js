@@ -28,11 +28,18 @@ var alunos = new Array();
 var garagens = new Array();
 var escolas = new Array();
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Promessas
+////////////////////////////////////////////////////////////////////////////////
+
 loadingFn("Preparando a ferramenta")
 
 loadOSMFile()
 .then(dataOSM => convertOSMToGeoJSON(dataOSM))
 .then(osmGeoJSON => plotMalha(osmGeoJSON))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
+.then(res => $("#numVehicles").val(res.length))
 .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
 .then(res => preprocessarAlunos(res))
 .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
@@ -91,6 +98,87 @@ var informarNaoExistenciaDado = (titulo, msgConfirmacao, pagCadastroDado) => {
         }
     })
 }
+
+// Função le o arquivo osm da malha
+function loadOSMFile() {
+    let arqOrigem = path.join(userDataDir, "malha.osm");
+    return new Promise((resolve, reject) => {
+        fs.readFile(arqOrigem, (err, dataOSM) => {
+            if (err) reject({ code: "erro:malha" })
+
+            resolve(dataOSM)
+        })
+    })
+}
+
+// Função converse osm para geojson
+function convertOSMToGeoJSON(dataOSM) {
+    let parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(dataOSM, "text/xml");
+    let osmGeoJSON = osmtogeojson(xmlDoc);
+
+    return Promise.resolve(osmGeoJSON);
+}
+
+// Plota malha
+function plotMalha(osmGeoJSON) {
+    let olConfigMap = mapaConfig["map"];
+
+    let tileIndex = geojsonvt(osmGeoJSON, {
+        extent: 4096,
+        debug: 1,
+        maxZoom: 20,
+        indexMaxZoom: 20,
+        tolerance: 5
+    })
+    let format = new ol.format.GeoJSON({
+        // Data returned from geojson-vt is in tile pixel units
+        dataProjection: new ol.proj.Projection({
+            code: 'TILE_PIXELS',
+            units: 'tile-pixels',
+            extent: [0, 0, 4096, 4096],
+        }),
+    });
+
+    let malhaVectorSource = new ol.source.VectorTile({
+        tileUrlFunction: function (tileCoord) {
+            // Use the tile coordinate as a pseudo URL for caching purposes
+            return JSON.stringify(tileCoord);
+        },
+        tileLoadFunction: function (tile, url) {
+            var tileCoord = JSON.parse(url);
+            var data = tileIndex.getTile(tileCoord[0], tileCoord[1], tileCoord[2]);
+            var geojson = JSON.stringify({
+                    type: 'FeatureCollection',
+                    features: data ? data.features : [],
+                },
+                osmMapReplacer
+            );
+            var features = format.readFeatures(geojson, {
+                extent: malhaVectorSource.getTileGrid().getTileCoordExtent(tileCoord),
+                featureProjection: olConfigMap.getView().getProjection(),
+            });
+            tile.setFeatures(features);
+        },
+    });
+
+    var malhaVectorLayer = new ol.layer.VectorTile({
+        source: malhaVectorSource,
+        zIndex: 1,
+        style: (feature, resolution) => {
+            if (feature.getGeometry() instanceof ol.geom.LineString) {
+                return new ol.style.Style({
+                    stroke: new ol.style.Stroke({ color: "red", width: 2 }),
+                })
+            }
+        }
+    });
+    olConfigMap.addLayer(malhaVectorLayer)
+
+    mapaConfig["vectorLayer"].setZIndex(99);
+    return Promise.resolve(tileIndex)
+}
+
 
 
 // Preprocessa alunos
@@ -687,7 +775,10 @@ ipcRenderer.on("error:route-generation", function (event, err) {
     errorFn("Erro no processo de simulação de rota!", err)
 });
 
+
+////////////////////////////////////////////////////////////////////////////////
 // Validar Formulário
+////////////////////////////////////////////////////////////////////////////////
 var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
     rules: {
         publico: {
@@ -808,184 +899,7 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
-
-// Seta num veiculos
-BuscarTodosDadosPromise("Veiculos").then((res) => $("#numVehicles").val(res.length))
-
-/*
-try {
-    let arqOrigem = path.join(userDataDir, "malha.osm");
-    var dataOSM = fs.readFileSync(arqOrigem, 'utf8')
-    var osmtogeojson = require('osmtogeojson');
-    var parser = new DOMParser();
-    var xmlDoc = parser.parseFromString(dataOSM, "text/xml");
-    var osmGeoJSON = osmtogeojson(xmlDoc);
-
-    let olConfigMap = mapaConfig["map"];
-
-    var tileIndex = geojsonvt(osmGeoJSON, { extent: 4096, debug: 1 })
-    var format = new ol.format.GeoJSON({
-        // Data returned from geojson-vt is in tile pixel units
-        dataProjection: new ol.proj.Projection({
-            code: 'TILE_PIXELS',
-            units: 'tile-pixels',
-            extent: [0, 0, 4096, 4096],
-        }),
-    });
-
-    var malhaVectorSource = new ol.source.VectorTile({
-        className: 'bw',
-        tileUrlFunction: function (tileCoord) {
-            // Use the tile coordinate as a pseudo URL for caching purposes
-            return JSON.stringify(tileCoord);
-        },
-        tileLoadFunction: function (tile, url) {
-            var tileCoord = JSON.parse(url);
-            var data = tileIndex.getTile(
-                tileCoord[0],
-                tileCoord[1],
-                tileCoord[2]
-            );
-            var geojson = JSON.stringify(
-                {
-                    type: 'FeatureCollection',
-                    features: data ? data.features : [],
-                },
-                replacer
-            );
-            var features = format.readFeatures(geojson, {
-                extent: malhaVectorSource.getTileGrid().getTileCoordExtent(tileCoord),
-                featureProjection: olConfigMap.getView().getProjection(),
-            });
-            tile.setFeatures(features);
-        },
-    });
-    var malhaVectorLayer = new ol.layer.VectorTile({
-        source: malhaVectorSource,
-    });
-    olConfigMap.addLayer(malhaVectorLayer)
-    // console.log(dataOSM)
-} catch (err) {
-    console.error(err)
-}
-*/
-
-// Função le o arquivo osm da malha
-function loadOSMFile() {
-    let arqOrigem = path.join(userDataDir, "malha.osm");
-    return new Promise((resolve, reject) => {
-        fs.readFile(arqOrigem, (err, dataOSM) => {
-            if (err) reject({ code: "erro:malha" })
-
-            resolve(dataOSM)
-        })
-    })
-}
-
-// Função converse osm para geojson
-function convertOSMToGeoJSON(dataOSM) {
-    let parser = new DOMParser();
-    let xmlDoc = parser.parseFromString(dataOSM, "text/xml");
-    let osmGeoJSON = osmtogeojson(xmlDoc);
-
-    return Promise.resolve(osmGeoJSON);
-}
-
-// Plota malha
-function plotMalha(osmGeoJSON) {
-    let olConfigMap = mapaConfig["map"];
-
-    let tileIndex = geojsonvt(osmGeoJSON, {
-        extent: 4096,
-        debug: 1,
-        maxZoom: 20,
-        indexMaxZoom: 20,
-        tolerance: 5
-    })
-    let format = new ol.format.GeoJSON({
-        // Data returned from geojson-vt is in tile pixel units
-        dataProjection: new ol.proj.Projection({
-            code: 'TILE_PIXELS',
-            units: 'tile-pixels',
-            extent: [0, 0, 4096, 4096],
-        }),
-    });
-
-    let malhaVectorSource = new ol.source.VectorTile({
-        tileUrlFunction: function (tileCoord) {
-            // Use the tile coordinate as a pseudo URL for caching purposes
-            return JSON.stringify(tileCoord);
-        },
-        tileLoadFunction: function (tile, url) {
-            var tileCoord = JSON.parse(url);
-            var data = tileIndex.getTile(tileCoord[0], tileCoord[1], tileCoord[2]);
-            var geojson = JSON.stringify({
-                type: 'FeatureCollection',
-                features: data ? data.features : [],
-            },
-                mapReplacer
-            );
-            var features = format.readFeatures(geojson, {
-                extent: malhaVectorSource.getTileGrid().getTileCoordExtent(tileCoord),
-                featureProjection: olConfigMap.getView().getProjection(),
-            });
-            tile.setFeatures(features);
-        },
-    });
-
-    var malhaVectorLayer = new ol.layer.VectorTile({
-        source: malhaVectorSource,
-        zIndex: 1,
-        style: (feature, resolution) => {
-            if (feature.getGeometry() instanceof ol.geom.LineString) {
-                return new ol.style.Style({
-                    stroke: new ol.style.Stroke({ color: "red", width: 2 }),
-                })
-            }
-        }
-    });
-    olConfigMap.addLayer(malhaVectorLayer)
-
-    mapaConfig["vectorLayer"].setZIndex(99);
-    return Promise.resolve(tileIndex)
-}
-
-// Converts geojson-vt data to GeoJSON
-var mapReplacer = function (key, value) {
-    if (value.geometry) {
-        var type;
-        var rawType = value.type;
-        var geometry = value.geometry;
-
-        if (rawType === 1) {
-            type = 'MultiPoint';
-            if (geometry.length == 1) {
-                type = 'Point';
-                geometry = geometry[0];
-            }
-        } else if (rawType === 2) {
-            type = 'MultiLineString';
-            if (geometry.length == 1) {
-                type = 'LineString';
-                geometry = geometry[0];
-            }
-        } else if (rawType === 3) {
-            type = 'Polygon';
-            if (geometry.length > 1) {
-                type = 'MultiPolygon';
-                geometry = [geometry];
-            }
-        }
-
-        return {
-            'type': 'Feature',
-            'geometry': {
-                'type': type,
-                'coordinates': geometry,
-            },
-            'properties': value.tags,
-        };
-    } else {
-        return value;
-    }
-};
+$('input[type=radio][name=turno]').on('change', (evt) => {
+    console.log("aqui");
+    // evt.currentTarget.value
+})
