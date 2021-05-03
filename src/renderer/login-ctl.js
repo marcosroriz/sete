@@ -133,6 +133,11 @@ $(document).ready(function () {
                     required: true,
                     email: true
                 },
+                repetirEmail: {
+                    required: true,
+                    email: true,
+                    equalTo: "#regemail"
+                },
                 regpassword: {
                     required: true,
                     minlength: 6
@@ -164,6 +169,9 @@ $(document).ready(function () {
                 regemail: {
                     required: "Por favor digite um e-mail válido",
                     email: "Por favor digite um e-mail válido"
+                },
+                repetirEmail: {
+                    equalTo: "Os e-mails são diferentes"
                 },
                 regpassword: {
                     required: "Por favor digite uma senha",

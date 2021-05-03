@@ -174,6 +174,16 @@
                                             <p class="category text-muted">
                                                 Para registrar seu usuário, por favor preencha o formulário abaixo:
                                             </p>
+                                            <div class="alert alert-warning alert-with-icon" data-notify="container">
+                                                <button type="button" aria-hidden="true" class="close" data-dismiss="alert">
+                                                    <i class="nc-icon nc-simple-remove"></i>
+                                                </button>
+                                                <span data-notify="icon" class="fa fa-exclamation-circle"></span>
+                                                <span data-notify="message">
+                                                    Recomenda-se a utilização do e-mail INSTITUCIONAL para liberação do cadastro o mais rápido possível.
+                                                </span>
+                                            </div>
+            
                                             <form id="registerform">
                                                 <div class="col-12">
                                                     <div class="form-group reg-group">
@@ -228,6 +238,21 @@
                                                             </label>
                                                             <div class="col-6">
                                                                 <input id="regemail" name="regemail" type="email"
+                                                                    placeholder="Endereço de e-mail:"
+                                                                    class="form-control">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <div class="form-group reg-group">
+                                                        <div class="row">
+                                                            <label class="col-4 control-label">
+                                                                <b>Repetir E-mail:</b>
+                                                            </label>
+                                                            <div class="col-6">
+                                                                <input id="repetirEmail" name="repetirEmail" type="email"
                                                                     placeholder="Endereço de e-mail:"
                                                                     class="form-control">
                                                             </div>
