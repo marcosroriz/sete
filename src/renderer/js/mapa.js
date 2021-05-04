@@ -22,6 +22,82 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         displayInLayerSwitcher: false,
     });
 
+    let bingMap = new ol.source.BingMaps({
+        key: "ciN5QAQYiHzOFNabIODf~b61cOBWqj2nmKSuoyjuyKA~AiShqLNGsToztBeSE2Tk8Pb1cUdr4nikxL24hlMRaHCJkIpKaYtdBXoxaDEgFhQv",
+        imagerySet: "AerialWithLabels"
+    })
+
+    bingMap.setTileLoadFunction((tile, url) => {
+        // console.log("CARREGAR TILE", tile);
+        // console.log("CARREGAR URL", url);
+        
+        // INDEX A SER SALVO NO IDB
+        index_search = tile.src_// tileCoord.toString();
+
+        // VERIFICANDO SE TAL INFORMAÇÃO JÁ EXISTE NO BANCO DE DADOS
+        request_info = dbread_index(index_search);
+        
+        // SO VAI FAZER REQUISÇÃO SE A IMAGEM NÃO EXISTIR IMAGEM NO IDB
+        if ((request_info == undefined) || (request_info == null)) {
+            
+            var xhr = new XMLHttpRequest();
+            xhr.responseType = 'blob'; // DEFININDO OBJETO A SER OBTIDO
+    
+            xhr.addEventListener('loadend', function (evt) {
+                var data = this.response;
+                if (data !== undefined) {
+                    tile.getImage().src = URL.createObjectURL(data);
+                } else {
+                    console.error("ERROR ON LOADEND")
+                    tile.setState(3);
+                }
+            });
+            xhr.addEventListener('error', function () {
+                console.error("ERROR GERAL")
+                tile.setState(3);
+            });
+            xhr.open('GET', url); // INICIALIZANDO OBJETO PARA OBTER IMAGEM
+            xhr.send(); // ENVIANDO PARA PROCESSAMENTO 
+            
+            // ESPERANDO QUANDO REQUISIÇÃO FOR FEITA
+            xhr.onload = function(e) {
+                if (this.status == 200) {
+                    // OBTENDO A BLOB
+                    var blob = this.response;
+                    
+                    // TRANSFORMANDO EM BASE 64
+                    var reader = new FileReader();
+                    reader.readAsDataURL(blob); 
+                    reader.onloadend = function() {
+                        var base64data = reader.result;                
+                        
+                        // CIANDO A NOTA PARA SER SALVA
+                        note = {
+                            'Zoom_Lat_Long':index_search,
+                            'base64':base64data
+                        };
+                        
+                        // VERIFICANDO SE TAL INFORMAÇÃO JÁ EXISTE NO BANCO DE DADOS
+                        request_info = dbread_index(index_search);
+                        
+                        // SE EXTRAIR BASE64 CORRETAMENTE IMAGEM EXISTE É ENTÃO NÃO SALVA NADA
+                        try {
+                            request_info.base64
+                        } catch (e) {
+                            dbwrite(note);
+                        }                    
+                    }
+                }
+            }
+        } 
+        else {
+            
+            tile.getImage().src = request_info.base64;
+
+        }
+
+    })
+
     let olMap = new ol.Map({
         "target": target,
         "layers": [
@@ -29,10 +105,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
                 title: "Satélite",
                 baseLayer: true,
                 displayInLayerSwitcher: true,
-                source: new ol.source.BingMaps({
-                    key: "ciN5QAQYiHzOFNabIODf~b61cOBWqj2nmKSuoyjuyKA~AiShqLNGsToztBeSE2Tk8Pb1cUdr4nikxL24hlMRaHCJkIpKaYtdBXoxaDEgFhQv",
-                    imagerySet: "AerialWithLabels"
-                })
+                source: bingMap
             }),
             new ol.layer.Tile({
                 title: "Vias",
