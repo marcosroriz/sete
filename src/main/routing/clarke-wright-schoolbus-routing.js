@@ -1,17 +1,18 @@
 // Implements a varition of the Clarke and Wright algorithm (1964) based on:
 // SCHOOL BUS ROUTING BY COMPUTER
-// By: Brian T. Bennet and Denos C. Gazis
 // See: https://www.sciencedirect.com/science/article/abs/pii/004116477290072X
 //      https://doi.org/10.1016/0041-1647(72)90072-X
+//
+// Using the strategy described in 
+// SpeedRoute: Fast, efficient solutions for school bus routing problems
+// See https://doi.org/10.1016/j.trb.2018.09.004 
 
-const Heap = require("heap");
-const RoutingGraph = require("./routing-graph.js");
-const BusRoute = require("./busroute.js");
-const Saving = require("./saving.js");
-const haversine = require("haversine-distance");
+var RoutingGraph = require("./routing-graph.js");
+var BusRoute = require("./busroute.js");
+var haversine = require("haversine-distance");
 
 class ClarkeWrightSchoolBusRouting {
-    constructor(inputData, spatialiteDB) {
+    constructor(cachedODMatrix, inputData, spatialiteDB) {
         // Database Parameters
         this.spatialiteDB = spatialiteDB;
 
@@ -21,7 +22,7 @@ class ClarkeWrightSchoolBusRouting {
         this.optTarget = inputData["optTarget"];
         this.numVehicles = inputData["numVehicles"];
         this.maxCapacity = inputData["maxCapacity"];
-        this.busSpeed = 11.11; // 11.11 m/s ~= 40 km/h
+        this.busSpeed = inputData["busSpeed"];
 
         // Garage
         this.garage = inputData["garage"];
@@ -33,7 +34,7 @@ class ClarkeWrightSchoolBusRouting {
         this.schools = inputData["schools"];
 
         // Create and prepare the routing Graph
-        this.graph = new RoutingGraph(this.spatialiteDB, true);
+        this.graph = new RoutingGraph(cachedODMatrix, this.spatialiteDB, true);
 
         // Add Garage to the Graph
         this.graph.addGarageVertex(this.garage[0]["key"], this.garage[0]["lat"], this.garage[0]["lng"]);

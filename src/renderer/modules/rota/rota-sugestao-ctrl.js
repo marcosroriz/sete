@@ -1,3 +1,6 @@
+// Bibliotecas
+var osmtogeojson = require('osmtogeojson');
+
 // Mapas
 var mapaConfig = novoMapaOpenLayers("mapaRotaSugestaoConfig", cidadeLatitude, cidadeLongitude);
 var mapaRotaGerada = novoMapaOpenLayers("mapaRotaSugestaoGerada", cidadeLatitude, cidadeLongitude);
@@ -18,70 +21,356 @@ window.onresize = function () {
     }, 200);
 }
 
-var selectRoute = new ol.interaction.Select({
-    hitTolerance: 5,
-    multi: false,
-    condition: ol.events.condition.singleClick,
-    filter: (feature, layer) => {
-        if (feature.getGeometry().getType() == "LineString") {
-            pickedRoute = feature.get("pickedRoute");
-            pickedRouteLength = feature.get("pickedRouteLength");
-            return true;
-        } else {
-            return false;
-        }
-    }
-});
+var alunoMap = new Map();
+var escolaMap = new Map();
 
 var alunos = new Array();
 var garagens = new Array();
 var escolas = new Array();
 
-Promise.all([ListarParesDeAlunoEscolasPromise(), BuscarTodosDadosPromise("Garagem")])
-    .then((res) => {
-        var listagemRes = res[0];
-        var listaEscolas = new Map();
 
-        listagemRes.forEach((par) => {
-            alunos.push({
-                key: par["ID_ALUNO"],
-                lat: par["ALAT"],
-                lng: par["ALNG"],
-                school: par["ID_ESCOLA"],
-                passengers: 1
-            })
-            listaEscolas.set(par["ID_ESCOLA"], par);
-        });
+////////////////////////////////////////////////////////////////////////////////
+// Promessas
+////////////////////////////////////////////////////////////////////////////////
 
-        listaEscolas.forEach((e) => {
-            escolas.push({
-                key: e["ID_ESCOLA"],
-                lat: e["ELAT"],
-                lng: e["ELNG"]
-            })
+loadingFn("Preparando a ferramenta")
+
+loadOSMFile()
+.then(dataOSM => convertOSMToGeoJSON(dataOSM))
+.then(osmGeoJSON => plotMalha(osmGeoJSON))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
+.then(res => $("#numVehicles").val(res.length))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
+.then(res => preprocessarAlunos(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
+.then(res => preprocessarEscolas(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
+.then(res => preprocessarGaragem(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then(res => processarVinculoAlunoEscolas(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+.then(res => processarVinculoAlunoRota(res))
+.then(() => listaElementos())
+.catch((err) => {
+    let code = err.code;
+    if (code == "erro:malha") {
+        informarNaoExistenciaDado("Malha não cadastrada", 
+                                  "Cadastrar malha",
+                                  "a[name='rota/rota-malha-view']")
+    } else if (code == "erro:garagem") {
+        informarNaoExistenciaDado("Garagem não cadastrada", 
+                                  "Cadastrar garagem",
+                                  "a[name='frota/garagem-visualizar-view']")
+    } else if (code == "erro:aluno") {
+        informarNaoExistenciaDado("Não há nenhum aluno georeferenciado", 
+                                  "Gerenciar alunos",
+                                  "a[name='aluno/aluno-listar-view']")
+    } else if (code == "erro:escola") {
+        informarNaoExistenciaDado("Não há nenhuma escola georeferenciada", 
+                                  "Gerenciar escolas",
+                                  "a[name='escola/escola-listar-view']")
+    } else if (code == "erro:vinculo") {
+        informarNaoExistenciaDado("As escolas dos alunos escolhidos não estão georeferenciadas", 
+                                  "Escolas: " + err.data,
+                                  "a[name='escola/escola-listar-view']")
+    } else {
+        errorFn(`Erro ao utilizar a ferramenta de sugestão de rotas. 
+                 Entre em contato com a equipe de suporte`);
+    }
+})
+
+// Informar não existência de dado
+var informarNaoExistenciaDado = (titulo, msgConfirmacao, pagCadastroDado) => {
+    return Swal2.fire({
+        title: titulo,
+        text: "Para utilizar a ferramenta de sugestão de rotas é necessário realizar esta ação antes",
+        icon: "error",
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        cancelButtonText: "Retornar",
+        confirmButtonText: msgConfirmacao
+    }).then((result) => {
+        if (result.value) {
+            $(pagCadastroDado).click();
+        } else {
+            navigateDashboard(lastPage);
+        }
+    })
+}
+
+// Função le o arquivo osm da malha
+function loadOSMFile() {
+    let arqOrigem = path.join(userDataDir, "malha.osm");
+    return new Promise((resolve, reject) => {
+        fs.readFile(arqOrigem, (err, dataOSM) => {
+            if (err) reject({ code: "erro:malha" })
+
+            resolve(dataOSM)
         })
+    })
+}
 
-        var listaGaragens = res[1];
-        listaGaragens.forEach((g) => {
+// Função converse osm para geojson
+function convertOSMToGeoJSON(dataOSM) {
+    let parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(dataOSM, "text/xml");
+    let osmGeoJSON = osmtogeojson(xmlDoc);
+
+    return Promise.resolve(osmGeoJSON);
+}
+
+// Plota malha
+function plotMalha(osmGeoJSON) {
+    let olConfigMap = mapaConfig["map"];
+
+    let tileIndex = geojsonvt(osmGeoJSON, {
+        extent: 4096,
+        debug: 1,
+        maxZoom: 20,
+        indexMaxZoom: 20,
+        tolerance: 5
+    })
+    let format = new ol.format.GeoJSON({
+        // Data returned from geojson-vt is in tile pixel units
+        dataProjection: new ol.proj.Projection({
+            code: 'TILE_PIXELS',
+            units: 'tile-pixels',
+            extent: [0, 0, 4096, 4096],
+        }),
+    });
+
+    let malhaVectorSource = new ol.source.VectorTile({
+        tileUrlFunction: function (tileCoord) {
+            // Use the tile coordinate as a pseudo URL for caching purposes
+            return JSON.stringify(tileCoord);
+        },
+        tileLoadFunction: function (tile, url) {
+            var tileCoord = JSON.parse(url);
+            var data = tileIndex.getTile(tileCoord[0], tileCoord[1], tileCoord[2]);
+            var geojson = JSON.stringify({
+                    type: 'FeatureCollection',
+                    features: data ? data.features : [],
+                },
+                osmMapReplacer
+            );
+            var features = format.readFeatures(geojson, {
+                extent: malhaVectorSource.getTileGrid().getTileCoordExtent(tileCoord),
+                featureProjection: olConfigMap.getView().getProjection(),
+            });
+            tile.setFeatures(features);
+        },
+    });
+
+    var malhaVectorLayer = new ol.layer.VectorTile({
+        source: malhaVectorSource,
+        zIndex: 1,
+        style: (feature, resolution) => {
+            if (feature.getGeometry() instanceof ol.geom.LineString) {
+                return new ol.style.Style({
+                    stroke: new ol.style.Stroke({ color: "red", width: 2 }),
+                })
+            }
+        }
+    });
+    olConfigMap.addLayer(malhaVectorLayer)
+
+    mapaConfig["vectorLayer"].setZIndex(99);
+    return Promise.resolve(tileIndex)
+}
+
+
+
+// Preprocessa alunos
+function preprocessarAlunos(res) {
+    let numTemGPS = 0;
+    
+    for (let alunoRaw of res) {
+        let alunoJSON = parseAlunoDB(alunoRaw);
+
+        if (alunoJSON["LOC_LATITUDE"] != "" && alunoJSON["LOC_LONGITUDE"] != "" &&
+            alunoJSON["LOC_LATITUDE"] != undefined && alunoJSON["LOC_LONGITUDE"] != undefined &&
+            alunoJSON["LOC_LATITUDE"] != null && alunoJSON["LOC_LONGITUDE"] != null) {
+
+            alunoJSON["GPS"] = true;
+            numTemGPS++;
+        } else {
+            alunoJSON["GPS"] = false;
+        }
+
+        alunoJSON["TEM_ESCOLA"] = false;
+        alunoJSON["ESCOLA_ID"] = false;
+        alunoJSON["ESCOLA_NOME"] = "Não está vinculado";
+        alunoJSON["ESCOLA_TEM_GPS"] = false;
+
+        alunoJSON["TEM_ROTA"] = false;
+        alunoJSON["ROTA_ID"] = "";
+        alunoJSON["ROTA_NOME"] = "";
+
+        alunoMap.set(String(alunoJSON["ID"]), alunoJSON);
+    }
+
+    if (numTemGPS == 0) {
+        Promise.reject({ code: "erro:aluno" })
+    } else {
+        return alunoMap;
+    }
+}
+
+// Preprocessa escolas
+function preprocessarEscolas(res) {
+    let numTemGPS = 0;
+
+    for (let escolaRaw of res) {
+        let escolaJSON = parseEscolaDB(escolaRaw);
+
+        if (escolaJSON["LOC_LATITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != "" &&
+            escolaJSON["LOC_LATITUDE"] != undefined && escolaJSON["LOC_LONGITUDE"] != undefined &&
+            escolaJSON["LOC_LATITUDE"] != null && escolaJSON["LOC_LONGITUDE"] != null) {
+
+            escolaJSON["GPS"] = true;
+            numTemGPS++;
+        } else {
+            escolaJSON["GPS"] = false;
+        }
+        escolaJSON["TEM_ALUNO_COM_GPS"] = false;
+
+        escolaMap.set(String(escolaJSON["ID"]), escolaJSON);
+    }
+
+    if (numTemGPS == 0) {
+        Promise.reject({ code: "erro:escola" })
+    } else {
+        return escolaMap;
+    }
+}
+
+// Preprocessa garagens
+function preprocessarGaragem(res) {
+    if (res.length == 0) {
+        return Promise.reject({ code: "erro:garagem" });
+    }
+
+    for (let g of res) {
+        if (g["LOC_LATITUDE"] != "" && g["LOC_LONGITUDE"] != "" &&
+            g["LOC_LATITUDE"] != undefined && g["LOC_LONGITUDE"] != undefined &&
+            g["LOC_LATITUDE"] != null && g["LOC_LONGITUDE"] != null) {
+
             garagens.push({
-                key: g["ID_GARAGEM"],
+                key: g["ID"],
+                tipo: "garagem",
                 lat: g["LOC_LATITUDE"],
                 lng: g["LOC_LONGITUDE"]
             })
-        })
+        }
+    }
+    return garagens;
+}
 
-        drawMapElements(alunos, garagens, escolas, vSource);
-        drawMapElements(alunos, garagens, escolas, gSource);
-        setTimeout(() => {
-            mapaConfig["map"].getView().fit(vSource.getExtent());
-            mapaRotaGerada["map"].getView().fit(gSource.getExtent());
-        }, 500);
+// Filtrar os alunos e escolas que estão georeferenciados
+function processarVinculoAlunoEscolas(res) {
+    let numVinculo = 0;
+    let escolasVinculo = new Array();
+    for (let vinculoRaw of res) {
+        let aID = String(vinculoRaw["ID_ALUNO"]);
+        let eID = String(vinculoRaw["ID_ESCOLA"]);
+        let eNome = vinculoRaw["NOME"];
+
+        let alunoJSON = alunoMap.get(aID);
+        alunoJSON["ESCOLA_ID"] = eID;
+        alunoJSON["ESCOLA_NOME"] = eNome;
+
+        // Verificar se escola do aluno está georeferenciada
+        let escolaAluno = escolaMap.get(String(eID));
+
+        if (escolaAluno["GPS"]) {
+            alunoJSON["ESCOLA_TEM_GPS"] = true;
+            alunoMap.set(aID, alunoJSON);
+
+            escolaAluno["TEM_ALUNO_COM_GPS"] = true;
+            escolaMap.set(eID, escolaAluno);
+            
+            numVinculo++;
+            escolasVinculo.push(eNome)
+        }
+    }
+
+    if (numVinculo == 0) {
+        Promise.reject({ code: "erro:vinculo", data: escolasVinculo.join(", ") })
+    } else {
+        return alunoMap;
+    }
+};
+
+// Filtrar os alunos que já possuem rota
+function processarVinculoAlunoRota(res) {
+    for (let vinculoRaw of res) {
+        let aID = String(vinculoRaw["ID_ALUNO"]);
+        let rID = String(vinculoRaw["ID_ROTA"]);
+        let rNome = vinculoRaw["NOME"];
+
+        let alunoJSON = alunoMap.get(aID);
+        alunoJSON["ROTA"] = true;
+        alunoJSON["ROTA_ID"] = rID;
+        alunoJSON["ROTA_NOME"] = rNome;
+
+        alunoMap.set(aID, alunoJSON);
+    }
+    return alunoMap;
+};
+
+// Pega os elementos do mapa e transforma no nosso array
+function listaElementos() {
+    alunoMap.forEach((a, aID) => {
+        if (a["GPS"] && a["ESCOLA_TEM_GPS"]) {
+            alunos.push({
+                key: aID,
+                tipo: "aluno",
+                nome: a["NOME"],
+                lat: a["LOC_LATITUDE"],
+                lng: a["LOC_LONGITUDE"],
+                turno: a["TURNOSTR"],
+                nivel: a["NIVELSTR"],
+                temEscola: a["TEM_ESCOLA"],
+                school: a["ESCOLA_ID"],
+                escolaID: a["ESCOLA_ID"],
+                escolaNome: a["ESCOLA_NOME"],
+                escolaTemGPS: a["ESCOLA_TEM_GPS"] ? "Sim" : "Não",
+                passengers: 1
+            })
+        }
     })
+
+    escolaMap.forEach((e, eID) => {
+        if (e["GPS"] && e["TEM_ALUNO_COM_GPS"]) {
+            escolas.push({
+                key: eID,
+                tipo: "escola",
+                nome: e["NOME"],
+                localizacao: e["LOCALIZACAO"],
+                ensino: e["ENSINO"],
+                horario: e["HORARIO"],
+                lat: e["LOC_LATITUDE"],
+                lng: e["LOC_LONGITUDE"]
+            })
+        }
+    })
+
+    drawMapElements(alunos, garagens, escolas, vSource);
+    drawMapElements(alunos, garagens, escolas, gSource);
+    setTimeout(() => {
+        mapaConfig["map"].getView().fit(vSource.getExtent());
+        mapaRotaGerada["map"].getView().fit(gSource.getExtent());
+    }, 500);
+
+    Swal2.close();
+}
 
 function drawMapElements(arrAlunos, arrGaragens, arrEscolas, camada) {
     for (let i in arrAlunos) {
         let a = arrAlunos[i];
         let p = new ol.Feature({
+            ...a,
             "geometry": new ol.geom.Point(ol.proj.fromLonLat([a["lng"], a["lat"]]))
         });
         p.setStyle(new ol.style.Style({
@@ -99,6 +388,7 @@ function drawMapElements(arrAlunos, arrGaragens, arrEscolas, camada) {
     for (let i in arrEscolas) {
         let e = arrEscolas[i];
         let p = new ol.Feature({
+            ...e,
             "geometry": new ol.geom.Point(ol.proj.fromLonLat([e["lng"], e["lat"]]))
         });
         p.setStyle(new ol.style.Style({
@@ -115,6 +405,7 @@ function drawMapElements(arrAlunos, arrGaragens, arrEscolas, camada) {
     for (let i in arrGaragens) {
         let g = arrGaragens[i];
         let p = new ol.Feature({
+            ...g,
             "geometry": new ol.geom.Point(ol.proj.fromLonLat([g["lng"], g["lat"]]))
         });
         p.setStyle(new ol.style.Style({
@@ -319,6 +610,78 @@ function startAnimation() {
 ///////////////////////////////////////////////////////////////////////////////
 // Popup
 ///////////////////////////////////////////////////////////////////////////////
+var selectAlunoEscola = new ol.interaction.Select({
+    hitTolerance: 5,
+    multi: false,
+    condition: ol.events.condition.singleClick,
+    filter: (feature, layer) => {
+        if (feature.getGeometry().getType() == "Point" &&
+            (feature.getProperties().tipo == "aluno" ||
+                feature.getProperties().tipo == "escola")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+});
+mapaConfig["map"].addInteraction(selectAlunoEscola);
+
+var popupAlunoEscola = new ol.Overlay.PopupFeature({
+    popupClass: "default anim",
+    select: selectAlunoEscola,
+    closeBox: true,
+    template: {
+        title: (elem) => {
+            return elem.get("nome");
+        },
+        attributes: {
+            'nivel': {
+                title: "Série",
+                visible: (e) => e.getProperties().tipo == "aluno"
+            },
+            'turno': {
+                title: "Turno",
+                visible: (e) => e.getProperties().tipo == "aluno"
+            },
+            'escolaNome': {
+                title: "Escola",
+                visible: (e) => e.getProperties().tipo == "aluno"
+            },
+            'escolaTemGPS': {
+                title: "Escola possui GPS?",
+                visible: (e) => e.getProperties().tipo == "aluno"
+            },
+            'ensino': {
+                title: "Níveis",
+                visible: (e) => e.getProperties().tipo == "escola"
+            },
+            'horario': {
+                title: "Horário de Funcionamento",
+                visible: (e) => e.getProperties().tipo == "escola"
+            },
+            'localizacao': {
+                title: "Localização",
+                visible: (e) => e.getProperties().tipo == "escola"
+            },
+        }
+    }
+});
+mapaConfig["map"].addOverlay(popupAlunoEscola);
+
+var selectRoute = new ol.interaction.Select({
+    hitTolerance: 5,
+    multi: false,
+    condition: ol.events.condition.singleClick,
+    filter: (feature, layer) => {
+        if (feature.getGeometry().getType() == "LineString") {
+            pickedRoute = feature.get("pickedRoute");
+            pickedRouteLength = feature.get("pickedRouteLength");
+            return true;
+        } else {
+            return false;
+        }
+    }
+});
 mapaRotaGerada["map"].addInteraction(selectRoute);
 var popup = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
@@ -369,11 +732,14 @@ function initSimulation() {
         "optTarget": "maxTravDist",
         "numVehicles": $("#numVehicles").val(),
         "maxCapacity": $("#maxCapacity").val(),
+        // TODO
+        "busSpeed": 11.11, // 11.11 m/s ~= 40 km/h
         "garage": garagens,
         "stops": alunos,
         "schools": escolas,
     };
 
+    debugger
     ipcRenderer.send('start:route-generation', routeGenerationInputData);
 };
 
@@ -404,7 +770,15 @@ ipcRenderer.on("end:route-generation", function (event, routesJSON) {
 });
 
 
+// Trigger para erro na simulação
+ipcRenderer.on("error:route-generation", function (event, err) {
+    errorFn("Erro no processo de simulação de rota!", err)
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
 // Validar Formulário
+////////////////////////////////////////////////////////////////////////////////
 var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
     rules: {
         publico: {
@@ -525,6 +899,7 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
-
-// Seta num veiculos
-BuscarTodosDadosPromise("Veiculos").then((res) => $("#numVehicles").val(res.length))
+$('input[type=radio][name=turno]').on('change', (evt) => {
+    console.log("aqui");
+    // evt.currentTarget.value
+})

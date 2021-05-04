@@ -20,6 +20,18 @@ if (!fs.existsSync(dbPath)) {
     console.log("USANDO BASE DE DADOS:", dbPath)
 }
 
+// Malha Creator
+const malhaTemplatePath = path.join(app.getPath('userData'), "db", "osm_road_template");
+const rawMalhaTemplatePath = path.join(__dirname, "db", "osm_road_template");
+
+if (!fs.existsSync(malhaTemplatePath)) {
+    fs.copySync(rawMalhaTemplatePath, malhaTemplatePath);
+    console.log("COPIANDO O TEMPLATE DE MALHA DE: ", rawMalhaTemplatePath)
+    console.log("PARA: ", malhaTemplatePath)
+} else {
+    console.log("USANDO BASE DE DADOS:", malhaTemplatePath)
+}
+
 const sqliteDB = require("knex")({
     client: "sqlite3",
     connection: {
@@ -99,7 +111,6 @@ const createEntryWindow = () => {
         shell.openExternal(url);
     });
 
-
     appWindow.on("ready-to-show", () => {
         appWindow.maximize();
         appWindow.show();
@@ -114,7 +125,8 @@ const createEntryWindow = () => {
     });
 };
 
-// app.disableHardwareAcceleration();
+// Desabilita aceleração de hardware (vga) para evitar tela branca
+app.disableHardwareAcceleration();
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -139,6 +151,7 @@ app.on('ready', createEntryWindow);
 app.on('window-all-closed', () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
+    routeOptimizer.quit();
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -152,18 +165,23 @@ app.on('activate', () => {
     }
 });
 
+let routeOptimizer = new RouteOptimization(app, dbPath);
+
 // Route Generation Algorithm
 ipcMain.on("start:route-generation", (event, routingArgs) => {
-    new RouteOptimization(routingArgs, spatialiteDB).optimize().then((optRoutes) => {
-        appWindow.webContents.send("end:route-generation", optRoutes);
+    let cachedODMatrix = appconfig.get("OD", {
+        nodes: {}, dist: {}, cost: {}
     });
+
+    routeOptimizer.optimize(cachedODMatrix, routingArgs)
 })
 
 // Malha Update
 ipcMain.on("start:malha-update", (event, newOSMFile) => {
-    let malha = new MalhaUpdate(newOSMFile, dbPath, sqliteDB);
+    let malha = new MalhaUpdate(newOSMFile, dbPath);
     malha.update()
         .then((updateData) => {
+            appconfig.delete("OD");
             appWindow.webContents.send("end:malha-update", true);
         })
         .catch((err) => {
@@ -175,3 +193,17 @@ ipcMain.on("start:malha-update", (event, newOSMFile) => {
 app.on("finish-update", (event, arg) => {
     console.log(arg);
 });
+
+app.on("done:route-generation", (res) => {
+    // Set new cache
+    let newODCache = res[0];
+    appconfig.set("OD", newODCache);
+
+    // Send generated routes
+    let optRoutes = res.slice(1);
+    appWindow.webContents.send("end:route-generation", optRoutes);
+})
+
+app.on("error:route-generation", (err) => {
+    appWindow.webContents.send("error:route-generation", err);
+})
