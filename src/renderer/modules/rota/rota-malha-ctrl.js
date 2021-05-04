@@ -13,7 +13,6 @@ function baixarMalhaDoOSM(arqDestino, latitude = cidadeLatitude, longitude = cid
 
     var latstr = `${latmin},${lngmin},${latmax},${lngmax}`;
 
-    debugger
     var url = `http://overpass-api.de/api/interpreter?data=[out:xml][timeout:25];
 (node['highway']['highway'!='footway']['highway'!='pedestrian']['-highway'!='path'](${latstr});
 way['highway']['highway'!='footway']['highway'!='pedestrian']['-highway'!='path'](${latstr});
@@ -58,7 +57,6 @@ $("#baixarMalha").on('click', () => {
 
 $('#rota-malha-salvarNovaMalha').on('click', () => {
     loadingFn("Processando a malha...")
-    debugger
 
     let osmFilePath = $("#novaMalhaOSM")[0].files[0].path;
     ipcRenderer.send('start:malha-update', osmFilePath);
@@ -66,7 +64,6 @@ $('#rota-malha-salvarNovaMalha').on('click', () => {
 
 
 ipcRenderer.on("end:malha-update", function (event, status) {
-    debugger;
     if (status) {
         successDialog("Malha atualizada com sucesso",
             "Clique em OK para retornar a visão geral do sistema.")

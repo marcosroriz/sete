@@ -322,7 +322,7 @@ function processarVinculoAlunoRota(res) {
 // Pega os elementos do mapa e transforma no nosso array
 function listaElementos() {
     alunoMap.forEach((a, aID) => {
-        if (a["GPS"]) {
+        if (a["GPS"] && a["ESCOLA_TEM_GPS"]) {
             alunos.push({
                 key: aID,
                 tipo: "aluno",
