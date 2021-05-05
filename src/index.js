@@ -190,15 +190,20 @@ app.on('ready', createEntryWindow);
 app.on('window-all-closed', () => {
     // No mac é comum a app ficar na dock até que o usuário explicitamente feche ela
     if (process.platform !== 'darwin') {
-        routeOptimizer.quit();
         app.quit();
     }
 });
+
+ // Evento gerado quando app vai terminar
+ app.on("will-quit", () => {
+    routeOptimizer.quit();
+ })
 
 // Evento chamado quando clicamos no ícone do app
 app.on('activate', () => {
     // No mac é comum recriar o aplicativo quando o ícone está na dock
     if (appWindow === null) {
+        routeOptimizer = new RouteOptimization(app, dbPath);
         createEntryWindow();
     }
 });
