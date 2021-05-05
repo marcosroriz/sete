@@ -92,7 +92,7 @@ const createEntryWindow = () => {
     });
 
     // Desabilita e esconde menu
-    appWindow.setMenu(null);
+    // appWindow.setMenu(null);
     appWindow.setMenuBarVisibility(false);
 
     // Agora carrega a página de login do SETE
