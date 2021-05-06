@@ -1,7 +1,16 @@
-// Bibliotecas
-var osmtogeojson = require('osmtogeojson');
+/**
+ * SETE Desktop: renderer/modules/rota-sugestao-ctrl.js
+ * 
+ * Script de controle da tela de sugestão de rotas.
+ * A tela mostrará um wizard, one a primeira etapa permitirá o usuário parametrizar a ferramenta.
+ * A segunda tela mostrará o resultado da simulação.
+ * Por fim, deve-se permitir que o usuário salve as rotas geradas.
+ */
 
-// Mapas
+// Bibliotecas especificas
+var osmtogeojson = require("osmtogeojson");
+
+// Mapas (config = para parametrização, rotagerada = para simulação)
 var mapaConfig = novoMapaOpenLayers("mapaRotaSugestaoConfig", cidadeLatitude, cidadeLongitude);
 var mapaRotaGerada = novoMapaOpenLayers("mapaRotaSugestaoGerada", cidadeLatitude, cidadeLongitude);
 
@@ -10,24 +19,25 @@ var mapaRotaGerada = novoMapaOpenLayers("mapaRotaSugestaoGerada", cidadeLatitude
 var vSource = mapaConfig["vectorSource"];
 var gSource = mapaRotaGerada["vectorSource"];
 
-// Mapa rotas geradas
-var rotasGeradas = new Map();
-
+// Rotina para atualizar os mapas quando a tela redimensionar
 window.onresize = function () {
     setTimeout(function () {
-        console.log("resize");
         if (mapaConfig != null) { mapaConfig["map"].updateSize(); }
         if (mapaRotaGerada != null) { mapaRotaGerada["map"].updateSize(); }
     }, 200);
 }
 
+// Variável para armazenar as rotas geradas
+var rotasGeradas = new Map();
+
+// Variáveis que armazenará todos os usuários e escolas que podem utilizar a ferramenta
 var alunoMap = new Map();
 var escolaMap = new Map();
 
+// Variáveis qeu contém apenas os usuários escolhidos para o processo de simulação
 var alunos = new Array();
 var garagens = new Array();
 var escolas = new Array();
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Promessas
@@ -126,10 +136,11 @@ function plotMalha(osmGeoJSON) {
 
     let tileIndex = geojsonvt(osmGeoJSON, {
         extent: 4096,
-        debug: 1,
+        buffer: 256,
         maxZoom: 20,
         indexMaxZoom: 20,
-        tolerance: 5
+        tolerance: 5,
+        
     })
     let format = new ol.format.GeoJSON({
         // Data returned from geojson-vt is in tile pixel units
@@ -899,7 +910,23 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Replota dados
+////////////////////////////////////////////////////////////////////////////////
+
+function replotaAluno() {
+    let filtroTurno = $("input[name='turno']:checked").val();
+    let filtroSemRota = $("input[name='publico']:checked").val() == "semRota";
+    let alunosFiltrados = [...alunoMap].filter((a) => {
+        return a[1]["GPS"] && a[1]["ESCOLA_TEM_GPS"] && a[1]["TURNO"] == filtroTurno;
+    })
+
+    console.log(alunosFiltrados)
+}
+
 $('input[type=radio][name=turno]').on('change', (evt) => {
+    debugger
     console.log("aqui");
-    // evt.currentTarget.value
+    replotaAluno()
 })
