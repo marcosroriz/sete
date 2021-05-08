@@ -89,9 +89,9 @@ $('.card-wizard').bootstrapWizard({
         onTabShow: function (tab, navigation, index) {
             var $total = navigation.find('li').length;
             var $current = index + 1;
-    
+
             var $wizard = navigation.closest('.card-wizard');
-    
+
             // If it's the last tab then hide the last button and show the finish instead
             if ($current >= $total) {
                 $($wizard).find('.btn-next').hide();
@@ -100,7 +100,7 @@ $('.card-wizard').bootstrapWizard({
                 $($wizard).find('.btn-next').show();
                 $($wizard).find('.btn-finish').hide();
             }
-    
+
             if (estaEditando) {
                 $($wizard).find('#cancelarAcao').show();
             } else {
@@ -124,9 +124,9 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-    .then(() => {
-        navigateDashboard("./modules/frota/frota-listar-view.html");
-    });
+        .then(() => {
+            navigateDashboard("./modules/frota/frota-listar-view.html");
+        });
 }
 
 $("#salvarveiculo").on('click', () => {
@@ -143,16 +143,16 @@ $("#salvarveiculo").on('click', () => {
             let idVeiculo = estadoVeiculo["ID"];
 
             dbAtualizarPromise(DB_TABLE_VEICULO, veiculoJSON, idVeiculo)
-            .then(() => dbAtualizaVersao())
-            .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao atualizar o veículo.", err))
+                .then(() => dbAtualizaVersao())
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao atualizar o veículo.", err))
         } else {
             loadingFn("Cadastrando o veículo ...")
-                    
+
             dbInserirPromise(DB_TABLE_VEICULO, veiculoJSON)
-            .then(() => dbAtualizaVersao())
-            .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao salvar o veículo.", err))
+                .then(() => dbAtualizaVersao())
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao salvar o veículo.", err))
         }
     }
 });
@@ -169,10 +169,10 @@ if (estaEditando) {
 
     $("#cancelarAcao").click(() => {
         cancelDialog()
-        .then((result) => {
-            if (result.value) {
-                navigateDashboard(lastPage);
-            }
-        })
+            .then((result) => {
+                if (result.value) {
+                    navigateDashboard(lastPage);
+                }
+            })
     });
 }

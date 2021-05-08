@@ -135,9 +135,9 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-    .then(() => {
-        $("a[name='fornecedor/fornecedor-listar-view']").click();
-    });
+        .then(() => {
+            $("a[name='fornecedor/fornecedor-listar-view']").click();
+        });
 }
 
 $("#salvarfornecedor").on('click', () => {
@@ -155,23 +155,23 @@ $("#salvarfornecedor").on('click', () => {
             loadingFn("Editando o fornecedor ...")
 
             dbAtualizarPromise(DB_TABLE_FORNECEDOR, fornecedorJSON, estadoFornecedor["ID"])
-            .then(() => dbAtualizaVersao())
-            .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao atualizar o fornecedor.", err))
+                .then(() => dbAtualizaVersao())
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao atualizar o fornecedor.", err))
         } else {
             loadingFn("Cadastrando o fornecedor ...")
-                    
+
             dbInserirPromise(DB_TABLE_FORNECEDOR, fornecedorJSON)
-            .then(() => dbAtualizaVersao())
-            .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao salvar o fornecedor.", err))
+                .then(() => dbAtualizaVersao())
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao salvar o fornecedor.", err))
         }
     }
 });
 
 if (estaEditando) {
     PopulateFornecedorFromState(estadoFornecedor);
-    if (estadoFornecedor["LOC_LATITUDE"] != null && estadoFornecedor["LOC_LATITUDE"] != undefined && 
+    if (estadoFornecedor["LOC_LATITUDE"] != null && estadoFornecedor["LOC_LATITUDE"] != undefined &&
         estadoFornecedor["LOC_LONGITUDE"] != null && estadoFornecedor["LOC_LONGITUDE"] != undefined) {
         plotaFornecedor(estadoFornecedor["LOC_LATITUDE"], estadoFornecedor["LOC_LONGITUDE"]);
 
@@ -187,11 +187,11 @@ if (estaEditando) {
 
     $("#cancelarAcao").on('click', () => {
         cancelDialog()
-        .then((result) => {
-            if (result.value) {
-                navigateDashboard(lastPage);
-            }
-        })
+            .then((result) => {
+                if (result.value) {
+                    navigateDashboard(lastPage);
+                }
+            })
     });
 }
 

@@ -181,16 +181,7 @@ function clearDBPromises() {
 function fbSync() {
     loadingFn("Sincronizando os dados com a nuvem...", "Espere um minutinho...");
 
-    // Verifica se DB está sincronizado antes de colocar dados na tela do dashboard
-    dbEstaSincronizado()
-    .then((estaSincronizado) => {
-        if (!estaSincronizado) {
-            console.log("PRECISAMOS SINCRONIZAR")
-            return dbSincronizar()
-        } else {
-            return true;
-        }
-    })
+    dbSincronizar()
     .then(() => successDialog("Sucesso!", "Dados sincronizados com sucesso. Clique em OK para voltar ao painel de gestão."))
     .then(() => navigateDashboard("./dashboard-main.html"))
     .catch(err => errorFn("Erro ao sincronizar, tente mais tarde", err))

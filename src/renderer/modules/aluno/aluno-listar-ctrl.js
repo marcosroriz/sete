@@ -13,8 +13,6 @@ var defaultTableConfig = {
     // ver detalhe da função em js/datatable.extra.js
     ...dtConfigPadrao("aluno"),
     ...{
-        // dom: 'rtilpB',
-        dom: "rti<'row'<'col-6 mt-3'l><'col-6 mt-3'´p>><'row'<'col-12 mt-2'B>>",
         select: {
             style: 'multi',
             info: false
@@ -164,115 +162,6 @@ defaultTableConfig["columnDefs"] = [
 
 var dataTablesAlunos = $("#datatables").DataTable(defaultTableConfig)
 
-function filtroAtendimento() {
-    $("#listaFiltroRelatorio").append(`<option value="Sem rota cadastrada">Sem Atendimento</option>`);
-    $("#listaFiltroRelatorio").append(`<option value="ROTA">Com Atendimento</option>`);
-}
-
-function filtroEscola() {
-    var labels = listaDeOpcoesFiltro["escolas"]["LABELS"];
-    for (let i = 0; i < labels.length; i++) {
-        $("#listaFiltroRelatorio").append(`<option value="${labels[i]}">${labels[i]}</option>`);
-    }
-}
-
-function filtroRota() {
-    var labels = listaDeOpcoesFiltro["rota"]["LABELS"];
-    for (let i = 0; i < labels.length; i++) {
-        $("#listaFiltroRelatorio").append(`<option value="${labels[i]}">${labels[i]}</option>`);
-    }
-}
-
-var listaDeOpcoesFiltro = {
-    "atendimento": {
-        TXTMENU: "Atendimento",
-        CUSTOM: true,
-        CUSTOMFN: filtroAtendimento,
-        LABELS: ["Sem rota cadastrada", "Com rota cadastrada"]
-    },
-    "escolas": {
-        TXTMENU: "Escolas",
-        CUSTOM: true,
-        CUSTOMFN: filtroEscola,
-        LABELS: []
-    },
-    "rota": {
-        TXTMENU: "Rota",
-        CUSTOM: true,
-        CUSTOMFN: filtroRota,
-        LABELS: []
-    },
-    "nivel": {
-        TXTMENU: "Nível de Escolaridade",
-        FILTRO: "NIVELSTR",
-        LABELS: ["Creche", "Fundamental", "Médio", "Superior", "Outro"]
-    },
-    "turno": {
-        TXTMENU: "Turno de Aula",
-        FILTRO: "TURNOSTR",
-        LABELS: ["Manhã", "Tarde", "Integral", "Noturno"]
-    },
-    "residencia": {
-        TXTMENU: "Área de Residência",
-        FILTRO: "LOCALIZACAO",
-        LABELS: ["Área Urbana", "Área Rural"]
-    },
-    "cor": {
-        TXTMENU: "Cor",
-        LABELS: ["Não informado", "Branco", "Preto", "Pardo", "Amarelo", "Indígena"]
-    },
-    "genero": {
-        TXTMENU: "Gênero",
-        LABELS: ["Masculino", "Feminino", "Não Informado"]
-    },
-}
-
-$("#campoFiltro").on('keyup', (e) => {
-    dataTablesAlunos.search(e.target.value, false, true, true).draw()
-})
-
-$("#listaTipoRelatorio").on('change', (e) => {
-    var $that = $(e.target);
-    var optName = $that.val();
-    var opt = listaDeOpcoesFiltro[optName];
-
-    $("#listaFiltroRelatorio").empty();
-    $("#listaFiltroRelatorio").append(`<option value="">Selecione uma opção ...</option>`);
-    var labels = opt["LABELS"];
-
-    if (opt["CUSTOM"]) {
-        opt["CUSTOMFN"]();
-    } else {
-        for (let i = 0; i < labels.length; i++) {
-            $("#listaFiltroRelatorio").append(`<option value="${labels[i]}">${labels[i]}</option>`);
-        }
-    }
-
-    dataTablesAlunos.search("", false, true, false).draw();
-
-    $("#listaFiltroRelatorio").on('change', (e) => {
-        var filtroValue = $(e.currentTarget).val();
-        var optValue = listaDeOpcoesFiltro[$("#listaTipoRelatorio").val()];
-
-        if (optValue["CUSTOM"]) {
-            dataTablesAlunos.search(filtroValue).draw();
-        } else {
-            dataTablesAlunos.search(filtroValue, false, true, false).draw();
-        }
-    })
-})
-
-
-function SetMainFilterMenu(selectID, items) {
-    for (let i in items) {
-        if (items[i]["FILTRO"] != "") {
-            $(selectID).append(`<option value="${i}">${items[i]["TXTMENU"]}</option>`);
-        }
-    }
-}
-
-SetMainFilterMenu("#listaTipoRelatorio", listaDeOpcoesFiltro);
-
 $("#datatables_filter input").on('keyup', function () {
     dataTablesAlunos.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
 })
@@ -327,17 +216,13 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
 
 
 dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
-    .then(res => preprocessarAlunos(res))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
-    .then(res => preprocessarEscolas(res))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA))
-    .then(res => preprocessarRotas(res))
-    .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-    .then(res => preprocessarEscolasTemAlunos(res))
-    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-    .then(res => preprocessarRotaTemAlunos(res))
-    .then((res) => adicionaDadosTabela(res))
-    .catch((err) => errorFn(err))
+.then(res => preprocessarAlunos(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+.then(res => preprocessarEscolasTemAlunos(res))
+.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+.then(res => preprocessarRotaTemAlunos(res))
+.then((res) => adicionaDadosTabela(res))
+.catch((err) => errorFn(err))
 
 // Preprocessa alunos
 var preprocessarAlunos = (res) => {
@@ -347,24 +232,6 @@ var preprocessarAlunos = (res) => {
         listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
     }
     return listaDeAlunos;
-}
-
-// Preprocessa escolas (adiciona nos filtros)
-var preprocessarEscolas = (res) => {
-    for (let escolaRaw of res) {
-        listaDeOpcoesFiltro["escolas"]["LABELS"].push(escolaRaw["NOME"])
-    }
-
-    return listaDeOpcoesFiltro;
-}
-
-// Preprocessa rotas (adiciona nos filtros)
-var preprocessarRotas = (res) => {
-    for (let rotaRaw of res) {
-        listaDeOpcoesFiltro["rota"]["LABELS"].push(rotaRaw["NOME"])
-    }
-
-    return listaDeOpcoesFiltro;
 }
 
 // Preprocessa escolas tem aluno
@@ -413,7 +280,7 @@ adicionaDadosTabela = (res) => {
     });
 
     dataTablesAlunos.draw();
-    $("#listaTipoRelatorio").val("atendimento").trigger("change");
+    dtInitFiltros(dataTablesAlunos, [1, 4, 5, 6, 7]);
 }
 
 action = "listarAluno";

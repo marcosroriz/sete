@@ -24,9 +24,9 @@ mapa["activateImageLayerSwitcher"]();
 
 // Lida com click de usuário
 mapaOL.on('singleclick', function (evt) {
-    if (evt.originalEvent.path.length > 21) {
-        return;
-    }
+    // if (evt.originalEvent.path.length > 21) {
+    //     return;
+    // }
 
     if (posicaoEscola != null) {
         try {

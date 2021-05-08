@@ -141,14 +141,15 @@ function cadastraNovoUsuario() {
 
     // Ok, vamos cadastrar!
     // Verificar se já existe um usuário com esse CPF
-    dbBuscarUsuarioPorCPFPromise(cpf)
-    .then((res) => {
-        if (res.size != 0) {
-            return Promise.reject({code: "cpf-existente"});
-        } else {
-            return firebase.auth().createUserWithEmailAndPassword(email, password)
-        }
-    })
+    // dbBuscarUsuarioPorCPFPromise(cpf)
+    // .then((res) => {
+    //     if (res.size != 0) {
+    //         return Promise.reject({code: "cpf-existente"});
+    //     } else {
+    //         return firebase.auth().createUserWithEmailAndPassword(email, password)
+    //     }
+    // })
+    firebase.auth().createUserWithEmailAndPassword(email, password)
     .then((fbuser) => { // Insere os dados do usuário no sqlite e no firebase
         idNovoUsuario = fbuser.user.uid;
         dadosUsuario["ID"] = idNovoUsuario;

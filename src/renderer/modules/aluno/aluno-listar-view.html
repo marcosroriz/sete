@@ -16,36 +16,85 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-4">
-                            <label class="relLabel" id="relLabel">Filtrar alunos por:</label>
-                            <select id="listaTipoRelatorio" class="form-control"></select>
-                            <select id="listaFiltroRelatorio" class="mt-1 form-control"></select>
-                        </div>
-                        <div class="col-4"></div>
-                        <div class="col-4">
-                            <label class="filtroLabel" id="filtroLabel">Buscar</label>
-                            <input type="text" class="form-control form-control-sm" id="campoFiltro">
-                        </div>
-                    </div>
 
                     <div class="filterDiv mb-4 mt-1"></div>
 
                     <div class="fresh-datatables">
-                        <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0"
-                            width="100%" style="width:100%">
+                        <table id="datatables" class="table table-striped table-no-bordered table-hover filterTable"
+                            cellspacing="0" width="100%" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th></th>
-                                    <th>Nome</th>
-                                    <th>Sexo</th>
-                                    <th>Cor/Raça</th>
-                                    <th>Localização</th>
-                                    <th>Escola</th>
-                                    <th>Nível</th>
-                                    <th>Turno</th>
-                                    <th>Rota</th>
-                                    <th class="disabled-sorting text-center">Ações</th>
+                                    <th>
+                                       
+                                    </th>
+                                    <th class="thSemFiltro">
+                                        <span class="colunaSemFiltro">
+                                            Nome
+                                        </span>
+                                    </th>
+                                    <th>
+                                            Sexo
+                                    </th>
+                                    <th>
+                                            Cor
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Localização
+                                        </span>
+
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Escola
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Nível
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Turno
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Rota
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th class="disabled-sorting text-center">
+                                        <span class="colunaSemFiltro">
+                                            Ações
+                                        </span>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>

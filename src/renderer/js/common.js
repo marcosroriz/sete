@@ -23,7 +23,7 @@ var fs = require("fs-extra");
 // Imports de biblioteca de caminhos (para acessar e navegar no sistema de arquivos)
 // app.getPath retorna a pasta do SO que armazina os dados de configuração do app
 var path = require("path");
-var userDataDir = app.getPath('userData'); 
+var userDataDir = app.getPath('userData');
 
 // Bibliotecas Básicas do JS
 window.$ = window.jQuery = require("jquery");
@@ -50,7 +50,7 @@ var currentPage = "./dashboard-main.html";
 
 // StackOverflow bug: https://stackoverflow.com/questions/49164924/electron-prevent-multiple-instance-with-middle-click
 // The following function will catch all non-left (middle and right) clicks
-function handleNonLeftClick (e) {
+function handleNonLeftClick(e) {
     // e.button will be 1 for the middle mouse button.
     if (e.button === 1) {
         e.preventDefault();
@@ -63,7 +63,7 @@ window.onload = () => {
 }
 
 // Função genérica para relatar erros
-var errorFn = (msg, err = "", title = "Ops... tivemos um problema!") => {
+function errorFn(msg, err = "", title = "Ops... tivemos um problema!") {
     if (err != "") {
         msg = msg + "\n Caso o erro persista, contate a equipe de suporte (0800 616161): \n"
     }
@@ -77,7 +77,7 @@ var errorFn = (msg, err = "", title = "Ops... tivemos um problema!") => {
 }
 
 // Função genérica para relatar carregamento
-var loadingFn = (msgTitle, msgDesc = "Aguarde, estamos processando...") => {
+function loadingFn(msgTitle, msgDesc = "Aguarde, estamos processando...") {
     return Swal2.fire({
         title: msgTitle,
         imageUrl: "img/icones/processing.gif",
@@ -117,8 +117,8 @@ var goaheadDialog = (msgTitle, msgDesc) => {
 }
 
 // Função genérica para criar um diálogo de cancelamento de edição
-var cancelDialog = (msgTitle = "Cancelar Edição?", 
-                    msgDesc = "Se você cancelar nenhum alteração será feita.") => {
+var cancelDialog = (msgTitle = "Cancelar Edição?",
+    msgDesc = "Se você cancelar nenhum alteração será feita.") => {
     return Swal2.fire({
         title: msgTitle,
         text: msgDesc,
@@ -132,8 +132,8 @@ var cancelDialog = (msgTitle = "Cancelar Edição?",
 }
 
 // Função genérica para criar um diálogo de sucesso
-var successDialog = (msgTitle = "Parabéns!", 
-                     msgDesc = "A operação ocorreu com sucesso.") => {
+var successDialog = (msgTitle = "Parabéns!",
+    msgDesc = "A operação ocorreu com sucesso.") => {
     return Swal2.fire({
         title: msgTitle,
         text: msgDesc,
@@ -222,18 +222,30 @@ function configWizardBasico(idElemento, usarValidador = true) {
         onTabShow: function (tab, navigation, index) {
             var $total = navigation.find('li').length;
             var $current = index + 1;
-    
+
             var $wizard = navigation.closest('.card-wizard');
-    
+
             // If it's the last tab then hide the last button and show the finish instead
             if ($current >= $total) {
                 $($wizard).find('.btn-next').hide();
                 $($wizard).find('.btn-finish').show();
             } else {
                 $($wizard).find('.btn-next').show();
-    
+
                 $($wizard).find('.btn-finish').hide();
             }
         }
+    }
+}
+
+function onlynumber(evt) {
+    var theEvent = evt || window.event;
+    var key = theEvent.keyCode || theEvent.which;
+    key = String.fromCharCode(key);
+    //var regex = /^[0-9.,]+$/;
+    var regex = /^[0-9.]+$/;
+    if (!regex.test(key)) {
+        theEvent.returnValue = false;
+        if (theEvent.preventDefault) theEvent.preventDefault();
     }
 }

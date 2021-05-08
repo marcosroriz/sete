@@ -62,6 +62,7 @@
     height: 100%;
     border-top: 5px solid orange;
     background: white;
+    min-height: 7vh;
 }
 
 .form-control, .form-control:focus {
