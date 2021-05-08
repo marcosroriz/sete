@@ -1,0 +1,56 @@
+span.filtroHeader {
+    min-height: 100px;
+    width: 100%;
+}
+
+.form-filtro {
+    width: 65%;
+    display: inline-block;
+    padding: 0px;
+    font-size: 12px;
+    margin-top: 1em;
+    margin-bottom: 1em
+}
+
+span.colunaSemFiltro {
+    display: block;
+    min-height: 3em;
+    font-size: 1.2em;
+    font-weight: bold;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+span.colunaComFiltro {
+    display: block;
+    min-height: 3em;
+    border-bottom-color: #ffa534;
+    border-bottom-style: solid;
+    font-size: 1.2em;
+    font-weight: bold;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+
+table.filterTable > thead .sorting:before, table.filterTable > thead .sorting_asc:before, table.filterTable > thead .sorting_desc:before, table.filterTable > thead .sorting_asc_disabled:before, table.filterTable > thead .sorting_desc_disabled:before {
+    display: none;
+}
+
+table.filterTable>thead>tr>th, table.filterTable>tbody>tr>th {
+    padding: 0px !important;
+    padding-top: 0px !important;
+    padding-right: 0px !important;
+    padding-bottom: 0px !important;
+    padding-left: 0px !important;
+    outline: 0;
+}
+
+.thSemFiltro:after, .thSemFiltro:before, table.dataTable thead .thSemFiltro.sorting_asc:after,  table.dataTable thead .thSemFiltro.sorting_asc:before {
+    float: right;
+    padding-right: 20px;
+    top: -50px;
+}
+

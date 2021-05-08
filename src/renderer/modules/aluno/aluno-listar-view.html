@@ -17,17 +17,72 @@
                         </div>
                     </div>
                     <div class="fresh-datatables">
-                        <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0"
+                        <table id="datatables" class="table table-striped table-no-bordered table-hover filterTable" cellspacing="0"
                             width="100%" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Nome</th>
-                                    <th>Localização do Aluno</th>
-                                    <th>Rota</th>
-                                    <th>Escola</th>
-                                    <th>Nível</th>
-                                    <th>Turno</th>
-                                    <th class="disabled-sorting text-center">Ações</th>
+                                    <th class="thSemFiltro">
+                                        <span class="colunaSemFiltro">
+                                            Nome
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Localização do Aluno
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Rota
+                                        </span>
+
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Escola
+                                        </span>
+
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Nível
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Turno
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th class="disabled-sorting text-center">
+                                        <span class="colunaSemFiltro">
+                                            Ações
+                                        </span>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>

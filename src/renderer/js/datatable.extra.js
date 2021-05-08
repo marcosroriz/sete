@@ -4,7 +4,7 @@
 
 // Adicionamos a função capitalize a classe String para permitir colocar 
 // o primeiro caractere em maiúsculo de uma dada string
-String.prototype.capitalize = function() {
+String.prototype.capitalize = function () {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
@@ -24,7 +24,7 @@ function dtConfigPadrao(nomeDado) {
             "zeroRecords": `Não encontrei nenhum ${nomeDado} cadastrado`,
             "info": "Mostrando página _PAGE_ de _PAGES_",
             "infoEmpty": "Sem registros disponíveis",
-            "infoFiltered": `${nomeDado.capitalize()}s filtrados a partir do total de _MAX_ ${nomeDado}s)`,
+            "infoFiltered": `${nomeDado}s filtrados a partir do total de _MAX_ ${nomeDado}s`,
             "paginate": {
                 "first": "Primeira",
                 "last": "Última",
@@ -73,11 +73,16 @@ function getRowOnClick(t) {
     return $tr;
 }
 
-// Esta função function limit the number of characters shown in a datatable row column
+// Esta função limita o número de caracteres que aparece na célula da tabela
 function renderAtMostXCharacters(x = 50) {
     return function (data, type, row) {
         return data.length > x ? data.substr(0, x) + '…' : data;
     }
+}
+
+// Equivalente a função anterior, mas não precisa da datatable, dar para usar na String
+function renderEllipsis(data, x = 50) {
+    return data.length > x ? data.substr(0, x) + '…' : data;
 }
 
 
@@ -165,4 +170,22 @@ jQuery.fn.dataTable.ext.type.search['locale-compare'] = function (data) {
                 .replace(/[óÓ]/g, 'o')
                 .replace(/[úÚůŮ]/g, 'u')
             : data
+}
+
+// https://jsfiddle.net/7a1e48sp/4/
+function dtInitFiltros(dt, colunas) {
+    dt.columns().every(function (i) {
+        if (colunas.includes(i)) {
+            var column = this;
+            var select = $($(this.header()).find('select')[0])
+                .on('change', function () {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                    column.search(val ? '^' + val + '$' : '', true, false).draw();
+                });
+    
+            column.data().unique().sort().each(function (d, j) {
+                select.append('<option value="' + d + '">' + renderEllipsis(d, 50) + '</option>')
+            });
+        }
+    });
 }

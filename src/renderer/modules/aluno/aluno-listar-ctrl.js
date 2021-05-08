@@ -17,9 +17,9 @@ var dataTablesAlunos = $("#datatables").DataTable({
             { data: 'NOME', width: "25%" },
             { data: 'LOCALIZACAO', width: "15%" },
             { data: 'ROTA', width: "15%" },
-            { data: 'ESCOLA', width: "25%" },
+            { data: 'ESCOLA', width: "20%" },
             { data: 'NIVELSTR', width: "200px" },
-            { data: 'TURNOSTR', width: "200px" },
+            { data: 'TURNOSTR', width: "250px" },
             {
                 data: "ACOES",
                 width: "90px",
@@ -172,6 +172,7 @@ adicionaDadosTabela = (res) => {
     });
 
     dataTablesAlunos.draw();
+    dtInitFiltros(dataTablesAlunos, [1, 2, 3, 4, 5]);
 }
 
 action = "listarAluno";
