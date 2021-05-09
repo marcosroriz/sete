@@ -60,6 +60,14 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
 var parseEscolaDB = function (escolaRaw) {
     var escolaJSON = Object.assign({}, escolaRaw);
     escolaJSON["NOME"] = escolaJSON["NOME"];
+
+    if (escolaRaw["LOC_LONGITUDE"] != "" && escolaRaw["LOC_LONGITUDE"] != undefined &&
+        escolaRaw["LOC_LATITUDE"] != "" && escolaRaw["LOC_LATITUDE"] != undefined) {
+        escolaJSON["GEOREF"] = "Sim";
+    } else {
+        escolaJSON["GEOREF"] = "Não";
+    }
+
     switch (escolaRaw["MEC_TP_LOCALIZACAO"]) {
         case 1:
             escolaJSON["LOCALIZACAO"] = "Urbana";
@@ -99,7 +107,7 @@ var parseEscolaDB = function (escolaRaw) {
     if (escolaRaw["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
     if (escolaRaw["HORARIO_VESPERTINO"]) horarioEnsino.push("Tarde");
     if (escolaRaw["HORARIO_NOTURNO"]) horarioEnsino.push("Noite");
-    
+
     if (horarioEnsino != 0)
         escolaJSON["HORARIO"] = horarioEnsino.join(", ");
     else
@@ -127,8 +135,8 @@ var parseEscolaMECDB = function (escolaRaw) {
     escolaJSON["MEC_CO_ENTIDADE"] = Number(escolaRaw["CO_ENTIDADE"]);
     escolaJSON["MEC_CO_UF"] = Number(escolaRaw["CO_UF"]);
     escolaJSON["MEC_CO_MUNICIPIO"] = Number(escolaRaw["CO_MUNICIPIO"]);
-    
     escolaJSON["MEC_TP_LOCALIZACAO"] = Number(escolaRaw["TP_LOCALIZACAO"]);
+    
     switch (Number(escolaRaw["TP_LOCALIZACAO"])) {
         case 1:
             escolaJSON["LOCALIZACAO"] = "Urbana";

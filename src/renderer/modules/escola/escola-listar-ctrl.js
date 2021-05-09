@@ -13,12 +13,19 @@ var dataTableEscolas = $("#datatables").DataTable({
     // ver detalhe da função em js/datatable.extra.js
     ...dtConfigPadraoFem("escola"),
     ...{
+        dom: 'rtilp<"clearfix m-2">B',
+        select: {
+            style: 'multi',
+            info: false
+        },
         columns: [
-            { data: 'NOME', width: "40%" },
+            { data: "SELECT", width: "60px" },
+            { data: 'NOME', width: "20%" },
             { data: 'LOCALIZACAO',  width: "15%" },
-            { data: 'ENSINO', width: "15%" },
-            { data: 'HORARIO', width: "30%" },
-            { data: 'NUM_ALUNOS', width: "300px" },
+            { data: 'GEOREF', width: "250px" },
+            { data: 'ENSINO', width: "10%" },
+            { data: 'HORARIO', width: "250px" },
+            { data: 'NUM_ALUNOS', width: "250px" },
             {
                 data: "ACOES",
                 width: "110px",
@@ -29,8 +36,117 @@ var dataTableEscolas = $("#datatables").DataTable({
                                 '<a href="#" class="btn btn-link btn-danger escolaRemove"><i class="fa fa-times"></i></a>'
             }
         ],
-        columnDefs: [{ targets: 0, type: 'locale-compare', render: renderAtMostXCharacters(50) }],
+        columnDefs: [
+            { targets: 0, 'checkboxes': { 'selectRow': true } },
+            { targets: 1, type: 'locale-compare', render: renderAtMostXCharacters(50) },
+        ],
         buttons: [
+            {
+                text: 'Remover escolas',
+                className: 'btnRemover',
+                action: function (e, dt, node, config) {
+                    var rawDados = dataTableEscolas.rows('.selected').data().toArray();
+                    if (rawDados.length == 0) {
+                        errorFn("Por favor, selecione pelo menos uma escola a ser removida.", "",
+                                "Nenhuma escola selecionada")
+                    } else {
+                        let msg = `Você tem certeza que deseja remover as ${rawDados.length} escolas selecionadas?`;
+                        let msgConclusao = "As escolas foram removidas com sucesso";
+                        if (rawDados.length == 1) {
+                            msg = `Você tem certeza que deseja remover a escola selecionada?`;
+                            msgConclusao = "A escola foi removida com sucesso";
+                        }
+
+                        goaheadDialog(msg ,"Esta operação é irreversível. Você tem certeza?")
+                        .then((res) => {
+                            if (res.isConfirmed) {
+                                Swal2.fire({
+                                    title: "Removendo as escolas da base de dados...",
+                                    imageUrl: "img/icones/processing.gif",
+                                    closeOnClickOutside: false,
+                                    allowOutsideClick: false,
+                                    showConfirmButton: false,
+                                    html: `
+                                <br />
+                                <div class="progress" style="height: 20px;">
+                                    <div id="pbar" class="progress-bar" role="progressbar" 
+                                            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" 
+                                            style="width: 0%;">
+                                    </div>
+                                </div>
+                                `
+                                })
+
+                                var progresso = 0;
+                                var max = rawDados.length * 3 + 1;
+
+                                function updateProgress() {
+                                    progresso++;
+                                    var progressPorcentagem = Math.round(100 * (progresso / max))
+
+                                    $('.progress-bar').css('width', progressPorcentagem + "%")
+                                }
+
+                                var promiseArray = new Array();
+
+                                rawDados.forEach(escola => {
+                                    promiseArray.push(dbRemoverDadoPorIDPromise(DB_TABLE_ESCOLA, "ID_ESCOLA", escola["ID"])
+                                        .then(() => updateProgress())
+                                    );
+
+                                    // Remove o vínculo com os alunos
+                                    remotedb.collection("municipios")
+                                    .doc(codCidade)
+                                    .collection(DB_TABLE_ESCOLA_TEM_ALUNOS)
+                                    .where("ID_ESCOLA", "==", escola["ID"])
+                                    .get({ source: "cache" })
+                                    .then((snapshotDocumentos) => {
+                                        updateProgress()
+                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
+                                    })
+
+                                    // Remove a escola das rotas
+                                    remotedb.collection("municipios")
+                                    .doc(codCidade)
+                                    .collection(DB_TABLE_ROTA_PASSA_POR_ESCOLA)
+                                    .where("ID_ESCOLA", "==", escola["ID"])
+                                    .get({ source: "cache" })
+                                    .then((snapshotDocumentos) => {
+                                        updateProgress()
+                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
+                                    })
+                                })
+
+                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
+
+                                Promise.all(promiseArray)
+                                .then(() => {
+                                    successDialog(text = msgConclusao);
+                                    dataTableEscolas.rows('.selected').remove();
+                                    dataTableEscolas.draw();
+                                })
+                            }
+                        })
+                        .catch((err) => {
+                            Swal2.close()
+                            errorFn("Erro ao remover as escolas", err)
+                        })
+                    }
+                }
+            },
+            {
+                extend: 'excel',
+                className: 'btnExcel',
+                filename: "Relatorio",
+                title: appTitle,
+                text: 'Exportar para Planilha',
+                customize: function (xlsx) {
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c[r^="A"]', sheet).attr('s', '2');
+                    $('row[r="1"] c[r^="A"]', sheet).attr('s', '27');
+                    $('row[r="2"] c[r^="A"]', sheet).attr('s', '3');
+                }
+            },
             {
                 extend: 'pdfHtml5',
                 orientation: "landscape",
@@ -150,11 +266,14 @@ var preprocessarRelacaoEscolaAluno = (res) => {
 
 // Adiciona dados na tabela
 adicionaDadosTabela = (res) => {
+    let i = 0;
     res.forEach((escola) => {
+        escola["SELECT"] = i++;
         dataTableEscolas.row.add(escola);
     });
 
     dataTableEscolas.draw();
+    dtInitFiltros(dataTableEscolas, [2, 3, 4, 5, 6]);
 }
 
 action = "listarEscola"

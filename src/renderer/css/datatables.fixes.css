@@ -20,6 +20,7 @@ span.colunaSemFiltro {
     width: 100%;
     margin: 0px;
     padding: 0px;
+    text-align: center;
 }
 
 span.colunaComFiltro {
@@ -54,3 +55,11 @@ table.filterTable>thead>tr>th, table.filterTable>tbody>tr>th {
     top: -50px;
 }
 
+button.btn.btn-secondary.btnRemover {
+    background: #ff3f3f;
+    border-color: #d08877;
+}
+
+button.btn.btn-secondary.btnRemover:hover {
+    background: #9c1717;
+}

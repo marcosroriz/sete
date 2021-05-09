@@ -13,6 +13,7 @@ var defaultTableConfig = {
     // ver detalhe da função em js/datatable.extra.js
     ...dtConfigPadrao("aluno"),
     ...{
+        dom: 'rtilp<"clearfix m-2">B',
         select: {
             style: 'multi',
             info: false
@@ -23,72 +24,91 @@ var defaultTableConfig = {
                 className: 'btnRemover',
                 action: function (e, dt, node, config) {
                     var rawDados = dataTablesAlunos.rows('.selected').data().toArray();
-                    debugger
                     if (rawDados.length == 0) {
                         errorFn("Por favor, selecione pelo menos um aluno a ser removido.", "",
-                            "Nenhum aluno selecionado")
+                                "Nenhum aluno selecionado")
                     } else {
-                        goaheadDialog('Você tem certeza que deseja remover os alunos selecionados?',
-                            "Você irá apagar " + rawDados.length + " alunos do banco de dados.")
-                            .then((res) => {
-                                debugger
-                                if (res.isConfirmed) {
-                                    Swal2.fire({
-                                        title: "Removendo os alunos do sistema...",
-                                        imageUrl: "img/icones/processing.gif",
-                                        closeOnClickOutside: false,
-                                        allowOutsideClick: false,
-                                        showConfirmButton: false,
-                                        html: `
-                                    <br />
-                                    <div class="progress" style="height: 20px;">
-                                        <div id="pbar" class="progress-bar" role="progressbar" 
-                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" 
-                                             style="width: 0%;">
-                                        </div>
+                        let msg = `Você tem certeza que deseja remover os ${rawDados.length} alunos selecionados?`;
+                        let msgConclusao = "Os alunos foram removidos com sucesso";
+                        if (rawDados.length == 1) {
+                            msg = `Você tem certeza que deseja remover o aluno selecionado?`;
+                            msgConclusao = "O aluno foi removido com sucesso";
+                        }
+
+                        goaheadDialog(msg ,"Esta operação é irreversível. Você tem certeza?")
+                        .then((res) => {
+                            if (res.isConfirmed) {
+                                Swal2.fire({
+                                    title: "Removendo os alunos da base de dados...",
+                                    imageUrl: "img/icones/processing.gif",
+                                    closeOnClickOutside: false,
+                                    allowOutsideClick: false,
+                                    showConfirmButton: false,
+                                    html: `
+                                <br />
+                                <div class="progress" style="height: 20px;">
+                                    <div id="pbar" class="progress-bar" role="progressbar" 
+                                            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" 
+                                            style="width: 0%;">
                                     </div>
-                                    `
-                                    })
+                                </div>
+                                `
+                                })
 
-                                    var progresso = 0;
-                                    var max = rawDados.length * 3 + 1;
+                                var progresso = 0;
+                                var max = rawDados.length * 3 + 1;
 
-                                    function updateProgress() {
-                                        progresso++;
-                                        var progressPorcentagem = Math.round(100 * (progresso / max))
+                                function updateProgress() {
+                                    progresso++;
+                                    var progressPorcentagem = Math.round(100 * (progresso / max))
 
-                                        $('.progress-bar').css('width', progressPorcentagem + "%")
-                                    }
-
-                                    var promiseArray = new Array();
-
-                                    rawDados.forEach(a => {
-                                        promiseArray.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", a["ID"])
-                                            .then(() => updateProgress())
-                                        );
-                                        promiseArray.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", a["ID"])
-                                            .then(() => updateProgress())
-                                        );
-                                        promiseArray.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", a["ID"])
-                                            .then(() => updateProgress())
-                                        );
-                                    })
-
-
-                                    promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
-
-                                    Promise.all(promiseArray)
-                                    .then(() => {
-                                        successDialog(text = "Os alunos foram removidos com sucesso.");
-                                        dataTablesAlunos.rows('.selected').remove();
-                                        dataTablesAlunos.draw();
-                                    })
+                                    $('.progress-bar').css('width', progressPorcentagem + "%")
                                 }
-                            })
-                            .catch((err) => {
-                                Swal2.close()
-                                errorFn("Erro ao remover os alunos", err)
-                            })
+
+                                var promiseArray = new Array();
+
+                                rawDados.forEach(a => {
+                                    promiseArray.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", a["ID"])
+                                        .then(() => updateProgress())
+                                    );
+
+                                    // Remove da escola atual (se tiver matriculado)
+                                    remotedb.collection("municipios")
+                                    .doc(codCidade)
+                                    .collection(DB_TABLE_ESCOLA_TEM_ALUNOS)
+                                    .where("ID_ALUNO", "==", a["ID"])
+                                    .get({ source: "cache" })
+                                    .then((snapshotDocumentos) => {
+                                        updateProgress()
+                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
+                                    })
+
+                                    // Remove da rota atual (se tiver matriculado)
+                                    remotedb.collection("municipios")
+                                    .doc(codCidade)
+                                    .collection(DB_TABLE_ROTA_ATENDE_ALUNO)
+                                    .where("ID_ALUNO", "==", a["ID"])
+                                    .get({ source: "cache" })
+                                    .then((snapshotDocumentos) => {
+                                        updateProgress()
+                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
+                                    })
+                                })
+
+                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
+
+                                Promise.all(promiseArray)
+                                .then(() => {
+                                    successDialog(text = msgConclusao);
+                                    dataTablesAlunos.rows('.selected').remove();
+                                    dataTablesAlunos.draw();
+                                })
+                            }
+                        })
+                        .catch((err) => {
+                            Swal2.close()
+                            errorFn("Erro ao remover os alunos", err)
+                        })
                     }
                 }
             },
@@ -98,6 +118,9 @@ var defaultTableConfig = {
                 filename: "Relatorio",
                 title: appTitle,
                 text: 'Exportar para Planilha',
+                exportOptions: {
+                    columns: [ 1, 2, 3, 4, 5, 6, 7 ]
+                },
                 customize: function (xlsx) {
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
                     $('row c[r^="A"]', sheet).attr('s', '2');
@@ -130,18 +153,19 @@ var defaultTableConfig = {
 }
 
 defaultTableConfig["columns"] = [
-    { data: "SELECT", width: "5%" },
-    { data: 'NOME', width: "20%" },
+    { data: "SELECT", width: "60px" },
+    { data: 'NOME', width: "15%" },
     { data: 'SEXOSTR' },
     { data: 'CORSTR' },
-    { data: 'LOCALIZACAO', width: "15%" },
-    { data: 'ESCOLA', width: "20%" },
+    { data: 'LOCALIZACAO', width: "200px" },
+    { data: 'GEOREF', width: "140px" },
+    { data: 'ESCOLA', width: "15%" },
     { data: 'NIVELSTR', width: "140px" },
     { data: 'TURNOSTR', width: "140px" },
     { data: 'ROTA', width: "200px" },
     {
         data: "ACOES",
-        width: "120px",
+        width: "80px",
         sortable: false,
         defaultContent: '<a href="#" class="btn btn-link btn-primary alunoView"><i class="fa fa-search"></i></a>' +
             '<a href="#" class="btn btn-link btn-warning alunoEdit"><i class="fa fa-edit"></i></a>' +
@@ -240,20 +264,22 @@ var preprocessarEscolasTemAlunos = (res) => {
         let aID = escolaRaw["ID_ALUNO"];
         let eID = escolaRaw["ID_ESCOLA"];
         let eNome = escolaRaw["NOME"];
-
+        
         let alunoJSON = listaDeAlunos.get(aID);
-        alunoJSON["ID_ESCOLA"] = eID;
-        alunoJSON["ESCOLA"] = eNome;
-        alunoJSON["ESCOLA_LOC_LATITUDE"] = escolaRaw["LOC_LATITUDE"];
-        alunoJSON["ESCOLA_LOC_LONGITUDE"] = escolaRaw["LOC_LONGITUDE"];
-        alunoJSON["ESCOLA_MEC_CO_UF"] = escolaRaw["MEC_CO_UF"];
-        alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = escolaRaw["MEC_CO_MUNICIPIO"];
-        alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = escolaRaw["MEC_TP_LOCALIZACAO"];
-        alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = escolaRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
-        alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = escolaRaw["CONTATO_RESPONSAVEL"];
-        alunoJSON["ESCOLA_CONTATO_TELEFONE"] = escolaRaw["CONTATO_TELEFONE"];
-
-        listaDeAlunos.set(aID, alunoJSON);
+        if (alunoJSON) {
+            alunoJSON["ID_ESCOLA"] = eID;
+            alunoJSON["ESCOLA"] = eNome;
+            alunoJSON["ESCOLA_LOC_LATITUDE"] = escolaRaw["LOC_LATITUDE"];
+            alunoJSON["ESCOLA_LOC_LONGITUDE"] = escolaRaw["LOC_LONGITUDE"];
+            alunoJSON["ESCOLA_MEC_CO_UF"] = escolaRaw["MEC_CO_UF"];
+            alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = escolaRaw["MEC_CO_MUNICIPIO"];
+            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = escolaRaw["MEC_TP_LOCALIZACAO"];
+            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = escolaRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
+            alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = escolaRaw["CONTATO_RESPONSAVEL"];
+            alunoJSON["ESCOLA_CONTATO_TELEFONE"] = escolaRaw["CONTATO_TELEFONE"];
+    
+            listaDeAlunos.set(aID, alunoJSON);
+        }
     }
     return listaDeAlunos;
 };
@@ -264,10 +290,11 @@ var preprocessarRotaTemAlunos = (res) => {
         let aID = rota["ID_ALUNO"];
         let alunoJSON = listaDeAlunos.get(aID);
 
-        alunoJSON["ROTA"] = "ROTA " + rota["NOME"];
-        listaDeAlunos.set(aID, alunoJSON);
+        if (alunoJSON) {
+            alunoJSON["ROTA"] = "ROTA " + rota["NOME"];
+            listaDeAlunos.set(aID, alunoJSON);
+        }
     })
-
     return listaDeAlunos;
 }
 
@@ -280,7 +307,7 @@ adicionaDadosTabela = (res) => {
     });
 
     dataTablesAlunos.draw();
-    dtInitFiltros(dataTablesAlunos, [1, 4, 5, 6, 7]);
+    dtInitFiltros(dataTablesAlunos, [1, 4, 5, 6, 7, 8, 9]);
 }
 
 action = "listarAluno";

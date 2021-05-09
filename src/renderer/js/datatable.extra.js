@@ -15,16 +15,16 @@ function dtConfigPadrao(nomeDado) {
         autoWidth: false,
         bAutoWidth: false,
         lengthMenu: [[10, 50, -1], [10, 50, "Todos"]],
-        pagingType: "full_numbers",
+        pagingType: "simple_numbers",
         order: [[0, "asc"]],
         language: {
             "search": "_INPUT_",
             "searchPlaceholder": `Procurar ${nomeDado}`,
             "lengthMenu": `Mostrar _MENU_ ${nomeDado}s por página`,
             "zeroRecords": `Não encontrei nenhum ${nomeDado} cadastrado`,
-            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "info": "Filtro retornou _TOTAL_ registros",
             "infoEmpty": "Sem registros disponíveis",
-            "infoFiltered": `${nomeDado}s filtrados a partir do total de _MAX_ ${nomeDado}s`,
+            "infoFiltered": `(do total de _MAX_ ${nomeDado}s)`,
             "paginate": {
                 "first": "Primeira",
                 "last": "Última",
@@ -32,7 +32,7 @@ function dtConfigPadrao(nomeDado) {
                 "previous": "Anterior"
             },
         },
-        dom: 'lfrtipB',
+        dom: 'rtilfpB',
     }
 }
 
@@ -177,15 +177,34 @@ function dtInitFiltros(dt, colunas) {
     dt.columns().every(function (i) {
         if (colunas.includes(i)) {
             var column = this;
-            var select = $($(this.header()).find('select')[0])
-                .on('change', function () {
+            var select = $($(this.header()).find('select')[0]);
+
+            // Remove evento de ordenar ascendente / decrescente que esta no elemento pai do select
+            select.on('click', function (evt) {
+                    evt.stopPropagation();
+            })
+
+            if (select.hasClass("form-includes")) {
+                select.on('change', function (evt) {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                    column.search(val ? val : '', true, false).draw();
+                });
+            } else if (select.hasClass("form-range")) {
+                select.on('change', function (evt) {
+                    debugger
+                    var val =$(this).val();
+                    column.search(val, true, false).draw();
+                });
+            } else {
+                select.on('change', function (evt) {
                     var val = $.fn.dataTable.util.escapeRegex($(this).val());
                     column.search(val ? '^' + val + '$' : '', true, false).draw();
                 });
-    
-            column.data().unique().sort().each(function (d, j) {
-                select.append('<option value="' + d + '">' + renderEllipsis(d, 50) + '</option>')
-            });
+
+                column.data().unique().sort().each(function (d, j) {
+                    select.append('<option value="' + d + '">' + renderEllipsis(d, 50) + '</option>')
+                });
+            }
         }
     });
 }

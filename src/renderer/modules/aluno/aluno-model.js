@@ -72,6 +72,14 @@ var parseAlunoDB = function (alunoRaw) {
         alunoRaw["NOME_RESPONSAVEL"] == null) {
         alunoJSON["NOME_RESPONSAVEL"] = "Não informado";
     }
+
+    if (alunoRaw["LOC_LONGITUDE"] != "" && alunoRaw["LOC_LONGITUDE"] != undefined &&
+        alunoRaw["LOC_LATITUDE"] != "" && alunoRaw["LOC_LATITUDE"] != undefined) {
+        alunoJSON["GEOREF"] = "Sim";
+    } else {
+        alunoJSON["GEOREF"] = "Não";
+    }
+    
     switch (alunoRaw["MEC_TP_LOCALIZACAO"]) {
         case 1:
             alunoJSON["LOCALIZACAO"] = "Urbana";

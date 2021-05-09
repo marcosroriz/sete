@@ -808,7 +808,7 @@ td.text-left.detalheValor {
 .card .dataTable thead th:last-child {
     /* padding-right: 15px; */
     /* display: table-cell; */
-    min-width: 150px;
+    min-width: 100px;
     text-align: center;
 }
 
@@ -946,8 +946,9 @@ select option {
 .totalText {
     padding-bottom: 10px;
     border-bottom-style: solid;
-    border-bottom-color: #e49824;
-    margin-bottom: 20px;
+    border-bottom-color: #8a99a7;
+    border-bottom-width: 4px;
+    margin-bottom: 15px;
     font-weight: 500;
     font-size: 1.3em;
     font-family: "Roboto Condensed";
