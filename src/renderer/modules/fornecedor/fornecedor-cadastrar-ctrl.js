@@ -52,10 +52,6 @@ var plotaFornecedor = (lat, lon) => {
 
 // Lida com click de usuário
 mapaOL.on('singleclick', function (evt) {
-    if (evt.originalEvent.path.length > 21) {
-        return;
-    }
-
     if (posicaoFornecedor != null) {
         try {
             vectorSource.removeFeature(posicaoFornecedor);

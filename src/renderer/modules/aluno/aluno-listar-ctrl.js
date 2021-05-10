@@ -42,13 +42,8 @@ var dataTablesAlunos = $("#datatables").DataTable({
                 },
                 customize: function (doc) {
                     doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                    doc.images = doc.images || {};
-                    doc.images["logo"] = baseImages.get("logo");
-                    doc.content.splice(1, 0, {
-                        alignment: 'center',
-                        margin: [0, 0, 0, 12],
-                        image: "logo"
-                    });
+                    doc = docReport(doc);
+                    doc.content[2].text = listaDeAlunos?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
