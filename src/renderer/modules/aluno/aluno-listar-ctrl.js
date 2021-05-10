@@ -137,8 +137,14 @@ var defaultTableConfig = {
                     columns: [1, 4, 5, 6, 7, 8]
                 },
                 customize: function (doc) {
-                    doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
+                    doc.content[1].table.widths = ['30%', '12%', '8%', '20%', '20%', '10%'];
                     doc = docReport(doc);
+                    
+                    // O datatable coloca o select dentro do header, vamos tirar isso
+                    for (col of doc.content[3].table.body[0]) {
+                        col.text = col.text.split("    ")[0];
+                    }
+
                     doc.content[2].text = listaDeAlunos?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
