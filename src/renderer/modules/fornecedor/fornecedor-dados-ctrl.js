@@ -2,6 +2,39 @@
 // Este arquivo contém o script de controle da tela fornecedor-dados-view. 
 // O mesmo serve para detalhar os dados de um fornecedor (incluindo suas OS)
 
+// Cria mapa na cidade atual
+var mapaDetalhe = novoMapaOpenLayers("mapDetalheFornecedor", cidadeLatitude, cidadeLongitude);
+
+// Ativa camada
+mapaDetalhe["activateImageLayerSwitcher"]();
+
+// Corrige o bug de resize no mapa
+window.onresize = function () {
+    setTimeout(function () {
+        if (mapaDetalhe != null) { mapaDetalhe["map"].updateSize(); }
+    }, 200);
+}
+
+// Plota a posição do fornecedor se tiver localização GPS
+if (estadoFornecedor["LOC_LONGITUDE"] != "" && estadoFornecedor["LOC_LONGITUDE"] != undefined &&
+    estadoFornecedor["LOC_LATITUDE"] != "" && estadoFornecedor["LOC_LATITUDE"] != undefined) {
+    // Esconde o campo que diz que o aluno não tem localização
+    $("#avisoNaoGeoReferenciada").hide()
+
+    // Desenha marcador da posição atual do fornecedor
+    var lat = estadoFornecedor["LOC_LATITUDE"];
+    var lon = estadoFornecedor["LOC_LONGITUDE"]
+
+    var posicaoFornecedor = gerarMarcador(lat, lon, "img/icones/fornecedor-marcador.png", 25, 50);
+
+    mapaDetalhe["vectorSource"].addFeature(posicaoFornecedor);
+    mapaDetalhe["map"].getView().fit(mapaDetalhe["vectorSource"].getExtent());
+    mapaDetalhe["map"].updateSize();
+} else {
+    // Esconde o mapa do fornecedor e mostra o campo que nao tem localização
+    $("#mapDetalheFornecedor").hide()
+}
+
 var idFornecedor = estadoFornecedor["ID"];
 
 // Lista de Veiculos e OS
@@ -212,5 +245,10 @@ adicionaDadosOSNaTabela = (res) => {
 }
 
 $("#detalheInitBtn").click();
+$("#detalheMapa").on('click', (evt) => {
+    setTimeout(function () {
+        mapaDetalhe["map"].updateSize();
+    }, 200);
+});
 
 action = "detalharFornecedor";

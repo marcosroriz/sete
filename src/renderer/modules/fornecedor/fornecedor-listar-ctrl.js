@@ -12,9 +12,10 @@ var dataTablesFornecedores = $("#datatables").DataTable({
     ...dtConfigPadrao("fornecedor"),
     ...{
         columns: [
-            { data: 'NOME', width: "40%" },
-            { data: 'TELEFONE', width: "25%" },
-            { data: 'SERVICOSTR', width: "300px" },
+            { data: 'NOME', width: "30%" },
+            { data: 'TELEFONE', width: "400px" },
+            { data: 'SERVICOSTR', width: "25%" },
+            { data: 'NUM_OS', width: "500px" },
             {
                 data: "ACOES",
                 width: "110px",
@@ -33,17 +34,11 @@ var dataTablesFornecedores = $("#datatables").DataTable({
                 title: "Fornecedores cadastrados",
                 text: "Exportar para PDF",
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
+                    columns: [0, 1, 2, 3]
                 },
                 customize: function (doc) {
-                    doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                    doc.images = doc.images || {};
-                    doc.images["logo"] = baseImages.get("logo");
-                    doc.content.splice(1, 0, {
-                        alignment: 'center',
-                        margin: [0, 0, 0, 12],
-                        image: "logo"
-                    });
+                    doc.content[1].table.widths = ['35%', '20%', '25%', '20%'];
+                    doc = docReport(doc)
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
@@ -101,6 +96,8 @@ dataTablesFornecedores.on('click', '.fornecedorRemove', function () {
 
 dbBuscarTodosDadosPromise(DB_TABLE_FORNECEDOR)
 .then(res => processarFornecedores(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ORDEM_DE_SERVICO))
+.then(res => processaOSs(res))
 .then(res => adicionaDadosTabela(res))
 .catch((err) => errorFn("Erro ao listar os motoristas!", err))
 
@@ -109,7 +106,20 @@ var processarFornecedores = (res) => {
     $("#totalNumFornecedores").text(res.length);
     for (let fornecedorRaw of res) {
         let fornecedorJSON = parseFornecedorDB(fornecedorRaw);
+        fornecedorJSON["NUM_OS"] = 0;
         listaDeFornecedores.set(fornecedorJSON["ID"], fornecedorJSON);
+    }
+    return listaDeFornecedores;
+}
+
+// Processar OSs
+var processaOSs = (res) => {
+    for (let osRaw of res) {
+        let idFornecedor = osRaw["ID_FORNECEDOR"];
+        let fornecedorJSON = listaDeFornecedores.get(idFornecedor);
+        fornecedorJSON["NUM_OS"] = fornecedorJSON["NUM_OS"] + 1;
+        
+        listaDeFornecedores.set(idFornecedor, fornecedorJSON);
     }
     return listaDeFornecedores;
 }
