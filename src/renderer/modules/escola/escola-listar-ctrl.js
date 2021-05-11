@@ -153,17 +153,18 @@ var dataTableEscolas = $("#datatables").DataTable({
                 title: "Escolas cadastradas",
                 text: "Exportar para PDF",
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
+                    columns: [1, 2, 3, 4, 5, 6]
                 },
                 customize: function (doc) {
-                    doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                    doc.images = doc.images || {};
-                    doc.images["logo"] = baseImages.get("logo");
-                    doc.content.splice(1, 0, {
-                        alignment: 'center',
-                        margin: [0, 0, 0, 12],
-                        image: "logo"
-                    });
+                    doc.content[1].table.widths = ['25%', '15%', '10%', '20%', '15%', '15%'];
+                    doc = docReport(doc);
+                    
+                    // O datatable coloca o select dentro do header, vamos tirar isso
+                    for (col of doc.content[3].table.body[0]) {
+                        col.text = col.text.split("    ")[0];
+                    }
+
+                    doc.content[2].text = listaDeEscolas?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
