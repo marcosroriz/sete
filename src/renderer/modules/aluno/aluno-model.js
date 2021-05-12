@@ -104,19 +104,19 @@ var parseAlunoDB = function (alunoRaw) {
 
     switch (alunoRaw["COR"]) {
         case 1:
-            alunoJSON["CORSTR"] = "Amarelo";
-            break;
-        case 2:
             alunoJSON["CORSTR"] = "Branco";
             break;
-        case 3:
-            alunoJSON["CORSTR"] = "Indígena";
+        case 2:
+            alunoJSON["CORSTR"] = "Preto";
             break;
-        case 4:
+        case 3:
             alunoJSON["CORSTR"] = "Pardo";
             break;
+        case 4:
+            alunoJSON["CORSTR"] = "Amarelo";
+            break;
         case 5:
-            alunoJSON["CORSTR"] = "Preto";
+            alunoJSON["CORSTR"] = "Indígena";
             break;
         default:
             alunoJSON["CORSTR"] = "Não informado";

@@ -163,26 +163,7 @@ var popularTabelaAluno = () => {
             break;
     }
 
-    switch (String(estadoAluno["COR"])) {
-        case "1":
-            dataTableAluno.row.add(["Cor/Raça", "Amarelo"]);
-            break;
-        case "2":
-            dataTableAluno.row.add(["Cor/Raça", "Branco"]);
-            break;
-        case "3":
-            dataTableAluno.row.add(["Cor/Raça", "Indígena"]);
-            break;
-        case "4":
-            dataTableAluno.row.add(["Cor/Raça", "Pardo"]);
-            break;
-        case "5":
-            dataTableAluno.row.add(["Cor/Raça", "Preto"]);
-            break;
-        default:
-            dataTableAluno.row.add(["Cor/Raça", "Não informado"]);
-            break;
-    }
+    dataTableAluno.row.add(["Cor/Raça", estadoAluno["CORSTR"]]);
 
     if (estadoAluno["CPF"] != undefined && estadoAluno["CPF"] != "") {
         dataTableAluno.row.add(["CPF", estadoAluno["CPF"]]);
@@ -208,7 +189,7 @@ var popularTabelaAluno = () => {
         dataTableAluno.row.add(["Nome do responsável", "Contato não informado"]);
     }
 
-    switch (estadoAluno["GRAU_RESPONSAVEL"]) {
+    switch (Number(estadoAluno["GRAU_RESPONSAVEL"])) {
         case 0:
             dataTableAluno.row.add(["Grau de parentesco", "Pai, Mãe, Padrasto ou Madrasta"]);
             break;
