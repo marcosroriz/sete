@@ -9,6 +9,7 @@ var malha = mapa["addLayer"]("Malha");
 var malhaSource = malha["source"];
 var malhaLayer = malha["layer"];
 var gpx = "";
+var gpxSimplificado = "";
 var gpxDOM = "";
 
 var style = {
@@ -51,12 +52,10 @@ var getGeomStyle = function (feature) {
         }));
 
         var numFeatures = feature.getGeometry().getCoordinates().length;
-        var simplify = false;
         if (numFeatures > 100) {
             simplify = true;
         }
 
-        let numSegmento = 0;
         let pontoReferencial = null;
         let ultPonto = feature.getGeometry().getLastCoordinate().slice(0, 2);
 
@@ -64,8 +63,20 @@ var getGeomStyle = function (feature) {
             let plotSeta = false;
 
             if (!pontoReferencial) {
+                plotSeta = true;
                 pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
-            } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) || 
+
+                styles.push(new ol.style.Style({
+                    geometry: new ol.geom.Point(end),
+                    image: new ol.style.Icon({
+                        src: "img/icones/inicio-icone.png",
+                        anchor: [0.75, 0.5],
+                        rotateWithView: true,
+                    })
+                }));
+
+                return;
+            } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) ||
                        (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
                 plotSeta = true;
             } else {
@@ -73,7 +84,7 @@ var getGeomStyle = function (feature) {
                 
                 let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
 
-                if (distancia > 1000) {
+                if (distancia > 2000) {
                     pontoReferencial = pontoAtual;
                     plotSeta = true;
                 }
@@ -103,7 +114,7 @@ var getGeomStyle = function (feature) {
 malhaLayer.setStyle((feature) => {
     if (feature.getGeometry() instanceof ol.geom.LineString) {
         feature.setStyle(getGeomStyle(feature));
-    }
+    } 
     /* else if (feature.getGeometry() instanceof ol.geom.Point) {
         feature.setStyle(style["Point"]);
     }*/
@@ -142,7 +153,7 @@ $("#arqGPX").change(() => {
             }
             gpx["features"] = trackFeatures;
             
-            var gpxSimplificado = simplify(gpx, 0.00001)
+            gpxSimplificado = simplify(gpx, 0.00001)
 
             malhaSource.clear();
             malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(gpxSimplificado, {
