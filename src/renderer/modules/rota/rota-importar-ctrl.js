@@ -41,12 +41,72 @@ var style = {
     }),
 };
 
+
+var getGeomStyle = function (feature) {
+    var styles = new Array();
+
+    if (feature.getGeometry() instanceof ol.geom.LineString) {
+        styles.push(new ol.style.Style({
+            stroke: new ol.style.Stroke({ color: "#00cca7", width: 4 })
+        }));
+
+        var numFeatures = feature.getGeometry().getCoordinates().length;
+        var simplify = false;
+        if (numFeatures > 100) {
+            simplify = true;
+        }
+
+        let numSegmento = 0;
+        let pontoReferencial = null;
+        let ultPonto = feature.getGeometry().getLastCoordinate().slice(0, 2);
+
+        feature.getGeometry().forEachSegment(function (start, end) {
+            let plotSeta = false;
+
+            if (!pontoReferencial) {
+                pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
+            } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) || 
+                       (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
+                plotSeta = true;
+            } else {
+                let pontoAtual = ol.proj.transform(end, 'EPSG:3857', 'EPSG:4326');
+                
+                let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
+
+                if (distancia > 1000) {
+                    pontoReferencial = pontoAtual;
+                    plotSeta = true;
+                }
+            }
+
+            if (plotSeta) {
+                var dx = end[0] - start[0];
+                var dy = end[1] - start[1];
+                var rotation = Math.atan2(dy, dx);
+    
+                // arrows
+                styles.push(new ol.style.Style({
+                    geometry: new ol.geom.Point(end),
+                    image: new ol.style.Icon({
+                        src: 'img/icones/arrow.png',
+                        anchor: [0.75, 0.5],
+                        rotateWithView: true,
+                        rotation: -rotation
+                    })
+                }));
+            }
+        });
+    }
+    return styles;
+}
+
 malhaLayer.setStyle((feature) => {
     if (feature.getGeometry() instanceof ol.geom.LineString) {
-        feature.setStyle(style["LineString"]);
-    } else if (feature.getGeometry() instanceof ol.geom.Point) {
-        feature.setStyle(style["Point"]);
+        feature.setStyle(getGeomStyle(feature));
     }
+    /* else if (feature.getGeometry() instanceof ol.geom.Point) {
+        feature.setStyle(style["Point"]);
+    }*/
 });
 
 // Ativa busca e camadas
