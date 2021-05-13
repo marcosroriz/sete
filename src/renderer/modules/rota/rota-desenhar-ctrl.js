@@ -21,6 +21,18 @@ window.onresize = function () {
     }, 200);
 }
 
+// Escolheu alguma rota?
+var escolheuRota = false;
+function verificaSeEscolheuRota(e) {
+    console.log("PIXELS", mapa["map"].getFeaturesAtPixel(e.pixel_, { 'hitTolerance': 10 }))
+    if (!escolheuRota) {
+        Swal2.fire("Escolha uma rota primeiro!", "", "error");
+        return false;
+    } else {
+        return true
+    }
+}
+
 // Malha
 var mapaAluno = mapa["addLayer"]("Malha");
 var mapaSource = mapaAluno["source"];
@@ -61,34 +73,46 @@ var getGeomStyle = function (feature) {
             stroke: estilos[tipoLinha]
         }));
 
-        var numFeatures = feature.getGeometry().getCoordinates().length;
-        var simplify = false;
-        if (numFeatures > 100) {
-            simplify = true;
-        }
-
-        let numSegmento = 0;
+        let pontoReferencial = null;
+        let ultPonto = feature.getGeometry().getLastCoordinate().slice(0, 2);
         feature.getGeometry().forEachSegment(function (start, end) {
-            // var rnd = Math.floor(Math.random() * 100 + 1);
-            var dx = end[0] - start[0];
-            var dy = end[1] - start[1];
-            var rotation = Math.atan2(dy, dx);
+            let plotSeta = false;
 
-            if (simplify) {
-                // Plota a cada 100 segmentos apenas
-                if (numSegmento++ % 100 != 0) return;
+            if (!pontoReferencial) {
+                plotSeta = true;
+                pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
+                return;
+            } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) ||
+                       (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
+                plotSeta = true;
+            } else {
+                let pontoAtual = ol.proj.transform(end, 'EPSG:3857', 'EPSG:4326');
+                
+                let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
+
+                if (distancia > 2000) {
+                    pontoReferencial = pontoAtual;
+                    plotSeta = true;
+                }
             }
 
-            // arrows
-            styles.push(new ol.style.Style({
-                geometry: new ol.geom.Point(end),
-                image: new ol.style.Icon({
-                    src: 'img/icones/arrow.png',
-                    anchor: [0.75, 0.5],
-                    rotateWithView: true,
-                    rotation: -rotation
-                })
-            }));
+            if (plotSeta) {
+                var dx = end[0] - start[0];
+                var dy = end[1] - start[1];
+                var rotation = Math.atan2(dy, dx);
+    
+                // arrows
+                styles.push(new ol.style.Style({
+                    geometry: new ol.geom.Point(end),
+                    image: new ol.style.Icon({
+                        src: 'img/icones/arrow.png',
+                        anchor: [0.75, 0.5],
+                        rotateWithView: true,
+                        rotation: -rotation
+                    })
+                }));
+            }
+
         });
     }
     return styles;
@@ -120,7 +144,7 @@ var helpTooltipElement;
 var helpTooltip;
 var measureTooltipElement;
 var measureTooltip;
-var continuePolygonMsg = 'Click to continue drawing the polygon';
+var continuePolygonMsg = 'Clique para continuar desenhando o polígono';
 var continueLineMsg = 'Clique para continuar desenhando o traçado da rota';
 
 var pointerMoveHandler = function (evt) {
@@ -203,6 +227,7 @@ var clearInteractions = () => {
 var drawInicioRota = new ol.interaction.Draw({
     source: mapaSource,
     type: 'Point',
+    condition: verificaSeEscolheuRota,
     style: new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/icone-inicio-small.png")
     })
@@ -224,6 +249,7 @@ drawInicioRota.on('drawend', function (drawEndEvent) {
 var drawMataBurro = new ol.interaction.Draw({
     source: mapaSource,
     type: 'Point',
+    condition: verificaSeEscolheuRota,
     style: new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/icone-mataburro-small.png")
     })
@@ -240,6 +266,7 @@ drawMataBurro.on('drawend', function (drawEndEvent) {
 var drawColchete = new ol.interaction.Draw({
     source: mapaSource,
     type: 'Point',
+    condition: verificaSeEscolheuRota,
     style: new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/icone-porteira-small.png")
     })
@@ -248,6 +275,7 @@ var drawColchete = new ol.interaction.Draw({
 drawColchete.on('drawend', function (drawEndEvent) {
     var colcheteFeature = drawEndEvent.feature;
     colcheteFeature.set("estiloIcone", "colchete");
+    condition: verificaSeEscolheuRota,
     colcheteFeature.setStyle(new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/porteira-marcador.png")
     }));
@@ -255,6 +283,7 @@ drawColchete.on('drawend', function (drawEndEvent) {
 
 var draw = new ol.interaction.Draw({
     source: mapaSource,
+    condition: verificaSeEscolheuRota,
     type: 'LineString',
     style: new ol.style.Style({
         stroke: new ol.style.Stroke({
@@ -273,7 +302,7 @@ var draw = new ol.interaction.Draw({
 
 var snap = new ol.interaction.Snap({
     source: mapaSource,
-    pixelTolerance: 20
+    pixelTolerance: 8
 });
 
 var modify = new ol.interaction.Modify({
@@ -349,6 +378,12 @@ select.on("select", (evt) => {
 
 var listener;
 draw.on('drawstart', function (drawStartEvent) {
+    $(document).on('keyup', function (event) {
+        if (event.keyCode === 27) {
+            draw.removeLastPoint();
+        }
+    });
+
     sketch = drawStartEvent.feature;
     var tooltipCoord = drawStartEvent.coordinate;
     $(measureTooltipElement).css("display", "");
@@ -620,6 +655,8 @@ mapaOL.addControl(mainbar);
 // Callback para pegar dados inicia das rotas
 dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
 .then(res => {
+    res.sort((a, b) => a["NOME"].localeCompare(b["NOME"]))
+
     for (let rotaRaw of res) {
         rotaRaw["ALUNOS"] = [];
         rotaRaw["ESCOLAS"] = [];
@@ -672,6 +709,8 @@ var processarEscolasPorRota = (res) => {
 }
 
 $("#listarotas").on("change", (evt) => {
+    escolheuRota = true;
+    
     if (evt.currentTarget.value != "") {
         try {
             idRotaSelecionada = evt.currentTarget.value;

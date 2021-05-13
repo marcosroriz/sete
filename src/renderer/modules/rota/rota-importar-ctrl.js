@@ -51,11 +51,6 @@ var getGeomStyle = function (feature) {
             stroke: new ol.style.Stroke({ color: "#00cca7", width: 4 })
         }));
 
-        var numFeatures = feature.getGeometry().getCoordinates().length;
-        if (numFeatures > 100) {
-            simplify = true;
-        }
-
         let pontoReferencial = null;
         let ultPonto = feature.getGeometry().getLastCoordinate().slice(0, 2);
 
@@ -67,7 +62,7 @@ var getGeomStyle = function (feature) {
                 pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
 
                 styles.push(new ol.style.Style({
-                    geometry: new ol.geom.Point(end),
+                    geometry: new ol.geom.Point(start),
                     image: new ol.style.Icon({
                         src: "img/icones/inicio-icone.png",
                         anchor: [0.75, 0.5],
@@ -115,10 +110,23 @@ malhaLayer.setStyle((feature) => {
     if (feature.getGeometry() instanceof ol.geom.LineString) {
         feature.setStyle(getGeomStyle(feature));
     } 
-    /* else if (feature.getGeometry() instanceof ol.geom.Point) {
-        feature.setStyle(style["Point"]);
-    }*/
 });
+
+$("#inverter-rota").on('click', () => {
+    malhaSource.clear();
+
+    let arr = gpxSimplificado.features[0].geometry.coordinates;
+    arr.reverse();
+    gpxSimplificado.features[0].geometry.coordinates = arr;
+
+    malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(gpxSimplificado, {
+        dataProjection: 'EPSG:4326',
+        featureProjection: 'EPSG:3857'
+    }))
+
+    mapa["map"].getView().fit(malhaSource.getExtent());
+
+})
 
 // Ativa busca e camadas
 mapa["activateGeocoder"]();
@@ -271,6 +279,8 @@ window.onresize = function () {
 
 dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
 .then(res => {
+    res.sort((a, b) => a["NOME"].localeCompare(b["NOME"]))
+
     for (let rota of res) {
         var rID = rota["ID"];
         var rNome = rota["NOME"];
