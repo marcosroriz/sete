@@ -163,7 +163,7 @@ var parseAlunoDB = function (alunoRaw) {
 
     switch (alunoRaw["NIVEL"]) {
         case 1:
-            alunoJSON["NIVELSTR"] = "Infantil (Creche)";
+            alunoJSON["NIVELSTR"] = "Infantil";
             break;
         case 2:
             alunoJSON["NIVELSTR"] = "Fundamental";

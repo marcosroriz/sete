@@ -17,6 +17,7 @@ function GetEscolaFromForm() {
         "MEC_IN_REGULAR": $("#temEnsinoRegular").is(":checked"), // bool
         "MEC_IN_EJA": $("#temEnsinoEJA").is(":checked"), // bool
         "MEC_IN_PROFISSIONALIZANTE": $("#temEnsinoProf").is(":checked"), // bool
+        "ENSINO_PRE_ESCOLA": $("#temEnsinoInfantil").is(":checked"), // bool
         "ENSINO_FUNDAMENTAL": $("#temEnsinoFundamental").is(":checked"), // bool
         "ENSINO_MEDIO": $("#temEnsinoMedio").is(":checked"), // bool
         "ENSINO_SUPERIOR": $("#temEnsinoUniversitario").is(":checked"), // bool
@@ -49,6 +50,7 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#temEnsinoEJA").prop("checked", estadoEscolaJSON["MEC_IN_EJA"]);
     $("#temEnsinoProf").prop("checked", estadoEscolaJSON["MEC_IN_PROFISSIONALIZANTE"]);
     $("#temEnsinoFundamental").prop("checked", estadoEscolaJSON["ENSINO_FUNDAMENTAL"]);
+    $("#temEnsinoFundamental").prop("checked", estadoEscolaJSON["ENSINO_PRE_ESCOLA"]);
     $("#temEnsinoMedio").prop("checked", estadoEscolaJSON["ENSINO_MEDIO"]);
     $("#temEnsinoUniversitario").prop("checked", estadoEscolaJSON["MEC_IN_PROFIENSINO_SUPERIORSSIONALIZANTE"]);
     $("#temHorarioManha").prop("checked", estadoEscolaJSON["HORARIO_MATUTINO"]);
@@ -97,7 +99,7 @@ var parseEscolaDB = function (escolaRaw) {
     }
 
     var tipoEnsino = new Array();
-    if (escolaRaw["ENSINO_PRE_ESCOLA"]) tipoEnsino.push("Pré-escola")
+    if (escolaRaw["ENSINO_PRE_ESCOLA"]) tipoEnsino.push("Infantil")
     if (escolaRaw["ENSINO_FUNDAMENTAL"]) tipoEnsino.push("Fundamental");
     if (escolaRaw["ENSINO_MEDIO"]) tipoEnsino.push("Médio");
     if (escolaRaw["ENSINO_SUPERIOR"]) tipoEnsino.push("Superior");

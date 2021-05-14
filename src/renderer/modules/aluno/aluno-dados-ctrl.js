@@ -229,16 +229,16 @@ var popularTabelaAluno = () => {
     }
 
     var dificuldadesAcesso = new Array();
-    if (estadoAluno["DA_PORTEIRA"] != 0) { dificuldadesAcesso.push("Porteira"); }
-    if (estadoAluno["DA_MATABURRO"] != 0) { dificuldadesAcesso.push("Mata-Burro"); }
-    if (estadoAluno["DA_COLCHETE"] != 0) { dificuldadesAcesso.push("Colchete"); }
-    if (estadoAluno["DA_ATOLEIRO"] != 0) { dificuldadesAcesso.push("Atoleiro"); }
-    if (estadoAluno["DA_PONTERUSTICA"] != 0) { dificuldadesAcesso.push("Ponte Rústica"); }
+    if (estadoAluno["DA_PORTEIRA"] && estadoAluno["DA_PORTEIRA"] != 0) { dificuldadesAcesso.push("Porteira"); }
+    if (estadoAluno["DA_MATABURRO"] && estadoAluno["DA_MATABURRO"] != 0) { dificuldadesAcesso.push("Mata-Burro"); }
+    if (estadoAluno["DA_COLCHETE"] && estadoAluno["DA_COLCHETE"] != 0) { dificuldadesAcesso.push("Colchete"); }
+    if (estadoAluno["DA_ATOLEIRO"] && estadoAluno["DA_ATOLEIRO"] != 0) { dificuldadesAcesso.push("Atoleiro"); }
+    if (estadoAluno["DA_PONTERUSTICA"] && estadoAluno["DA_PONTERUSTICA"] != 0) { dificuldadesAcesso.push("Ponte Rústica"); }
 
     if (dificuldadesAcesso.length != 0) {
         dataTableAluno.row.add(["Dificuldade de acesso", dificuldadesAcesso.join(", ")]);
     } else {
-        dataTableAluno.row.add(["Dificuldade de acesso", "Não informado"]);
+        dataTableAluno.row.add(["Dificuldade de acesso", "Nenhuma"]);
     }
 
     if (estadoAluno["ESCOLA"] == "Aluno sem escola") {
@@ -259,7 +259,7 @@ var popularTabelaAluno = () => {
 
         if (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != undefined &&
             estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] != "") {
-            switch (estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"]) {
+            switch (Number(estadoAluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"])) {
                 case 1:
                     dataTableAluno.row.add(["Localização diferenciada", "Área de assentamento"]);
                     break;
