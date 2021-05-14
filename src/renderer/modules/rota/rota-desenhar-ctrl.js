@@ -376,15 +376,18 @@ select.on("select", (evt) => {
     })
 })
 
+$(document).on('keyup', function (event) {
+    if (event.keyCode === 27) {
+        draw.removeLastPoint();
+        select.getFeatures().clear();
+        $(measureTooltipElement).css("display", "none");
+    }
+});
+
+
 var listener;
 draw.on('drawstart', function (drawStartEvent) {
-    $(document).on('keyup', function (event) {
-        if (event.keyCode === 27) {
-            draw.removeLastPoint();
-        }
-    });
-
-    sketch = drawStartEvent.feature;
+   sketch = drawStartEvent.feature;
     var tooltipCoord = drawStartEvent.coordinate;
     $(measureTooltipElement).css("display", "");
 
@@ -394,6 +397,7 @@ draw.on('drawstart', function (drawStartEvent) {
         var geom = evt.target;
         var output = formatLengthLeg(geom);
         tooltipCoord = geom.getLastCoordinate();
+        
         measureTooltipElement.innerHTML = output;
         measureTooltip.setPosition(tooltipCoord);
     });
@@ -509,13 +513,44 @@ var plotarGaragem = (garagemRaw) => {
     vectorSource.addFeature(marcador);
 }
 
-// Barra de Controle
+// Barras de Controle
+var centerbar = new ol.control.Bar();
 var mainbar = new ol.control.Bar();
 var editbar = new ol.control.Bar({
     toggleOne: true,	// one control active at the same time
     group: false		// group controls together
 });
 var selectBar = new ol.control.Bar();
+
+var undoInteraction = new ol.interaction.UndoRedo();
+mapaOL.addInteraction(undoInteraction);
+// Prevent selection of a deleted feature
+undoInteraction.on('undo', function (e) {
+    if (e.action.type === 'addfeature') {
+        select.getFeatures().clear();
+    }
+});
+
+var bar = new ol.control.Bar({
+    group: true,
+    controls: [
+        new ol.control.Button({
+            html: '<i class="fa fa-undo" ></i>',
+            title: 'Desfazer',
+            handleClick: function () {
+                undoInteraction.undo();
+            }
+        }),
+        new ol.control.Button({
+            html: '<i class="fa fa-repeat" ></i>',
+            title: 'Refazer',
+            handleClick: function () {
+                undoInteraction.redo();
+            }
+        })
+    ]
+});
+centerbar.addControl(bar);
 
 var selectCtrl = new ol.control.Toggle({
     html: '<i class="fa fa-hand-pointer-o"></i>',
@@ -553,7 +588,7 @@ editbar.addControl(removeCtrl);
 
 var modificarCtrl = new ol.control.Toggle({
     html: '<img class="ctrlIcon" src="./img/icones/icone-modificar.png">',
-    title: "Select",
+    title: "Modificar",
     onToggle: function (active) {
         clearInteractions();
         if (active) {
@@ -650,6 +685,8 @@ editbar.addControl(colcheteCtrl);
 
 mainbar.addControl(editbar);
 mainbar.setPosition("top-left");
+
+mapaOL.addControl(centerbar);
 mapaOL.addControl(mainbar);
 
 // Callback para pegar dados inicia das rotas
