@@ -191,7 +191,6 @@ function dtInitFiltros(dt, colunas) {
                 });
             } else if (select.hasClass("form-range")) {
                 select.on('change', function (evt) {
-                    debugger
                     var val =$(this).val();
                     column.search(val, true, false).draw();
                 });

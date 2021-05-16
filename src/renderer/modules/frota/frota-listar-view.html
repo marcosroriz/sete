@@ -19,17 +19,128 @@
                     </div>
 
                     <div class="fresh-datatables">
-                        <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0"
+                        <table id="datatables" class="table table-striped table-no-bordered table-hover filterTable" cellspacing="0"
                             width="100%" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Placa</th>
-                                    <th>Tipo</th>
-                                    <th>Marca</th>
-                                    <th>Modelo</th>
-                                    <th>Capacidade Máxima</th>
-                                    <th>Capacidade Atual</th>
-                                    <th>Estado</th>
+                                    <th></th>
+                                    <th class="thSemFiltro">
+                                        <span class="colunaSemFiltro">
+                                            Placa
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Tipo
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-includes">
+                                                <option value="">Sem filtro</option>
+                                                <option value="Ônibus">Ônibus</option>
+                                                <option value="Micro-ônibus">Micro-ônibus</option>
+                                                <option value="Van">Van</option>
+                                                <option value="Kombi">Kombi</option>
+                                                <option value="Caminhão">Caminhão</option>
+                                                <option value="Caminhonete">Caminhonete</option>
+                                                <option value="Motocicleta">Motocicleta</option>
+                                                <option value="Animal de tração">Animal de tração</option>
+                                                <option value="Lancha/Voadeira">Lancha/Voadeira</option>
+                                                <option value="Barco de madeira">Barco de madeira</option>
+                                                <option value="Barco de alumínio">Barco de alumínio</option>
+                                                <option value="Canoa motorizada">Canoa motorizada</option>
+                                                <option value="Canoa a remo">Canoa a remo</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Marca
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-includes">
+                                                <option value="">Sem filtro</option>
+                                                <option value="IVECO">IVECO</option>
+                                                <option value="MERCEDES-BENZ">MERCEDES-BENZ</option>
+                                                <option value="RENAULT">RENAULT</option>
+                                                <option value="VOLKSWAGEN">VOLKSWAGEN</option>
+                                                <option value="VOLARE">VOLARE</option>
+                                                <option value="OUTRA">OUTRA</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Modelo
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-includes">
+                                                <option value="">Sem filtro</option>
+                                                <option value="ORE 1">ORE 1</option>
+                                                <option value="ORE 1 (4x4)">ORE 1 (4x4)</option>
+                                                <option value="ORE 2">ORE 2</option>
+                                                <option value="ORE 3">ORE 3</option>
+                                                <option value="ORE 4">ORE 4</option>
+                                                <option value="ONUREA">ONUREA</option>
+                                                <option value="Lancha a Gasolina">Lancha a Gasolina</option>
+                                                <option value="Lancha a Diesel">Lancha a Diesel</option>
+                                                <option value="Não se aplica">Não se aplica</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Capacidade Máxima
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-range">
+                                                <option value="">Sem filtro</option>
+                                                <option value="^0$">Nenhum</option>
+                                                <option value="^[1-9]$|^10$">De 1 a 10</option>
+                                                <option value="^1[1-9]$|^20">De 11 a 20</option>
+                                                <option value="^2[1-9]$|^30">De 20 a 30</option>
+                                                <option value="^[3-9][0-9]$">Acima de 30</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Capacidade Atual
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-range">
+                                                <option value="">Sem filtro</option>
+                                                <option value="^0$">Nenhum</option>
+                                                <option value="^[1-9]$|^10$">De 1 a 10</option>
+                                                <option value="^1[1-9]$|^20">De 11 a 20</option>
+                                                <option value="^2[1-9]$|^30">De 20 a 30</option>
+                                                <option value="^[3-9][0-9]$">Acima de 30</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Estado
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-includes">
+                                                <option value="">Sem filtro</option>
+                                                <option value="Operação">Operação</option>
+                                                <option value="Manutenção">Manutenção</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Origem
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-includes">
+                                                <option value="">Sem filtro</option>
+                                                <option value="Frota própria">Frota própria</option>
+                                                <option value="Frota terceirizada">Frota terceirizada</option>
+                                            </select>
+                                        </span>
+                                    </th>
                                     <th class="disabled-sorting text-center">Ações</th>
                                 </tr>
                             </thead>

@@ -101,7 +101,7 @@ var parseVeiculoDB = function (veiculoRaw) {
     if (veiculoJSON["ORIGEM"] == "1") {
         veiculoJSON["ORIGEMSTR"] = "Frota própria";
     } else {
-        veiculoJSON["ORIGEMSTR"] = "Frota terceirizadas";
+        veiculoJSON["ORIGEMSTR"] = "Frota terceirizada";
     }
 
     switch (veiculoRaw["TIPO"]) {
