@@ -326,6 +326,11 @@ $(document).ready(function () {
                             return true;
                         }
                     })
+                }).then(() => {
+                    let codCidade = userconfig.get("COD_CIDADE")
+                    return remotedb.collection("municipios").doc(codCidade).set({
+                        LAST_UPDATE: new Date().toLocaleDateString()
+                    }, { merge: true });
                 }).then(() => document.location.href = "./dashboard.html")
                 .catch((err) => {
                     if (err != null) {
