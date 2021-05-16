@@ -6,8 +6,10 @@ function GetMotoristaFromForm() {
         "TELEFONE": $("#regtelresp").val(), // string
         "SEXO": $("input[name='modoSexo']:checked").val(), // int
         "ANT_CRIMINAIS": $("#regantecedentes").val(), // int
-
+        
         "CNH": $("#regcnh").val(), // number
+        "DATA_VALIDADE_CNH": $("#regcnhvalidade").val(),
+
         "TEM_CNH_A": $("#cnhA").is(":checked"), // bool
         "TEM_CNH_B": $("#cnhB").is(":checked"), // bool
         "TEM_CNH_C": $("#cnhC").is(":checked"), // bool
@@ -29,6 +31,10 @@ function PopulateMotoristaFromState(estadoMotoristaJSON) {
     $("#regantecedentes").val(estadoMotoristaJSON["ANT_CRIMINAIS"]);
 
     $("#regcnh").val(estadoMotoristaJSON["CNH"]);
+    if (estadoMotoristaJSON["DATA_VALIDADE_CNH"]) {
+        $("#regcnhvalidade").val(estadoMotoristaJSON["DATA_VALIDADE_CNH"]);
+    }
+
     $("#cnhA").prop("checked", estadoMotoristaJSON["TEM_CNH_A"]);
     $("#cnhB").prop("checked", estadoMotoristaJSON["TEM_CNH_B"]);
     $("#cnhC").prop("checked", estadoMotoristaJSON["TEM_CNH_C"]);
@@ -44,6 +50,13 @@ function PopulateMotoristaFromState(estadoMotoristaJSON) {
 var parseMotoristaDB = function (motoristaRaw) {
     var motoristaJSON = Object.assign({}, motoristaRaw);
     motoristaJSON["ROTAS"] = 0;
+
+    if (!motoristaRaw["DATA_VALIDADE_CNH"]) {
+        motoristaJSON["DATA_VALIDADE_CNH_STR"] = "Não informada";
+    } else {
+        motoristaJSON["DATA_VALIDADE_CNH_STR"] = motoristaRaw["DATA_VALIDADE_CNH"];
+
+    }
 
     var categorias = new Array();
     if (motoristaRaw["TEM_CNH_A"]) categorias.push("A");

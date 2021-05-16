@@ -17,13 +17,58 @@
                         </div>
                     </div>
                     <div class="fresh-datatables">
-                        <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0"
+                        <table id="datatables" class="table table-striped table-no-bordered table-hover filterTable" cellspacing="0"
                             width="100%" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Nome</th>
-                                    <th>Telefone</th>
-                                    <th>Turno</th>
+                                    <th></th>
+                                    <th class="thSemFiltro">
+                                        <span class="colunaSemFiltro">
+                                            Nome
+                                        </span>
+                                    </th>
+                                    <th class="thSemFiltro">
+                                        <span class="colunaSemFiltro">
+                                            Telefone
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Turno
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-includes">
+                                                <option value="">Sem filtro</option>
+                                                <option value="Manhã">Manhã</option>
+                                                <option value="Tarde">Tarde</option>
+                                                <option value="Noite">Noite</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th class="thSemFiltro">
+                                        <span class="colunaSemFiltro">
+                                            CNH
+                                        </span>
+                                    </th>
+                                    <th class="thSemFiltro">
+                                        <span class="colunaSemFiltro">
+                                            Validade da CNH
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            # Número de rotas dirigidas
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-range">
+                                                <option value="">Sem filtro</option>
+                                                <option value="^0$">Nenhuma</option>
+                                                <option value="^1$">1</option>
+                                                <option value="^2$">2</option>
+                                                <option value="^[3-9]|^[0-9][0-9]">Acima de 2</option>
+                                            </select>
+                                        </span>
+                                    </th>
                                     <th class="disabled-sorting text-center">Ações</th>
                                 </tr>
                             </thead>

@@ -23,7 +23,7 @@ span.colunaSemFiltro {
     text-align: center;
 }
 
-span.colunaComFiltro {
+span.colunaComFiltro, span.colunaSemFiltro {
     display: block;
     min-height: 3em;
     border-bottom-color: #ffa534;
@@ -62,4 +62,15 @@ button.btn.btn-secondary.btnRemover {
 
 button.btn.btn-secondary.btnRemover:hover {
     background: #9c1717;
+}
+
+th.thSemFiltro.sorting {
+    vertical-align: baseline;
+}
+
+table.filterTable thead .sorting_desc:after, table.filterTable thead .sorting_desc:before {
+    float: right;
+    padding-right: 20px;
+    top: -50px;
+
 }

@@ -110,6 +110,21 @@ var popularTabelaMotorista = () => {
         dataTableMotorista.row.add(["Telefone", "Telefone não informado"]);
     }
 
+    if (estadoMotorista["CNH"] != "") {
+        dataTableMotorista.row.add(["CNH", estadoMotorista["CNH"]]);
+    } else {
+        dataTableMotorista.row.add(["CNH", "Não informada"]);
+    }
+
+    if (estadoMotorista["DATA_VALIDADE_CNH"] != "") {
+        dataTableMotorista.row.add(["Validade da CNH", estadoMotorista["DATA_VALIDADE_CNH"]]);
+    } else {
+        dataTableMotorista.row.add(["Validade da CNH", "Não informada"]);
+    }
+
+    dataTableMotorista.row.add(["Categorias de CNH", estadoMotorista["CATEGORIAS"]]);
+    dataTableMotorista.row.add(["Turnos de trabalhos", estadoMotorista["TURNOSTR"]]);
+    
     if (estadoMotorista["ANT_CRIMINAIS"] != "") {
         dataTableMotorista.row.add(["Número do doc. de Antecedentes Criminais", estadoMotorista["ANT_CRIMINAIS"]]);
     } else {
@@ -127,8 +142,6 @@ var popularTabelaMotorista = () => {
         dataTableMotorista.row.add(["Anexo dos documentos pessoais", "Não enviado"]);
     }
 
-    dataTableMotorista.row.add(["Categorias de CNH", estadoMotorista["CATEGORIAS"]]);
-    dataTableMotorista.row.add(["Turnos de trabalhos", estadoMotorista["TURNOSTR"]]);
     dataTableMotorista.draw();
 
     $("#docAnexos").click(() => {

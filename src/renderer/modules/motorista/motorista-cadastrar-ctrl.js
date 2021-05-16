@@ -39,6 +39,10 @@ var validadorFormulario = $("#wizardCadastrarMotoristaForm").validate({
                 required: true,
                 cnh: true
             },
+            regcnhvalidade: {
+                required: false,
+                datanasc: true
+            },
             'habilitado[]': {
                 required: true,
                 minlength: 1
