@@ -61,8 +61,12 @@ var parseRotaDB = function (rotaRaw) {
     } else {
         rotaJSON["TURNOSTR"] = turno.join(", ");
     }
-    
 
+    if (rotaRaw["SHAPE"] != "" && rotaRaw["SHAPE"] != undefined) {
+        rotaJSON["GEOREF"] = "Sim";
+    } else {
+        rotaJSON["GEOREF"] = "Não";
+    }
 
     var dificuldadesAcesso = new Array();
     if (rotaRaw["DA_PORTEIRA"]) { dificuldadesAcesso.push("Porteira"); }

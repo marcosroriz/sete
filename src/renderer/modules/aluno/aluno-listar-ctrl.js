@@ -145,6 +145,7 @@ var defaultTableConfig = {
                         col.text = col.text.split("    ")[0];
                     }
 
+                    // TODO: Melhorar header
                     doc.content[2].text = listaDeAlunos?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }

@@ -1199,7 +1199,7 @@ $("#rota-sugestao-saveBtnSim").on('click', () => {
                     }
                 })
 
-                var totalOperacoes = numAlunos + numAlunos + numEscolas + numRotas; 
+                var totalOperacoes = numAlunos + numAlunos + numEscolas + numRotas + 1; 
                 var progresso = 0;
 
                 function updateProgresso() {
@@ -1274,6 +1274,9 @@ $("#rota-sugestao-saveBtnSim").on('click', () => {
                         }
                         promiseArrayRelacoes.push(
                             dbInserirPromise(DB_TABLE_ROTA, rotaJSON, r.id).then(() => updateProgresso())
+                        );
+                        promiseArrayRelacoes.push(
+                            dbAtualizaVersao().then(() => updateProgresso())
                         );
                     }
                     return Promise.all(promiseArrayRelacoes)

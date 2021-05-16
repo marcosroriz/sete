@@ -244,6 +244,7 @@ drawInicioRota.on('drawend', function (drawEndEvent) {
     inicioFeature.setStyle(new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/inicio-icone.png")
     }));
+    numOperacoes++;
 });
 
 var drawMataBurro = new ol.interaction.Draw({
@@ -261,6 +262,7 @@ drawMataBurro.on('drawend', function (drawEndEvent) {
     mataBurroFeature.setStyle(new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/mataburro-marcador.png")
     }));
+    numOperacoes++;
 });
 
 var drawColchete = new ol.interaction.Draw({
@@ -279,6 +281,7 @@ drawColchete.on('drawend', function (drawEndEvent) {
     colcheteFeature.setStyle(new ol.style.Style({
         image: gerarMarcadorIcone("img/icones/porteira-marcador.png")
     }));
+    numOperacoes++;
 });
 
 var draw = new ol.interaction.Draw({
@@ -430,6 +433,7 @@ draw.on('drawend', function (drawEndEvent) {
 
     // Remove listener
     ol.Observable.unByKey(listener);
+    numOperacoes++;
 });
 
 modify.on('modifyend', function (modifyEvent) {
@@ -531,6 +535,8 @@ undoInteraction.on('undo', function (e) {
     }
 });
 
+var numOperacoes = 0;
+
 var bar = new ol.control.Bar({
     group: true,
     controls: [
@@ -538,7 +544,10 @@ var bar = new ol.control.Bar({
             html: '<i class="fa fa-undo" ></i>',
             title: 'Desfazer',
             handleClick: function () {
-                undoInteraction.undo();
+                if (numOperacoes > 0) {
+                    undoInteraction.undo();
+                    numOperacoes--;
+                }
             }
         }),
         new ol.control.Button({
@@ -546,6 +555,7 @@ var bar = new ol.control.Bar({
             title: 'Refazer',
             handleClick: function () {
                 undoInteraction.redo();
+                numOperacoes++;
             }
         })
     ]
@@ -779,6 +789,9 @@ $("#listarotas").on("change", (evt) => {
                 mapaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(rotaSelect["SHAPE"]))
             }
 
+            // zera o número de operações
+            numOperacoes = 0;
+
             // Tipo de Modal
             // var tipoModal = parseInt(rotaSelect["TIPO"]);
             // switch (tipoModal) {
@@ -818,7 +831,7 @@ $("#listarotas").on("change", (evt) => {
             escolasRota.forEach(escola => {
                 if (escola["LOC_LONGITUDE"] != null && escola["LOC_LONGITUDE"] != undefined &&
                     escola["LOC_LATITUDE"] != null && escola["LOC_LATITUDE"] != undefined) {
-                    plotarAluno(escola);
+                    plotarEscola(escola);
                 }
             })
 
