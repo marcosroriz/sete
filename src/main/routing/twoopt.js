@@ -37,8 +37,10 @@ module.exports = class TwoOpt {
             }
         }
 
-        console.log("OLD COST", "NEW COST");
-        console.log(this.initialCost, bestCost);
+        if (this.initialCost != bestCost) {
+            console.log("OLD COST", "NEW COST");
+            console.log(this.initialCost, bestCost);
+        }
         return this.busRoute;
     }
 

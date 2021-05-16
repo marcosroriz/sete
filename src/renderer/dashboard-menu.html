@@ -112,14 +112,14 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#componentsExamples">
+            <a class="nav-link" data-toggle="collapse" href="#escolaMenu">
                 <img src="./img/icones/escolas.svg" class="menu-icon">
                 <p>
                     Escolas
                     <b class="caret"></b>
                 </p>
             </a>
-            <div class="collapse " id="componentsExamples">
+            <div class="collapse " id="escolaMenu">
                 <ul class="nav">
                     <li class="nav-item ">
                         <a name="escola/escola-cadastrar-view" class="link-menu nav-link" href="#">
@@ -355,6 +355,16 @@
             habilitaLinksMenu();
         }
     }, 5000);
+
+    $('.collapse').on('show.bs.collapse', function () {
+        $('.collapse.show').each(function(){
+            if ($(this).find(".activeLink").length == 0) {
+                $(this).collapse('hide');
+            } else {
+                $(this).collapse('show');
+            }
+        });
+    });
 
     $(document).ready(function () {
         // Logo

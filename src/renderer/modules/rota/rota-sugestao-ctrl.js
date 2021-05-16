@@ -66,23 +66,28 @@ loadOSMFile()
     if (code == "erro:malha") {
         informarNaoExistenciaDado("Malha não cadastrada", 
                                   "Cadastrar malha",
-                                  "a[name='rota/rota-malha-view']")
+                                  "a[name='rota/rota-malha-view']",
+                                  "#veiculoMenu")
     } else if (code == "erro:garagem") {
         informarNaoExistenciaDado("Garagem não cadastrada", 
                                   "Cadastrar garagem",
-                                  "a[name='frota/garagem-visualizar-view']")
+                                  "a[name='frota/garagem-visualizar-view']",
+                                  "#veiculoMenu")
     } else if (code == "erro:aluno") {
         informarNaoExistenciaDado("Não há nenhum aluno georeferenciado", 
                                   "Gerenciar alunos",
-                                  "a[name='aluno/aluno-listar-view']")
+                                  "a[name='aluno/aluno-listar-view']",
+                                  "#alunoMenu")
     } else if (code == "erro:escola") {
         informarNaoExistenciaDado("Não há nenhuma escola georeferenciada", 
                                   "Gerenciar escolas",
-                                  "a[name='escola/escola-listar-view']")
+                                  "a[name='escola/escola-listar-view']",
+                                  "#escolaMenu")
     } else if (code == "erro:vinculo") {
         informarNaoExistenciaDado("As escolas dos alunos escolhidos não estão georeferenciadas", 
                                   "Escolas: " + err.data,
-                                  "a[name='escola/escola-listar-view']")
+                                  "a[name='escola/escola-listar-view']",
+                                  "#escolaMenu")
     } else {
         errorFn(`Erro ao utilizar a ferramenta de sugestão de rotas. 
                  Entre em contato com a equipe de suporte`);
@@ -90,7 +95,7 @@ loadOSMFile()
 })
 
 // Informar não existência de dado
-var informarNaoExistenciaDado = (titulo, msgConfirmacao, pagCadastroDado) => {
+var informarNaoExistenciaDado = (titulo, msgConfirmacao, pagCadastroDado, pagMenu) => {
     return Swal2.fire({
         title: titulo,
         text: "Para utilizar a ferramenta de sugestão de rotas é necessário realizar esta ação antes",
@@ -103,8 +108,9 @@ var informarNaoExistenciaDado = (titulo, msgConfirmacao, pagCadastroDado) => {
     }).then((result) => {
         if (result.value) {
             $(pagCadastroDado).click();
+            $(pagMenu).collapse();
         } else {
-            navigateDashboard(lastPage);
+            navigateDashboard("./dashboard-main.html");
         }
     })
 }
@@ -140,7 +146,6 @@ function plotMalha(osmGeoJSON) {
         maxZoom: 20,
         indexMaxZoom: 20,
         tolerance: 5,
-        
     })
     let format = new ol.format.GeoJSON({
         // Data returned from geojson-vt is in tile pixel units
@@ -172,10 +177,13 @@ function plotMalha(osmGeoJSON) {
             tile.setFeatures(features);
         },
     });
+    mapaConfig["vectorLayer"].setZIndex(99);
 
     var malhaVectorLayer = new ol.layer.VectorTile({
         source: malhaVectorSource,
-        zIndex: 1,
+        zIndex: 90,
+        maxZoom: 20,
+        minZoom: 13,
         style: (feature, resolution) => {
             if (feature.getGeometry() instanceof ol.geom.LineString) {
                 return new ol.style.Style({
@@ -185,8 +193,6 @@ function plotMalha(osmGeoJSON) {
         }
     });
     olConfigMap.addLayer(malhaVectorLayer)
-
-    mapaConfig["vectorLayer"].setZIndex(99);
     return Promise.resolve(tileIndex)
 }
 
@@ -222,7 +228,7 @@ function preprocessarAlunos(res) {
     }
 
     if (numTemGPS == 0) {
-        Promise.reject({ code: "erro:aluno" })
+        return Promise.reject({ code: "erro:aluno" })
     } else {
         return alunoMap;
     }
@@ -250,7 +256,7 @@ function preprocessarEscolas(res) {
     }
 
     if (numTemGPS == 0) {
-        Promise.reject({ code: "erro:escola" })
+        return Promise.reject({ code: "erro:escola" })
     } else {
         return escolaMap;
     }
@@ -331,10 +337,11 @@ function processarVinculoAlunoRota(res) {
 };
 
 // Pega os elementos do mapa e transforma no nosso array
-function listaElementos() {
-    alunoMap.forEach((a, aID) => {
+function transformaAlunosEmArray(mapaAlunos) {
+    let alunosArray = []
+    mapaAlunos.forEach(([aID, a]) => {
         if (a["GPS"] && a["ESCOLA_TEM_GPS"]) {
-            alunos.push({
+            alunosArray.push({
                 key: aID,
                 tipo: "aluno",
                 nome: a["NOME"],
@@ -352,9 +359,14 @@ function listaElementos() {
         }
     })
 
-    escolaMap.forEach((e, eID) => {
+    return alunosArray;
+}
+
+function transformaEscolaEmArray(mapaEscolas) {
+    let escolasArray = []
+    mapaEscolas.forEach(([eID, e]) => {
         if (e["GPS"] && e["TEM_ALUNO_COM_GPS"]) {
-            escolas.push({
+            escolasArray.push({
                 key: eID,
                 tipo: "escola",
                 nome: e["NOME"],
@@ -367,11 +379,23 @@ function listaElementos() {
         }
     })
 
+    return escolasArray;
+}
+
+
+function listaElementos() {
+    alunos = transformaAlunosEmArray([...alunoMap])
+    escolas = transformaEscolaEmArray([...escolaMap])
+
     drawMapElements(alunos, garagens, escolas, vSource);
     drawMapElements(alunos, garagens, escolas, gSource);
     setTimeout(() => {
-        mapaConfig["map"].getView().fit(vSource.getExtent());
-        mapaRotaGerada["map"].getView().fit(gSource.getExtent());
+        mapaConfig["map"].getView().fit(vSource.getExtent(), {
+            padding: [40, 40, 40, 40]
+        });
+        mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
+            padding: [40, 40, 40, 40]
+        });
     }, 500);
 
     Swal2.close();
@@ -458,22 +482,37 @@ function drawRoutes(routesJSON) {
     let grupoDeCamadas = new Array();
     let numRota = 1;
     routesJSON.forEach((r) => {
-        // Adiciona para camadas
-        rotasGeradas.set(r["id"], r);
-
         let rotaCor = proximaCor();
         let camada = mapaRotaGerada["createLayer"](r["id"],
-            `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota++}`);
+            `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota}`);
 
         // Make this dynamic
         pickedRoute = r;
         pickedRouteLength = r["purejson"].coordinates.length;
         pickedLayer = camada.layer;
 
+        // Adiciona para camadas
+        rotasGeradas.set(numRota, {
+            numRota,
+            rotaCor,
+            id: r["id"],
+            payload: r,
+            "picked": r,
+            "length": pickedRouteLength,
+            "layer": pickedLayer
+        });
+
+        numRota++;
+        
         // Add Route Drawing
-        let gjson = new ol.format.GeoJSON({ featureProjection: 'EPSG:3857' })
-            .readFeatures(r["geojson"]);
+        let gjson = new ol.format.GeoJSON({ featureProjection: 'EPSG:3857' }).readFeatures(r["geojson"]);
         let styles = new Array();
+        styles.push(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: "white",
+                width: 7
+            })
+        }));
         styles.push(new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: rotaCor,
@@ -547,10 +586,24 @@ function drawRoutes(routesJSON) {
 ///////////////////////////////////////////////////////////////////////////////
 // Animação
 ///////////////////////////////////////////////////////////////////////////////
-var btnIniciarAnimacao = $("#animarRota");
-btnIniciarAnimacao.on('click', (evt) => {
+function iniciaAnimacao(rotaID) {
+    animating = false;
+
+    let rotaPicked = rotasGeradas.get(rotaID);
+    pickedLayer = rotaPicked["layer"];
+    pickedRoute = rotaPicked["payload"];
+    pickedRouteLength = pickedRoute["purejson"].coordinates.length;
     pickedLayer.setZIndex(2);
     startAnimation();
+}
+
+var btnIniciarAnimacao = $("#animarRota");
+btnIniciarAnimacao.on('click', (evt) => {
+    animating = false;
+
+    debugger
+    // pickedLayer.setZIndex(2);
+    // startAnimation();
 });
 
 var pickedLayer = null;
@@ -571,6 +624,7 @@ var moveFeature = function (event) {
 
     if (index >= pickedRouteLength) {
         pickedLayer.un('postrender', moveFeature);
+        animating = false;
         return;
     }
 
@@ -607,7 +661,9 @@ var moveFeature = function (event) {
 
     vectorContext.drawFeature(geoMarker, iconStyle);
     // tell OpenLayers to continue the postrender animation
-    mapaRotaGerada["map"].render();
+    if (animating) {
+        mapaRotaGerada["map"].render();
+    }
 };
 
 function startAnimation() {
@@ -636,6 +692,7 @@ var selectAlunoEscola = new ol.interaction.Select({
     }
 });
 mapaConfig["map"].addInteraction(selectAlunoEscola);
+mapaRotaGerada["map"].addInteraction(selectAlunoEscola);
 
 var popupAlunoEscola = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
@@ -678,6 +735,7 @@ var popupAlunoEscola = new ol.Overlay.PopupFeature({
     }
 });
 mapaConfig["map"].addOverlay(popupAlunoEscola);
+mapaRotaGerada["map"].addOverlay(popupAlunoEscola);
 
 var selectRoute = new ol.interaction.Select({
     hitTolerance: 5,
@@ -694,6 +752,7 @@ var selectRoute = new ol.interaction.Select({
     }
 });
 mapaRotaGerada["map"].addInteraction(selectRoute);
+
 var popup = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectRoute,
@@ -739,18 +798,16 @@ function initSimulation() {
     // Juntar dados em um objeto
     let routeGenerationInputData = {
         "maxTravDist": $("#maxDist").val() * 1000,
-        "maxTravTime": $("#maxTime").val(),
+        "maxTravTime": $("#maxTime").val() * 60,
         "optTarget": "maxTravDist",
         "numVehicles": $("#numVehicles").val(),
         "maxCapacity": $("#maxCapacity").val(),
-        // TODO
-        "busSpeed": 11.11, // 11.11 m/s ~= 40 km/h
+        "busSpeed": $("#velMedia").val() / 3.6, // converte de km/h para m/s
         "garage": garagens,
         "stops": alunos,
         "schools": escolas,
     };
 
-    debugger
     ipcRenderer.send('start:route-generation', routeGenerationInputData);
 };
 
@@ -765,12 +822,30 @@ ipcRenderer.on("end:route-generation", function (event, routesJSON) {
         drawRoutes(routesJSON);
 
         // Ativa grupo
-        mapaRotaGerada["activateSidebarLayerSwitcher"](".sidebar-RotasGeradas");
+        let switcher = mapaRotaGerada["activateSidebarLayerSwitcher"](".sidebar-RotasGeradas");
 
         // Atualiza o mapa
         mapaRotaGerada["map"].updateSize();
-        mapaRotaGerada["map"].getView().fit(gSource.getExtent());
+        mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
+            padding: [40, 40, 40, 40]
+        });
 
+        switcher.on('drawlist', function (e) {
+            $(".ol-layer-vector").each((_, li) => {
+                let temBadge = $(li).find(".badge").length > 0 ? true : false;
+
+                if (!temBadge) {
+                    let rotaID = Number($($(li).find("label")[0]).text().split(": ")[1]);
+                    $($.parseHTML('<div class="badge badge-pill badge-warning pull-right"><i class="fa fa-map-o"></i></div>')).on('click', function () {
+                        mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
+                            padding: [40, 40, 40, 40]
+                        });
+                        iniciaAnimacao(rotaID);
+                    })
+                    .appendTo($(li));
+                }
+            })
+        });
         setTimeout(() => {
             $('.expend-layers').click();
             $('.ol-layerswitcher-buttons').hide();
@@ -801,25 +876,31 @@ var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
         maxTime: {
             required: true,
             number: true,
-            min: 0,
+            min: 1,
             max: 360
         },
         maxDist: {
             required: true,
             number: true,
-            min: 0,
+            min: 1,
             max: 100
+        },
+        velMedia: {
+            required: true,
+            number: true,
+            min: 1,
+            max: 120
         },
         numVehicles: {
             required: true,
             number: true,
-            min: 0,
+            min: 1,
             max: 1000
         },
         maxCapacity: {
             required: true,
             number: true,
-            min: 0,
+            min: 1,
             max: 100
         },
     },
@@ -839,6 +920,11 @@ var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
             required: "Por favor informe a distância máxima percorrida por rota",
             min: "Por favor selecione um valor acima de 0 km",
             max: "Por favor selecione um valor abaixo de 100 km"
+        },
+        velMedia: {
+            required: "Por favor informe a velocidade média dos veículos",
+            min: "Por favor selecione um valor acima de 0 km/h",
+            max: "Por favor selecione um valor abaixo de 120 km/h"
         },
         numVehicles: {
             required: "Por favor informe o número desejado (total) de veículos",
@@ -864,6 +950,23 @@ var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
     }
 });
 
+function validaDadosEscolhidos() {
+    let formValido = true;
+
+    // Verifica se tem alunos e escolas escolhidas
+    if (alunos.length == 0) {
+        errorFn(`Não é possível realizar a sugestão de rotas. Para esta combinação de parâmetros não há nenhum aluno georeferenciado`, 
+                "", "Nenhum aluno georeferenciado neste caso");
+        formValido = false;
+    } else if (escolas.length == 0) {
+        errorFn(`Não é possível realizar a sugestão de rotas. Para esta combinação de parâmetros não há nenhuma escola georeferenciada`, 
+                "", "Nenhuma escola georeferenciada neste caso");
+        formValido = false;
+    }
+
+    return formValido;
+}
+
 $('.card-wizard').bootstrapWizard({
     'tabClass': 'nav nav-pills',
     'nextSelector': '.btn-next',
@@ -875,9 +978,14 @@ $('.card-wizard').bootstrapWizard({
             validadorFormulario.focusInvalid();
             return false;
         } else {
-            window.scroll(0, 0);
-            if (index == 1) {
-                initSimulation();
+            // Após validação do form, vamos validar os dados no mapa
+            if (validaDadosEscolhidos()) {
+                window.scroll(0, 0);
+                if (index == 1) {
+                    initSimulation();
+                }
+            } else {
+                return false;
             }
         }
     },
@@ -887,8 +995,12 @@ $('.card-wizard').bootstrapWizard({
         if (!$valid) {
             return false;
         } else {
-            window.scroll(0, 0);
-            return true;
+            if (index == 1 && validaDadosEscolhidos()) {
+                window.scroll(0, 0);
+                return true;
+            } else {
+                return false;
+            }
         }
     },
 
@@ -914,19 +1026,51 @@ $('.card-wizard').bootstrapWizard({
 ////////////////////////////////////////////////////////////////////////////////
 // Replota dados
 ////////////////////////////////////////////////////////////////////////////////
-
-function replotaAluno() {
-    let filtroTurno = $("input[name='turno']:checked").val();
+function replotaDados() {
+    let filtroTurno = Number($("input[name='turno']:checked").val());
     let filtroSemRota = $("input[name='publico']:checked").val() == "semRota";
+
+    // Filtrando
+    let escolasAlunosFiltrados = new Set();
     let alunosFiltrados = [...alunoMap].filter((a) => {
-        return a[1]["GPS"] && a[1]["ESCOLA_TEM_GPS"] && a[1]["TURNO"] == filtroTurno;
+        let alunoFiltrado = false;
+
+        if (filtroSemRota) {
+            alunoFiltrado = a[1]["GPS"] && a[1]["ESCOLA_TEM_GPS"] && a[1]["TURNO"] == filtroTurno && a[1]["TEM_ROTA"] == false;
+        } else {
+            alunoFiltrado = a[1]["GPS"] && a[1]["ESCOLA_TEM_GPS"] && a[1]["TURNO"] == filtroTurno;
+        }
+
+        if (alunoFiltrado) {
+            escolasAlunosFiltrados.add(a[1]["ESCOLA_ID"]);
+        }
+
+        return alunoFiltrado;
     })
 
-    console.log(alunosFiltrados)
+    let escolasFiltradas = [...escolaMap].filter((e) => escolasAlunosFiltrados.has(e[1]["ID"]) && e[1]["GPS"])
+
+    alunos = transformaAlunosEmArray(alunosFiltrados);
+    escolas = transformaEscolaEmArray(escolasFiltradas);
+
+    // Limpando dados do mapa
+    vSource.clear();
+    gSource.clear();
+
+    drawMapElements(alunos, garagens, escolas, vSource);
+    drawMapElements(alunos, garagens, escolas, gSource);
 }
 
-$('input[type=radio][name=turno]').on('change', (evt) => {
-    debugger
-    console.log("aqui");
-    replotaAluno()
+$('input[type=radio][name=publico]').on('change', (evt) => {
+    replotaDados();
 })
+
+$('input[type=radio][name=turno]').on('change', (evt) => {
+    replotaDados();
+})
+
+////////////////////////////////////////////////////////////////////////////////
+// Salvar Rotas
+////////////////////////////////////////////////////////////////////////////////
+
+// $(".visible.ol-layer-vector")

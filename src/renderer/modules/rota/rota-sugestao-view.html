@@ -29,7 +29,8 @@
                         <!-- Abas -->
                         <div class="tab-content">
                             <div class="tab-pane tab-wiz fade show active" id="tab-rota-sugestao-config"
-                                role="tabpanel">
+                                role="tabpanel">                            
+
                                 <div class="row justify-content-center">
                                     <h6 class="mb-4 mt-1 text-center text-space">
                                         Essa ferramenta possibilita traçar rotas otimizadas para os(as) alunos(as) de
@@ -40,6 +41,19 @@
                                         máxima
                                         das rotas a serem geradas.
                                     </h6>
+
+                                    <div class="alert alert-warning alert-with-icon w-90" data-notify="container">
+                                        <button type="button" aria-hidden="true" class="close" data-dismiss="alert">
+                                            <i class="nc-icon nc-simple-remove"></i>
+                                        </button>
+                                        <span data-notify="icon" class="fa fa-exclamation-circle"></span>
+                                        <span data-notify="message">
+                                            O SETE utiliza os parâmetros abaixo para guiar o processo de sugestão de rotas. 
+                                            Entretanto, em casos de conflito de parâmetros, por exemplo, uma distância de 
+                                            viagem permitido muito pequena e poucos veículos, o sistema irá flexibilizar os 
+                                            parâmetros para atender os alunos escolhidos na sugestão de rotas.
+                                        </span>
+                                    </div>
 
                                     <div class="col-12">
                                         <div class="form-group">
@@ -111,7 +125,7 @@
 
                                     <div class="col-12">
                                         <div class="row">
-                                            <div class="col-6">
+                                            <div class="col-4">
                                                 <div class="form-group">
                                                     <label>
                                                         <b>Tempo máximo de viagem por rota:</b>
@@ -128,7 +142,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-6">
+                                            <div class="col-4">
                                                 <div class="form-group">
                                                     <label>
                                                         <b>Distância máxima por rota:</b>
@@ -140,7 +154,24 @@
                                                             value="35">
                                                         <div class="input-group-append col-6">
                                                             <span class="input-group-text"
-                                                                id="basic-addon2">quilômetros</span>
+                                                                id="basic-addon2">km</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="form-group">
+                                                    <label>
+                                                        <b>Velocidade média dos veículos:</b>
+                                                        <star>*</star>
+                                                    </label>
+                                                    <div class="input-group mb-3">
+                                                        <input id="velMedia" name="velMedia" type="number"
+                                                            class="form-control" placeholder="Exemplo: 40 km/h"
+                                                            value="40">
+                                                        <div class="input-group-append col-6">
+                                                            <span class="input-group-text"
+                                                                id="basic-addon2">km/h</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -201,21 +232,33 @@
                             <div class="tab-pane tab-wiz fade" id="tab-rota-sugestao-geradas" role="tabpanel">
                                 <h6 class="mb-3 text-center text-space">O sistema sugere as seguintes rotas.
                                     Por favor, escolha quais delas você deseja salvar.</h6>
+                                
+                                    <div class="row justify-content-center">
+                                        <div class="alert alert-info alert-with-icon w-90" data-notify="container">
+                                            <button type="button" aria-hidden="true" class="close" data-dismiss="alert">
+                                                <i class="nc-icon nc-simple-remove"></i>
+                                            </button>
+                                            <span data-notify="icon" class="fa fa-exclamation-circle"></span>
+                                            <span data-notify="message">
+                                                Você pode clicar no botão <div class="badge badge-pill badge-warning"><i class="fa fa-map-o"></i></div> para acompanhar o traçado da rota sugerida.
+                                            </span>
+                                        </div>
+                                    </div>
                                 <div class="row justify-content-center">
-                                    <div class="col-3">
+                                    <div class="col-4">
                                         <div id="sidebar-RotasGeradas" class="external sidebar-RotasGeradas">
                                             <label class="control-label">
                                                 <b>Rotas geradas</b>
                                                 <star>*</star>
                                             </label>
-                                            <button type="button" id="animarRota" class="btn btn-primary">
-                                                Acompanhar Rota
-                                            </button>
-                                            <img id="onibusMarcador" class="d-none" src="./img/icones/onibus-marcador.png" />
-                                            <img id="lanchaMarcador" class="d-none" src="./img/icones/lancha-marcador.png" />
+                                            <br />
+                                            <img id="onibusMarcador" class="d-none"
+                                                src="./img/icones/onibus-marcador.png" />
+                                            <img id="lanchaMarcador" class="d-none"
+                                                src="./img/icones/lancha-marcador.png" />
                                         </div>
                                     </div>
-                                    <div class="col-9">
+                                    <div class="col-8">
                                         <div class="row">
                                             <div id="mapaRotaSugestaoGerada" class="mb-2 mapawiz"
                                                 style="width: 100%; height: 400px;"></div>

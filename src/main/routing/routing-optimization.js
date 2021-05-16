@@ -119,11 +119,12 @@ class RoutingOptimizationWorker {
                         for (i = 0; i < busRoutes.length; i++) {
                             var genRoutes = busRoutes[i];
                             // Print Routes
-                            console.log(genRoutes);
+                            // console.log(genRoutes);
+
                             genRoutes.forEach((r) => {
-                                console.log("ANTES", r.route)
+                                // console.log("ANTES", r.route)
                                 let optRoute = new TwoOpt(r, routingGraph).optimize();
-                                console.log("DEPOIS", optRoute.route)
+                                // console.log("DEPOIS", optRoute.route)
                                 optimizedRoutes.push(optRoute);
                             })
 
@@ -140,8 +141,8 @@ class RoutingOptimizationWorker {
                             var ckey = r["path"].map(a => a["id"]).join("-")
                             fc.set(ckey, r);
                         })
-                        console.log([...fc.values()]),
-                            resolve([this.cachedODMatrix, ...fc.values()])
+                        // console.log([...fc.values()]);
+                        resolve([this.cachedODMatrix, ...fc.values()])
                     })
             })
         });

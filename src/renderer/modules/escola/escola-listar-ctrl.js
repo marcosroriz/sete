@@ -24,8 +24,8 @@ var dataTableEscolas = $("#datatables").DataTable({
             { data: 'LOCALIZACAO',  width: "15%" },
             { data: 'GEOREF', width: "250px" },
             { data: 'ENSINO', width: "10%" },
-            { data: 'HORARIO', width: "250px" },
-            { data: 'NUM_ALUNOS', width: "250px" },
+            { data: 'HORARIO', width: "450px" },
+            { data: 'NUM_ALUNOS', width: "450px" },
             {
                 data: "ACOES",
                 width: "110px",

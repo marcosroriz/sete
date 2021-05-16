@@ -51,7 +51,7 @@ class BusRoute {
             let c = this.route[i];
             let d = this.route[i + 1];
             dist = dist + routingGraph.distance(c, d);
-            console.log("DIST", c, d, routingGraph.distance(c, d))
+            // console.log("DIST", c, d, routingGraph.distance(c, d))
         }
 
         return dist;
@@ -59,10 +59,7 @@ class BusRoute {
 
     toGeoJSON(c, d, spatialiteDB, route) {
         if (c == undefined || d == undefined || c == null || d == null) {
-            console.log("deu merda")
-            console.log("deu merda")
-            console.log("deu merda")
-            console.log("deu merda")
+            console.log("ERRO")
         }
         let cnodeID = c.get("dbNodeID");
         let dnodeID = d.get("dbNodeID");
@@ -99,7 +96,7 @@ class BusRoute {
                 let c = routingGraph.getVertex(this.route[i]);
                 let d = routingGraph.getVertex(this.route[i + 1]);
 
-                console.log("PUSHANDO", c.get("rawkey"), d.get("rawkey"))
+                // console.log("PUSHANDO", c.get("rawkey"), d.get("rawkey"))
                 routeJSON["path"].push({
                     id: c.get("rawkey"),
                     type: c.get("type")
@@ -136,13 +133,13 @@ class BusRoute {
                             "coordinates": pathGeojson.coordinates,
                         }
                     }
-                    console.log("CONSEGUI RESOLVER AQUI")
-                    console.log(routeJSON["path"])
+                    // console.log("CONSEGUI RESOLVER AQUI")
+                    // console.log(routeJSON["path"])
                     resolve(routeJSON);
                 })
                 .catch((err) => {
-                    console.log("ERRORRR");
-                    console.log(err);
+                    console.error("ERROR", err);
+                    return Promise.reject(err);
                 });
         });
     }

@@ -159,7 +159,8 @@ module.exports = class RoutingGraph {
                     if (dist == null) { dist = 0; }
                     if (cost == null) { cost = 0; }
 
-                    console.log(cnodeID, dnodeID, cost, dist)
+                    // distance log
+                    // console.log(cnodeID, dnodeID, cost, dist)
 
                     // Setting in our matrix
                     c.get("spatialDistEdges").set(d.get("key"), dist);
@@ -198,7 +199,7 @@ module.exports = class RoutingGraph {
                     let dbNodeID = row["node_id"];
 
                     // Setting in our matrix
-                    console.log("dbNodeID", c.get("key"), dbNodeID)
+                    // console.log("dbNodeID", c.get("key"), dbNodeID)
                     c.set("dbNodeID", dbNodeID);
 
                     // Caching if not a school key
@@ -237,9 +238,9 @@ module.exports = class RoutingGraph {
 
     passengers(c) {
         if (c == null || c == undefined || this.matrix.get(c) == null || this.matrix.get(c) == undefined) {
-            console.log("Parar aqui!!!")
+            console.log("ERRO")
         }
-        console.log("Pegando dados de ", c)
+        // console.log("Pegando dados de ", c)
         return this.matrix.get(c).get("passengers");
     }
 

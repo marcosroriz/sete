@@ -23,6 +23,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
     });
 
     let olMap = new ol.Map({
+        "controls": ol.control.defaults().extend([new ol.control.FullScreen()]),
         "target": target,
         "layers": [
             new ol.layer.Tile({
@@ -143,10 +144,12 @@ function novoMapaOpenLayers(target, latitude, longitude) {
                 target: $(elemID).get(0),
                 reordering: false,
                 extent: true,
-                trash: false
+                trash: false,
             });
             olMap.addControl(switcher);
             mapa["layerSwitcherActivated"] = true;
+
+            return switcher;
         }
     };
 

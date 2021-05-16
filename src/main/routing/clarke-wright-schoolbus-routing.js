@@ -88,7 +88,8 @@ class ClarkeWrightSchoolBusRouting {
     processSavings(savingsQueue) {
         while (!savingsQueue.empty()) {
             let saving = savingsQueue.pop();
-            console.log(saving);
+            
+            // console.log(saving);
             let cRoute = this.getRoute(saving.c);
             let dRoute = this.getRoute(saving.d);
 
@@ -103,9 +104,16 @@ class ClarkeWrightSchoolBusRouting {
                 // Check if a merge violate constraints
                 let totalPassengers = mergeRoute.numPassengers(this.graph);
                 let totalTravDistance = mergeRoute.travDistance(this.graph);
+                let totalTravTime = totalTravDistance / this.busSpeed;
+
+                // console.log("PASSENGERS", totalPassengers, "MAX CAPACITY", this.maxCapacity)
+                // console.log("TRAV DISTANCE", totalTravDistance, "MAX DIST", this.maxTravDist)
+                // console.log("TRAV TIME", totalTravTime, "MAX TIME", this.maxTravTime)
 
                 // We can merge!
-                if (totalPassengers <= this.maxCapacity && totalTravDistance <= this.maxTravDist) {
+                if (totalPassengers <= this.maxCapacity &&  
+                    totalTravDistance <= this.maxTravDist &&
+                    totalTravTime <= this.maxTravTime) {
                     // Delete old routes
                     this.routes.delete(cRoute.id);
                     this.routes.delete(dRoute.id);
@@ -167,10 +175,10 @@ class ClarkeWrightSchoolBusRouting {
                     })
 
                     // Print Routes
-                    this.routes.forEach((r) => {
-                        console.log(r.toLatLongRoute(this.graph));
-                        console.log("-------")
-                    });
+                    // this.routes.forEach((r) => {
+                    //     console.log(r.toLatLongRoute(this.graph));
+                    //     console.log("-------")
+                    // });
 
                     resolve(this.routes);
                 });
