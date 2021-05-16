@@ -183,7 +183,7 @@ function plotMalha(osmGeoJSON) {
         source: malhaVectorSource,
         zIndex: 90,
         maxZoom: 20,
-        minZoom: 13,
+        minZoom: 12,
         style: (feature, resolution) => {
             if (feature.getGeometry() instanceof ol.geom.LineString) {
                 return new ol.style.Style({
@@ -327,6 +327,7 @@ function processarVinculoAlunoRota(res) {
         let rNome = vinculoRaw["NOME"];
 
         let alunoJSON = alunoMap.get(aID);
+        alunoJSON["TEM_ROTA"] = true;
         alunoJSON["ROTA"] = true;
         alunoJSON["ROTA_ID"] = rID;
         alunoJSON["ROTA_NOME"] = rNome;
@@ -486,23 +487,20 @@ function drawRoutes(routesJSON) {
         let camada = mapaRotaGerada["createLayer"](r["id"],
             `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota}`);
 
+        // Adiciona tempo de viagem estimado
+        let estTime = Number((r["geojson"]?.properties?.travDistance / $("#velMedia").val()) * 60)?.toFixed(2)
+        if (estTime) {
+            r["geojson"].properties["estTime"] = estTime;
+            r["estTime"] = estTime;
+        } else {
+            r["geojson"].properties["estTime"] = "Não calculado";
+            r["estTime"] = "Não calculado";
+        }
+        
         // Make this dynamic
         pickedRoute = r;
         pickedRouteLength = r["purejson"].coordinates.length;
         pickedLayer = camada.layer;
-
-        // Adiciona para camadas
-        rotasGeradas.set(numRota, {
-            numRota,
-            rotaCor,
-            id: r["id"],
-            payload: r,
-            "picked": r,
-            "length": pickedRouteLength,
-            "layer": pickedLayer
-        });
-
-        numRota++;
         
         // Add Route Drawing
         let gjson = new ol.format.GeoJSON({ featureProjection: 'EPSG:3857' }).readFeatures(r["geojson"]);
@@ -574,6 +572,20 @@ function drawRoutes(routesJSON) {
         camada.layer.setZIndex(1);
 
 
+        // Adiciona para camadas
+        rotasGeradas.set(numRota, {
+            numRota,
+            rotaCor,
+            gjson,
+            id: r["id"],
+            payload: r,
+            "picked": r,
+            "length": pickedRouteLength,
+            "layer": pickedLayer
+        });
+
+        numRota++;
+
         // let popup = buildPopup(r["id"], mapaRotaGerada["select"]);
         // mapaRotaGerada["map"].addOverlay(popup);
         grupoDeCamadas.unshift(camada.layer);
@@ -596,15 +608,6 @@ function iniciaAnimacao(rotaID) {
     pickedLayer.setZIndex(2);
     startAnimation();
 }
-
-var btnIniciarAnimacao = $("#animarRota");
-btnIniciarAnimacao.on('click', (evt) => {
-    animating = false;
-
-    debugger
-    // pickedLayer.setZIndex(2);
-    // startAnimation();
-});
 
 var pickedLayer = null;
 var pickedRoute = null;
@@ -677,7 +680,7 @@ function startAnimation() {
 ///////////////////////////////////////////////////////////////////////////////
 // Popup
 ///////////////////////////////////////////////////////////////////////////////
-var selectAlunoEscola = new ol.interaction.Select({
+var selectAlunoEscolaConfig = new ol.interaction.Select({
     hitTolerance: 5,
     multi: false,
     condition: ol.events.condition.singleClick,
@@ -691,12 +694,26 @@ var selectAlunoEscola = new ol.interaction.Select({
         }
     }
 });
-mapaConfig["map"].addInteraction(selectAlunoEscola);
-mapaRotaGerada["map"].addInteraction(selectAlunoEscola);
+var selectAlunoEscolaRotaGerada = new ol.interaction.Select({
+    hitTolerance: 5,
+    multi: false,
+    condition: ol.events.condition.singleClick,
+    filter: (feature, layer) => {
+        if (feature.getGeometry().getType() == "Point" &&
+            (feature.getProperties().tipo == "aluno" ||
+                feature.getProperties().tipo == "escola")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+});
+mapaConfig["map"].addInteraction(selectAlunoEscolaConfig);
+mapaRotaGerada["map"].addInteraction(selectAlunoEscolaRotaGerada);
 
-var popupAlunoEscola = new ol.Overlay.PopupFeature({
+var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
-    select: selectAlunoEscola,
+    select: selectAlunoEscolaConfig,
     closeBox: true,
     template: {
         title: (elem) => {
@@ -734,8 +751,48 @@ var popupAlunoEscola = new ol.Overlay.PopupFeature({
         }
     }
 });
-mapaConfig["map"].addOverlay(popupAlunoEscola);
-mapaRotaGerada["map"].addOverlay(popupAlunoEscola);
+var popupAlunoEscolaRotaGerada = new ol.Overlay.PopupFeature({
+    popupClass: "default anim",
+    select: selectAlunoEscolaRotaGerada,
+    closeBox: true,
+    template: {
+        title: (elem) => {
+            return elem.get("nome");
+        },
+        attributes: {
+            'nivel': {
+                title: "Série",
+                visible: (e) => e.getProperties().tipo == "aluno"
+            },
+            'turno': {
+                title: "Turno",
+                visible: (e) => e.getProperties().tipo == "aluno"
+            },
+            'escolaNome': {
+                title: "Escola",
+                visible: (e) => e.getProperties().tipo == "aluno"
+            },
+            'escolaTemGPS': {
+                title: "Escola possui GPS?",
+                visible: (e) => e.getProperties().tipo == "aluno"
+            },
+            'ensino': {
+                title: "Níveis",
+                visible: (e) => e.getProperties().tipo == "escola"
+            },
+            'horario': {
+                title: "Horário de Funcionamento",
+                visible: (e) => e.getProperties().tipo == "escola"
+            },
+            'localizacao': {
+                title: "Localização",
+                visible: (e) => e.getProperties().tipo == "escola"
+            },
+        }
+    }
+});
+mapaConfig["map"].addOverlay(popupAlunoEscolaConfig);
+mapaRotaGerada["map"].addOverlay(popupAlunoEscolaRotaGerada);
 
 var selectRoute = new ol.interaction.Select({
     hitTolerance: 5,
@@ -769,7 +826,13 @@ var popup = new ol.Overlay.PopupFeature({
                 title: 'Tamanho da Rota',  // attribute's title
                 before: '',           // something to add before
                 format: ol.Overlay.PopupFeature.localString(),  // format as local string
-                after: ' km.'        // something to add after
+                after: ' km'        // something to add after
+            },
+            'estTime': {
+                title: 'Tempo estimado',  // attribute's title
+                before: '',           // something to add before
+                format: ol.Overlay.PopupFeature.localString(),  // format as local string
+                after: ' min'        // something to add after
             }
         }
     }
@@ -1073,4 +1136,164 @@ $('input[type=radio][name=turno]').on('change', (evt) => {
 // Salvar Rotas
 ////////////////////////////////////////////////////////////////////////////////
 
+$("#rota-sugestao-saveBtnSim").on('click', () => {
+    let numRotas = $(".visible.ol-layer-vector").length;
+    if (numRotas == 0) {
+        errorFn("Nenhuma rota selecionada");
+    } else {
+        let rotasLabels = ["<strong>Note que os alunos selecionados serão transferidos para as rotas selecionadas.</strong>"]
+        let rotasSelecionadas = []
+        $(".visible.ol-layer-vector").each((_, li) => {
+            let lbl = $(li).find("label");
+            rotasSelecionadas.push(Number(lbl.text().split(": ")[1]))
+            rotasLabels.push(lbl.html())
+        })
+
+        Swal2.fire({
+            title: 'Você deseja salvar as rotas abaixo?',
+            icon: 'question',
+            html: rotasLabels.join("<br />"),
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            confirmButtonText: "Salvar"    
+        }).then((res) => {
+            if (res.isConfirmed) {
+                Swal2.fire({
+                    title: "Salvando as rotas...",
+                    imageUrl: "img/icones/processing.gif",
+                    closeOnClickOutside: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    html: `
+                    <br />
+                    <div class="progress" style="height: 20px;">
+                        <div id="pbar" class="progress-bar" role="progressbar" 
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" 
+                             style="width: 0%;">
+                        </div>
+                    </div>
+                    `
+                })
+
+                var numAlunos = 0;
+                var numEscolas = 0;
+                var numRotas = rotasSelecionadas.length;
+                
+                var rotasQueVamosSalvar = [];
+
+                rotasSelecionadas.forEach(rID => {
+                    let rg = rotasGeradas.get(rID);
+                    if (rg) {
+                        let rgAlunos = rg.payload.path.filter(k => k.type == "stop");
+                        let rgEscolas = rg.payload.path.filter(k => k.type == "otherschool" || k.type == "school");
+
+                        rotasQueVamosSalvar.push({
+                            "id": "ROTA-" + rID,
+                            "rota": rg,
+                            "alunos": rgAlunos,
+                            "escolas": rgEscolas
+                        })
+
+                        numAlunos += rgAlunos.length;
+                        numEscolas += rgEscolas.length;
+                    }
+                })
+
+                var totalOperacoes = numAlunos + numAlunos + numEscolas + numRotas; 
+                var progresso = 0;
+
+                function updateProgresso() {
+                    progresso++;
+                    let progressoPorcentagem = Math.round(100 * (progresso / totalOperacoes))
+                    $('.progress-bar').css('width', progressoPorcentagem + "%")
+                    $('.progress-bar').text(progressoPorcentagem + "%")
+                }
+
+                // Promessas de Relações Antigas
+                var promiseArrayRelacoesAntigas = new Array();
+
+                // Remove das rotas atuais (se tiver vinculado)
+                for (r of rotasQueVamosSalvar) { 
+                    for (a of r.alunos) { 
+                        console.log("REMOVER ROTA", a.id)
+                        // Remove da escola atual (se tiver matriculado)
+                        remotedb.collection("municipios")
+                            .doc(codCidade)
+                            .collection("rotaatendealuno")
+                            .where("ID_ALUNO", "==", a.id)
+                            .get({ source: "cache" })
+                            .then((snapshotDocumentos) => {
+                                updateProgresso()
+                                snapshotDocumentos.forEach(doc => {
+                                    promiseArrayRelacoesAntigas.push(doc.ref.delete())
+                                })
+                            })
+                    }
+                }
+
+                Promise.all(promiseArrayRelacoesAntigas)
+                .then(() => {
+                    var promiseArrayRelacoes = new Array();
+
+                    // Adicionar as novas rotas
+                    for (r of rotasQueVamosSalvar) { 
+                        r.alunos.forEach(a => promiseArrayRelacoes.push(
+                            dbInserirPromise(DB_TABLE_ROTA_ATENDE_ALUNO, { "ID_ROTA": r.id, "ID_ALUNO": a.id })
+                            .then(() => updateProgresso())
+                            // console.log("TABLE_ATENDE_ALUNO", r.id, a.id)
+                        ));
+
+                        r.escolas.forEach(e => promiseArrayRelacoes.push(
+                            dbInserirPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, { "ID_ROTA": r.id, "ID_ESCOLA": e.id })
+                            .then(() => updateProgresso())
+                            // console.log("TABLE_PASSA_POR_ESCOLA", r.id, e.id)
+                        ));
+
+                        let rotaPayload = r.rota.payload;
+
+                        let rotaJSON = {
+                            "TIPO": 1, // int
+                            "NOME": r.id, // string
+                            "KM": (rotaPayload.travDistance / 1000).toFixed(2), // text
+                            "TEMPO": rotaPayload.estTime, // text
+                            "TURNO_MATUTINO": $("#turnoManha").is(":checked"), // bool
+                            "TURNO_VESPERTINO": $("#turnoTarde").is(":checked"), // bool
+                            "TURNO_NOTURNO": $("#turnoNoite").is(":checked"), // bool                    
+                            "SHAPE": new ol.format.GeoJSON().writeFeatures(r.rota.gjson),
+
+                            // campos default
+                            "HORA_IDA_INICIO": "", 
+                            "HORA_IDA_TERMINO": "", 
+                            "HORA_VOLTA_INICIO": "", 
+                            "HORA_VOLTA_TERMINO": "", 
+                            "DA_PORTEIRA": false,
+                            "DA_MATABURRO": false,
+                            "DA_COLCHETE": false, 
+                            "DA_ATOLEIRO": false, 
+                            "DA_PONTERUSTICA": false,
+                        }
+                        promiseArrayRelacoes.push(
+                            dbInserirPromise(DB_TABLE_ROTA, rotaJSON, r.id).then(() => updateProgresso())
+                        );
+                    }
+                    return Promise.all(promiseArrayRelacoes)
+                }).then(() => {
+                    return Swal2.fire({
+                        title: "Rotas salvas com sucesso",
+                        icon: "success",
+                        showCancelButton: false,
+                        confirmButtonClass: "btn-success",
+                        confirmButtonText: "Retornar ao painel",
+                        closeOnConfirm: false,
+                        closeOnClickOutside: false,
+                        allowOutsideClick: false,
+                        showConfirmButton: true
+                    })
+                }).then(() => {
+                    navigateDashboard("./modules/rota/rota-listar-view.html");
+                }).catch((err) => errorFn("Erro ao salvar as rotas sugeridas", err));
+            }
+        })
+    }
+})
 // $(".visible.ol-layer-vector")

@@ -23,7 +23,12 @@ function novoMapaOpenLayers(target, latitude, longitude) {
     });
 
     let olMap = new ol.Map({
-        "controls": ol.control.defaults().extend([new ol.control.FullScreen()]),
+        "controls": ol.control.defaults().extend([
+            new ol.control.FullScreen({
+                tipLabel: "Ativar/Desativar tela cheia"
+            }), 
+            new ol.control.CanvasScaleLine()
+        ]),
         "target": target,
         "layers": [
             new ol.layer.Tile({

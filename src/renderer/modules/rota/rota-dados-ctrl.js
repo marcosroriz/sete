@@ -57,33 +57,46 @@ var getGeomStyle = function (feature) {
             stroke: estilos[tipoLinha]
         }));
 
-        var numFeatures = feature.getGeometry().getCoordinates().length;
-        var simplify = false;
-        if (numFeatures > 100) {
-            simplify = true;
-        }
-
+        let pontoReferencial = null;
+        let ultPonto = feature.getGeometry().getLastCoordinate().slice(0, 2);
         feature.getGeometry().forEachSegment(function (start, end) {
-            var rnd = Math.floor(Math.random() * 10 + 1);
+            let plotSeta = false;
 
-            var dx = end[0] - start[0];
-            var dy = end[1] - start[1];
-            var rotation = Math.atan2(dy, dx);
-
-            if (simplify && rnd <= 9) {
+            if (!pontoReferencial) {
+                plotSeta = true;
+                pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
                 return;
+            } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) ||
+                       (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
+                plotSeta = true;
+            } else {
+                let pontoAtual = ol.proj.transform(end, 'EPSG:3857', 'EPSG:4326');
+                
+                let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
+
+                if (distancia > 2000) {
+                    pontoReferencial = pontoAtual;
+                    plotSeta = true;
+                }
             }
 
-            // arrows
-            styles.push(new ol.style.Style({
-                geometry: new ol.geom.Point(end),
-                image: new ol.style.Icon({
-                    src: 'img/icones/arrow.png',
-                    anchor: [0.75, 0.5],
-                    rotateWithView: true,
-                    rotation: -rotation
-                })
-            }));
+            if (plotSeta) {
+                var dx = end[0] - start[0];
+                var dy = end[1] - start[1];
+                var rotation = Math.atan2(dy, dx);
+    
+                // arrows
+                styles.push(new ol.style.Style({
+                    geometry: new ol.geom.Point(end),
+                    image: new ol.style.Icon({
+                        src: 'img/icones/arrow.png',
+                        anchor: [0.75, 0.5],
+                        rotateWithView: true,
+                        rotation: -rotation
+                    })
+                }));
+            }
+
         });
     }
     return styles;
