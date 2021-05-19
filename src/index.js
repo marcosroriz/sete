@@ -79,9 +79,9 @@ const createEntryWindow = () => {
     // Cria a janela do navegador
     appWindow = new BrowserWindow({
         "width": 1250,
-        "height": 650,
+        "height": 450,
         "minWidth": 1250,
-        "minHeight": 650,
+        "minHeight": 450,
         "backgroundThrottling": false,
         "show": false,
         webPreferences: {

@@ -36,12 +36,16 @@ class MalhaUpdate {
      */
     clearNetwork() {
         let binario = "spatialite.exe";
+        let envVariables = "";
+        
         if (process.platform == "linux") {
             binario = "spatialite";
+            envVariables = ".:" + path.join(app.getAppPath(), "bin");
         } else if (process.platform == "win32") {
             binario = "spatialite.exe";
         } else {
             binario = "spatialite_mac";
+            envVariables = ".:" + path.join(app.getAppPath(), "bin");
         }
 
         let spatialiteBinPath = path.join(app.getAppPath(), "bin", binario);
@@ -58,7 +62,11 @@ class MalhaUpdate {
         let args = [this.dbPath, sqlQuery];
         console.log(spatialiteBinPath);
         console.log(args);
-        return child_process.spawn(spatialiteBinPath, args);
+        return child_process.spawn(spatialiteBinPath, args, {
+                	env: { 
+        		"LD_LIBRARY_PATH": envVariables
+        	}
+	});
     }
 
     /**
@@ -69,12 +77,16 @@ class MalhaUpdate {
      */
     createBasicNet(tabela) {
         let binario = "spatialite_osm_net.exe";
+        let envVariables = "";
+        
         if (process.platform == "linux") {
             binario = "spatialite_osm_net";
+            envVariables = ".:" + path.join(app.getAppPath(), "bin");
         } else if (process.platform == "win32") {
             binario = "spatialite_osm_net.exe";
         } else {
             binario = "spatialite_osm_net_mac";
+            envVariables = ".:" + path.join(app.getAppPath(), "bin");
         }
 
         let spatialiteNetBinPath = path.join(app.getAppPath(), "bin", binario);
@@ -87,7 +99,11 @@ class MalhaUpdate {
         ];
         console.log(spatialiteNetBinPath);
         console.log(args);
-        return child_process.spawn(spatialiteNetBinPath, args);
+        return child_process.spawn(spatialiteNetBinPath, args, {
+                	env: { 
+        		"LD_LIBRARY_PATH": envVariables
+        	}
+	});
     }
 
     /**
@@ -98,12 +114,15 @@ class MalhaUpdate {
      */
     createVirtualNetwork(tabela) {
         let binario = "spatialite_network.exe";
+        let envVariables = "";
         if (process.platform == "linux") {
             binario = "spatialite_network";
+            envVariables = ".:" + path.join(app.getAppPath(), "bin");
         } else if (process.platform == "win32") {
             binario = "spatialite_network.exe";
         } else {
             binario = "spatialite_network_mac";
+            envVariables = ".:" + path.join(app.getAppPath(), "bin");
         }
 
         let spatialliteVirtualNetBin = path.join(app.getAppPath(), "bin", binario);
@@ -123,7 +142,11 @@ class MalhaUpdate {
         ];
         console.log(spatialliteVirtualNetBin);
         console.log(args);
-        return child_process.spawn(spatialliteVirtualNetBin, args);
+        return child_process.spawn(spatialliteVirtualNetBin, args, {
+        	env: { 
+        		"LD_LIBRARY_PATH": envVariables
+        	}
+	});
     }
 
 
