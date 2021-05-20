@@ -4,6 +4,7 @@
 
 var escolaVisualizada = null;
 var escolas = new Map();
+var hashMapEscolas = new Map();
 
 // Dados básicos do mapa
 var mapaViz = novoMapaOpenLayers("mapVizEscola", cidadeLatitude, cidadeLongitude);
@@ -23,16 +24,52 @@ window.onresize = function () {
 
 dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
 .then(res => processarEscolas(res))
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS))
+.then((res) => preprocessarRelacaoEscolaAluno(res))
+.then((res) => adicionaDadosMapa(res))
+
 
 // Processa escolas
 var processarEscolas = (res) => {
+    res.sort((a, b) => a["NOME"].localeCompare(b["NOME"]))
+
     for (let escolaRaw of res) {
         let escolaJSON = parseEscolaDB(escolaRaw);
-        let escolaID = escolaJSON["ID"]
-        escolaJSON["ID_ESCOLA"] = escolaID
+        let escolaID = escolaJSON["ID"];
+        escolaJSON["ID_ESCOLA"] = escolaID;
+        escolaJSON["NUM_ALUNOS"] = 0;
+
+        hashMapEscolas.set(escolaID, escolaJSON);
+    }
+
+    return hashMapEscolas;
+}
+
+// Preprocessa relação de escolas e alunos para pegar o quantitativo entre eles
+var preprocessarRelacaoEscolaAluno = (res) => {
+    for (let relEscolaAluno of res) {
+        let eID = relEscolaAluno["ID_ESCOLA"];
+        if (hashMapEscolas.has(eID)) {
+            let escolaJSON = hashMapEscolas.get(eID);
+            escolaJSON["NUM_ALUNOS"] = escolaJSON["NUM_ALUNOS"] + 1;
+            hashMapEscolas.set(eID, escolaJSON);
+        }
+    }
+
+    return hashMapEscolas;
+}
+
+// Adiciona dados no Mapa
+adicionaDadosMapa = (res) => {
+    let escolaArray = [...res.values()];
+    escolaArray.sort((a, b) => a["NOME"].localeCompare(b["NOME"]))
+
+    for (let escolaJSON of escolaArray) {
+        let escolaID = escolaJSON["ID"];
+        escolaJSON["ID_ESCOLA"] = escolaID;
 
         let posicaoEscola = null;
-        
+
         // Só adicionamos (mostraremos) as escolas que tem posição cadastrada!
         if (escolaJSON["LOC_LONGITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != undefined &&
             escolaJSON["LOC_LATITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != undefined) {
@@ -40,23 +77,30 @@ var processarEscolas = (res) => {
             let lng = escolaJSON["LOC_LONGITUDE"];
 
             posicaoEscola = gerarMarcador(lat, lng, "img/icones/escola-marcador.png", 25, 50);
-            posicaoEscola.set("NOME", escolaJSON["NOME"])
-            posicaoEscola.set("TIPO", "ESCOLA")
-            posicaoEscola.set("HORARIO", escolaJSON["HORARIO"])
+            posicaoEscola.set("NOME", escolaJSON["NOME"]);
+            posicaoEscola.set("TIPO", "ESCOLA");
+            posicaoEscola.set("HORARIO", escolaJSON["HORARIO"]);
+            posicaoEscola.set("ENSINO", escolaJSON["ENSINO"]);
+            posicaoEscola.set("REGIME", escolaJSON["REGIME"]);
             posicaoEscola.set("ENSINO", escolaJSON["ENSINO"])
-            posicaoEscola.set("REGIME", escolaJSON["REGIME"])
+            posicaoEscola.set("NUM_ALUNOS", escolaJSON["NUM_ALUNOS"]);
+            posicaoEscola.set("CONTATO_TELEFONE", escolaJSON["CONTATO_TELEFONE"]);
+
             vSource.addFeature(posicaoEscola);
             escolas.set(escolaID, [lng, lat]);
+            $('#escolaViz').append(`<option value="${escolaID}">${escolaJSON['NOME']} ✔️</option>`);
+        } else {
+            $('#escolaViz').append(`<option value="${escolaID}">${escolaJSON['NOME']} ❌</option>`);
         }
-        $('#escolaViz').append(`<option value="${escolaID}">${escolaJSON['NOME']}</option>`);
     }
 
     if (!vSource.isEmpty()) {
-        mapaViz["map"].getView().fit(vSource.getExtent());
+        mapaViz["map"].getView().fit(vSource.getExtent(), {
+            padding: [40, 40, 40, 40]
+        });
         mapaViz["map"].updateSize();
     }
 }
-
 
 // Select para lidar com click nas escolas
 var selectEscola = selectPonto("ESCOLA");
@@ -68,12 +112,15 @@ var popupEscola = new ol.Overlay.PopupFeature({
     select: selectEscola,
     closeBox: true,
     template: {
+        title: (elem) => {
+            return elem.get("NOME");
+        },
         attributes: {
-            'NOME': {
-                title: 'Nome'
-            },
             'HORARIO': {
                 title: 'Horário de Func.'
+            },
+            'CONTATO_TELEFONE': {
+                title: "Telefone"
             },
             'ENSINO': {
                 title: 'Ensino'
@@ -81,6 +128,9 @@ var popupEscola = new ol.Overlay.PopupFeature({
             'REGIME': {
                 title: 'Regime'
             },
+            'NUM_ALUNOS': {
+                title: 'Número de alunos'
+            }
         }
     }
 });
@@ -89,12 +139,20 @@ var popupEscola = new ol.Overlay.PopupFeature({
 mapaViz["map"].addOverlay(popupEscola);
 
 $("#escolaViz").on('change', (e) => {
-    var eID = e.target.value
-    if (escolas.has(eID)) {
-        var coordenadasEscola = escolas.get(eID)
-        mapaViz["map"].getView().setCenter(ol.proj.fromLonLat(coordenadasEscola))
+    var eID = e.target.value;
+
+    if (eID != "0" && eID != 0) {
+        if (escolas.has(eID)) {
+            var coordenadasEscola = escolas.get(eID)
+            mapaViz["map"].getView().setCenter(ol.proj.fromLonLat(coordenadasEscola))
+        } else {
+            errorFn("Esta escola ainda não foi georeferenciada")
+        }
     } else {
-        errorFn("Esta escola ainda não foi georeferenciada")
+        mapaViz["map"].getView().fit(vSource.getExtent(), {
+            padding: [40, 40, 40, 40]
+        });
+        mapaViz["map"].updateSize();
     }
 });
 
