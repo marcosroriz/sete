@@ -14,6 +14,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
             style: 'multi',
             info: false
         },
+        "order": [[ 1, "asc" ]],
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'PLACA', width: "12%" },
@@ -140,7 +141,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                     columns: [1, 2, 3, 4, 5, 6, 7, 8]
                 },
                 customize: function (doc) {
-                    doc.content[1].table.widths = ['10%', '15%', '10%', '15%', '15%', '15%', '10%', '10%'];
+                    doc.content[1].table.widths = ['10%', '15%', '10%', '15%', '13%', '13%', '12%', '12%'];
                     doc = docReport(doc);
                     
                     // O datatable coloca o select dentro do header, vamos tirar isso

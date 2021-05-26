@@ -91,6 +91,7 @@ var parseOSDB = function (osRaw) {
 var parseVeiculoDB = function (veiculoRaw) {
     var veiculoJSON = Object.assign({}, veiculoRaw);
     veiculoJSON["CAPACIDADE_ATUAL"] = 0;
+    veiculoJSON["CAPACIDADE"] = Number(veiculoJSON["CAPACIDADE"]);
 
     if (veiculoJSON["MANUTENCAO"]) {
         veiculoJSON["ESTADO"] = "Manutenção";
@@ -104,7 +105,7 @@ var parseVeiculoDB = function (veiculoRaw) {
         veiculoJSON["ORIGEMSTR"] = "Frota terceirizada";
     }
 
-    switch (veiculoRaw["TIPO"]) {
+    switch (Number(veiculoRaw["TIPO"])) {
         case 1: veiculoJSON["TIPOSTR"] = "Ônibus"; break;
         case 2: veiculoJSON["TIPOSTR"] = "Micro-ônibus"; break;
         case 3: veiculoJSON["TIPOSTR"] = "Van"; break;
@@ -121,7 +122,7 @@ var parseVeiculoDB = function (veiculoRaw) {
         default: veiculoJSON["TIPOSTR"] = "Ônibus";
     }
 
-    switch (parseInt(veiculoRaw["MARCA"])) {
+    switch (Number(veiculoRaw["MARCA"])) {
         case 1: veiculoJSON["MARCASTR"] = "IVECO"; break;
         case 2: veiculoJSON["MARCASTR"] = "MERCEDES-BENZ"; break;
         case 3: veiculoJSON["MARCASTR"] = "RENAULT"; break;
@@ -131,7 +132,7 @@ var parseVeiculoDB = function (veiculoRaw) {
         default: veiculoJSON["MARCASTR"] = "OUTRA";
     }
 
-    switch (parseInt(veiculoRaw["MODELO"])) {
+    switch (Number(veiculoRaw["MODELO"])) {
         case 1: veiculoJSON["MODELOSTR"] = "ORE 1"; break;
         case 2: veiculoJSON["MODELOSTR"] = "ORE 1 (4x4)"; break;
         case 3: veiculoJSON["MODELOSTR"] = "ORE 2"; break;
