@@ -15,6 +15,7 @@ var dataTablesRotas = $("#datatables").DataTable({
             style: 'multi',
             info: false
         },
+        "order": [[ 1, "asc" ]],
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'NOME', width: "20%" },
@@ -278,5 +279,11 @@ adicionaDadosTabela = (res) => {
     dataTablesRotas.draw();
     dtInitFiltros(dataTablesRotas, [1, 2, 3, 4, 5, 6]);
 }
+
+
+$("#datatables_filter input").on('keyup', function () {
+    dataTablesRotas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+})
+
 
 action = "listarRotas";

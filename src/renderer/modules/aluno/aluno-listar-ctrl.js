@@ -18,6 +18,7 @@ var defaultTableConfig = {
             style: 'multi',
             info: false
         },
+        "order": [[ 1, "asc" ]],
         buttons: [
             {
                 text: 'Remover alunos',

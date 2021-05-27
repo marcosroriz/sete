@@ -74,3 +74,11 @@ table.filterTable thead .sorting_desc:after, table.filterTable thead .sorting_de
     top: -50px;
 
 }
+
+div#datatables_filter {
+    margin-top: 20px;
+}
+
+#datatables_filter label {
+    width: 20%;
+}

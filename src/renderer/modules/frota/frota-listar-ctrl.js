@@ -36,7 +36,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
         ],
         columnDefs: [
             { targets: 0, 'checkboxes': { 'selectRow': true } },
-            { targets: 1,  render: renderAtMostXCharacters(50) }
+            { targets: 1,  render: renderAtMostXCharacters(50), type: 'locale-compare' },
         ],
         buttons: [
             {
@@ -234,5 +234,9 @@ adicionaDadosTabela = (res) => {
     dataTablesVeiculos.draw();
     dtInitFiltros(dataTablesVeiculos, [1, 2, 3, 4, 5, 6, 7, 8]);
 }
+
+$("#datatables_filter input").on('keyup', function () {
+    dataTablesVeiculos.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+})
 
 action = "listarVeiculos";

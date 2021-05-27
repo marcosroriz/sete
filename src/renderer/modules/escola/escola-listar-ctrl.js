@@ -18,6 +18,7 @@ var dataTableEscolas = $("#datatables").DataTable({
             style: 'multi',
             info: false
         },
+        "order": [[ 1, "asc" ]],
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'NOME', width: "20%" },

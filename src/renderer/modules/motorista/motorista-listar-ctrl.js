@@ -16,6 +16,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
             style: 'multi',
             info: false
         },
+        "order": [[ 1, "asc" ]],
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'NOME', width: "15%" },
@@ -230,5 +231,10 @@ adicionaDadosTabela = (res) => {
     dataTablesMotoristas.draw();
     dtInitFiltros(dataTablesMotoristas, [1, 2, 3, 4, 5, 6]);
 }
+
+
+$("#datatables_filter input").on('keyup', function () {
+    dataTablesMotoristas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+})
 
 action = "listarMotoristas";
