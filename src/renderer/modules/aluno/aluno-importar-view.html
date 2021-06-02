@@ -9,14 +9,20 @@
             <div class="card card-wizard wiz-fixes">
                 <div class="card-body ">
                     <ul class="nav nav-tabs">
-                        <li class="nav-item col-6 tab-2-fix">
-                            <a class="nav-link active" href="#tab-rota-malha-atual" data-toggle="tab" role="tab">
-                                <img src="./img/icones/tab-xls.png" class="wiz-icon">
+                        <li class="nav-item ">
+                            <a class="nav-link active" href="#tab-planilha-exemplo" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-table.png" class="wiz-icon">
                                 Planilha
                             </a>
                         </li>
-                        <li class="nav-item col-6 tab-2-fix">
-                            <a class="nav-link" href="#tab-rota-malha-enviar" data-toggle="tab" role="tab">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#tab-planilha-preprocessamento" id="tab-pre" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-xls.png" class="wiz-icon">
+                                Base de Dados
+                            </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="#tab-planilha-processamento" data-toggle="tab" role="tab">
                                 <img src="./img/icones/tab-processamento2.png" class="wiz-icon">
                                 Importação
                             </a>
@@ -25,7 +31,7 @@
 
                     <!-- Abas -->
                     <div class="tab-content">
-                        <div class="tab-pane tab-wiz fade show active" id="tab-rota-malha-atual" role="tabpanel">
+                        <div class="tab-pane tab-wiz fade show active" id="tab-planilha-exemplo" role="tabpanel">
                             <div class="row justify-content-center">
                                 <h6 class="mb-4 mt-1 text-center text-space">
                                     Essa ferramenta possibilita importar vários alunos para o sistema de uma vez a partir de dados existentes.
@@ -51,7 +57,7 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane tab-wiz fade" id="tab-rota-malha-enviar" role="tabpanel">
+                        <div class="tab-pane tab-wiz fade" id="tab-planilha-preprocessamento" role="tabpanel">
                             <h6 class="mb-4 text-center text-space">
                                 Por favor envie a planilha XLXS contendo a descrição dos alunos que serão importados para o sistema.
                             </h6>
@@ -67,6 +73,45 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="tab-pane tab-wiz fade" id="tab-planilha-processamento" role="tabpanel">
+                            <div class="row justify-content-center">
+                                <h6 class="mb-4 mt-1 text-center text-space">
+                                    Essa ferramenta possibilita importar os <strong>alunos</strong> da planilha fornecida.
+                                </h6>
+                            </div>
+                            <div class="row mt-2">
+                                <ul class="fa-ul ul-dica">
+                                    <li><span class="fa-li">
+                                            <i class="fa fa-info-circle"></i></span>
+                                        Para selecionar um ou mais alunos, basta clicar no ícone <i class="fa fa-square-o"></i>
+                                    </li>
+                                    <li><span class="fa-li"><i class="fa fa-info-circle"></i></span>
+                                        Para selecionar todos os alunos, clique no ícone <i class="fa fa-square-o"></i> no cabeçalho da tabela.
+                                    </li>
+                                    <li><span class="fa-li"><i class="fa fa-info-circle"></i></span>
+                                        Por fim, clique no botão <div class="badge badge-info badge-total badge-censo">Importar</div> 
+                                        para concluir o processo.
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="fresh-datatables mr-2">
+                                <table id="datatables" class="table table-striped table-no-bordered table-hover"
+                                    cellspacing="0" width="100%" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Nome do Aluno</th>
+                                            <th>Data de Nascimento</th>
+                                            <th>Georeferenciamento</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
                     </div>
 
                     <div class="card-footer text-center">
@@ -76,9 +121,8 @@
                         <button type="button" class="btn btn-info btn-wd btn-next pull-right">
                             Próximo
                         </button>
-                        <button type="button" id="importarAlunos"
-                            class="btn btn-info btn-wd btn-finish pull-right">
-                            Salvar
+                        <button type="button" id="importarAlunos" class="btn btn-info btn-wd btn-finish pull-right">
+                            Importar
                         </button>
                         <div class="clearfix"></div>
                         <!-- Fim footer -->

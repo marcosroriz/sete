@@ -84,7 +84,6 @@ function callbackPreprocessCenso(err, arqProcessado, baseDadosProcessada) {
         }
         dataTableCenso.draw();
         $("#datatables thead input[type='checkbox']").trigger('click');
-
     }
 }
 

@@ -5,48 +5,64 @@
 // Lista de Imports
 var readXlsxFile = require('read-excel-file/node');
 
+// Base de dados
+var alunos = [];
+var ultArquivoAnalisado = "";
+
 // Schema da planilha
 var schema = {
-    'Nome': {
-        prop: 'NOME',
+    'OBRIGATORIO_NOME': {
+        prop: 'OBRIGATORIO_NOME',
         type: String
     },
-    'Data de Nascimento': {
-        prop: 'data',
+    'OBRIGATORIO_DATA_NASCIMENTO': {
+        prop: 'OBRIGATORIO_DATA_NASCIMENTO',
         type: Date
     },
-    'Sexo': {
-        prop: 'sexo',
+    'OBRIGATORIO_SEXO': {
+        prop: 'OBRIGATORIO_SEXO',
         type: String
     },
-    'Cor': {
-        prop: 'cor',
+    'OBRIGATORIO_COR': {
+        prop: 'OBRIGATORIO_COR',
         type: String
     },
-    'Nome Responsável': {
+    'OBRIGATORIO_LOCALIZACAO': {
+        prop: 'OBRIGATORIO_LOCALIZACAO',
+        type: String
+    },
+    'OBRIGATORIO_NIVEL_ENSINO': {
+        prop: 'OBRIGATORIO_NIVEL_ENSINO',
+        type: String
+    },
+    'OBRIGATORIO_TURNO_ENSINO': {
+        prop: 'OBRIGATORIO_TURNO_ENSINO',
+        type: String
+    },
+    'OPTATIVO_CPF': {
+        prop: 'OPTATIVO_CPF',
+        type: String
+    },
+    'OPTATIVO_NOME_RESPONSAVEL': {
         prop: 'NOME_RESPONSAVEL',
         type: String
     },
-    'Grau de Parentesco': {
-        prop: 'grauResponsavel',
+    'OPTATIVO_GRAU_PARENTESCO': {
+        prop: 'OPTATIVO_GRAU_PARENTESCO',
         type: String
     },
-    'Endereço Aluno': {
-        prop: 'LOC_ENDERECO',
+    'OPTATIVO_ENDERECO': {
+        prop: 'OPTATIVO_ENDERECO',
         type: String
     },
-    'Localização do Aluno': {
-        prop: 'localizacao',
+    'OPTATIVO_LATITUDE': {
+        prop: 'OPTATIVO_LATITUDE',
         type: String
     },
-    'Nível': {
-        prop: 'nivel',
+    'OPTATIVO_LONGITUDE': {
+        prop: 'OPTATIVO_LONGITUDE',
         type: String
     },
-    'Turno': {
-        prop: 'turno',
-        type: String
-    }
 }
 
 $("#baixarPlanilha").on('click', () => {
@@ -69,7 +85,253 @@ $("#baixarPlanilha").on('click', () => {
     }
 });
 
+function preprocess(arquivo) {
+    if (arquivo == undefined) {
+        Swal2.fire({
+            title: "Ops... tivemos um problema!",
+            text: "É necessário informar o arquivo contendo a planilha para realizar a importação.",
+            icon: "error",
+            confirmButtonColor: "red",
+            confirmButtonText: "Fechar",
+        });
+        return false;
+    } else {
+        Swal2.fire({
+            title: "Pré-processando a planilha...",
+            imageUrl: "img/icones/processing.gif",
+            closeOnClickOutside: false,
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            text: "Aguarde, estamos pré-processando a planilha..."
+        })
+        parsePlanilha(arquivo);
+        return true;
+    }
+}
+
+async function parsePlanilha(arquivo) {
+    readXlsxFile(arquivo, { schema }).then(({ rows, errors }) => {
+        // Alunos a serem importados
+        let promiseAlunos = new Array();
+        let erroDeProcessamento = false;
+        let numErros = 0;
+
+        alunos = [];
+        for (let linha of rows) {
+            let alunoJSON = {};
+
+            try {
+                if (!(linha["OBRIGATORIO_NOME"].toLowerCase().includes("exemplo"))) {
+                    ////////////////////////////////////////////////////////////
+                    // TRATAMENTO DOS CAMPOS OBRIGATÓRIOS
+                    ////////////////////////////////////////////////////////////
+                    alunoJSON["NOME"] = linha["OBRIGATORIO_NOME"];
+                    alunoJSON["DATA_NASCIMENTO"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"]).format("DD/MM/YYYY");
+
+                    var alunoSexo = linha["OBRIGATORIO_SEXO"].toLowerCase();
+                    var alunoCor = linha["OBRIGATORIO_COR"].toLowerCase();
+                    var alunoLocalizacao = linha["OBRIGATORIO_LOCALIZACAO"].toLowerCase();
+                    var alunoNivel = linha["OBRIGATORIO_NIVEL_ENSINO"].toLowerCase();
+                    var alunoTurno = linha["OBRIGATORIO_TURNO_ENSINO"].toLowerCase();
+
+                    if (alunoSexo.includes("masculino")) {
+                        alunoJSON["SEXO"] = 1;
+                    } else if (alunoSexo.includes("feminino")) {
+                        alunoJSON["SEXO"] = 2;
+                    } else {
+                        alunoJSON["SEXO"] = 3;
+                    }
+
+                    if (alunoCor.includes("amarelo")) {
+                        alunoJSON["COR"] = 4;
+                    } else if (alunoCor.includes("branco")) {
+                        alunoJSON["COR"] = 1;
+                    } else if (alunoCor.includes("indígena") || alunoCor.includes("indigena")) {
+                        alunoJSON["COR"] = 5;
+                    } else if (alunoCor.includes("pardo")) {
+                        alunoJSON["COR"] = 3;
+                    } else if (alunoCor.includes("preto")) {
+                        alunoJSON["COR"] = 2;
+                    } else {
+                        alunoJSON["COR"] = 0;
+                    }
+
+                    if (alunoLocalizacao.includes("urbana")) {
+                        alunoJSON["MEC_TP_LOCALIZACAO"] = 1;
+                    } else if (alunoLocalizacao.includes("rural")) {
+                        alunoJSON["MEC_TP_LOCALIZACAO"] = 2;
+                    }
+
+                    if (alunoNivel.includes("infantil")) {
+                        alunoJSON["NIVEL"] = 1;
+                    } else if (alunoNivel.includes("fundamental")) {
+                        alunoJSON["NIVEL"] = 2;
+                    } else if (alunoNivel.includes("médio") || alunoNivel.includes("medio")) {
+                        alunoJSON["NIVEL"] = 3;
+                    } else if (alunoNivel.includes("superior")) {
+                        alunoJSON["NIVEL"] = 4;
+                    } else if (alunoNivel.includes("outro")) {
+                        alunoJSON["NIVEL"] = 5;
+                    }
+
+                    if (alunoTurno.includes("manhã") || alunoTurno.includes("manha")) {
+                        alunoJSON["TURNO"] = 1;
+                    } else if (alunoTurno.includes("tarde")) {
+                        alunoJSON["TURNO"] = 2;
+                    } else if (alunoTurno.includes("integral")) {
+                        alunoJSON["TURNO"] = 3;
+                    } else if (alunoTurno.includes("noturno") || alunoTurno.includes("noite")) {
+                        alunoJSON["TURNO"] = 4;
+                    }
+
+
+                    ////////////////////////////////////////////////////////////
+                    // TRATAMENTO DOS CAMPOS OPTATIVOS
+                    ////////////////////////////////////////////////////////////
+                    if (linha["OPTATIVO_CPF"]) {
+                        alunoJSON["CPF"] = linha["OPTATIVO_CPF"];
+                    }
+
+                    if (linha["OPTATIVO_NOME_RESPONSAVEL"]) {
+                        alunoJSON["NOME_RESPONSAVEL"] = linha["OPTATIVO_NOME_RESPONSAVEL"];
+                    }
+
+                    if (linha["OPTATIVO_GRAU_PARENTESCO"]) {
+                        let alunoGrauResp = linha["OPTATIVO_GRAU_PARENTESCO"].toLowerCase();
+                        
+                        if (alunoGrauResp.includes("pai") || alunoGrauResp.includes("mãe") ||
+                            alunoGrauResp.includes("padrasto") || alunoGrauResp.includes("madrasta")) {
+                            alunoJSON["GRAU_RESPONSAVEL"] = 0;
+                        } else if (alunoGrauResp.includes("avó") || alunoGrauResp.includes("avô")) {
+                            alunoJSON["GRAU_RESPONSAVEL"] = 1;
+                        } else if (alunoGrauResp.includes("irmão") || alunoGrauResp.includes("irmã")) {
+                            alunoJSON["GRAU_RESPONSAVEL"] = 2;
+                        } else if (alunoCor.includes("outro")) {
+                            alunoJSON["GRAU_RESPONSAVEL"] = 4;
+                        } else {
+                            alunoJSON["GRAU_RESPONSAVEL"] = -1;
+                        }
+                    }
+
+                    if (linha["OPTATIVO_ENDERECO"]) {
+                        alunoJSON["LOC_ENDERECO"] = linha["OPTATIVO_ENDERECO"];
+                    }
+
+                    if (linha["OPTATIVO_LATITUDE"] && linha["OPTATIVO_LONGITUDE"]) {
+                        alunoJSON["LOC_LATITUDE"] = linha["OPTATIVO_LATITUDE"];
+                        alunoJSON["LOC_LONGITUDE"] = linha["OPTATIVO_LONGITUDE"];
+                        alunoJSON["GEOREF"] = "Sim";
+                    } else {
+                        alunoJSON["GEOREF"] = "Não";
+                    }
+
+                    ////////////////////////////////////////////////////////////
+                    // ID DOS ALUNOS
+                    ////////////////////////////////////////////////////////////
+                    alunoJSON["ID"] = alunoJSON["NOME"].replace(/ /g, "-") + "-" +
+                                      alunoJSON["DATA_NASCIMENTO"].replace(/\//g, "-")
+                    
+                    alunos.push(alunoJSON)
+                    // promiseAlunos.push(dbInserirPromise("alunos", alunoJSON, idAluno));
+                }
+            } catch (err) {
+                erroDeProcessamento = true;
+                numErros++;
+            }
+        }
+
+        let count = 0;
+        for (let aluno of alunos) {
+            aluno["SELECT"] = count++;
+            dataTableImportar.row.add(aluno);
+        }
+        dataTableImportar.draw();
+
+        if (erroDeProcessamento) {
+            Swal2.fire({
+                icon: "warning",
+                title: "Aviso",
+                text: `Ocorreu um erro ao preprocessar ${numErros} alunos da planilha`
+            })
+        }
+        // if (!erroDeProcessamento) {
+        //     Promise.all(promiseAlunos)
+        //         .then((res) => {
+        //             return Swal2.fire({
+        //                 title: "Sucesso",
+        //                 text: "Os alunos foram importados com sucesso no sistema. " +
+        //                     "Clique abaixo para retornar ao painel.",
+        //                 icon: "success",
+        //                 showCancelButton: false,
+        //                 confirmButtonClass: "btn-success",
+        //                 confirmButtonText: "Retornar ao painel",
+        //                 closeOnConfirm: false,
+        //                 closeOnClickOutside: false,
+        //                 allowOutsideClick: false,
+        //                 showConfirmButton: true
+        //             })
+        //         })
+        //         .then(() => {
+        //             navigateDashboard("./modules/aluno/aluno-listar-view.html");
+        //         })
+        //         .catch((err) => {
+        //             Swal2.close()
+        //             errorFn("Erro ao importar os alunos", err);
+        //         });
+        // }
+    })
+}
+
+var dataTableImportar = $("#datatables").DataTable({
+    columns: [
+        { data: "SELECT", width: "80px" },
+        { data: 'NOME', width: "40%" },
+        { data: 'DATA_NASCIMENTO', width: "20%" },
+        { data: 'GEOREF' },
+    ],
+    columnDefs: [
+        {
+            targets: 1,
+            type: 'locale-compare',
+        },
+        {
+            targets: 0,
+            'checkboxes': {
+                'selectRow': true
+            }
+        }
+    ],
+    order: [[1, "asc"]],
+    select: {
+        style: 'multi',
+        info: false
+    },
+    autoWidth: false,
+    bAutoWidth: false,
+    lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
+    pagingType: "full_numbers",
+    language: {
+        "search": "_INPUT_",
+        "searchPlaceholder": "Procurar alunos",
+        "lengthMenu": "Mostrar _MENU_ alunos por página",
+        "zeroRecords": "Não encontrei nenhum aluno com este filtro",
+        "info": "Mostrando página _PAGE_ de _PAGES_",
+        "infoEmpty": "Sem registros disponíveis",
+        "infoFiltered": "(Alunos filtrados a partir do total de _MAX_ alunos)",
+        "paginate": {
+            "first": "Primeira",
+            "last": "Última",
+            "next": "Próxima",
+            "previous": "Anterior"
+        },
+    },
+    dom: 'lfrtip',
+});
+
 $('#importarAlunos').on('click', () => {
+    var rawDados = dataTableCenso.rows('.selected').data().toArray();
+
+    debugger
     if ($("#arqPlanilha")[0].files.length == 0) {
         errorFn("É necessário informar o arquivo contendo a planilha para realizar a importação.", "")
         return false;
@@ -85,22 +347,22 @@ $('#importarAlunos').on('click', () => {
         var erroDeProcessamento = false;
 
         for (let linha of rows) {
+            var alunoJSON = {};
+
             try {
-                if (!(linha["NOME"].toLowerCase().includes("exemplo"))) {
-                    var alunoJSON = {};
-                    alunoJSON["NOME"] = linha["NOME"];
-                    alunoJSON["NOME_RESPONSAVEL"] = linha["NOME_RESPONSAVEL"];
-                    alunoJSON["LOC_ENDERECO"] = linha["LOC_ENDERECO"];
-                    alunoJSON["LOC_LATITUDE"] = cidadeLatitude;
-                    alunoJSON["LOC_LONGITUDE"] = cidadeLongitude;
-    
-                    var alunoSexo = linha["sexo"].toLowerCase();
-                    var alunoCor = linha["cor"].toLowerCase();
-                    var alunoGrauResp = linha["grauResponsavel"].toLowerCase();
-                    var alunoLocalizacao = linha["localizacao"].toLowerCase();
-                    var alunoNivel = linha["nivel"].toLowerCase();
-                    var alunoTurno = linha["turno"].toLowerCase();
-    
+                if (!(linha["OBRIGATORIO_NOME"].toLowerCase().includes("exemplo"))) {
+                    ////////////////////////////////////////////////////////////
+                    // TRATAMENTO DOS CAMPOS OBRIGATÓRIOS
+                    ////////////////////////////////////////////////////////////
+                    alunoJSON["NOME"] = linha["OBRIGATORIO_NOME"];
+                    alunoJSON["DATA_NASCIMENTO"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"]).format("DD/MM/YYYY");
+                    
+                    var alunoSexo = linha["OBRIGATORIO_SEXO"].toLowerCase();
+                    var alunoCor = linha["OBRIGATORIO_COR"].toLowerCase();
+                    var alunoLocalizacao = linha["OBRIGATORIO_LOCALIZACAO"].toLowerCase();
+                    var alunoNivel = linha["OBRIGATORIO_NIVEL_ENSINO"].toLowerCase();
+                    var alunoTurno = linha["OBRIGATORIO_TURNO_ENSINO"].toLowerCase();
+
                     if (alunoSexo.includes("masculino")) {
                         alunoJSON["SEXO"] = 1;
                     } else if (alunoSexo.includes("feminino")) {
@@ -119,25 +381,16 @@ $('#importarAlunos').on('click', () => {
                         alunoJSON["COR"] = 3;
                     } else if (alunoCor.includes("preto")) {
                         alunoJSON["COR"] = 2;
+                    } else {
+                        alunoJSON["COR"] = 0;
                     }
-    
-                    if (alunoGrauResp.includes("pai") || alunoGrauResp.includes("mãe") || 
-                        alunoGrauResp.includes("padrasto") || alunoGrauResp.includes("madrasta")) {
-                        alunoJSON["GRAU_RESPONSAVEL"] = 0;
-                    } else if (alunoGrauResp.includes("avó") || alunoGrauResp.includes("avô")) {
-                        alunoJSON["GRAU_RESPONSAVEL"] = 1;
-                    } else if (alunoGrauResp.includes("irmão") || alunoGrauResp.includes("irmã")) {
-                        alunoJSON["GRAU_RESPONSAVEL"] = 2;
-                    } else if (alunoCor.includes("outro")) {
-                        alunoJSON["GRAU_RESPONSAVEL"] = 4;
-                    }
-    
+                        
                     if (alunoLocalizacao.includes("urbana")) {
                         alunoJSON["MEC_TP_LOCALIZACAO"] = 1;
                     } else if (alunoLocalizacao.includes("rural")) {
                         alunoJSON["MEC_TP_LOCALIZACAO"] = 2;
                     }
-    
+                    
                     if (alunoNivel.includes("infantil")) {
                         alunoJSON["NIVEL"] = 1;
                     } else if (alunoNivel.includes("fundamental")) {
@@ -159,18 +412,56 @@ $('#importarAlunos').on('click', () => {
                     } else if (alunoTurno.includes("noturno") || alunoTurno.includes("noite")) {
                         alunoJSON["TURNO"] = 4;
                     }
+
+                    ////////////////////////////////////////////////////////////
+                    // TRATAMENTO DOS CAMPOS OPTATIVOS
+                    ////////////////////////////////////////////////////////////
+                    if (linha["OPTATIVO_CPF"]) {
+                        alunoJSON["CPF"] = linha["OPTATIVO_CPF"];
+                    }
+
+                    if (linha["OPTATIVO_NOME_RESPONSAVEL"]) {
+                        alunoJSON["NOME_RESPONSAVEL"] = linha["OPTATIVO_NOME_RESPONSAVEL"];
+                    }
+
+                    if (linha["OPTATIVO_GRAU_PARENTESCO"]) {
+                        if (alunoGrauResp.includes("pai") || alunoGrauResp.includes("mãe") ||
+                            alunoGrauResp.includes("padrasto") || alunoGrauResp.includes("madrasta")) {
+                            alunoJSON["GRAU_RESPONSAVEL"] = 0;
+                        } else if (alunoGrauResp.includes("avó") || alunoGrauResp.includes("avô")) {
+                            alunoJSON["GRAU_RESPONSAVEL"] = 1;
+                        } else if (alunoGrauResp.includes("irmão") || alunoGrauResp.includes("irmã")) {
+                            alunoJSON["GRAU_RESPONSAVEL"] = 2;
+                        } else if (alunoCor.includes("outro")) {
+                            alunoJSON["GRAU_RESPONSAVEL"] = 4;
+                        } else {
+                            alunoJSON["GRAU_RESPONSAVEL"] = -1;
+                        }
+                    }
+
+                    if (linha["OPTATIVO_ENDERECO"]) {
+                        alunoJSON["LOC_ENDERECO"] = linha["OPTATIVO_ENDERECO"];
+                    }
     
-                    alunoJSON["DATA_NASCIMENTO"] = moment(linha["data"]).format("DD/MM/YYYY");
-    
+                    if (linha["OPTATIVO_LATITUDE"]) {
+                        alunoJSON["LOC_LATITUDE"] = linha["OPTATIVO_LATITUDE"];
+                    }
+
+                    if (linha["OPTATIVO_LONGITUDE"]) {
+                        alunoJSON["LOC_LONGITUDE"] = linha["OPTATIVO_LONGITUDE"];
+                    }
+
+                    ////////////////////////////////////////////////////////////
+                    // ID DOS ALUNOS
+                    ////////////////////////////////////////////////////////////
                     idAluno = alunoJSON["NOME"].replace(/ /g,"-") + "-" + 
                               alunoJSON["DATA_NASCIMENTO"].replace(/\//g, "-")
 
-                    promiseAlunos.push(dbInserirPromise("alunos", alunoJSON, idAluno));
+                    alunoJSON["DATA_NASCIMENTO"] = moment(linha["data"]).format("DD/MM/YYYY");
+                    // promiseAlunos.push(dbInserirPromise("alunos", alunoJSON, idAluno));
                 }
             } catch (err) {
-                Swal2.close();
                 erroDeProcessamento = true;
-                errorFn("Erro ao importar os alunos", "Alguns campos estão faltando na planilha");
             }
         }
 
@@ -205,6 +496,45 @@ $('#importarAlunos').on('click', () => {
 
 
 // Wizard
-$('.card-wizard').bootstrapWizard(configWizardBasico("", usarValidador = false))
+$('.card-wizard').bootstrapWizard({
+    ...configWizardBasico("", usarValidador = false),
+    ...{
+        onTabShow: function (tab, navigation, index) {
+            var $total = navigation.find('li').length;
+            var $current = index + 1;
+    
+            var $wizard = navigation.closest('.card-wizard');
+    
+            // If it's the last tab then hide the last button and show the finish instead
+            if ($current >= $total) {
+                if ($("#arqPlanilha").length > 0) {
+                    var arquivo = $("#arqPlanilha")[0].files[0].path;
+                    if (ultArquivoAnalisado != arquivo) {
+                        if(preprocess(arquivo)) {
+                            $($wizard).find('.btn-next').hide();
+                            $($wizard).find('.btn-finish').show();
+                        } else {
+                            setTimeout(() => $('.btn-back').trigger('click'), 200);
+                            return false;
+                        }
+                    }
+                } else {
+                    Swal2.fire({
+                        title: "Ops... tivemos um problema!",
+                        text: "É necessário informar o arquivo contendo a planilha para realizar a importação.",
+                        icon: "error",
+                        confirmButtonColor: "red",
+                        confirmButtonText: "Fechar",
+                    });
+                    setTimeout(() => $('.btn-back').trigger('click'), 200);
+                    return false;
+                }
+            } else {
+                $($wizard).find('.btn-next').show();
+                $($wizard).find('.btn-finish').hide();
+            }
+        }
+    }
+})
 
 action = "importarAluno";
