@@ -14,6 +14,12 @@ if (action == "editarAluno") {
 var posicaoAluno;
 var mapa = novoMapaOpenLayers("mapCadastroAluno", cidadeLatitude, cidadeLongitude);
 
+window.onresize = function () {
+    setTimeout(function () {
+        if (mapa != null) { mapa["map"].updateSize(); }
+    }, 200);
+}
+
 var vectorSource = mapa["vectorSource"];
 var vectorLayer = mapa["vectorLayer"];
 var mapaOL = mapa["map"];
@@ -268,10 +274,15 @@ function preencheDadosParaEdicao() {
     // Coloca marcador da casa do aluno caso tenha a localização
     if (estadoAluno["LOC_LONGITUDE"] != null && estadoAluno["LOC_LONGITUDE"] != undefined &&
         estadoAluno["LOC_LATITUDE"] != null && estadoAluno["LOC_LATITUDE"] != undefined) {
-            posicaoAluno = gerarMarcador(estadoAluno["LOC_LATITUDE"],
-                                         estadoAluno["LOC_LONGITUDE"], 
-                                         "img/icones/casamarker.png", 25, 40);
-            vectorSource.addFeature(posicaoAluno);
+        posicaoAluno = gerarMarcador(estadoAluno["LOC_LATITUDE"],
+                                        estadoAluno["LOC_LONGITUDE"], 
+                                        "img/icones/casamarker.png", 25, 40);
+        vectorSource.addFeature(posicaoAluno);
+
+        mapa["map"].getView().fit(vectorSource.getExtent(), {
+            padding: [40, 40, 40, 40]
+        });
+        mapa["map"].updateSize();
     }
 
     $("#cancelarAcao").on('click', () => {

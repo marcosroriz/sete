@@ -1172,3 +1172,8 @@ ul#list-menus-navs li a {
     justify-content: center !important;
     padding: 20px !important;
 }
+
+select.swal2-select {
+    font-size: 0.8em;
+    width: 100%;
+}

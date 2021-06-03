@@ -112,8 +112,8 @@ function preprocess(arquivo) {
 async function parsePlanilha(arquivo) {
     readXlsxFile(arquivo, { schema }).then(({ rows, errors }) => {
         // Alunos a serem importados
-        let promiseAlunos = new Array();
         let erroDeProcessamento = false;
+        let alunosErrosOpt = {};
         let numErros = 0;
 
         alunos = [];
@@ -218,8 +218,8 @@ async function parsePlanilha(arquivo) {
                     }
 
                     if (linha["OPTATIVO_LATITUDE"] && linha["OPTATIVO_LONGITUDE"]) {
-                        alunoJSON["LOC_LATITUDE"] = linha["OPTATIVO_LATITUDE"];
-                        alunoJSON["LOC_LONGITUDE"] = linha["OPTATIVO_LONGITUDE"];
+                        alunoJSON["LOC_LATITUDE"] = Number(String(linha["OPTATIVO_LATITUDE"]).replace(",", "."));
+                        alunoJSON["LOC_LONGITUDE"] = Number(String(linha["OPTATIVO_LONGITUDE"]).replace(",", "."));
                         alunoJSON["GEOREF"] = "Sim";
                     } else {
                         alunoJSON["GEOREF"] = "Não";
@@ -237,6 +237,10 @@ async function parsePlanilha(arquivo) {
             } catch (err) {
                 erroDeProcessamento = true;
                 numErros++;
+
+                if (linha["OBRIGATORIO_NOME"]) {
+                    alunosErrosOpt[linha["OBRIGATORIO_NOME"]] = linha["OBRIGATORIO_NOME"];
+                }
             }
         }
 
@@ -251,34 +255,13 @@ async function parsePlanilha(arquivo) {
             Swal2.fire({
                 icon: "warning",
                 title: "Aviso",
-                text: `Ocorreu um erro ao preprocessar ${numErros} alunos da planilha`
+                text: `Ocorreu um erro ao processar os seguintes ${numErros} alunos da planilha:`,
+                input: "select",
+                inputOptions: alunosErrosOpt
             })
+        } else {
+            Swal2.close();
         }
-        // if (!erroDeProcessamento) {
-        //     Promise.all(promiseAlunos)
-        //         .then((res) => {
-        //             return Swal2.fire({
-        //                 title: "Sucesso",
-        //                 text: "Os alunos foram importados com sucesso no sistema. " +
-        //                     "Clique abaixo para retornar ao painel.",
-        //                 icon: "success",
-        //                 showCancelButton: false,
-        //                 confirmButtonClass: "btn-success",
-        //                 confirmButtonText: "Retornar ao painel",
-        //                 closeOnConfirm: false,
-        //                 closeOnClickOutside: false,
-        //                 allowOutsideClick: false,
-        //                 showConfirmButton: true
-        //             })
-        //         })
-        //         .then(() => {
-        //             navigateDashboard("./modules/aluno/aluno-listar-view.html");
-        //         })
-        //         .catch((err) => {
-        //             Swal2.close()
-        //             errorFn("Erro ao importar os alunos", err);
-        //         });
-        // }
     })
 }
 
@@ -329,170 +312,99 @@ var dataTableImportar = $("#datatables").DataTable({
 });
 
 $('#importarAlunos').on('click', () => {
-    var rawDados = dataTableCenso.rows('.selected').data().toArray();
+    let rawDados = dataTableImportar.rows('.selected').data().toArray();
 
-    debugger
-    if ($("#arqPlanilha")[0].files.length == 0) {
-        errorFn("É necessário informar o arquivo contendo a planilha para realizar a importação.", "")
-        return false;
+    if (rawDados.length == 0) {
+        Swal2.fire({
+            title: "Nenhum aluno selecionado",
+            text: "Por favor, selecione pelo menos um aluno a ser importardo para prosseguir.",
+            icon: "error",
+            confirmButtonText: "Fechar"
+        })
+    } else {
+        Swal2.fire({
+            title: 'Você quer importar os alunos selecionados?',
+            text: "Você irá importar " + rawDados.length + " alunos para o banco de dados.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: "Cancelar",
+            confirmButtonText: 'Sim'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                realizaImportacao(rawDados)
+            }
+        });
     }
 
-    loadingFn("Importando o arquivo...","Espere um minutinho...")
 
-    var xlsFilePath = $("#arqPlanilha")[0].files[0].path;
-
-    readXlsxFile(xlsFilePath, { schema }).then(({ rows, errors }) => {
-        // Alunos a serem importados
-        var promiseAlunos = new Array();
-        var erroDeProcessamento = false;
-
-        for (let linha of rows) {
-            var alunoJSON = {};
-
-            try {
-                if (!(linha["OBRIGATORIO_NOME"].toLowerCase().includes("exemplo"))) {
-                    ////////////////////////////////////////////////////////////
-                    // TRATAMENTO DOS CAMPOS OBRIGATÓRIOS
-                    ////////////////////////////////////////////////////////////
-                    alunoJSON["NOME"] = linha["OBRIGATORIO_NOME"];
-                    alunoJSON["DATA_NASCIMENTO"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"]).format("DD/MM/YYYY");
-                    
-                    var alunoSexo = linha["OBRIGATORIO_SEXO"].toLowerCase();
-                    var alunoCor = linha["OBRIGATORIO_COR"].toLowerCase();
-                    var alunoLocalizacao = linha["OBRIGATORIO_LOCALIZACAO"].toLowerCase();
-                    var alunoNivel = linha["OBRIGATORIO_NIVEL_ENSINO"].toLowerCase();
-                    var alunoTurno = linha["OBRIGATORIO_TURNO_ENSINO"].toLowerCase();
-
-                    if (alunoSexo.includes("masculino")) {
-                        alunoJSON["SEXO"] = 1;
-                    } else if (alunoSexo.includes("feminino")) {
-                        alunoJSON["SEXO"] = 2;
-                    } else {
-                        alunoJSON["SEXO"] = 3;
-                    }
-    
-                    if (alunoCor.includes("amarelo")) {
-                        alunoJSON["COR"] = 4;
-                    } else if (alunoCor.includes("branco")) {
-                        alunoJSON["COR"] = 1;
-                    } else if (alunoCor.includes("indígena") || alunoCor.includes("indigena")) {
-                        alunoJSON["COR"] = 5;
-                    } else if (alunoCor.includes("pardo")) {
-                        alunoJSON["COR"] = 3;
-                    } else if (alunoCor.includes("preto")) {
-                        alunoJSON["COR"] = 2;
-                    } else {
-                        alunoJSON["COR"] = 0;
-                    }
-                        
-                    if (alunoLocalizacao.includes("urbana")) {
-                        alunoJSON["MEC_TP_LOCALIZACAO"] = 1;
-                    } else if (alunoLocalizacao.includes("rural")) {
-                        alunoJSON["MEC_TP_LOCALIZACAO"] = 2;
-                    }
-                    
-                    if (alunoNivel.includes("infantil")) {
-                        alunoJSON["NIVEL"] = 1;
-                    } else if (alunoNivel.includes("fundamental")) {
-                        alunoJSON["NIVEL"] = 2;
-                    } else if (alunoNivel.includes("médio") || alunoNivel.includes("medio")) {
-                        alunoJSON["NIVEL"] = 3;
-                    } else if (alunoNivel.includes("superior")) {
-                        alunoJSON["NIVEL"] = 4;
-                    } else if (alunoNivel.includes("outro")) {
-                        alunoJSON["NIVEL"] = 5;
-                    }
-    
-                    if (alunoTurno.includes("manhã") || alunoTurno.includes("manha")) {
-                        alunoJSON["TURNO"] = 1;
-                    } else if (alunoTurno.includes("tarde")) {
-                        alunoJSON["TURNO"] = 2;
-                    } else if (alunoTurno.includes("integral")) {
-                        alunoJSON["TURNO"] = 3;
-                    } else if (alunoTurno.includes("noturno") || alunoTurno.includes("noite")) {
-                        alunoJSON["TURNO"] = 4;
-                    }
-
-                    ////////////////////////////////////////////////////////////
-                    // TRATAMENTO DOS CAMPOS OPTATIVOS
-                    ////////////////////////////////////////////////////////////
-                    if (linha["OPTATIVO_CPF"]) {
-                        alunoJSON["CPF"] = linha["OPTATIVO_CPF"];
-                    }
-
-                    if (linha["OPTATIVO_NOME_RESPONSAVEL"]) {
-                        alunoJSON["NOME_RESPONSAVEL"] = linha["OPTATIVO_NOME_RESPONSAVEL"];
-                    }
-
-                    if (linha["OPTATIVO_GRAU_PARENTESCO"]) {
-                        if (alunoGrauResp.includes("pai") || alunoGrauResp.includes("mãe") ||
-                            alunoGrauResp.includes("padrasto") || alunoGrauResp.includes("madrasta")) {
-                            alunoJSON["GRAU_RESPONSAVEL"] = 0;
-                        } else if (alunoGrauResp.includes("avó") || alunoGrauResp.includes("avô")) {
-                            alunoJSON["GRAU_RESPONSAVEL"] = 1;
-                        } else if (alunoGrauResp.includes("irmão") || alunoGrauResp.includes("irmã")) {
-                            alunoJSON["GRAU_RESPONSAVEL"] = 2;
-                        } else if (alunoCor.includes("outro")) {
-                            alunoJSON["GRAU_RESPONSAVEL"] = 4;
-                        } else {
-                            alunoJSON["GRAU_RESPONSAVEL"] = -1;
-                        }
-                    }
-
-                    if (linha["OPTATIVO_ENDERECO"]) {
-                        alunoJSON["LOC_ENDERECO"] = linha["OPTATIVO_ENDERECO"];
-                    }
-    
-                    if (linha["OPTATIVO_LATITUDE"]) {
-                        alunoJSON["LOC_LATITUDE"] = linha["OPTATIVO_LATITUDE"];
-                    }
-
-                    if (linha["OPTATIVO_LONGITUDE"]) {
-                        alunoJSON["LOC_LONGITUDE"] = linha["OPTATIVO_LONGITUDE"];
-                    }
-
-                    ////////////////////////////////////////////////////////////
-                    // ID DOS ALUNOS
-                    ////////////////////////////////////////////////////////////
-                    idAluno = alunoJSON["NOME"].replace(/ /g,"-") + "-" + 
-                              alunoJSON["DATA_NASCIMENTO"].replace(/\//g, "-")
-
-                    alunoJSON["DATA_NASCIMENTO"] = moment(linha["data"]).format("DD/MM/YYYY");
-                    // promiseAlunos.push(dbInserirPromise("alunos", alunoJSON, idAluno));
-                }
-            } catch (err) {
-                erroDeProcessamento = true;
-            }
-        }
-
-        if (!erroDeProcessamento) {
-            Promise.all(promiseAlunos)
-            .then((res) => {
-                return Swal2.fire({
-                    title: "Sucesso",
-                    text: "Os alunos foram importados com sucesso no sistema. " +
-                            "Clique abaixo para retornar ao painel.",
-                    icon: "success",
-                    showCancelButton: false,
-                    confirmButtonClass: "btn-success",
-                    confirmButtonText: "Retornar ao painel",
-                    closeOnConfirm: false,
-                    closeOnClickOutside: false,
-                    allowOutsideClick: false,
-                    showConfirmButton: true
-                })
-            })
-            .then(() => {
-                navigateDashboard("./modules/aluno/aluno-listar-view.html");
-            })
-            .catch((err) => {
-                Swal2.close()
-                errorFn("Erro ao importar os alunos", err);
-            });
-        }
-    })
 
 });
+
+
+function realizaImportacao(rawDados) {
+    Swal2.fire({
+        title: "Importando os dados...",
+        imageUrl: "img/icones/processing.gif",
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        html: `<br />
+        <div class="progress" style="height: 20px;">
+            <div id="pbar" class="progress-bar" role="progressbar" 
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" 
+                 style="width: 0%;">
+            </div>
+        </div>`
+    })
+
+    // Numero de operações a serem realizadas
+    var totalOperacoes = rawDados.length; 
+
+    // Barra de progresso (valor atual)
+    var progresso = 0;
+
+    function updateProgresso() {
+        progresso++;
+        let progressoPorcentagem = Math.round(100 * (progresso / totalOperacoes))
+        $('.progress-bar').css('width', progressoPorcentagem + "%")
+        $('.progress-bar').text(progressoPorcentagem + "%")
+    }
+
+    let promiseAlunos = new Array();
+
+    rawDados.forEach(aluno => {
+        delete aluno["SELECT"];
+        let idAluno = aluno["ID"];
+        promiseAlunos.push(dbInserirPromise("alunos", aluno, idAluno)
+                           .then(() => updateProgresso()));
+    });
+
+    Promise.all(promiseAlunos)
+    .then(() => {
+        return Swal2.fire({
+            title: "Sucesso",
+            text: "Os alunos foram importados com sucesso no sistema. " +
+                "Clique abaixo para retornar ao painel.",
+            icon: "success",
+            showCancelButton: false,
+            confirmButtonClass: "btn-success",
+            confirmButtonText: "Retornar ao painel",
+            closeOnConfirm: false,
+            closeOnClickOutside: false,
+            allowOutsideClick: false,
+            showConfirmButton: true
+        })
+    })
+    .then(() => {
+        $("a[name='aluno/aluno-listar-view']").click()
+    })
+    .catch((err) => {
+        Swal2.close()
+        errorFn("Erro ao importar os alunos", err);
+    });
+}
 
 
 // Wizard
