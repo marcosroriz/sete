@@ -9,9 +9,9 @@
 // - funções para criar notificações (erro, pergunta, etc) com SweetAlert2
 // - funções que retornam as opções comuns dos wizards e de validação dos formulários
 
-alert("Oi");
+alert("Teste");
 function k(a,b) {
-   console.log(a+b)
+   console.log(a*b)
 }
 
 // Imports Principais do Electron
