@@ -248,7 +248,7 @@ function AtualizarPromise(table, data, column, id) {
 function Atualizar(table, column, data, id, cb) {
     AtualizarPromise(table, column, data, id)
         .then(res => cb(false, res))
-        .catch(err => cb(err));
+        .catch(err => cb(err));w
 }
 
 function RemoverComposedPromise(table, c1, id1, c2, id2) {
@@ -294,3 +294,6 @@ function BuscarDadoEspecifico(table, column, id, cb) {
         .then(res => cb(false, res))
         .catch(err => cb(err));
 }
+
+// Indica que o script terminou seu carregamento
+window.loadedDBJS = true;

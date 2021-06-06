@@ -597,3 +597,5 @@ $(document).ready(function () {
 
 });
 
+// Indica que o script terminou seu carregamento
+window.loadedLoginControl = true;

@@ -182,3 +182,6 @@ window.$.extend(window.$.validator.messages, {
     max: jQuery.validator.format("Por favor, forneça um valor menor ou igual a {0}."),
     min: jQuery.validator.format("Por favor, forneça um valor maior ou igual a {0}.")
 });
+
+// Indica que o script terminou seu carregamento
+window.loadedJQueryExtra = true;

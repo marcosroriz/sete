@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name='viewport'
-        content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
     <title>SETE Sistema Eletrônico de Gestão do Transporte Escolar</title>
@@ -17,13 +16,27 @@
     <link rel="stylesheet" href="../../node_modules/typeface-patrick-hand/index.css" />
     <link rel="stylesheet" href="css/font-awesome.css" />
 
-    <!-- Template CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <!-- Template CSS (tenta remoto antes, mas no erro de falha carrega versão local) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/bootstrap.min.css"
+        onerror="this.onerror=null;this.href='css/bootstrap.min.css';" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/light-bootstrap-dashboard.css?v=2.0.1"
+        onerror="this.onerror=null;this.href='css/light-bootstrap-dashboard.css?v=2.0.1';" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/initconfig.css"
+        onerror="this.onerror=null;this.href='css/initconfig.css';" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/login.css"
+        onerror="this.onerror=null;this.href='css/login.css';" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/common.css"
+        onerror="this.onerror=null;this.href='css/common.css';" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/fixes.css"
+        onerror="this.onerror=null;this.href='css/fixes.css';" />
+
+    <!-- Dev CSS -->
+    <!-- <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/light-bootstrap-dashboard.css?v=2.0.1" />
     <link rel="stylesheet" href="css/initconfig.css">
     <link rel="stylesheet" href="css/login.css" />
     <link rel="stylesheet" href="css/common.css" />
-    <link rel="stylesheet" href="css/fixes.css" />
+    <link rel="stylesheet" href="css/fixes.css" /> -->
 
     <!-- Icons -->
     <link rel="apple-touch-icon" sizes="76x76" href="img/icones/setelogosmall.png">
@@ -52,8 +65,7 @@
                                 <div class="card-body ">
                                     <ul id="list-menus-navs" class="nav nav-tabs nav-front">
                                         <li class="nav-item">
-                                            <a id="login-tab" class="nav-link active" href="#login-body"
-                                                data-toggle="tab" role="tab">
+                                            <a id="login-tab" class="nav-link active" href="#login-body" data-toggle="tab" role="tab">
                                                 <i class="fa fa-sign-in"></i>
                                                 <span>Login</span>
                                             </a>
@@ -65,15 +77,13 @@
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a id="registrar-tab" class="nav-link" href="#register-body"
-                                                data-toggle="tab" role="tab">
+                                            <a id="registrar-tab" class="nav-link" href="#register-body" data-toggle="tab" role="tab">
                                                 <i class="fa fa-registered"></i>
                                                 <span>Registrar</span>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a id="proxy-tab" class="nav-link" href="#proxy-body" data-toggle="tab"
-                                                role="tab">
+                                            <a id="proxy-tab" class="nav-link" href="#proxy-body" data-toggle="tab" role="tab">
                                                 <i class="fa fa-cogs"></i>
                                                 <span>Proxy</span>
                                             </a>
@@ -87,8 +97,7 @@
                                                 Para entrar no sistema por favor digite o endereço de e-mail e a
                                                 senha de seu usuário abaixo.
                                                 <br>
-                                                Caso não tenha cadastro, faça o mesmo na aba <a href="#" id="reglink"
-                                                    class="text-warning">registrar</a>.
+                                                Caso não tenha cadastro, faça o mesmo na aba <a href="#" id="reglink" class="text-warning">registrar</a>.
                                             </p>
 
                                             <div class="col-12">
@@ -99,10 +108,8 @@
                                                                 <b>E-mail:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="loginemail" name="loginemail"
-                                                                    data-validation="email"
-                                                                    placeholder="Endereço de e-mail:"
-                                                                    class="form-control">
+                                                                <input id="loginemail" name="loginemail" data-validation="email"
+                                                                    placeholder="Endereço de e-mail:" class="form-control">
                                                             </div>
                                                         </div>
                                                         <div class="row mt-2">
@@ -110,8 +117,7 @@
                                                                 <b>Senha:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="loginpassword" name="loginpassword"
-                                                                    type="password" placeholder="Senha:"
+                                                                <input id="loginpassword" name="loginpassword" type="password" placeholder="Senha:"
                                                                     class="form-control">
                                                             </div>
                                                         </div>
@@ -119,14 +125,12 @@
                                                             <div class="col-4"></div>
                                                             <div class="form-check col-3">
                                                                 <label class="form-check-label">
-                                                                    <input id="loginlembrar" class="form-check-input"
-                                                                        type="checkbox" value="" checked>
+                                                                    <input id="loginlembrar" class="form-check-input" type="checkbox" value="" checked>
                                                                     <span class="form-check-sign"></span>
                                                                     Lembrar senha
                                                                 </label>
                                                             </div>
-                                                            <button id="loginsubmit"
-                                                                class="col-3 btn btn-fill btn-warning" type="button">
+                                                            <button id="loginsubmit" class="col-3 btn btn-fill btn-warning" type="button">
                                                                 Entrar no Sistema
                                                             </button>
                                                         </div>
@@ -138,9 +142,7 @@
                                         <div class="tab-pane tab-wiz fade" id="recover-body" role="tabpanel">
                                             <p class="category text-muted">
                                                 Para recuperar sua senha digite o e-mail cadastrado abaixo.
-                                                Você receberá um e-mail automaticamente contendo um link para modificar
-                                                sua senha.
-
+                                                Você receberá um e-mail automaticamente contendo um link para modificar sua senha.
                                             </p>
 
                                             <div class="col-12">
@@ -151,17 +153,14 @@
                                                                 <b>E-mail:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="recoveremail" name="recoveremail"
-                                                                    data-validation="email"
-                                                                    placeholder="Endereço de e-mail:"
-                                                                    class="form-control">
+                                                                <input id="recoveremail" name="recoveremail" data-validation="email"
+                                                                    placeholder="Endereço de e-mail:" class="form-control">
 
                                                             </div>
                                                         </div>
                                                         <div class="row mt-3 text-center">
                                                             <div class="col-4"></div>
-                                                            <button id="recoversubmit" class="btn btn-fill btn-warning"
-                                                                type="button">
+                                                            <button id="recoversubmit" class="btn btn-fill btn-warning" type="button">
                                                                 Recuperar Senha
                                                             </button>
                                                         </div>
@@ -183,7 +182,7 @@
                                                     Recomenda-se a utilização do e-mail INSTITUCIONAL para liberação do cadastro o mais rápido possível.
                                                 </span>
                                             </div>
-            
+
                                             <form id="registerform">
                                                 <div class="col-12">
                                                     <div class="form-group reg-group">
@@ -192,8 +191,8 @@
                                                                 <b>Nome completo:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="regnome" name="regnome" type="text"
-                                                                    placeholder="Digite seu nome:" class="form-control">
+                                                                <input id="regnome" name="regnome" type="text" placeholder="Digite seu nome:"
+                                                                    class="form-control">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -206,8 +205,7 @@
                                                                 <b>CPF:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="regcpf" name="regcpf" type="text"
-                                                                    placeholder="Digite seu CPF:"
+                                                                <input id="regcpf" name="regcpf" type="text" placeholder="Digite seu CPF:"
                                                                     class="form-control cpfmask">
                                                             </div>
                                                         </div>
@@ -222,8 +220,7 @@
                                                                 <b>Telefone:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="regtel" name="regtel" type="text"
-                                                                    placeholder="Digite seu Telefone:"
+                                                                <input id="regtel" name="regtel" type="text" placeholder="Digite seu Telefone:"
                                                                     class="form-control telmask">
                                                             </div>
                                                         </div>
@@ -237,8 +234,7 @@
                                                                 <b>E-mail:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="regemail" name="regemail" type="email"
-                                                                    placeholder="Endereço de e-mail:"
+                                                                <input id="regemail" name="regemail" type="email" placeholder="Endereço de e-mail:"
                                                                     class="form-control">
                                                             </div>
                                                         </div>
@@ -252,8 +248,7 @@
                                                                 <b>Repetir E-mail:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="repetirEmail" name="repetirEmail" type="email"
-                                                                    placeholder="Endereço de e-mail:"
+                                                                <input id="repetirEmail" name="repetirEmail" type="email" placeholder="Endereço de e-mail:"
                                                                     class="form-control">
                                                             </div>
                                                         </div>
@@ -267,8 +262,7 @@
                                                                 <b>Senha:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="regpassword" name="regpassword"
-                                                                    type="password" placeholder="Senha:"
+                                                                <input id="regpassword" name="regpassword" type="password" placeholder="Senha:"
                                                                     class="form-control">
                                                             </div>
                                                         </div>
@@ -290,8 +284,7 @@
                                                                 <b>Repetir Senha:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <input id="regpasswordrepeat" name="regpasswordrepeat"
-                                                                    type="password" placeholder="Senha:"
+                                                                <input id="regpasswordrepeat" name="regpasswordrepeat" type="password" placeholder="Senha:"
                                                                     class="form-control">
 
                                                             </div>
@@ -320,8 +313,7 @@
                                                                 <b>Estado ou Distrito:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <select id="regestado" name="regestado"
-                                                                    class="form-control"></select>
+                                                                <select id="regestado" name="regestado" class="form-control"></select>
 
                                                             </div>
                                                         </div>
@@ -335,8 +327,7 @@
                                                                 <b>Município:</b>
                                                             </label>
                                                             <div class="col-6">
-                                                                <select id="regcidade" name="regcidade"
-                                                                    class="form-control"></select>
+                                                                <select id="regcidade" name="regcidade" class="form-control"></select>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -346,8 +337,7 @@
                                                     <div class="form-group obr">
                                                         <div class="row mt-3 text-center">
                                                             <div class="col-4"></div>
-                                                            <button id="regsubmit"
-                                                                class="col-4 btn btn-fill btn-warning" type="button">
+                                                            <button id="regsubmit" class="col-4 btn btn-fill btn-warning" type="button">
                                                                 Registrar
                                                             </button>
                                                         </div>
@@ -366,8 +356,8 @@
                                                         <div class="col-2"></div>
                                                         <div class="form-check">
                                                             <label class="form-check-label text-uppercase">
-                                                                <input id="chk-usarproxy" name="chk-usarproxy" class="form-check-input"
-                                                                       type="checkbox" value="">
+                                                                <input id="chk-usarproxy" name="chk-usarproxy" class="form-check-input" type="checkbox"
+                                                                    value="">
                                                                 <span class="form-check-sign"></span>
                                                                 Usar servidor proxy?
                                                             </label>
@@ -397,9 +387,8 @@
                                                                     <b>Endereço:</b>
                                                                 </label>
                                                                 <div class="col-6">
-                                                                    <input id="endereco-proxy" name="endereco-proxy"
-                                                                    placeholder="Endereço do servidor proxy"
-                                                                    class="form-control">
+                                                                    <input id="endereco-proxy" name="endereco-proxy" placeholder="Endereço do servidor proxy"
+                                                                        class="form-control">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -411,8 +400,8 @@
                                                                     <b>Porta:</b>
                                                                 </label>
                                                                 <div class="col-6">
-                                                                    <input id="porta-proxy" name="porta-proxy" type="number"
-                                                                            placeholder="Porta" class="form-control">
+                                                                    <input id="porta-proxy" name="porta-proxy" type="number" placeholder="Porta"
+                                                                        class="form-control">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -421,8 +410,7 @@
                                                         <div class="col-2"></div>
                                                         <div class="form-check">
                                                             <label class="form-check-label text-uppercase">
-                                                                <input id="chk-autenticarproxy" class="form-check-input"
-                                                                        type="checkbox" value="">
+                                                                <input id="chk-autenticarproxy" class="form-check-input" type="checkbox" value="">
                                                                 <span class="form-check-sign"></span>
                                                                 É necessário autenticar o Proxy?
                                                             </label>
@@ -436,9 +424,8 @@
                                                                         <b>Usuário:</b>
                                                                     </label>
                                                                     <div class="col-6">
-                                                                        <input id="proxy-user" name="proxy-user"
-                                                                        placeholder="Nome de usuário proxy"
-                                                                        class="form-control">
+                                                                        <input id="proxy-user" name="proxy-user" placeholder="Nome de usuário proxy"
+                                                                            class="form-control">
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -450,9 +437,8 @@
                                                                         <b>Senha:</b>
                                                                     </label>
                                                                     <div class="col-6">
-                                                                        <input id="proxy-password" name="proxy-password"
-                                                                        type="password" placeholder="Senha"
-                                                                        class="form-control">
+                                                                        <input id="proxy-password" name="proxy-password" type="password" placeholder="Senha"
+                                                                            class="form-control">
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -490,9 +476,15 @@
 </body>
 
 
-<!-- Import Scripts -->
+<!-- Basic Import Scripts -->
 <script type="text/javascript" src="js/plugins/cidades-estados-utf8.js"></script>
-<script type="text/javascript" src="js/common.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/js/common.js"></script>
+<script>window.loadedCommonJS || document.write('<script src="js/common.js"><\/script>')</script>
+<!-- <script type="text/javascript" src="js/common.js"></script> -->
+
+<script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/js/jquery.validate.extra.js"></script>
+<script>window.loadedJQueryExtra || document.write('<script src="js/jquery.validate.extra.js"><\/script>')</script>
+<!-- <script type="text/javascript" src="js/jquery.validate.extra.js"></script> -->
 
 <!-- Firebase -->
 <script type="text/javascript" src="js/firebase-app.6.2.0.js"></script>
@@ -501,27 +493,34 @@
 <script type="text/javascript" src="js/firebase-database.6.2.0.js"></script>
 
 <!-- Database -->
-<script type="text/javascript" src="js/db.js"></script>
-<script type="text/javascript" src="js/jquery.validate.extra.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/js/db.js"></script>
+<script>window.loadedDBJS || document.write('<script src="js/db.js"><\/script>')</script>
+<!-- <script type="text/javascript" src="js/db.js"></script> -->
 
 <!-- Biblioteca de envio de email -->
 <script type="text/javascript" src="../../node_modules/emailjs-com/dist/email.min.js"></script>
+
 <!-- Custom Scripts -->
-<script type="text/javascript" src="login-model.js"></script>
-<script type="text/javascript" src="login-ctl.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/login-model.js"></script>
+<script>window.loadedLoginModel || document.write('<script src="login-model.js"><\/script>')</script>
+<!-- <script type="text/javascript" src="login-model.js"></script> -->
 
-<!-- Custom CSS for login -->
+<script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/login-ctl.js"></script>
+<script>window.loadedLoginControl || document.write('<script src="login-ctl.js"><\/script>')</script>
+<!-- <script type="text/javascript" src="login-ctl.js"></script> -->
+
 <style>
-.form-group.has-error .error {
-    padding: 0px;
-    margin: 0px;
-    margin-left: 34%;
-    text-align: left;
-    display: block;
-}
+    .form-group.has-error .error {
+        padding: 0px;
+        margin: 0px;
+        margin-left: 34%;
+        text-align: left;
+        display: block;
+    }
 
-.wrapper-login {
-    min-height: 90vh;
-}
+    .wrapper-login {
+        min-height: 90vh;
+    }
 </style>
+
 </html>

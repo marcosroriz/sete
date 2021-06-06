@@ -9,3 +9,6 @@ function InserirUsuario(data) {
 function RecuperarUsuario(uid) {
     return knex("Usuarios").select().where("ID", uid);
 }
+
+// Indica que o script terminou seu carregamento
+window.loadedLoginModel = true;
