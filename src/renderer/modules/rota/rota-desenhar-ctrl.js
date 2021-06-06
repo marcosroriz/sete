@@ -24,7 +24,7 @@ window.onresize = function () {
 // Escolheu alguma rota?
 var escolheuRota = false;
 function verificaSeEscolheuRota(e) {
-    console.log("PIXELS", mapa["map"].getFeaturesAtPixel(e.pixel_, { 'hitTolerance': 10 }))
+    // console.log("PIXELS", mapa["map"].getFeaturesAtPixel(e.pixel_, { 'hitTolerance': 10 }))
     if (!escolheuRota) {
         Swal2.fire("Escolha uma rota primeiro!", "", "error");
         return false;
@@ -756,9 +756,10 @@ var processarEscolasPorRota = (res) => {
 }
 
 $("#listarotas").on("change", (evt) => {
-    escolheuRota = true;
-    
-    if (evt.currentTarget.value != "") {
+    if (evt.currentTarget.value == "") {
+        escolheuRota = false;
+    } else {
+        escolheuRota = true;
         try {
             idRotaSelecionada = evt.currentTarget.value;
             var rotaSelect = listaDeRotas.get(idRotaSelecionada);
