@@ -9,6 +9,11 @@
 // - funções para criar notificações (erro, pergunta, etc) com SweetAlert2
 // - funções que retornam as opções comuns dos wizards e de validação dos formulários
 
+alert("Oi");
+function k(a,b) {
+   console.log(a+b)
+}
+
 // Imports Principais do Electron
 var electron = require('electron');
 var { ipcRenderer, remote, shell } = electron;
