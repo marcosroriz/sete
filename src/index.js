@@ -14,6 +14,9 @@ const { app, BrowserWindow, ipcMain, shell } = electron;
 const path = require("path");
 const fs = require("fs-extra");
 
+// Desabilita cache do http
+app.commandLine.appendSwitch ("disable-http-cache");
+
 // Arquivo de configuração (variáveis básicas)
 const Store = require("electron-store");
 var appconfig = new Store();
