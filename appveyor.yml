@@ -44,6 +44,10 @@ install:
   - cmd: npm install 
   - sh: npm install --no-optional
 
+  # Webify
+  - ps: .\webify.ps1
+  - sh: ./webify.sh
+
   # Rebuild native packages
   # Install SQLite from Source (Native Module)
   # Previous --target=8.5.2
