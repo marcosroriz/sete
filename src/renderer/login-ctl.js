@@ -1,7 +1,7 @@
 // Instanciação 
 emailjs.init("user_319iA49jzZ51Sa7qehcii");
-const SERVICE_ID = 'service_ij3p8cb';
-const TEMPLATE_ID = 'template_5mqem8f';
+var SERVICE_ID = 'service_ij3p8cb';
+var TEMPLATE_ID = 'template_5mqem8f';
 
 // Localização do Usuário
 var localizacao;
@@ -10,7 +10,11 @@ var localizacao;
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {
     // Carrega o rodapé
-    $("#footer").load("./footer.html");
+    $("#footer").load("https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/footer.html", function (response, status) {
+        if (status == "error") {
+            $("#footer").load("footer.html");
+        }
+    });
 
     // Ativa a aba de login por padrão
     $("#login-tab").trigger('click');
