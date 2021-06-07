@@ -11,6 +11,8 @@ image:
 platform:
   - x64
 
+clone_depth: 5
+
 environment:
   APPVEYOR_YML_DISABLE_PS_LINUX: true
   nodejs_version: "12.18.3"
@@ -93,18 +95,26 @@ artifacts:
 
 
 deploy:
-  release: SETEv-$(APPVEYOR_REPO_TAG_NAME)
+  release: SETE AUTOMATIC BUILD
   description: 'AUTOMATIC BUILD'
   provider: GitHub
   draft: true
-  tag: $(APPVEYOR_REPO_TAG_NAME)
   auth_token: 
-    secure: w8BkOqir8reEJU+SVAZZNgzl4Hu4ux08/9f+IAxtOww7rL5Pz1F1lBI85VePN6aH
-  artifact: WinBinaries, UbuntuBinaries, MacBinaries
+    secure: gx5sdTH7NlaxbamcdboCQP+/+ue/zygB78gyfN9f7R0qIb+ZP7Ap1AFjNqYFELfC
+  artifact: WinBinaries
   on:
     branch: master
     APPVEYOR_REPO_TAG: true
 
+# deploy:
+#   release: SETE-v$(APPVEYOR_BUILD_VERSION)
+#   description: 'SETE v1.0.0'
+#   provider: GitHub
+#   auth_token: 
+#     secure: o9FnGoA7kIQPmz6pI/uzpPbOrolyu2jgAzTVV7Ld6TdbmM3pSh60UR7PU2B9FzpF
+#   artifact: WinBinaries
+#   on:
+#     branch: master                 # release from master branch only
 
 on_finish:
   - cmd: ECHO Exiting...
