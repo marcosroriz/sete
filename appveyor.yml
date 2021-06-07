@@ -1,7 +1,7 @@
-# branches:
-#   only:
-#     - master
-#     - dev
+branches:
+  only:
+    - master
+    - dev
 
 image: 
   - macos
@@ -15,34 +15,56 @@ environment:
   APPVEYOR_YML_DISABLE_PS_LINUX: true
   nodejs_version: "12.18.3"
 
-# Init (set x64 VC) on Windows
-init:
-  - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+for:
+  - 
+    matrix:
+      only:
+        - image: macos
+    init:
+      - sh: cd $HOME/projects/sete
 
+      # Get the latest LTS version of Node.js in MAC
+      - sh: nvm install $nodejs_version
+      - sh: nvm use $nodejs_version
+
+      # Install Yarn
+      - sh: nvm install -g yarn
+  - 
+    matrix:
+      only:
+        - image: Ubuntu
+    init:
+      # Install basic packages in Ubuntu
+      - sh: sudo apt-get install -y fakeroot dpkg rpm
+
+      # Get the latest LTS version of Node.js in MAC
+      - sh: nvm install $nodejs_version
+      - sh: nvm use $nodejs_version
+  - 
+    matrix:
+      only:
+        - image: Visual Studio 2017
+    init:
+      # Init (set x64 VC) on Windows
+      - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+      # Get the latest LTS version of Node.js in Windows
+      - ps: Install-Product node $env:nodejs_version x64
+
+      # Add Wix to Windows Build Path
+      - cmd: dir "c:\Program Files (x86)\WiX Toolset"*
+      - cmd: set PATH="c:\Program Files (x86)\WiX Toolset v3.11\bin";%PATH%
+
+      # Set NPM in Windows to use Visual Studio 2017 and Python x64
+      - cmd: npm config set msvs_version "2017"
+      - cmd: npm config set python "C:\\Python27-x64\\pythonw.exe"
+      
 # Install scripts
 install:
   # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
   # - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
 
-  # Get the latest LTS version of Node.js in Windows
-  - ps: Install-Product node $env:nodejs_version x64
-
-  # Get the latest LTS version of Node.js in Ubuntu
-  - sh: nvm install $nodejs_version
-  - sh: nvm use $nodejs_version
-
-  # Install basic packages in Ubuntu
-  - sh: sudo apt-get install -y fakeroot dpkg rpm
-
-  # Add Wix to Windows Build Path
-  - cmd: dir "c:\Program Files (x86)\WiX Toolset"*
-  - cmd: set PATH="c:\Program Files (x86)\WiX Toolset v3.11\bin";%PATH%
-
-  # Set NPM in Windows to use Visual Studio 2017 and Python x64
-  - cmd: npm config set msvs_version "2017"
-  - cmd: npm config set python "C:\\Python27-x64\\pythonw.exe"
-  
   # Install Packages
   - cmd: npm install 
   - sh: npm install --no-optional
