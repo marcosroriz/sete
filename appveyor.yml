@@ -95,16 +95,16 @@ artifacts:
 
 
 deploy:
-  release: SETE AUTOMATIC BUILD
+  release: SETE-v$(APPVEYOR_REPO_TAG_NAME)
   description: 'AUTOMATIC BUILD'
   provider: GitHub
   draft: true
   auth_token: 
     secure: gx5sdTH7NlaxbamcdboCQP+/+ue/zygB78gyfN9f7R0qIb+ZP7Ap1AFjNqYFELfC
-  artifact: WinBinaries
+  artifact: WinBinaries, UbuntuBinaries, MacBinaries
   on:
     branch: master
-    APPVEYOR_REPO_TAG: true
+    # APPVEYOR_REPO_TAG: true
 
 # deploy:
 #   release: SETE-v$(APPVEYOR_BUILD_VERSION)
