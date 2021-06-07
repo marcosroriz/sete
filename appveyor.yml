@@ -93,8 +93,8 @@ artifacts:
 
 
 deploy:
-  release: AUTOMATIC SETE-v$(APPVEYOR_REPO_TAG_NAME)
-  description: 'SETE v$(APPVEYOR_REPO_TAG_NAME)'
+  release: AUTOMATIC SETE BUILD
+  description: 'AUTOMATIC BUILD'
   provider: GitHub
   draft: true
   auth_token: 
