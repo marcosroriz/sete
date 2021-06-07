@@ -36,15 +36,16 @@ for:
     init:
       # Init (set x64 VC) on Windows
       - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-      # Add Wix to Windows Build Path
-      - cmd: dir "c:\Program Files (x86)\WiX Toolset"*
-      - cmd: set PATH="c:\Program Files (x86)\WiX Toolset v3.11\bin";%PATH%
       
 # Install scripts
 install:
   # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
   # - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
+
+  # Add Wix to Windows Build Path
+  - cmd: dir "c:\Program Files (x86)\WiX Toolset"*
+  - cmd: set PATH="c:\Program Files (x86)\WiX Toolset v3.11\bin";%PATH%
 
   # Get the latest LTS version of Node.js in Windows
   - ps: Install-Product node $env:nodejs_version x64
@@ -67,8 +68,11 @@ install:
   # Webify
   - ps: .\webify.ps1
   - sh: chmod +x webify.sh
-  - sh: ./webify.sh
+  - sh: chmod +x webify_macos.sh
 
+  # Linux Webify
+  - sh: if test ${APPVEYOR_BUILD_WORKER_IMAGE} = "linux"; then ./webify.sh; fi
+  - sh: if test ${APPVEYOR_BUILD_WORKER_IMAGE} = "macOS"; then ./webify_macos.sh; fi
   # Rebuild native packages
   # Install SQLite from Source (Native Module)
   # Previous --target=8.5.2
