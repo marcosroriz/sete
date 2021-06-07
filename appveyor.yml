@@ -71,7 +71,8 @@ install:
   - sh: chmod +x webify_macos.sh
 
   # Linux Webify
-  - sh: if test ${APPVEYOR_BUILD_WORKER_IMAGE} = "linux"; then ./webify.sh; fi
+  - sh: echo ${APPVEYOR_BUILD_WORKER_IMAGE}
+  - sh: if test ${APPVEYOR_BUILD_WORKER_IMAGE} = "Ubuntu"; then ./webify.sh; fi
   - sh: if test ${APPVEYOR_BUILD_WORKER_IMAGE} = "macOS"; then ./webify_macos.sh; fi
   # Rebuild native packages
   # Install SQLite from Source (Native Module)
