@@ -97,11 +97,11 @@ deploy:
   description: 'AUTOMATIC BUILD'
   provider: GitHub
   draft: true
+  tag: $(APPVEYOR_REPO_TAG_NAME)
   auth_token: 
     secure: 9hRnbtOoPRRguzY2vAQPav4shvWxzm7w0ZpEcV8sp8F+huzrViBh3PAKx808GpFO
   artifact: WinBinaries, UbuntuBinaries, MacBinaries
   on:
-    branch: master                 # release from master branch only
     APPVEYOR_REPO_TAG: true
 
 

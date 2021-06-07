@@ -4,6 +4,13 @@
     "import/extensions": 0,
     "import/no-extraneous-dependencies": 0,
     "import/no-unresolved": [2, { "ignore": ["electron"] }],
-    "linebreak-style": 0
+    "linebreak-style": 0,
+    "max-len": ["error", 160, 2, {
+      "ignoreUrls": true,
+      "ignoreComments": false,
+      "ignoreRegExpLiterals": true,
+      "ignoreStrings": false,
+      "ignoreTemplateLiterals": false,
+    }]
   }
 }
