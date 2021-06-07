@@ -46,6 +46,7 @@ install:
 
   # Webify
   - ps: .\webify.ps1
+  - sh: chmod +x webify.sh
   - sh: ./webify.sh
 
   # Rebuild native packages
