@@ -28,7 +28,7 @@ for:
       - sh: nvm use $nodejs_version
 
       # Install Yarn
-      - sh: nvm install -g yarn
+      - sh: npm install -g yarn
   - 
     matrix:
       only:
