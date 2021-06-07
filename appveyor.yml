@@ -4,9 +4,9 @@ branches:
     - dev
 
 image: 
+  - Visual Studio 2017
+  - Ubuntu
   - macos
-  # - Visual Studio 2017
-  # - Ubuntu
 
 platform:
   - x64
@@ -40,7 +40,7 @@ for:
 # Install scripts
 install:
   # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-  - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
+  # - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
   # - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
 
   # Add Wix to Windows Build Path
@@ -85,30 +85,31 @@ build_script:
 artifacts:
   - path: "\\out\\make\\wix\\x64\\sete.msi"
     name: WinBinaries
-
   - path: "\\out\\make\\deb\\x64\\sete*"
     name: UbuntuBinaries
+  - path: "\\out\\make\\sete*"
+    name: MacBinaries
 
-# deploy:
-#   release: SETE-v$(APPVEYOR_BUILD_VERSION)
-#   description: 'SETE v1.0.0'
-#   provider: GitHub
-#   draft: true
-#   auth_token: 
-#     secure: o9FnGoA7kIQPmz6pI/uzpPbOrolyu2jgAzTVV7Ld6TdbmM3pSh60UR7PU2B9FzpF
-#   artifact: WinBinaries
-#   on:
-#     branch: master                 # release from master branch only
-#     APPVEYOR_REPO_TAG: true
+
+deploy:
+  release: SETE-v$(APPVEYOR_REPO_TAG_NAME)
+  tag: $(APPVEYOR_REPO_TAG_NAME)
+  provider: GitHub
+  draft: true
+  auth_token: 
+    secure: o9FnGoA7kIQPmz6pI/uzpPbOrolyu2jgAzTVV7Ld6TdbmM3pSh60UR7PU2B9FzpF
+  artifact: WinBinaries, UbuntuBinaries, MacBinaries
+  on:
+    branch: master                 # release from master branch only
+    # APPVEYOR_REPO_TAG: true
 
 
 on_finish:
-  # - cmd: ECHO Exiting...
-  # - sh: echo Exiting...
-  - sh: export APPVEYOR_SSH_BLOCK=true
-  - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
+  - cmd: ECHO Exiting...
+  - sh: echo Exiting...
+  # - sh: export APPVEYOR_SSH_BLOCK=true
+  # - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
   # - sh: export APPVEYOR_VNC_BLOCK=true
   # - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
-
   # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
