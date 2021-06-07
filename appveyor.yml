@@ -4,8 +4,9 @@ branches:
     - dev
 
 image: 
-  - Visual Studio 2017
-  - Ubuntu
+  - macos
+  # - Visual Studio 2017
+  # - Ubuntu
 
 platform:
   - x64
@@ -21,6 +22,7 @@ init:
 # Install scripts
 install:
   # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
 
   # Get the latest LTS version of Node.js in Windows
   - ps: Install-Product node $env:nodejs_version x64
@@ -69,15 +71,20 @@ artifacts:
 #   release: SETE-v$(APPVEYOR_BUILD_VERSION)
 #   description: 'SETE v1.0.0'
 #   provider: GitHub
+#   draft: true
 #   auth_token: 
 #     secure: o9FnGoA7kIQPmz6pI/uzpPbOrolyu2jgAzTVV7Ld6TdbmM3pSh60UR7PU2B9FzpF
 #   artifact: WinBinaries
 #   on:
 #     branch: master                 # release from master branch only
+#     APPVEYOR_REPO_TAG: true
 
 
 on_finish:
-  - cmd: ECHO Exiting...
-  - sh: echo Exiting...
+  # - cmd: ECHO Exiting...
+  # - sh: echo Exiting...
+  - sh: export APPVEYOR_VNC_BLOCK=true
+  - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
+
   # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
