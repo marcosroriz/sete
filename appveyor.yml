@@ -93,12 +93,12 @@ artifacts:
 
 
 deploy:
-  release: SETE-v$(APPVEYOR_REPO_TAG_NAME)
-  tag: $(APPVEYOR_REPO_TAG_NAME)
+  release: AUTOMATIC SETE-v$(APPVEYOR_REPO_TAG_NAME)
+  description: 'SETE v$(APPVEYOR_REPO_TAG_NAME)'
   provider: GitHub
   draft: true
   auth_token: 
-    secure: o9FnGoA7kIQPmz6pI/uzpPbOrolyu2jgAzTVV7Ld6TdbmM3pSh60UR7PU2B9FzpF
+    secure: 9hRnbtOoPRRguzY2vAQPav4shvWxzm7w0ZpEcV8sp8F+huzrViBh3PAKx808GpFO
   artifact: WinBinaries, UbuntuBinaries, MacBinaries
   on:
     branch: master                 # release from master branch only
