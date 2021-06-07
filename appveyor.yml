@@ -99,9 +99,10 @@ deploy:
   draft: true
   tag: $(APPVEYOR_REPO_TAG_NAME)
   auth_token: 
-    secure: 9hRnbtOoPRRguzY2vAQPav4shvWxzm7w0ZpEcV8sp8F+huzrViBh3PAKx808GpFO
+    secure: w8BkOqir8reEJU+SVAZZNgzl4Hu4ux08/9f+IAxtOww7rL5Pz1F1lBI85VePN6aH
   artifact: WinBinaries, UbuntuBinaries, MacBinaries
   on:
+    branch: master
     APPVEYOR_REPO_TAG: true
 
 
