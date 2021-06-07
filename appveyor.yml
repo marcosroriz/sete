@@ -104,7 +104,7 @@ deploy:
   artifact: WinBinaries, UbuntuBinaries, MacBinaries
   on:
     branch: master
-    # APPVEYOR_REPO_TAG: true
+    APPVEYOR_REPO_TAG: true
 
 # deploy:
 #   release: SETE-v$(APPVEYOR_BUILD_VERSION)
