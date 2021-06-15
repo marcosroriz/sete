@@ -26,76 +26,134 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         key: "ciN5QAQYiHzOFNabIODf~b61cOBWqj2nmKSuoyjuyKA~AiShqLNGsToztBeSE2Tk8Pb1cUdr4nikxL24hlMRaHCJkIpKaYtdBXoxaDEgFhQv",
         imagerySet: "AerialWithLabels"
     })
-
+    
+    var aux_index;
     bingMap.setTileLoadFunction((tile, url) => {
         // console.log("CARREGAR TILE", tile);
         // console.log("CARREGAR URL", url);
         
         // INDEX A SER SALVO NO IDB
-        index_search = tile.src_// tileCoord.toString();
+        index_search = url// tile.tileCoord; // tile.tileCoord.toString(); // tile.src_
 
         // VERIFICANDO SE TAL INFORMAÇÃO JÁ EXISTE NO BANCO DE DADOS
         request_info = dbread_index(index_search);
         
         // SO VAI FAZER REQUISÇÃO SE A IMAGEM NÃO EXISTIR IMAGEM NO IDB
-        if ((request_info == undefined) || (request_info == null)) {
+        if (request_info === undefined) {
             
             var xhr = new XMLHttpRequest();
-            xhr.responseType = 'blob'; // DEFININDO OBJETO A SER OBTIDO
-    
-            xhr.addEventListener('loadend', function (evt) {
-                var data = this.response;
-                if (data !== undefined) {
-                    tile.getImage().src = URL.createObjectURL(data);
-                } else {
-                    console.error("ERROR ON LOADEND")
-                    tile.setState(3);
-                }
-            });
-            xhr.addEventListener('error', function () {
-                console.error("ERROR GERAL")
-                tile.setState(3);
-            });
-            xhr.open('GET', url); // INICIALIZANDO OBJETO PARA OBTER IMAGEM
-            xhr.send(); // ENVIANDO PARA PROCESSAMENTO 
+            xhr.timeout = 3000; // TEMPO MÁXIMO PARA OBTER O DADO 3s
+            xhr.onloadstart = function () {
+                xhr.responseType = "blob";
+            }
             
-            // ESPERANDO QUANDO REQUISIÇÃO FOR FEITA
-            xhr.onload = function(e) {
-                if (this.status == 200) {
+            xhr.addEventListener('loadend', function (evt) {
+                var data = xhr.response;
+                if (data !== undefined) {
+
+                    //tile.getImage().src = URL.createObjectURL(data);
+
+                    console.log('IMAGE NOT CACHE: '+url);
+
+                    //aux_index = index_search;//.copyWithin();
+
+                    // MOSTRANDO O DADO QUE SERA SALVO
+                    // console.log(index_search);
+
                     // OBTENDO A BLOB
-                    var blob = this.response;
+                    var blob = data;
                     
                     // TRANSFORMANDO EM BASE 64
                     var reader = new FileReader();
                     reader.readAsDataURL(blob); 
                     reader.onloadend = function() {
+                        
+                        // OBTENDO A IMAGEM BASE64
                         var base64data = reader.result;                
                         
                         // CIANDO A NOTA PARA SER SALVA
                         note = {
-                            'Zoom_Lat_Long':index_search,
-                            'base64':base64data
+                            'Zoom_Lat_Long': index_search,
+                            'base64': base64data
                         };
                         
-                        // VERIFICANDO SE TAL INFORMAÇÃO JÁ EXISTE NO BANCO DE DADOS
-                        request_info = dbread_index(index_search);
+                        // SALVANDO AS NOTAS
+                        dbwrite(note);
                         
-                        // SE EXTRAIR BASE64 CORRETAMENTE IMAGEM EXISTE É ENTÃO NÃO SALVA NADA
-                        try {
-                            request_info.base64
-                        } catch (e) {
-                            dbwrite(note);
-                        }                    
+                        tile.getImage().src = base64data;
+
                     }
+                    // EVITA FAZER SALVAMENTO VARIAS VEZES
+                    //if (aux_index !== index_search) {
+
+                    //}
+
+                } else {
+                    console.error("ERROR ON LOADEND")
+                    tile.setState(3);
+                }
+            }, false);
+            
+            xhr.addEventListener('error', function () {
+                console.error("ERROR GERAL")
+                tile.setState(3);
+            }, false);
+            
+            xhr.open('GET', url); // INICIALIZANDO OBJETO PARA OBTER IMAGEM
+            /*
+            xhr.onload = function () {
+                var data = xhr.response;
+                if (data !== undefined) {
+
+                    //tile.getImage().src = URL.createObjectURL(data);
+
+                    console.log('IMAGE NOT CACHE: '+url);
+
+                    //aux_index = index_search;//.copyWithin();
+
+                    // MOSTRANDO O DADO QUE SERA SALVO
+                    // console.log(index_search);
+
+                    // OBTENDO A BLOB
+                    var blob = data;
+                    
+                    // TRANSFORMANDO EM BASE 64
+                    var reader = new FileReader();
+                    reader.readAsDataURL(blob); 
+                    reader.onloadend = function() {
+                        
+                        // OBTENDO A IMAGEM BASE64
+                        var base64data = reader.result;                
+                        
+                        // CIANDO A NOTA PARA SER SALVA
+                        note = {
+                            'Zoom_Lat_Long': index_search,
+                            'base64': base64data
+                        };
+                        
+                        // SALVANDO AS NOTAS
+                        dbwrite(note);
+                        
+                        tile.getImage().src = base64data;
+
+                    }
+                    // EVITA FAZER SALVAMENTO VARIAS VEZES
+                    //if (aux_index !== index_search) {
+
+                    //}
+
+                } else {
+                    console.error("ERROR ON LOADEND")
+                    tile.setState(3);
                 }
             }
+            */
+            xhr.send(); // ENVIANDO PARA PROCESSAMENTO 
         } 
         else {
-            
+            console.log('IMAGE USED BY CACHE');
             tile.getImage().src = request_info.base64;
-
         }
-
     })
 
     let olMap = new ol.Map({
