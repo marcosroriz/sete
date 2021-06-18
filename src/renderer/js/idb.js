@@ -48,7 +48,6 @@ async function dbremove(index) {
     requestRemove.onsuccess = function(event) {
         console.log('Data Removed!');
     };
-
     requestRemove.onerror = function(event) {
         console.log("Data Not Removed! (ERROR): "+event.target.errorCode);
     };
@@ -98,7 +97,7 @@ function dbread_id(id) {
 
     var tx = db.transaction(store_name, 'readonly');
     var store = tx.objectStore(store_name);
-    const request = store.get(id);
+    var request = store.get(id);
 
     // Faz algo após a inserção dos dados.
     tx.oncomplete = function(event) {
@@ -122,7 +121,6 @@ function dbread_id(id) {
         }
         //console.log(value_request);
     }; 
-
     // CASO ACESSO GERE UM ERRO VOLTE VALOR PARA NULL
     request.onerror = function(event) {
         console.log("Data Not Read Id! (ERROR): "+event.target.errorCode);
@@ -139,7 +137,7 @@ function dbread_index(index_search) {
     var tx = db.transaction(store_name, 'readonly');
     var store = tx.objectStore(store_name);
     var index = store.index(table);
-    const request = index.get(index_search);
+    var request = index.get(index_search);
 
     // Faz algo após a inserção dos dados.
     tx.oncomplete = function(event) {
@@ -163,7 +161,6 @@ function dbread_index(index_search) {
         }
         //console.log(value_request);
     };
-
     // CASO ACESSO GERE UM ERRO VOLTE VALOR PARA NULL
     request.onerror = function(event) {
         console.log("Data Not Read index! (ERROR): "+event.target.errorCode);

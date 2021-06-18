@@ -27,13 +27,12 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         imagerySet: "AerialWithLabels"
     })
     
-    var aux_index;
     bingMap.setTileLoadFunction((tile, url) => {
         // console.log("CARREGAR TILE", tile);
         // console.log("CARREGAR URL", url);
         
         // INDEX A SER SALVO NO IDB
-        index_search = url// tile.tileCoord; // tile.tileCoord.toString(); // tile.src_
+        var index_search = tile.tileCoord; // tile.tileCoord.toString(); // tile.src_
 
         // VERIFICANDO SE TAL INFORMAÇÃO JÁ EXISTE NO BANCO DE DADOS
         request_info = dbread_index(index_search);
@@ -55,11 +54,6 @@ function novoMapaOpenLayers(target, latitude, longitude) {
 
                     console.log('IMAGE NOT CACHE: '+url);
 
-                    //aux_index = index_search;//.copyWithin();
-
-                    // MOSTRANDO O DADO QUE SERA SALVO
-                    // console.log(index_search);
-
                     // OBTENDO A BLOB
                     var blob = data;
                     
@@ -72,21 +66,19 @@ function novoMapaOpenLayers(target, latitude, longitude) {
                         var base64data = reader.result;                
                         
                         // CIANDO A NOTA PARA SER SALVA
-                        note = {
+                        var note = {
                             'Zoom_Lat_Long': index_search,
                             'base64': base64data
                         };
                         
+                        console.log(note);
+
                         // SALVANDO AS NOTAS
                         dbwrite(note);
                         
                         tile.getImage().src = base64data;
 
                     }
-                    // EVITA FAZER SALVAMENTO VARIAS VEZES
-                    //if (aux_index !== index_search) {
-
-                    //}
 
                 } else {
                     console.error("ERROR ON LOADEND")
@@ -100,55 +92,8 @@ function novoMapaOpenLayers(target, latitude, longitude) {
             }, false);
             
             xhr.open('GET', url); // INICIALIZANDO OBJETO PARA OBTER IMAGEM
-            /*
-            xhr.onload = function () {
-                var data = xhr.response;
-                if (data !== undefined) {
-
-                    //tile.getImage().src = URL.createObjectURL(data);
-
-                    console.log('IMAGE NOT CACHE: '+url);
-
-                    //aux_index = index_search;//.copyWithin();
-
-                    // MOSTRANDO O DADO QUE SERA SALVO
-                    // console.log(index_search);
-
-                    // OBTENDO A BLOB
-                    var blob = data;
-                    
-                    // TRANSFORMANDO EM BASE 64
-                    var reader = new FileReader();
-                    reader.readAsDataURL(blob); 
-                    reader.onloadend = function() {
-                        
-                        // OBTENDO A IMAGEM BASE64
-                        var base64data = reader.result;                
-                        
-                        // CIANDO A NOTA PARA SER SALVA
-                        note = {
-                            'Zoom_Lat_Long': index_search,
-                            'base64': base64data
-                        };
-                        
-                        // SALVANDO AS NOTAS
-                        dbwrite(note);
-                        
-                        tile.getImage().src = base64data;
-
-                    }
-                    // EVITA FAZER SALVAMENTO VARIAS VEZES
-                    //if (aux_index !== index_search) {
-
-                    //}
-
-                } else {
-                    console.error("ERROR ON LOADEND")
-                    tile.setState(3);
-                }
-            }
-            */
             xhr.send(); // ENVIANDO PARA PROCESSAMENTO 
+
         } 
         else {
             console.log('IMAGE USED BY CACHE');
