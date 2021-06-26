@@ -30,7 +30,7 @@ for:
         - image: Ubuntu
     init:
       # Install basic packages in Ubuntu
-      - sh: sudo apt-get install -y fakeroot dpkg rpm
+      - sh: sudo apt-get update && sudo apt-get install -y fakeroot dpkg rpm
   - 
     matrix:
       only:
