@@ -67,6 +67,20 @@
               "icon": "./src/renderer/img/icones/setelogo.png"
             }
           }
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {
+            "options": {
+              "categories": [
+                "Education"
+              ],
+              "icon": "./src/renderer/img/icones/setelogo.png",
+              "requires": [
+                "readline"
+              ]
+            }
+          }
         }
       ]
     }
