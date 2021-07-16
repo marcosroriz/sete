@@ -2,6 +2,11 @@
 // Este arquivo contém o script de controle da tela rota-importar-view. O mesmo
 // possibilita importar a rota de um arquivo GPX
 
+// Lista de Imports
+var togeojson = require("@mapbox/togeojson");
+var GPXDOMParser = require("xmldom").DOMParser;
+var simplify = require("simplify-geojson");
+
 // Variáveis de Mapas
 var listaDeRotas = new Map();
 var mapa = novoMapaOpenLayers("mapRota", cidadeLatitude, cidadeLongitude);
@@ -12,44 +17,22 @@ var gpx = "";
 var gpxSimplificado = "";
 var gpxDOM = "";
 
-var style = {
-    'Point': [
-        new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 15,
-                anchor: [10, 10],
-                anchorXUnits: 'pixels',
-                anchorYUnits: 'pixels',
-                fill: new ol.style.Fill({
-                    color: 'white'
-                })
-            })
-        }),
-        new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 8,
-                anchor: [10, 10],
-                anchorXUnits: 'pixels',
-                anchorYUnits: 'pixels',
-                fill: new ol.style.Fill({
-                    color: '#ffcc33'
-                })
-            })
-        }),
-    ],
-    'LineString': new ol.style.Style({
-        stroke: new ol.style.Stroke({ color: '#ffcc33', width: 4 })
-    }),
-};
-
-
 var getGeomStyle = function (feature) {
     var styles = new Array();
 
     if (feature.getGeometry() instanceof ol.geom.LineString) {
         styles.push(new ol.style.Style({
-            stroke: new ol.style.Stroke({ color: "#00cca7", width: 4 })
+            stroke: new ol.style.Stroke({ color: "white", width: 8 }),
         }));
+        styles.push(new ol.style.FlowLine({
+            color: "Orange",
+            color2: "DarkSlateGrey",
+            width: 3,
+            width2: 3,
+            arrowSize: 32,
+            zIndex: 0,
+        }));
+        // flowStyle.setArrow(1);
 
         let pontoReferencial = null;
         let ultPonto = feature.getGeometry().getLastCoordinate().slice(0, 2);
@@ -67,7 +50,8 @@ var getGeomStyle = function (feature) {
                         src: "img/icones/inicio-icone.png",
                         anchor: [0.75, 0.5],
                         rotateWithView: true,
-                    })
+                    }),
+                    zIndex: 150,
                 }));
 
                 return;
@@ -76,7 +60,6 @@ var getGeomStyle = function (feature) {
                 plotSeta = true;
             } else {
                 let pontoAtual = ol.proj.transform(end, 'EPSG:3857', 'EPSG:4326');
-                
                 let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
 
                 if (distancia > 2000) {
@@ -94,17 +77,18 @@ var getGeomStyle = function (feature) {
                 styles.push(new ol.style.Style({
                     geometry: new ol.geom.Point(end),
                     image: new ol.style.Icon({
-                        src: 'img/icones/arrow.png',
+                        src: "img/icones/arrow.png",
                         anchor: [0.75, 0.5],
                         rotateWithView: true,
-                        rotation: -rotation
-                    })
+                        rotation: -rotation,
+                    }),
+                    zIndex: 100,
                 }));
             }
         });
     }
     return styles;
-}
+};
 
 malhaLayer.setStyle((feature) => {
     if (feature.getGeometry() instanceof ol.geom.LineString) {
@@ -112,7 +96,7 @@ malhaLayer.setStyle((feature) => {
     } 
 });
 
-$("#inverter-rota").on('click', () => {
+$("#inverter-rota").on("click", () => {
     malhaSource.clear();
 
     let arr = gpxSimplificado.features[0].geometry.coordinates;
@@ -125,17 +109,11 @@ $("#inverter-rota").on('click', () => {
     }))
 
     mapa["map"].getView().fit(malhaSource.getExtent());
-
-})
+});
 
 // Ativa busca e camadas
 mapa["activateGeocoder"]();
 mapa["activateImageLayerSwitcher"]();
-
-// Lista de Imports
-var togeojson = require('@mapbox/togeojson');
-var GPXDOMParser = require('xmldom').DOMParser;
-var simplify = require('simplify-geojson')
 
 var erroSwalAntigo = (msgTitle, msgDesc) => {
     return swal({
@@ -144,24 +122,50 @@ var erroSwalAntigo = (msgTitle, msgDesc) => {
         icon: "error",
         button: "Fechar",
     });
-}
+};
 
-$("#arqGPX").change(() => {
+$("#arqGPX").on("change", () => {
     try {
         let gpxFile = $("#arqGPX")[0].files[0].path;
         if (gpxFile != "") {
             gpxDOM = new GPXDOMParser().parseFromString(fs.readFileSync(gpxFile, "UTF8"));
             gpx = togeojson.gpx(gpxDOM);
-            
-            var trackFeatures = new Array();
+
+            var trackFeatures = null;
             for (let i = 0; i < gpx.features.length; i++) {
                 if (gpx.features[i].geometry.type == "LineString") {
-                    trackFeatures.push(gpx.features[i]);
+                    if (trackFeatures) {
+                        trackFeatures.geometry.coordinates.push(...gpx.features[i].geometry.coordinates);
+                    } else {
+                        trackFeatures = gpx.features[i];
+                    }
+                }
+
+                if (gpx.features[i].geometry.type == "MultiLineString") {
+                    let lineStringCoordinates = [];
+                    for (ls of gpx.features[i].geometry.coordinates) {
+                        lineStringCoordinates.push(...ls)
+                    }
+
+                    if (trackFeatures) {
+                        trackFeatures.geometry.coordinates.push(...lineStringCoordinates);
+                    } else {
+                        let feature = {
+                            type: "Feature",
+                            geometry: {
+                                type: "LineString",
+                                properties: {},
+                                options: {},
+                            },
+                            properties: {},
+                        };
+                        feature.geometry.coordinates = lineStringCoordinates;
+                        trackFeatures = feature;
+                    }
                 }
             }
-            gpx["features"] = trackFeatures;
-            
-            gpxSimplificado = simplify(gpx, 0.00001)
+            gpx["features"] = [trackFeatures];
+            gpxSimplificado = simplify(gpx, 0.0001);
 
             malhaSource.clear();
             malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(gpxSimplificado, {
@@ -193,7 +197,6 @@ var completeForm = () => {
     })
     .then(() => {
         document.location.href = "./dashboard.html";
-        // navigateDashboard("./modules/rota/rota-listar-view.html");
     });
 }
 
@@ -215,7 +218,7 @@ $('#rota-salvar-rota').click(() => {
         SHAPE: new ol.format.GeoJSON().writeFeatures(malhaSource.getFeatures())
     }
     dbAtualizarPromise(DB_TABLE_ROTA, rotasJSON, idRota)
-    .then(res => completeForm())
+    .then(_ => completeForm())
     .catch(err => erroSwalAntigo("Erro ao atualizar o motorista!", err))
 });
 
@@ -287,4 +290,4 @@ dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
         listaDeRotas.set(rID, rNome);
         $('#listarota').append(`<option value="${rID}">${rNome}</option>`);
     }
-}).catch((err) => erroSwalAntigo("Ops... tivemos um problema ao listar as rotas", err ));
+}).catch((err) => erroSwalAntigo("Ops... tivemos um problema ao listar as rotas", err));
