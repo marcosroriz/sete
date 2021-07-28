@@ -58,7 +58,14 @@ function PopulateAlunoFromState(estadoAlunoJSON) {
 
     $("input[name='turnoAluno']").val([estadoAlunoJSON["TURNO"]]);
     $("input[name='nivelAluno']").val([estadoAlunoJSON["NIVEL"]]);
-    $("#listaescola").val(estadoAlunoJSON["ID_ESCOLA"]);
+    
+    if (estadoAlunoJSON["ID_ESCOLA"]) {
+        $("#listaescola").val(estadoAlunoJSON["ID_ESCOLA"]);
+    }
+
+    if (estadoAlunoJSON["ID_ROTA"]) {
+        $("#listarota").val(estadoAlunoJSON["ID_ROTA"]);
+    }    
 }
 
 // Transformar linha do DB para JSON

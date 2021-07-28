@@ -291,10 +291,12 @@ var preprocessarEscolasTemAlunos = (res) => {
 var preprocessarRotaTemAlunos = (res) => {
     res.forEach((rota) => {
         let aID = rota["ID_ALUNO"];
+        let rID = rota["ID_ROTA"];
         let alunoJSON = listaDeAlunos.get(aID);
 
         if (alunoJSON) {
             alunoJSON["ROTA"] = "ROTA " + rota["NOME"];
+            alunoJSON["ID_ROTA"] = rID;
             listaDeAlunos.set(aID, alunoJSON);
         }
     })
