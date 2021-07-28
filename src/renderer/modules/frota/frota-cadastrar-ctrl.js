@@ -20,6 +20,8 @@ $(".placa").mask("SSS-ZZZZ", {
         }
     }
 });
+
+
 $(".renavam").mask("0000000000-0");
 $(".kmmask").mask("000000,00", { reverse: true });
 
