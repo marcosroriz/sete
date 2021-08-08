@@ -272,3 +272,42 @@ i.tab-icon {
 .card-wizard .nav-tabs {
     margin-left: -13px;
 }
+
+.camadasMapaDashboard span {
+    font-weight: bold;
+    font-size: 1.5em;
+    font-variant: small-caps;
+}
+
+.camadasMapaDashboard .ol-layerswitcher {
+    max-height: 555px;
+    height: 555px;
+}
+
+.camadasMapaDashboard .ol-layerswitcher .panel li label {
+    font-size: 14px;
+    font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+    font-variant: small-caps;
+}
+
+.camadasMapaDashboard li.visible.ol-layer-group {
+    border-bottom-color: orange !important;
+    border-bottom-style: solid !important;
+    border-width: 2px !important;
+    margin-bottom: 10px;
+}
+
+.camadasMapaDashboard .ol-layerswitcher .panel li label {
+    font-size: 10px;
+}
+
+.camadasMapaDashboard .ol-layerswitcher [type="radio"] + label:before, 
+.camadasMapaDashboard .ol-layerswitcher [type="checkbox"] + label:before, 
+.camadasMapaDashboard .ol-layerswitcher [type="radio"]:checked + label:after, 
+.camadasMapaDashboard .ol-layerswitcher [type="checkbox"]:checked + label:after {
+    margin-top: 4px;
+}
+
+.camadasMapaDashboard .ol-layerswitcher .panel li label {
+    height: 2em;
+}
