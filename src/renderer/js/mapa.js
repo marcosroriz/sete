@@ -7,12 +7,31 @@ var mapaCores = ["#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0",
     "#24796C", "#DAA51B", "#2F8AC4", "#764E9F", "#ED645A",
     "#CC3A8E", "#A5AA99"];
 
+var mapaCoresRGB = [
+    [229, 134, 6],
+    [93, 105, 177],
+    [82, 188, 163],
+    [153, 201, 69],
+    [204, 97, 176],
+    [36, 121, 108],
+    [218, 165, 27],
+    [47, 138, 196],
+    [118, 78, 159],
+    [237, 100, 90],
+    [204, 58, 142],
+    [165, 170, 153]
+]
 var cor = 0;
 
 function proximaCor() {
     return mapaCores[++cor % mapaCores.length];
 }
 
+function proximaCorComOpacity(opacity = 1) {
+    let corEscolhida = mapaCoresRGB[++cor % mapaCoresRGB.length];
+    corEscolhida.push(opacity);
+    return corEscolhida;
+}
 function novoMapaOpenLayers(target, latitude, longitude) {
     let mapa = {};
 
@@ -26,7 +45,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         "controls": ol.control.defaults().extend([
             new ol.control.FullScreen({
                 tipLabel: "Ativar/Desativar tela cheia"
-            }), 
+            }),
             new ol.control.CanvasScaleLine()
         ]),
         "target": target,
@@ -68,11 +87,11 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         }
     };
 
-    mapa["addLayer"] = function (lname) {
+    mapa["addLayer"] = function (lname, displayInLayerSwitcher = false) {
         let vs = new ol.source.Vector();
         let vl = new ol.layer.Vector({
             source: vs,
-            "displayInLayerSwitcher": false
+            "displayInLayerSwitcher": displayInLayerSwitcher
         });
         vl.set("name", lname);
 
@@ -80,7 +99,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
             "name": lname,
             "source": vs,
             "layer": vl,
-            "displayInLayerSwitcher": false,
+            "displayInLayerSwitcher": displayInLayerSwitcher,
         }
 
         mapa["layers"][lname] = lyr;
@@ -100,11 +119,12 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         olMap.addLayer(groupLayer);
     };
 
-    mapa["createLayer"] = function (lname, title) {
+    mapa["createLayer"] = function (lname, title, displayInLayerSwitcher = false) {
         let vs = new ol.source.Vector();
         let vl = new ol.layer.Vector({
             "title": title,
-            "source": vs
+            "source": vs,
+            "displayInLayerSwitcher": displayInLayerSwitcher
         });
 
         let lyr = {
@@ -191,6 +211,38 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         olMap.addControl(geocoder);
     };
 
+    mapa["activatePrinting"] = function () {
+        var printControl = new ol.control.PrintDialog(({ lang: 'pt' }));
+        printControl.setSize('A4');
+        olMap.addControl(printControl);
+
+        /* On print > save image file */
+        printControl.on(['print', 'error'], function (e) {
+            // Print success
+            if (e.image) {
+                if (e.pdf) {
+                    // Export pdf using the print info
+                    var pdf = new jsPDF({
+                        orientation: e.print.orientation,
+                        unit: e.print.unit,
+                        format: e.print.size
+                    });
+                    pdf.addImage(e.image, 'JPEG', e.print.position[0], e.print.position[0], e.print.imageWidth, e.print.imageHeight);
+                    pdf.save(e.print.legend ? 'legend.pdf' : 'map.pdf');
+                } else {
+                    // Save image as file
+                    e.canvas.toBlob(function (blob) {
+                        var name = (e.print.legend ? 'legend.' : 'map.') + e.imageType.replace('image/', '');
+                        saveAs(blob, name);
+                    }, e.imageType, e.quality);
+                }
+                $($(".ol-ext-buttons button[type='button']")[0]).trigger('click')
+            } else {
+                errorFn("Problema ao gerar o arquivo de impressão. ")
+                $($(".ol-ext-buttons button[type='button']")[0]).trigger('click')
+            }
+        });
+    }
     return mapa;
 }
 
@@ -273,3 +325,27 @@ var osmMapReplacer = function (key, value) {
     }
 };
 
+// Openlayers impressão
+ol.control.PrintDialog.prototype.formats = [{
+    title: 'Copiar para a área de transferência',
+    imageType: 'image/png',
+    clipboard: true
+}, {
+    title: 'Salvar como JPEG (qualité média)',
+    imageType: 'image/jpeg',
+    quality: .8
+}, {
+    title: 'Salvar como JPEG (qualidade máxima)',
+    imageType: 'image/jpeg',
+    quality: 1
+}, {
+    title: 'Salvar como PNG',
+    imageType: 'image/png',
+    quality: .92
+}, {
+    title: 'Salvar como PDF',
+    imageType: 'image/jpeg',
+    quality: 1,
+    pdf: true
+}
+];
