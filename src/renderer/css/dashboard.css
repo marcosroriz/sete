@@ -311,3 +311,7 @@ i.tab-icon {
 .camadasMapaDashboard .ol-layerswitcher .panel li label {
     height: 2em;
 }
+
+.ol-layerswitcher [type="radio"]:checked + label:after {
+    margin-top: 7px !important;
+}

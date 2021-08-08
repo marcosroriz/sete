@@ -26,7 +26,7 @@ mapa["activateGeocoder"]();
 // mapa["activateImageLayerSwitcher"]();
 
 // Ativa impressão
-mapa["activatePrinting"]();
+// mapa["activatePrinting"]();
 
 // Mapa do dashboard
 $("[name='mostrarAlunos']").bootstrapSwitch();
@@ -86,6 +86,7 @@ dbEstaSincronizado()
 
         return firstAcess
     })
+    .then(() => preencheRelacoes())
     .then(() => preencheMapa())
     .catch((err) => {
         errorFn("Erro ao sincronizar, sem conexão com a Internet")
@@ -158,6 +159,7 @@ function preencheDashboard() {
         res.forEach((rota) => {
             totalKM = totalKM + parseFloat(rota["KM"]);
             totalTempo = totalTempo + parseFloat(rota["TEMPO"]);
+            rota["NUM_ALUNOS_ROTA"] = 0;
             hashMapRotas.set(rota["ID"], rota)
         });
 
@@ -170,6 +172,50 @@ function preencheDashboard() {
         $("#kmTotal").text(Math.round(totalKM) + " km");
         $("#kmMedio").text(totalKMMedio + " km");
         $("#tempoMedio").text(totalTempo + " min");
+    }))
+
+    return Promise.all(dashPromises)
+}
+
+function preencheRelacoes() {
+    var dashPromises = new Array();
+
+    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS).then((res) => {
+        for (let relEscolaAluno of res) {
+            let eID = relEscolaAluno["ID_ESCOLA"];
+            let aID = relEscolaAluno["ID_ALUNO"];
+
+            if (hashMapEscolas.has(eID)) {
+                let escolaJSON = hashMapEscolas.get(eID);
+                let alunoJSON = hashMapAlunos.get(aID);
+
+                escolaJSON["NUM_ALUNOS"] = escolaJSON["NUM_ALUNOS"] + 1;
+                if (alunoJSON) { // tem GPS
+                    alunoJSON["ESCOLA"] = escolaJSON["NOME"];
+                    hashMapAlunos.set(aID, alunoJSON);
+                }
+                hashMapEscolas.set(eID, escolaJSON);
+            }
+        }
+    }))
+
+    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ROTA_ATENDE_ALUNO).then((res) => {
+        for (let relRotaAluno of res) {
+            let rID = relRotaAluno["ID_ROTA"];
+            let aID = relRotaAluno["ID_ALUNO"];
+
+            if (hashMapRotas.has(rID)) {
+                let rotaJSON = hashMapRotas.get(rID);
+                let alunoJSON = hashMapAlunos.get(aID);
+
+                rotaJSON["NUM_ALUNOS_ROTA"] = rotaJSON["NUM_ALUNOS_ROTA"] + 1;
+                if (alunoJSON) { // tem 
+                    alunoJSON["ROTA"] = rotaJSON["NOME"];
+                    hashMapAlunos.set(aID, alunoJSON);
+                }
+                hashMapRotas.set(rID, rotaJSON);
+            }
+        }
     }))
 
     return Promise.all(dashPromises)
@@ -240,9 +286,11 @@ function preencheMapa() {
                 }
 
                 rotaGeoJSON.forEach(f => {
-                    f.set("rota", rota["NOME"]);
-                    f.set("pickedRoute", rota);
-                    f.set("pickedRouteLength", tamanhoRotaStr);
+                    f.set("NOME", rota["NOME"]);
+                    f.set("KM", rota["KM"]);
+                    f.set("TEMPO", rota["TEMPO"]);
+                    f.set("NUM_ALUNOS_ROTA", rota["NUM_ALUNOS_ROTA"]);
+                    f.set("TIPO", "ROTA");
                 });
 
                 let rotaStyles = [
@@ -299,10 +347,7 @@ function preencheMapa() {
         // })
     ];
 
-
-
     // Add a layer switcher outside the map
-    mapa["addGroupLayer"]("Titulo", layers);
     mapa["addGroupLayer"]("Rotas", grupoLayersRotas);
     mapa["addGroupLayer"]("Escolas", grupoLayersEscolas);
     mapa["addGroupLayer"]("Alunos", grupoLayersAlunos);
@@ -327,35 +372,43 @@ function preencheMapa() {
 var plotarAluno = (aluno) => {
     let alat = aluno["LOC_LATITUDE"];
     let alng = aluno["LOC_LONGITUDE"];
-    let p = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
+    let pontoAluno = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
 
-    p.setId(aluno["ID_ALUNO"]);
-    p.set("NOME", aluno["NOME"]);
-    p.set("DATA_NASCIMENTO", aluno["DATA_NASCIMENTO"]);
-    p.set("ESCOLA", aluno["ESCOLA"]);
-    p.set("TURNOSTR", aluno["TURNOSTR"]);
-    p.set("NIVELSTR", aluno["NIVELSTR"]);
-    p.set("TIPO", "ALUNO");
+    pontoAluno.setId(aluno["ID_ALUNO"]);
+    pontoAluno.set("NOME", aluno["NOME"]);
+    pontoAluno.set("DATA_NASCIMENTO", aluno["DATA_NASCIMENTO"]);
+    pontoAluno.set("ESCOLA", aluno["ESCOLA"]);
+    pontoAluno.set("TURNOSTR", aluno["TURNOSTR"]);
+    pontoAluno.set("NIVELSTR", aluno["NIVELSTR"]);
+    pontoAluno.set("TIPO", "ALUNO");
 
     if (aluno["SEXO"] == 1) {
-        p.set("SEXO", "Masculino");
+        pontoAluno.set("SEXO", "Masculino");
     } else {
-        p.set("SEXO", "Feminino");
+        pontoAluno.set("SEXO", "Feminino");
     }
 
-    return p;
+    return pontoAluno;
 }
 
-var plotarEscola = (escola) => {
-    let elat = escola["LOC_LATITUDE"];
-    let elng = escola["LOC_LONGITUDE"];
-    let p = gerarMarcador(elat, elng, "img/icones/escola-marcador.png");
+// Cria feature de uma escola
+var plotarEscola = (escolaJSON) => {
+    let escolaID = escolaJSON["ID_ESCOLA"];
+    let lat = escolaJSON["LOC_LATITUDE"];
+    let lng = escolaJSON["LOC_LONGITUDE"];
 
-    p.setId(escola["ID"]);
-    p.set("NOME", escola["NOME"]);
-    p.set("TIPO", "ALUNO");
+    let pontoEscola = gerarMarcador(lat, lng, "img/icones/escola-marcador.png");
+    pontoEscola.setId(escolaID);
+    pontoEscola.set("NOME", escolaJSON["NOME"]);
+    pontoEscola.set("TIPO", "ESCOLA");
+    pontoEscola.set("DEPENDENCIA", escolaJSON["DEPENDENCIA"]);
+    pontoEscola.set("HORARIO", escolaJSON["HORARIO"]);
+    pontoEscola.set("REGIME", escolaJSON["REGIME"]);
+    pontoEscola.set("ENSINO", escolaJSON["ENSINO"])
+    pontoEscola.set("NUM_ALUNOS", escolaJSON["NUM_ALUNOS"]);
+    pontoEscola.set("CONTATO_TELEFONE", escolaJSON["CONTATO_TELEFONE"]);
 
-    return p;
+    return pontoEscola;
 }
 
 
@@ -368,9 +421,10 @@ var selectAlunoEscolaConfig = new ol.interaction.Select({
     condition: ol.events.condition.singleClick,
     filter: (feature, layer) => {
         console.log("feature", feature.getProperties())
-        if (feature.getGeometry().getType() == "Point" &&
-            (feature.getProperties().TIPO == "ALUNO" ||
-                feature.getProperties().TIPO == "ESCOLA")) {
+        if ((feature.getGeometry().getType() == "Point" && (feature.getProperties().TIPO == "ALUNO" || 
+                                                            feature.getProperties().TIPO == "ESCOLA")) 
+            || 
+            (feature.getGeometry().getType() == "LineString" && feature.getProperties().TIPO == "ROTA")) {
             return true;
         } else {
             return false;
@@ -395,7 +449,52 @@ var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
                 title: "Turno",
                 visible: (e) => e.getProperties().TIPO == "ALUNO"
             },
+            'ESCOLA': {
+                title: "Escola",
+                visible: (e) => e.getProperties().TIPO == "ALUNO"
+            },
+            'DEPENDENCIA': {
+                title: "Tipo",
+                visible: (e) => e.getProperties().TIPO == "ESCOLA"
+            },
+            'REGIME': {
+                title: "Regime",
+                visible: (e) => e.getProperties().TIPO == "ESCOLA"
+            },
+            'ENSINO': {
+                title: "Níveis",
+                visible: (e) => e.getProperties().TIPO == "ESCOLA"
+            },
+            'HORARIO': {
+                title: "Horário de Funcionamento",
+                visible: (e) => e.getProperties().TIPO == "ESCOLA"
+            },
+            'CONTATO_TELEFONE': {
+                title: "Contato",
+                visible: (e) => e.getProperties().TIPO == "ESCOLA"
+            },
+            'NUM_ALUNOS': {
+                title: "Número de alunos",
+                visible: (e) => e.getProperties().TIPO == "ESCOLA"
+            },
+            'KM': {
+                title: 'Tamanho da Rota',  // attribute's title
+                before: '',           // something to add before
+                format: ol.Overlay.PopupFeature.localString(),  // format as local string
+                after: ' km',        // something to add after
+                visible: (e) => e.getProperties().TIPO == "ROTA"
+            },
+            'TEMPO': {
+                title: 'Tempo estimado',  // attribute's title
+                before: '',           // something to add before
+                format: ol.Overlay.PopupFeature.localString(),  // format as local string
+                after: ' min',        // something to add after
+                visible: (e) => e.getProperties().TIPO == "ROTA"
+            },
+            'NUM_ALUNOS_ROTA': {
+                title: "Número de alunos",
+                visible: (e) => e.getProperties().TIPO == "ROTA"
+            },
         }
     }
 });
-

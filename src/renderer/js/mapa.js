@@ -182,6 +182,7 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         if (mapa["layerSwitcherActivated"] == false) {
             var switcher = new ol.control.LayerSwitcherImage({
                 reordering: false,
+                drawDelay: 1000,
                 displayInLayerSwitcher: (l) => {
                     if (l.values_.displayInLayerSwitcher != undefined) {
                         return l.values_.displayInLayerSwitcher;
@@ -208,6 +209,8 @@ function novoMapaOpenLayers(target, latitude, longitude) {
             countrycodes: "br",
             keepOpen: true
         });
+        geocoder.getSource().set("displayInLayerSwitcher", false);
+        geocoder.getLayer().set("displayInLayerSwitcher", false);
         olMap.addControl(geocoder);
     };
 
@@ -243,6 +246,8 @@ function novoMapaOpenLayers(target, latitude, longitude) {
             }
         });
     }
+
+    mapa["activatePrinting"]();
     return mapa;
 }
 
