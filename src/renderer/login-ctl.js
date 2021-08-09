@@ -322,15 +322,13 @@ $(document).ready(function () {
                     }
                     return acessoLiberado;
                 }).then(() => {
-                    let dadoUsuario = userconfig.get("DADO_USUARIO");
-                    return RecuperarUsuario(dadoUsuario["ID"]).then(userData => {
-                        if (userData.length == 0) {
-                            return InserirUsuario(dadoUsuario)
-                        } else {
-                            return true;
-                        }
-                    })
-                }).then(() => {
+                    return knex("IBGE_Municipios")
+                        .select()
+                        .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+                }).then((res) => {
+                    userconfig.set("LATITUDE", res[0]["latitude"])
+                    userconfig.set("LONGITUDE", res[0]["longitude"])
+
                     let codCidade = userconfig.get("COD_CIDADE")
                     return remotedb.collection("municipios").doc(codCidade).set({
                         LAST_UPDATE: new Date().toLocaleDateString()

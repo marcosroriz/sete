@@ -315,3 +315,13 @@ i.tab-icon {
 .ol-layerswitcher [type="radio"]:checked + label:after {
     margin-top: 7px !important;
 }
+
+.ol-layer-vector .li-content {
+    width: 70%;
+}
+
+.camadasMapaDashboard .ol-layerswitcher .panel li label {
+    display: inline;
+    padding-left: 20px;
+    padding-top: 12px;
+}

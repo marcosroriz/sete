@@ -34,7 +34,6 @@ $("[name='mostrarEscolas']").bootstrapSwitch();
 $("[name='mostrarRotas']").bootstrapSwitch();
 $("[name='mostrarVeiculos']").bootstrapSwitch();
 
-
 // Mostra âncora de loading
 $(".content").hide();
 
@@ -75,6 +74,8 @@ dbEstaSincronizado()
         }
     })
     .then(() => preencheDashboard())
+    .then(() => preencheRelacoes())
+    .then(() => preencheMapa())
     .then(() => {
         $(".preload").fadeOut(200, function () {
             $(".content").fadeIn(200);
@@ -86,8 +87,7 @@ dbEstaSincronizado()
 
         return firstAcess
     })
-    .then(() => preencheRelacoes())
-    .then(() => preencheMapa())
+
     .catch((err) => {
         errorFn("Erro ao sincronizar, sem conexão com a Internet")
         $(".preload").fadeOut(200, function () {
@@ -263,7 +263,22 @@ function preencheMapa() {
     let grupoLayersEscolas = [];
     categoriasEscola.reverse().forEach(cat => grupoLayersEscolas.push(lyrEscola[cat].layer));
 
-    for (let rota of hashMapRotas.values()) {
+    [...hashMapRotas.keys()].sort((a, b) => {
+        let nomeA = hashMapRotas.get(a)["NOME"]?.toLowerCase().trim();
+        let nomeB = hashMapRotas.get(b)["NOME"]?.toLowerCase().trim();
+        let parA = nomeA.split(" ");
+        let parB = nomeB.split(" ");
+
+        if (parA.length > 0 && parB.length > 0) {
+            parA = parA[0];
+            parB = parB[0];
+            if (isNumeric(parA) && isNumeric(parB)) {
+                return parA - parB;
+            }
+        }
+        return nomeA.localeCompare(nomeB);
+    }).reverse().forEach(rotaKey => {
+        let rota = hashMapRotas.get(rotaKey);
         if (rota["SHAPE"] != "" && rota["SHAPE"] != null && rota["SHAPE"] != undefined) {
             try {
                 let rotaNome = rota["NOME"];
@@ -312,43 +327,44 @@ function preencheMapa() {
                 camada.source.addFeatures(rotaGeoJSON);
                 camada.layer.setStyle(rotaStyles);
                 camada.layer.setZIndex(1);
-
+                camada.layer.setVisible(true);
+                camada.layer.setExtent(camada.source.getExtent());
                 lyrRotas[rotaNome] = camada;
             } catch (error) {
                 console.log(error);
             }
         }
-    }
+    })
+
+    //TODO:
+    // $("label[title='Rotas']").click(() => {
+    //     $("label[title='Rotas']").parent().parent().find("label").trigger('click')
+    // })
 
     let grupoLayersRotas = [];
     [...hashMapRotas.keys()].sort((a, b) => {
-        let nomeA = hashMapRotas.get(a)["NOME"]?.toLowerCase();
-        let nomeB = hashMapRotas.get(b)["NOME"]?.toLowerCase();
+        let nomeA = hashMapRotas.get(a)["NOME"]?.toLowerCase().trim();
+        let nomeB = hashMapRotas.get(b)["NOME"]?.toLowerCase().trim();
+        let parA = nomeA.split(" ");
+        let parB = nomeB.split(" ");
+
+        if (parA.length > 0 && parB.length > 0) {
+            parA = parA[0];
+            parB = parB[0];
+            if (isNumeric(parA) && isNumeric(parB)) {
+                return parA - parB;
+            }
+        }
         return nomeA.localeCompare(nomeB);
     }).reverse().forEach(rotaKey => {
         let rota = hashMapRotas.get(rotaKey);
-        console.log("rota", hashMapRotas[rotaKey])
+        // console.log("rota", hashMapRotas[rotaKey])
         if (rota["NOME"] in lyrRotas) {
             grupoLayersRotas.push(lyrRotas[rota["NOME"]].layer)
         }
     });
 
-    var layers = [
-        new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'watercolor' }), title: 'watercolor' }),
-        // new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'toner-background' }), title: 'toner-background' }),
-        // new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'terrain-background' }), title: 'terrain-background' }),
-        // new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'toner-lines' }), title: 'toner-lines' }),
-        // new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'terrain-lines' }), title: 'terrain-lines' }),
-        // new ol.layer.Group({
-        //     title: 'labels', openInLayerSwitcher: true, layers: [
-        //         new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'toner-labels' }), title: 'toner-labels' }),
-        //         new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'terrain-labels' }), title: 'terrain-labels' }),
-        //     ]
-        // })
-    ];
-
-    // Add a layer switcher outside the map
-    mapa["addGroupLayer"]("Rotas", grupoLayersRotas);
+    mapa["addGroupLayer"]("Rotas", new ol.Collection(grupoLayersRotas));
     mapa["addGroupLayer"]("Escolas", grupoLayersEscolas);
     mapa["addGroupLayer"]("Alunos", grupoLayersAlunos);
 
@@ -366,6 +382,8 @@ function preencheMapa() {
     setTimeout(function () {
         if (mapaOL != null) { mapaOL.updateSize(); }
     }, 200);
+
+    return mapaOL
 }
 
 // Cria feature de um aluno
@@ -421,9 +439,9 @@ var selectAlunoEscolaConfig = new ol.interaction.Select({
     condition: ol.events.condition.singleClick,
     filter: (feature, layer) => {
         console.log("feature", feature.getProperties())
-        if ((feature.getGeometry().getType() == "Point" && (feature.getProperties().TIPO == "ALUNO" || 
-                                                            feature.getProperties().TIPO == "ESCOLA")) 
-            || 
+        if ((feature.getGeometry().getType() == "Point" && (feature.getProperties().TIPO == "ALUNO" ||
+            feature.getProperties().TIPO == "ESCOLA"))
+            ||
             (feature.getGeometry().getType() == "LineString" && feature.getProperties().TIPO == "ROTA")) {
             return true;
         } else {

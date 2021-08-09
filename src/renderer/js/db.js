@@ -209,8 +209,8 @@ function getCodigoCidadeUsuario() {
     });
 }
 
-var cidadeLatitude = -16.8152409;
-var cidadeLongitude = -49.2756642;
+var cidadeLatitude = userconfig.get("LATITUDE");
+var cidadeLongitude = userconfig.get("LONGITUDE");
 var codCidade = userconfig.get("COD_CIDADE");
 var codEstado = userconfig.get("COD_ESTADO");
 var minZoom = 15;

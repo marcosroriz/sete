@@ -119,6 +119,19 @@ function novoMapaOpenLayers(target, latitude, longitude) {
         olMap.addLayer(groupLayer);
     };
 
+    mapa["addHiddenGroupLayer"] = function (title, lyrs) {
+        let groupLayer = new ol.layer.Group({
+            "title": title,
+            "type": "base",
+            "visible": false,
+            "displayInLayerSwitcher": true,
+            "layers": lyrs
+        });
+
+        mapa["groupLayer"] = groupLayer;
+        olMap.addLayer(groupLayer);
+    };
+
     mapa["createLayer"] = function (lname, title, displayInLayerSwitcher = false) {
         let vs = new ol.source.Vector();
         let vl = new ol.layer.Vector({

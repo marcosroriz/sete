@@ -311,6 +311,7 @@ var plotarAluno = (aluno) => {
 
 // Buffer
 function plotarBuffer(escolaJSON) {
+    bufferSource.clear()
     let centro = {
         type: "Point",
         coordinates: [
@@ -394,5 +395,3 @@ $("#btnExpJPEG").on('click', () => {
 
     });
 })
-
-
