@@ -107,3 +107,11 @@
     right: .5em;
     top: 3em;
 }
+
+.ol-ext-print-dialog .ol-print-param {
+    width: 20em !important;
+}
+
+.ol-ext-print-dialog > form .ol-closebox {
+    left: 18em !important;
+}

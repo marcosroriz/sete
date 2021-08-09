@@ -138,7 +138,7 @@ window.$.validator.addMethod("placa", function (value, element) {
 // Validar renavam
 window.$.validator.addMethod("renavam", function (value, element) {
     if (value) {
-        return value.length >= 12
+        return (value.length >= 12 || value.length == 9)
     } else {
         return false;
     }

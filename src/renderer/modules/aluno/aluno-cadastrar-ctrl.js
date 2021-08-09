@@ -113,6 +113,9 @@ var validadorFormulario = $("#wizardCadastrarAlunoForm").validate({
             listaescola: {
                 required: true,
             },
+            listarota: {
+                required: true,
+            },
             turnoAluno: {
                 required: true
             },
@@ -194,6 +197,7 @@ $("#salvaraluno").on('click', () => {
     } else {
         var alunoJSON = GetAlunoFromForm();
         var idEscola = $("#listaescola").val();
+        var idRota = $("#listarota").val();
     
         if (estaEditando) {
             var idAluno = estadoAluno["ID"];
@@ -203,18 +207,31 @@ $("#salvaraluno").on('click', () => {
             dbAtualizarPromise(DB_TABLE_ALUNO, alunoJSON, idAluno)
             .then(() => {
                 let promiseArray = new Array();
-                if (idEscola != idEscolaAnterior) {
+                if (idEscola != idEscolaAnterior && idEscola != null) {
                     promiseArray.push(dbRemoverDadoCompostoPromise(DB_TABLE_ESCOLA_TEM_ALUNOS,
                                       "ID_ESCOLA", String(idEscolaAnterior), 
                                       "ID_ALUNO", idAluno))
-                    if (idEscola != 0) {
+                    if (idEscola != 0 && idEscola != null) {
                         promiseArray.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
                             "ID_ESCOLA": idEscola, 
                             "ID_ALUNO": idAluno
                         }))
                     }
-                    return Promise.all(promiseArray);
                 }
+
+                if (idRota != idRotaAnterior && idRota != null) {
+                    promiseArray.push(dbRemoverDadoCompostoPromise(DB_TABLE_ROTA_ATENDE_ALUNO,
+                                      "ID_ROTA", String(idRotaAnterior),
+                                      "ID_ALUNO", idAluno))
+                    if (idRota != 0 && idRota != null) {
+                        promiseArray.push(dbInserirPromise(DB_TABLE_ROTA_ATENDE_ALUNO, {
+                            "ID_ROTA": idRota,
+                            "ID_ALUNO": idAluno
+                        }))
+                    }
+                }
+
+                return Promise.all(promiseArray);
             })
             .then(() => dbAtualizaVersao())
             .then(() => completeForm())
@@ -224,14 +241,23 @@ $("#salvaraluno").on('click', () => {
             
             dbInserirPromise(DB_TABLE_ALUNO, alunoJSON)
             .then((res) => {
+                let promisses = [];
+
                 if (idEscola != 0) {
-                    return dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
-                        "ID_ESCOLA": idEscola, 
-                        "ID_ALUNO": res.id
-                    })
-                } else {
-                    return Promise.resolve(res.id)
+                    promisses.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
+                                   "ID_ESCOLA": idEscola,
+                                   "ID_ALUNO": res.id
+                    }))
+                } 
+
+                if (idRota != 0) {
+                    promisses.push(dbInserirPromise(DB_TABLE_ROTA_ATENDE_ALUNO, {
+                                  "ID_ROTA": idRota,
+                                  "ID_ALUNO": res.id
+                    }))
                 }
+
+                return Promise.all(promisses)
             })
             .then(() => dbAtualizaVersao())
             .then(() => completeForm())
@@ -242,10 +268,28 @@ $("#salvaraluno").on('click', () => {
 
 dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
 .then((res) => {
+    res.sort((e1, e2) => {
+        return ('' + e1["NOME"]).localeCompare(e2["NOME"]);
+    })
+
     res.forEach((escola) => {
         var eID = escola["ID"];
         var eNome = escola["NOME"];
         $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
+    });
+
+    return res;
+})
+.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA))
+.then((res) => {
+    res.sort((e1, e2) => {
+        return ('' + e1["NOME"]).localeCompare(e2["NOME"]);
+    })
+    
+    res.forEach((rota) => {
+        var rID = rota["ID"];
+        var rNome = rota["NOME"];
+        $('#listarota').append(`<option value="${rID}">${rNome}</option>`);
     });
 
     return res;
@@ -255,8 +299,9 @@ dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
 
 
 // Variável armazena o ID da escola do aluno 
-// Importante ter para caso o usuário modifique os dados do aluno/escola
+// Importante ter para caso o usuário modifique os dados do aluno/escola e aluno/rota
 var idEscolaAnterior;
+var idRotaAnterior;
 
 function preencheDadosParaEdicao() {
     $(".pageTitle").html("Atualizar Aluno");
@@ -264,6 +309,7 @@ function preencheDadosParaEdicao() {
     
     // ID da escola anterior
     idEscolaAnterior = estadoAluno["ID_ESCOLA"];
+    idRotaAnterior = estadoAluno["ID_ROTA"];
 
     // Reativa máscaras
     $(".cep").trigger('input')
