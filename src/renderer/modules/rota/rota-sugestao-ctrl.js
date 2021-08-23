@@ -62,6 +62,7 @@ loadOSMFile()
 .then(res => processarVinculoAlunoRota(res))
 .then(() => listaElementos())
 .catch((err) => {
+    debugger
     let code = err.code;
     if (code == "erro:malha") {
         informarNaoExistenciaDado("Malha não cadastrada", 
@@ -300,7 +301,7 @@ function processarVinculoAlunoEscolas(res) {
         // Verificar se escola do aluno está georeferenciada
         let escolaAluno = escolaMap.get(String(eID));
 
-        if (escolaAluno["GPS"]) {
+        if (escolaAluno && escolaAluno["GPS"]) {
             alunoJSON["ESCOLA_TEM_GPS"] = true;
             alunoMap.set(aID, alunoJSON);
 
@@ -485,7 +486,7 @@ function drawRoutes(routesJSON) {
     routesJSON.forEach((r) => {
         let rotaCor = proximaCor();
         let camada = mapaRotaGerada["createLayer"](r["id"],
-            `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota}`);
+            `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota}`, true);
 
         // Adiciona tempo de viagem estimado
         let estTime = Number((r["geojson"]?.properties?.travDistance / $("#velMedia").val()) * 60)?.toFixed(2)
@@ -860,12 +861,12 @@ function initSimulation() {
 
     // Juntar dados em um objeto
     let routeGenerationInputData = {
-        "maxTravDist": $("#maxDist").val() * 1000,
-        "maxTravTime": $("#maxTime").val() * 60,
+        "maxTravDist": Number($("#maxDist").val()) * 1000,
+        "maxTravTime": Number($("#maxTime").val()) * 60,
         "optTarget": "maxTravDist",
-        "numVehicles": $("#numVehicles").val(),
-        "maxCapacity": $("#maxCapacity").val(),
-        "busSpeed": $("#velMedia").val() / 3.6, // converte de km/h para m/s
+        "numVehicles": Number($("#numVehicles").val()),
+        "maxCapacity": Number($("#maxCapacity").val()),
+        "busSpeed": Number($("#velMedia").val()) / 3.6, // converte de km/h para m/s
         "garage": garagens,
         "stops": alunos,
         "schools": escolas,
@@ -946,7 +947,7 @@ var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
             required: true,
             number: true,
             min: 1,
-            max: 100
+            max: 300
         },
         velMedia: {
             required: true,
@@ -994,7 +995,7 @@ var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
             min: "Por favor selecione um valor acima de 0 veículos",
             max: "Por favor selecione um valor abaixo de 1000 veículos",
         },
-        maxTime: {
+        maxCapacity: {
             required: "Por favor informe a capacidade máxima dos veículos",
             min: "Por favor selecione um valor acima de 0 assento",
             max: "Por favor selecione um valor abaixo de 100 assentos",

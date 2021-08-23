@@ -136,13 +136,13 @@ module.exports = class RoutingGraph {
         {
             let dist = this.cachedODMatrix.dist[crawkey][drawkey] ||
                        this.cachedODMatrix.dist[drawkey][crawkey];
-            let cost = this.cachedODMatrix.cost[crawkey][drawkey] ||
-                       this.cachedODMatrix.cost[drawkey][crawkey];
+            //let cost = this.cachedODMatrix.cost[crawkey][drawkey] ||
+            //           this.cachedODMatrix.cost[drawkey][crawkey];
 
             c.get("spatialDistEdges").set(d.get("key"), dist);
-            c.get("spatialCostEdges").set(d.get("key"), cost);
+            // c.get("spatialCostEdges").set(d.get("key"), cost);
 
-            return Promise.resolve(dist);
+            return Promise.resolve();
         } else {
             let cnodeID = c.get("dbNodeID");
             let dnodeID = d.get("dbNodeID");
@@ -164,12 +164,12 @@ module.exports = class RoutingGraph {
 
                     // Setting in our matrix
                     c.get("spatialDistEdges").set(d.get("key"), dist);
-                    c.get("spatialCostEdges").set(d.get("key"), cost);
+                    // c.get("spatialCostEdges").set(d.get("key"), cost);
 
                     // Only cache if is not a school key
                     if (crawkey != "school" && drawkey != "school") {
                         this.cachedODMatrix.dist[crawkey][drawkey] = dist;
-                        this.cachedODMatrix.cost[crawkey][drawkey] = cost;
+                        // this.cachedODMatrix.cost[crawkey][drawkey] = cost;
                     }
                     resolve();
                 });

@@ -15,17 +15,31 @@ class RoutingOptimizationWorker {
         this.reverseMap = new Map();
 
         routingParams["stops"].forEach((s) => {
-            var key = Number(s["lat"]).toFixed(10) + "-" + Number(s["lng"]).toFixed(10);
-            this.reverseMap.set(key, s);
+            let key = Number(s["lat"]).toFixed(10) + "-" + Number(s["lng"]).toFixed(10);
+            let stopsAtGivenLocation = [];
+            if (this.reverseMap.has(key)) {
+                stopsAtGivenLocation = this.reverseMap.get(key);
+            }
+            stopsAtGivenLocation.push(s);
+
+            this.reverseMap.set(key, stopsAtGivenLocation);
         });
+
+        console.log(routingParams)
     }
 
     getStops(rawCluster) {
-        var stops = new Array();
+        let stops = new Array();
+        let stopsConsidered = new Map();
+
         rawCluster.forEach((rc) => {
-            var key = Number(rc[0]).toFixed(10) + "-" + Number(rc[1]).toFixed(10);
-            var obj = this.reverseMap.get(key)
-            stops.push(obj)
+            let key = Number(rc[0]).toFixed(10) + "-" + Number(rc[1]).toFixed(10);
+            let stopsAtGivenLocation = this.reverseMap.get(key);
+
+            if (!stopsConsidered.has(key)) {
+                stops.push(...stopsAtGivenLocation)
+                stopsConsidered.set(key, true);
+            }
         });
 
         return stops;

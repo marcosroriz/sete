@@ -224,6 +224,12 @@ ipcMain.on("start:route-generation", (event, routingArgs) => {
         nodes: {}, dist: {}, cost: {}
     });
 
+    cachedODMatrix = {
+        nodes: {}, dist: {}, cost: {}
+    }
+
+    let minNumVehicles = Math.max(routingArgs.numVehicles, Math.floor(routingArgs.stops.length / routingArgs.maxCapacity));
+    routingArgs.numVehicles = minNumVehicles;
     routeOptimizer.optimize(cachedODMatrix, routingArgs)
 })
 
