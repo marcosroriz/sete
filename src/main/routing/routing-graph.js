@@ -45,11 +45,34 @@ module.exports = class RoutingGraph {
         this.matrix = mtx;
     }
 
+    setCachedODMatrix(cachedMatrix) {
+        this.cachedODMatrix = cachedMatrix;
+    }
+
     buildSpatialVertex() {
         let promisesArray = new Array();
         this.matrix.forEach(c => {
             promisesArray.push(this.getSpatialVertex(c, this.spatialiteDB));
         });
+
+        return promisesArray;
+    }
+
+    buildInnerCityMatrix() {
+        let promisesArray = new Array();
+
+        // Graph pairs here are called (c, d) rather than (u, v) due to the paper nomenclature
+        this.matrix.forEach(c => {
+            let ckey = c.get("key");
+
+            this.matrix.forEach(d => {
+                let dkey = d.get("key");
+
+                if (ckey != dkey && ckey.startsWith("otherschool") && dkey.startsWith("otherschool")) {
+                    promisesArray.push(this.getSpatialDistance(c, d, this.spatialiteDB));
+                }
+            })
+        })
 
         return promisesArray;
     }
@@ -132,10 +155,9 @@ module.exports = class RoutingGraph {
 
         // Check if in cache
         if (this.cachedODMatrix.dist[crawkey] && this.cachedODMatrix.dist[drawkey] &&
-            (drawkey in this.cachedODMatrix.dist[crawkey] || crawkey in this.cachedODMatrix.dist[drawkey]))
-        {
+            (drawkey in this.cachedODMatrix.dist[crawkey] || crawkey in this.cachedODMatrix.dist[drawkey])) {
             let dist = this.cachedODMatrix.dist[crawkey][drawkey] ||
-                       this.cachedODMatrix.dist[drawkey][crawkey];
+                this.cachedODMatrix.dist[drawkey][crawkey];
             //let cost = this.cachedODMatrix.cost[crawkey][drawkey] ||
             //           this.cachedODMatrix.cost[drawkey][crawkey];
 

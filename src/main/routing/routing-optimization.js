@@ -118,8 +118,9 @@ class RoutingOptimizationWorker {
                         })
                         routingGraph = routers[0].graph;
                         routingGraph.setMatrix(matrixMap);
+                        routingGraph.setCachedODMatrix(this.cachedODMatrix);
 
-                        return Promise.all(routingGraph.buildSpatialMatrix())
+                        return Promise.all(routingGraph.buildInnerCityMatrix())
                     })
                     .then(() => {
                         // Run opt
