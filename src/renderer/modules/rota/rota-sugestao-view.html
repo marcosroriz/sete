@@ -223,6 +223,15 @@
                             </div>
 
                             <div class="tab-pane tab-wiz fade" id="tab-rota-sugestao-geradas" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-12 text-center">
+                                        <div class="totalText">
+                                            Simulação  
+                                            <span id="numSimulacao" class="badge badge-success badge-total"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <h6 class="mb-3 text-center text-space">O sistema sugere as seguintes rotas.
                                     Por favor, escolha quais delas você deseja salvar.</h6>
 
@@ -239,7 +248,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="row justify-content-center">
+                                <div class="sugpanel row justify-content-center">
                                     <div class="col-4">
                                         <div id="sidebar-RotasGeradas" class="external sidebar-RotasGeradas">
                                             <label class="control-label">
@@ -288,6 +297,10 @@
 <style>
     div#swal2-content {
         font-size: 1em;
+    }
+
+    .ol-layerswitcher [type="radio"]:checked + label:after {
+        margin-top: 4px !important;
     }
 </style>
 
