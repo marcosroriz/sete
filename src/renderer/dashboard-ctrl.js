@@ -89,12 +89,15 @@ dbEstaSincronizado()
         });
         Swal2.close()
 
+        setTimeout(function () {
+            if (mapa != null) { mapa["map"].updateSize(); }
+        }, 200);
+
         mostraSeTemUpdate(firstAcess);
         firstAcess = false;
 
         return firstAcess
     })
-
     .catch((err) => {
         errorFn("Erro ao sincronizar, sem conexão com a Internet")
         $(".preload").fadeOut(200, function () {
@@ -432,10 +435,7 @@ function preencheMapa() {
         trash: false,
     });
     mapaOL.addControl(lswitcher);
-    setTimeout(function () {
-        if (mapaOL != null) { mapaOL.updateSize(); }
-    }, 200);
-
+    mapaOL.renderSync();
     return mapaOL
 }
 
@@ -535,11 +535,11 @@ var plotarVeiculo = (veiculoJSON) => {
     let pontoVeiculo;
     switch (veiculoJSON["TIPO_VEICULO"]) {
         case 1:
-            pontoVeiculo = gerarMarcador(lat, lng, "img/icones/onibus-marcador2.png");
+            pontoVeiculo = gerarMarcador(lat, lng, "img/icones/onibus-marcador.png");
         case 2:
             pontoVeiculo = gerarMarcador(lat, lng, "img/icones/lancha-marcador2.png");
         default:
-            pontoVeiculo = gerarMarcador(lat, lng, "img/icones/onibus-marcador2.png");
+            pontoVeiculo = gerarMarcador(lat, lng, "img/icones/onibus-marcador.png");
             break;
     }
     pontoVeiculo.setId(veiculoID);
@@ -710,38 +710,40 @@ function processaDadosPercurso() {
     for (let rota of hashMapRealTimePercurso.values()) {
         try {
             let coordenadas = [];
-            for (let coord of rota.COORDENADAS) {
-                coordenadas.push([coord.longitude, coord.latitude]);
-            }
-            let lineString = turf.lineString(coordenadas);
-            let geojson = turf.toMercator(lineString);
-
-            let rotaGeoJSON = (new ol.format.GeoJSON()).readFeatures(geojson);
-            camadaVeiculos.source.addFeatures(rotaGeoJSON);
-
-            // Plota veiculo
-            let veiculoJSON = rota;
-            let ultimaCoordenada = rota.COORDENADAS.length - 1;
-            veiculoJSON["LOC_LONGITUDE"] = coordenadas[ultimaCoordenada][0];
-            veiculoJSON["LOC_LATITUDE"] = coordenadas[ultimaCoordenada][1];
-
-            veiculoJSON.NOME = "Veículo";
-            veiculoJSON.MODELOSTR = "Não informado";
-            veiculoJSON.ORIGEM = "Não informado";
-            veiculoJSON.TIPOSTR = "Não informado";
-
-            if (veiculoJSON.ID_VEICULO != "DESCONHECIDO") {
-                let v = hashMapVeiculos.get(veiculoJSON.ID_VEICULO);
-                if (v) {
-                    let vJSON = parseVeiculoDB(v);
-                    veiculoJSON.NOME = vJSON.MODELOSTR;
-                    veiculoJSON.MODELOSTR = vJSON.MODELOSTR;
-                    veiculoJSON.ORIGEM = vJSON.ORIGEM;
-                    veiculoJSON.TIPOSTR = vJSON.TIPOSTR;
+            if (rota.COORDENADAS.length > 1) {
+                for (let coord of rota.COORDENADAS) {
+                    coordenadas.push([coord.longitude, coord.latitude]);
                 }
+                let lineString = turf.lineString(coordenadas);
+                let geojson = turf.toMercator(lineString);
+    
+                let rotaGeoJSON = (new ol.format.GeoJSON()).readFeatures(geojson);
+                camadaVeiculos.source.addFeatures(rotaGeoJSON);
+    
+                // Plota veiculo
+                let veiculoJSON = rota;
+                let ultimaCoordenada = rota.COORDENADAS.length - 1;
+                veiculoJSON["LOC_LONGITUDE"] = coordenadas[ultimaCoordenada][0];
+                veiculoJSON["LOC_LATITUDE"] = coordenadas[ultimaCoordenada][1];
+    
+                veiculoJSON.NOME = "Veículo";
+                veiculoJSON.MODELOSTR = "Não informado";
+                veiculoJSON.ORIGEM = "Não informado";
+                veiculoJSON.TIPOSTR = "Não informado";
+    
+                if (veiculoJSON.ID_VEICULO != "DESCONHECIDO") {
+                    let v = hashMapVeiculos.get(veiculoJSON.ID_VEICULO);
+                    if (v) {
+                        let vJSON = parseVeiculoDB(v);
+                        veiculoJSON.NOME = vJSON.MODELOSTR;
+                        veiculoJSON.MODELOSTR = vJSON.MODELOSTR;
+                        veiculoJSON.ORIGEM = vJSON.ORIGEM;
+                        veiculoJSON.TIPOSTR = vJSON.TIPOSTR;
+                    }
+                }
+    
+                camadaVeiculos.source.addFeature(plotarVeiculo(veiculoJSON));
             }
-
-            camadaVeiculos.source.addFeature(plotarVeiculo(veiculoJSON));
         } catch (error) {
             console.error("ERROR", error)
         }
@@ -753,7 +755,6 @@ function ouveUpdates() {
     if (firebaseImpl) {
         firebaseImpl.dbAcessarDados(DB_TABLE_REALTIME_VIAGENSPERCURSO).where("DATA", "==", dataDeHoje)
             .onSnapshot((querySnapshot) => {
-                debugger
                 querySnapshot.forEach((doc) => {
                     let viagemPercurso = doc.data();
                     if (viagemPercurso.TIPO_VEICULO && viagemPercurso.COORDENADAS &&
@@ -770,7 +771,6 @@ function ouveUpdates() {
 
         firebaseImpl.dbAcessarDados(DB_TABLE_REALTIME_VIAGENSALERTA).where("DATA", "==", dataDeHoje)
             .onSnapshot((querySnapshot) => {
-                debugger
                 querySnapshot.forEach((doc) => {
                     let alerta = doc.data();
                     hashMapRealTimeAlerta.set(alerta["ID"], alerta);
