@@ -91,7 +91,7 @@ dbEstaSincronizado()
 
         setTimeout(function () {
             if (mapa != null) { mapa["map"].updateSize(); }
-        }, 200);
+        }, 1500);
 
         mostraSeTemUpdate(firstAcess);
         firstAcess = false;
@@ -435,7 +435,6 @@ function preencheMapa() {
         trash: false,
     });
     mapaOL.addControl(lswitcher);
-    mapaOL.renderSync();
     return mapaOL
 }
 
