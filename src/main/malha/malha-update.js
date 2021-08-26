@@ -48,7 +48,7 @@ class MalhaUpdate {
             envVariables = ".:" + path.join(app.getAppPath(), "bin");
         }
 
-        let spatialiteBinPath = path.join(app.getAppPath(), "..", "bin", binario);
+        let spatialiteBinPath = path.join(app.getAppPath(), "bin", binario);
         let sqlQuery = `BEGIN;
         SELECT DropTable(NULL, 'malha', 1);
         SELECT DropTable(NULL, 'malha_net', 1);
@@ -89,7 +89,7 @@ class MalhaUpdate {
             envVariables = ".:" + path.join(app.getAppPath(), "bin");
         }
 
-        let spatialiteNetBinPath = path.join(app.getAppPath(), "..", "bin", binario);
+        let spatialiteNetBinPath = path.join(app.getAppPath(), "bin", binario);
         let templateFile = path.join(path.dirname(this.dbPath), "osm_road_template");
         let args = [
             "-o", this.newOSMFile,
@@ -125,7 +125,7 @@ class MalhaUpdate {
             envVariables = ".:" + path.join(app.getAppPath(), "bin");
         }
 
-        let spatialliteVirtualNetBin = path.join(app.getAppPath(), "..", "bin", binario);
+        let spatialliteVirtualNetBin = path.join(app.getAppPath(), "bin", binario);
         let args = [
             "-d", this.dbPath,
             "-T", tabela,

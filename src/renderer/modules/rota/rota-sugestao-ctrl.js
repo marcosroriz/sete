@@ -599,7 +599,7 @@ function drawRoutes(routesJSON) {
         grupoDeCamadas.unshift(camada.layer);
     });
 
-    mapaRotaGerada["addGroupLayer"]("Rotas SIM" + numSimulacao, grupoDeCamadas);
+    mapaRotaGerada["addGroupLayer"]("Rotas SIM-" + numSimulacao, grupoDeCamadas);
 }
 
 
