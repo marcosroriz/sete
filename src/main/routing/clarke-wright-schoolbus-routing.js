@@ -7,6 +7,7 @@
 // SpeedRoute: Fast, efficient solutions for school bus routing problems
 // See https://doi.org/10.1016/j.trb.2018.09.004 
 
+var Heap = require("heap");
 var RoutingGraph = require("./routing-graph.js");
 var BusRoute = require("./busroute.js");
 var haversine = require("haversine-distance");
@@ -86,6 +87,8 @@ class ClarkeWrightSchoolBusRouting {
     }
 
     processSavings(savingsQueue) {
+        let xy =[...this.routes.values()].filter(k => k.has("VITOR-MANUEL-NEVES-SILVA-MOREIRA-10-10-1994"))
+        // debugger
         while (!savingsQueue.empty()) {
             let saving = savingsQueue.pop();
             
@@ -111,9 +114,13 @@ class ClarkeWrightSchoolBusRouting {
                 // console.log("TRAV TIME", totalTravTime, "MAX TIME", this.maxTravTime)
 
                 // We can merge!
-                if (totalPassengers <= this.maxCapacity &&  
-                    totalTravDistance <= this.maxTravDist &&
-                    totalTravTime <= this.maxTravTime) {
+                let canMerge = false;
+                if (this.optTarget == "maxTravDist") {
+                    canMerge = (totalPassengers <= this.maxCapacity && totalTravDistance <= this.maxTravDist)
+                } else {
+                    canMerge = (totalPassengers <= this.maxCapacity && totalTravTime <= this.maxTravTime)
+                }
+                if (canMerge) {
                     // Delete old routes
                     this.routes.delete(cRoute.id);
                     this.routes.delete(dRoute.id);
@@ -123,6 +130,8 @@ class ClarkeWrightSchoolBusRouting {
                     for (let stopID = 1; stopID < mergePath.length - 1; stopID++) {
                         this.setRoute(mergePath[stopID], mergeRoute);
                     }
+                } else {
+                    console.log("Não consigo fazer merge");
                 }
             }
         }
