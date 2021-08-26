@@ -39,60 +39,69 @@ var alunos = new Array();
 var garagens = new Array();
 var escolas = new Array();
 
+// Número da simulação
+var numSimulacao = userconfig.get("SIMULATION_COUNT");
+if (numSimulacao == undefined) {
+    userconfig.set("SIMULATION_COUNT", 0);
+    numSimulacao = 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Promessas
 ////////////////////////////////////////////////////////////////////////////////
 
 loadingFn("Preparando a ferramenta")
 
-loadOSMFile()
-.then(dataOSM => convertOSMToGeoJSON(dataOSM))
-.then(osmGeoJSON => plotMalha(osmGeoJSON))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
-.then(res => $("#numVehicles").val(res.length))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
-.then(res => preprocessarAlunos(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
-.then(res => preprocessarEscolas(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
-.then(res => preprocessarGaragem(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-.then(res => processarVinculoAlunoEscolas(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-.then(res => processarVinculoAlunoRota(res))
-.then(() => listaElementos())
-.catch((err) => {
-    let code = err.code;
-    if (code == "erro:malha") {
-        informarNaoExistenciaDado("Malha não cadastrada", 
-                                  "Cadastrar malha",
-                                  "a[name='rota/rota-malha-view']",
-                                  "#veiculoMenu")
-    } else if (code == "erro:garagem") {
-        informarNaoExistenciaDado("Garagem não cadastrada", 
-                                  "Cadastrar garagem",
-                                  "a[name='frota/garagem-visualizar-view']",
-                                  "#veiculoMenu")
-    } else if (code == "erro:aluno") {
-        informarNaoExistenciaDado("Não há nenhum aluno georeferenciado", 
-                                  "Gerenciar alunos",
-                                  "a[name='aluno/aluno-listar-view']",
-                                  "#alunoMenu")
-    } else if (code == "erro:escola") {
-        informarNaoExistenciaDado("Não há nenhuma escola georeferenciada", 
-                                  "Gerenciar escolas",
-                                  "a[name='escola/escola-listar-view']",
-                                  "#escolaMenu")
-    } else if (code == "erro:vinculo") {
-        informarNaoExistenciaDado("As escolas dos alunos escolhidos não estão georeferenciadas", 
-                                  "Escolas: " + err.data,
-                                  "a[name='escola/escola-listar-view']",
-                                  "#escolaMenu")
-    } else {
-        errorFn(`Erro ao utilizar a ferramenta de sugestão de rotas. 
-                 Entre em contato com a equipe de suporte`);
-    }
-})
+function startTool() {
+    loadOSMFile()
+    .then(dataOSM => convertOSMToGeoJSON(dataOSM))
+    .then(osmGeoJSON => plotMalha(osmGeoJSON))
+    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
+    .then(res => $("#numVehicles").val(res.length))
+    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
+    .then(res => preprocessarAlunos(res))
+    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
+    .then(res => preprocessarEscolas(res))
+    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
+    .then(res => preprocessarGaragem(res))
+    .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+    .then(res => processarVinculoAlunoEscolas(res))
+    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+    .then(res => processarVinculoAlunoRota(res))
+    .then(() => listaElementos())
+    .catch((err) => {
+        let code = err.code;
+        if (code == "erro:malha") {
+            informarNaoExistenciaDado("Malha não cadastrada", 
+                                      "Cadastrar malha",
+                                      "a[name='rota/rota-malha-view']",
+                                      "#veiculoMenu")
+        } else if (code == "erro:garagem") {
+            informarNaoExistenciaDado("Garagem não cadastrada", 
+                                      "Cadastrar garagem",
+                                      "a[name='frota/garagem-visualizar-view']",
+                                      "#veiculoMenu")
+        } else if (code == "erro:aluno") {
+            informarNaoExistenciaDado("Não há nenhum aluno georeferenciado", 
+                                      "Gerenciar alunos",
+                                      "a[name='aluno/aluno-listar-view']",
+                                      "#alunoMenu")
+        } else if (code == "erro:escola") {
+            informarNaoExistenciaDado("Não há nenhuma escola georeferenciada", 
+                                      "Gerenciar escolas",
+                                      "a[name='escola/escola-listar-view']",
+                                      "#escolaMenu")
+        } else if (code == "erro:vinculo") {
+            informarNaoExistenciaDado("As escolas dos alunos escolhidos não estão georeferenciadas", 
+                                      "Escolas: " + err.data,
+                                      "a[name='escola/escola-listar-view']",
+                                      "#escolaMenu")
+        } else {
+            errorFn(`Erro ao utilizar a ferramenta de sugestão de rotas. 
+                     Entre em contato com a equipe de suporte`);
+        }
+    })
+}
 
 // Informar não existência de dado
 var informarNaoExistenciaDado = (titulo, msgConfirmacao, pagCadastroDado, pagMenu) => {
@@ -197,7 +206,6 @@ function plotMalha(osmGeoJSON) {
 }
 
 
-
 // Preprocessa alunos
 function preprocessarAlunos(res) {
     let numTemGPS = 0;
@@ -300,7 +308,7 @@ function processarVinculoAlunoEscolas(res) {
         // Verificar se escola do aluno está georeferenciada
         let escolaAluno = escolaMap.get(String(eID));
 
-        if (escolaAluno["GPS"]) {
+        if (escolaAluno && escolaAluno["GPS"]) {
             alunoJSON["ESCOLA_TEM_GPS"] = true;
             alunoMap.set(aID, alunoJSON);
 
@@ -485,7 +493,7 @@ function drawRoutes(routesJSON) {
     routesJSON.forEach((r) => {
         let rotaCor = proximaCor();
         let camada = mapaRotaGerada["createLayer"](r["id"],
-            `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota}`);
+            `<span class="corRota" style="background-color: ${rotaCor}">  </span>Rota: ${numRota}`, true);
 
         // Adiciona tempo de viagem estimado
         let estTime = Number((r["geojson"]?.properties?.travDistance / $("#velMedia").val()) * 60)?.toFixed(2)
@@ -591,7 +599,7 @@ function drawRoutes(routesJSON) {
         grupoDeCamadas.unshift(camada.layer);
     });
 
-    mapaRotaGerada["addGroupLayer"]("Rotas", grupoDeCamadas);
+    mapaRotaGerada["addGroupLayer"]("Rotas SIM-" + numSimulacao, grupoDeCamadas);
 }
 
 
@@ -845,27 +853,16 @@ mapaRotaGerada["map"].addOverlay(popup);
 
 // Trigger para Iniciar Simulação
 function initSimulation() {
-    swal({
-        title: "Simulando...",
-        text: "Espere um minutinho...",
-        type: "warning",
-        imageUrl: "img/icones/processing.gif",
-        icon: "img/icones/processing.gif",
-        buttons: false,
-        showSpinner: true,
-        closeOnClickOutside: false,
-        allowOutsideClick: false,
-        showConfirmButton: false
-    });
+    loadingFn("Simulando...")
 
     // Juntar dados em um objeto
     let routeGenerationInputData = {
-        "maxTravDist": $("#maxDist").val() * 1000,
-        "maxTravTime": $("#maxTime").val() * 60,
+        "maxTravDist": Number($("#maxDist").val()) * 1000,
+        "maxTravTime": Number($("#maxTime").val()) * 60,
         "optTarget": "maxTravDist",
-        "numVehicles": $("#numVehicles").val(),
-        "maxCapacity": $("#maxCapacity").val(),
-        "busSpeed": $("#velMedia").val() / 3.6, // converte de km/h para m/s
+        "numVehicles": Number($("#numVehicles").val()),
+        "maxCapacity": Number($("#maxCapacity").val()),
+        "busSpeed": Number($("#velMedia").val()) / 3.6, // converte de km/h para m/s
         "garage": garagens,
         "stops": alunos,
         "schools": escolas,
@@ -875,13 +872,19 @@ function initSimulation() {
 };
 
 // Trigger para finalizar simulação
-ipcRenderer.on("end:route-generation", function (event, routesJSON) {
+ipcRenderer.on("end:route-generation", function (evt, routesJSON) {
     setTimeout(function () {
+        // Aumenta o contador de simulações
+        numSimulacao++;
+        userconfig.set("SIMULATION_COUNT", numSimulacao);
+        $("#numSimulacao").text(numSimulacao);
+
         // Apaga rotas anteriores desenhadas
         mapaRotaGerada["rmGroupLayer"]();
 
         // Desenha novas rotas
         rotasGeradas = new Map();
+        debugger
         drawRoutes(routesJSON);
 
         // Ativa grupo
@@ -914,7 +917,7 @@ ipcRenderer.on("end:route-generation", function (event, routesJSON) {
             $('.ol-layerswitcher-buttons').hide();
             $('.layerswitcher-opacity').hide();
         }, 100);
-        swal.close();
+        Swal2.close();
     }, 2000);
 });
 
@@ -946,7 +949,7 @@ var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
             required: true,
             number: true,
             min: 1,
-            max: 100
+            max: 300
         },
         velMedia: {
             required: true,
@@ -994,7 +997,7 @@ var validadorFormulario = $("#wizardSugestaoRotaForm").validate({
             min: "Por favor selecione um valor acima de 0 veículos",
             max: "Por favor selecione um valor abaixo de 1000 veículos",
         },
-        maxTime: {
+        maxCapacity: {
             required: "Por favor informe a capacidade máxima dos veículos",
             min: "Por favor selecione um valor acima de 0 assento",
             max: "Por favor selecione um valor abaixo de 100 assentos",
@@ -1078,8 +1081,8 @@ $('.card-wizard').bootstrapWizard({
             $($wizard).find('.btn-next').hide();
             $($wizard).find('.btn-finish').show();
         } else {
+            startTool();
             $($wizard).find('.btn-next').show();
-
             $($wizard).find('.btn-finish').hide();
         }
     }
@@ -1188,7 +1191,7 @@ $("#rota-sugestao-saveBtnSim").on('click', () => {
                         let rgEscolas = rg.payload.path.filter(k => k.type == "otherschool" || k.type == "school");
 
                         rotasQueVamosSalvar.push({
-                            "id": "ROTA-" + rID,
+                            "id": "ROTA-SIM-" + numSimulacao + "-" + rID,
                             "rota": rg,
                             "alunos": rgAlunos,
                             "escolas": rgEscolas

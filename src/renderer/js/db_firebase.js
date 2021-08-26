@@ -54,6 +54,8 @@ async function AsyncEstaSincronizado(ultimaAtualizacao) {
 }
 
 module.exports = {
+    dbAcessarDados,
+
     dbFonteDoDado: "cache",
 
     dbEstaSincronizado: AsyncEstaSincronizado,
@@ -74,6 +76,12 @@ module.exports = {
     dbBuscarTodosDadosPromise: (nomeColecao) => {
         return dbAcessarDados(nomeColecao)
                .get({ source: module.exports.dbFonteDoDado })
+               .then((res) => DesempacotaPromise(res));
+    },
+
+    dbBuscarTodosDadosNoServidorPromise: (nomeColecao) => {
+        return dbAcessarDados(nomeColecao)
+               .get({ source: "server" })
                .then((res) => DesempacotaPromise(res));
     },
 

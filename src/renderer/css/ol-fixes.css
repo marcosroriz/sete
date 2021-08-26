@@ -115,3 +115,8 @@
 .ol-ext-print-dialog > form .ol-closebox {
     left: 18em !important;
 }
+
+/* Rotas sidebar fix */
+.sugpanel .ol-layerswitcher span {
+    font-size: 1em;
+}

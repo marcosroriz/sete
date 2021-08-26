@@ -8,6 +8,12 @@ var mapa = novoMapaOpenLayers("mapaDashboard", cidadeLatitude, cidadeLongitude);
 var hashMapAlunos = new Map();
 var hashMapEscolas = new Map();
 var hashMapRotas = new Map();
+var hashMapVeiculos = new Map();
+var hashMapRealTimePercurso = new Map();
+var hashMapRealTimeAlerta = new Map();
+
+var camadaAlertas = null;
+var camadaVeiculos = null;
 
 window.onresize = function () {
     setTimeout(function () {
@@ -76,18 +82,22 @@ dbEstaSincronizado()
     .then(() => preencheDashboard())
     .then(() => preencheRelacoes())
     .then(() => preencheMapa())
+    .then(() => ouveUpdates())
     .then(() => {
         $(".preload").fadeOut(200, function () {
             $(".content").fadeIn(200);
         });
         Swal2.close()
 
+        setTimeout(function () {
+            if (mapa != null) { mapa["map"].updateSize(); }
+        }, 1500);
+
         mostraSeTemUpdate(firstAcess);
         firstAcess = false;
 
         return firstAcess
     })
-
     .catch((err) => {
         errorFn("Erro ao sincronizar, sem conexão com a Internet")
         $(".preload").fadeOut(200, function () {
@@ -146,9 +156,23 @@ function preencheDashboard() {
 
     dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_VEICULO).then((res) => {
         let func = naofunc = 0;
-        res.forEach(veiculo => veiculo["MANUTENCAO"] ? naofunc++ : func++)
+        res.forEach(veiculo => {
+            let veiculoJSON = parseVeiculoDB(veiculo);
+            hashMapVeiculos.set(veiculoJSON["ID"], veiculoJSON);
+            veiculo["MANUTENCAO"] ? naofunc++ : func++
+        })
         $("#veiculosFuncionamento").text(func);
         $("#veiculosNaoFuncionamento").text(naofunc);
+    }))
+
+    dashPromises.push(dbBuscarTodosDadosNoServidorPromise(DB_TABLE_REALTIME_VIAGENSALERTA).then((res) => {
+        let dataDeHoje = new Date().toISOString().split("T")[0];
+
+        res.forEach(alerta => {
+            if (alerta.DATA && alerta.DATA == dataDeHoje) {
+                hashMapRealTimeAlerta.set(alerta["ID"], alerta);
+            }
+        })
     }))
 
     dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ROTA).then((res) => {
@@ -214,6 +238,20 @@ function preencheRelacoes() {
                     hashMapAlunos.set(aID, alunoJSON);
                 }
                 hashMapRotas.set(rID, rotaJSON);
+            }
+        }
+    }))
+
+    dashPromises.push(dbBuscarTodosDadosNoServidorPromise(DB_TABLE_REALTIME_VIAGENSPERCURSO).then((res) => {
+        let dataDeHoje = new Date().toISOString().split("T")[0];
+        for (let viagemPercurso of res) {
+            let dataViagem = viagemPercurso.DATA_INICIO.split("T")[0];
+
+            if (dataViagem == dataDeHoje) {
+                if (viagemPercurso.TIPO_VEICULO && viagemPercurso.COORDENADAS &&
+                    viagemPercurso.NOME_ROTA && viagemPercurso.NOME_MOTORISTA) {
+                    hashMapRealTimePercurso.set(viagemPercurso.ID, viagemPercurso);
+                }
             }
         }
     }))
@@ -364,9 +402,27 @@ function preencheMapa() {
         }
     });
 
+    // Processa dados em tempo real
+    camadaAlertas = mapa["createLayer"]("Alertas", "Alertas", true);
+    camadaAlertas.layer.setZIndex(100);
+
+    camadaVeiculos = mapa["createLayer"]("Veículos", "Veículos", true);
+    camadaVeiculos.layer.setZIndex(90);
+
+    processaDadosAlerta();
+    processaDadosPercurso();
+
+    camadaVeiculos.layer.setStyle(new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: "white",
+            width: 7
+        })
+    }));
+
     mapa["addGroupLayer"]("Rotas", new ol.Collection(grupoLayersRotas));
     mapa["addGroupLayer"]("Escolas", grupoLayersEscolas);
     mapa["addGroupLayer"]("Alunos", grupoLayersAlunos);
+    mapa["addGroupLayer"]("Tempo Real", [camadaAlertas.layer, camadaVeiculos.layer]);
 
     // Popup
     mapa["map"].addInteraction(selectAlunoEscolaConfig);
@@ -379,10 +435,6 @@ function preencheMapa() {
         trash: false,
     });
     mapaOL.addControl(lswitcher);
-    setTimeout(function () {
-        if (mapaOL != null) { mapaOL.updateSize(); }
-    }, 200);
-
     return mapaOL
 }
 
@@ -429,6 +481,80 @@ var plotarEscola = (escolaJSON) => {
     return pontoEscola;
 }
 
+// Cria feature de um alerta
+var plotarAlerta = (alertaJSON) => {
+    let alertaID = alertaJSON["ID"];
+    let lat = alertaJSON["LOC_LATITUDE"];
+    let lng = alertaJSON["LOC_LONGITUDE"];
+
+    let pontoAlerta;
+    switch (alertaJSON["TIPO_ALERTA"]) {
+        case 0:
+            pontoAlerta = gerarMarcador(lat, lng, "img/icones/alertagenerico-marker.png");
+            pontoAlerta.set("NOME", "Outro problema");
+        case 1:
+            pontoAlerta = gerarMarcador(lat, lng, "img/icones/barrera-marker.png");
+            pontoAlerta.set("NOME", "Via Interditada");
+        case 2:
+            pontoAlerta = gerarMarcador(lat, lng, "img/icones/probmecanico-marker.png");
+            pontoAlerta.set("NOME", "Problema Mecânico");
+        case 3:
+            pontoAlerta = gerarMarcador(lat, lng, "img/icones/alertagenerico-marker.png");
+            pontoAlerta.set("NOME", "Problema Mecânico");
+        default:
+            pontoAlerta = gerarMarcador(lat, lng, "img/icones/alertagenerico-marker.png");
+            pontoAlerta.set("NOME", "Outro problema");
+            break;
+    }
+    pontoAlerta.setId(alertaID);
+
+    pontoAlerta.set("TIPO", "ALERTA");
+    pontoAlerta.set("HORA_OCORRENCIA", alertaJSON.DATA_OCORRENCIA.split("T")[1]);
+    pontoAlerta.set("DATA_OCORRENCIA", alertaJSON.DATA_OCORRENCIA.split("T")[0]);
+
+    if (alertaJSON["MENSAGEM"] == "") {
+        pontoAlerta.set("MENSAGEM", "Não informado");
+    } else {
+        pontoAlerta.set("MENSAGEM", alertaJSON["MENSAGEM"]);
+    }
+
+    pontoAlerta.set("ALERTA_NOME_MOTORISTA", alertaJSON["ALERTA_NOME_MOTORISTA"]);
+    pontoAlerta.set("ALERTA_NOME_ROTA", alertaJSON["ALERTA_NOME_ROTA"]);
+
+    return pontoAlerta;
+}
+
+
+// Cria feature de um alerta
+var plotarVeiculo = (veiculoJSON) => {
+    let veiculoID = veiculoJSON["ID"];
+    let lat = veiculoJSON["LOC_LATITUDE"];
+    let lng = veiculoJSON["LOC_LONGITUDE"];
+
+    let pontoVeiculo;
+    switch (veiculoJSON["TIPO_VEICULO"]) {
+        case 1:
+            pontoVeiculo = gerarMarcador(lat, lng, "img/icones/onibus-marcador.png");
+        case 2:
+            pontoVeiculo = gerarMarcador(lat, lng, "img/icones/lancha-marcador2.png");
+        default:
+            pontoVeiculo = gerarMarcador(lat, lng, "img/icones/onibus-marcador.png");
+            break;
+    }
+    pontoVeiculo.setId(veiculoID);
+    pontoVeiculo.set("TIPO", "VEICULO");
+    pontoVeiculo.set("NOME", veiculoJSON["NOME"]);
+    pontoVeiculo.set("NOME_MOTORISTA", veiculoJSON["NOME"]);
+    pontoVeiculo.set("MODELOSTR", veiculoJSON["MODELOSTR"]);
+    pontoVeiculo.set("ROTA", veiculoJSON["NOME_ROTA"])
+    pontoVeiculo.set("ULTIMA_ATUALIZACAO", veiculoJSON.DATA_ATUAL.split("T")[1].split(".")[0]);
+
+    let tempoViagem = (Date.parse(veiculoJSON.DATA_ATUAL) - Date.parse(veiculoJSON.DATA_INICIO)) / 1000 / 600;
+    pontoVeiculo.set("TEMPO_VIAGEM", tempoViagem.toFixed(2) + " minutos");
+
+    return pontoVeiculo;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Popup
@@ -440,7 +566,8 @@ var selectAlunoEscolaConfig = new ol.interaction.Select({
     filter: (feature, layer) => {
         console.log("feature", feature.getProperties())
         if ((feature.getGeometry().getType() == "Point" && (feature.getProperties().TIPO == "ALUNO" ||
-            feature.getProperties().TIPO == "ESCOLA"))
+            feature.getProperties().TIPO == "ESCOLA" || feature.getProperties().TIPO == "ALERTA" ||
+            feature.getProperties().TIPO == "VEICULO"))
             ||
             (feature.getGeometry().getType() == "LineString" && feature.getProperties().TIPO == "ROTA")) {
             return true;
@@ -513,6 +640,148 @@ var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
                 title: "Número de alunos",
                 visible: (e) => e.getProperties().TIPO == "ROTA"
             },
+
+            'MENSAGEM': {
+                title: "Mensagem:",
+                visible: (e) => e.getProperties().TIPO == "ALERTA"
+            },
+            'ALERTA_NOME_MOTORISTA': {
+                title: "Autor:",
+                visible: (e) => e.getProperties().TIPO == "ALERTA"
+            },
+            'ALERTA_NOME_ROTA': {
+                title: "Rota:",
+                visible: (e) => e.getProperties().TIPO == "ALERTA"
+            },
+            'HORA_OCORRENCIA': {
+                title: "Hora da ocorrência:",
+                visible: (e) => e.getProperties().TIPO == "ALERTA"
+            },
+            'DATA_OCORRENCIA': {
+                title: "Data da ocorrência",
+                visible: (e) => e.getProperties().TIPO == "ALERTA"
+            },
+
+            'ROTA': {
+                title: "Rota:",
+                visible: (e) => e.getProperties().TIPO == "VEICULO"
+            },
+            'NOME_MOTORISTA': {
+                title: "Nome do Motorista:",
+                visible: (e) => e.getProperties().TIPO == "VEICULO"
+            },
+            'MODELOSTR': {
+                title: "Modelo do veículo:",
+                visible: (e) => e.getProperties().TIPO == "VEICULO"
+            },
+
+            'ULTIMA_ATUALIZACAO': {
+                title: "Última atualização:",
+                visible: (e) => e.getProperties().TIPO == "VEICULO"
+            },
+            'TEMPO_VIAGEM': {
+                title: "Tempo de viagem:",
+                visible: (e) => e.getProperties().TIPO == "VEICULO"
+            },
         }
     }
 });
+
+function processaDadosAlerta() {
+    for (let alerta of hashMapRealTimeAlerta.values()) {
+        try {
+            let idViagem = alerta.VIAGEM_ID;
+            let viagem = hashMapRealTimePercurso.get(idViagem);
+
+            if (viagem) {
+                alerta["ALERTA_NOME_MOTORISTA"] = viagem.NOME_MOTORISTA;
+                alerta["ALERTA_NOME_ROTA"] = viagem.NOME_ROTA;
+                let vSource = camadaAlertas.source;
+                vSource.addFeature(plotarAlerta(alerta));
+            }
+        } catch (error) {
+            console.error("ERROR", error)
+        }
+    }
+}
+
+function processaDadosPercurso() {
+    for (let rota of hashMapRealTimePercurso.values()) {
+        try {
+            let coordenadas = [];
+            if (rota.COORDENADAS.length > 1) {
+                for (let coord of rota.COORDENADAS) {
+                    coordenadas.push([coord.longitude, coord.latitude]);
+                }
+                let lineString = turf.lineString(coordenadas);
+                let geojson = turf.toMercator(lineString);
+    
+                let rotaGeoJSON = (new ol.format.GeoJSON()).readFeatures(geojson);
+                camadaVeiculos.source.addFeatures(rotaGeoJSON);
+    
+                // Plota veiculo
+                let veiculoJSON = rota;
+                let ultimaCoordenada = rota.COORDENADAS.length - 1;
+                veiculoJSON["LOC_LONGITUDE"] = coordenadas[ultimaCoordenada][0];
+                veiculoJSON["LOC_LATITUDE"] = coordenadas[ultimaCoordenada][1];
+    
+                veiculoJSON.NOME = "Veículo";
+                veiculoJSON.MODELOSTR = "Não informado";
+                veiculoJSON.ORIGEM = "Não informado";
+                veiculoJSON.TIPOSTR = "Não informado";
+    
+                if (veiculoJSON.ID_VEICULO != "DESCONHECIDO") {
+                    let v = hashMapVeiculos.get(veiculoJSON.ID_VEICULO);
+                    if (v) {
+                        let vJSON = parseVeiculoDB(v);
+                        veiculoJSON.NOME = vJSON.MODELOSTR;
+                        veiculoJSON.MODELOSTR = vJSON.MODELOSTR;
+                        veiculoJSON.ORIGEM = vJSON.ORIGEM;
+                        veiculoJSON.TIPOSTR = vJSON.TIPOSTR;
+                    }
+                }
+    
+                camadaVeiculos.source.addFeature(plotarVeiculo(veiculoJSON));
+            }
+        } catch (error) {
+            console.error("ERROR", error)
+        }
+    }
+}
+
+function ouveUpdates() {
+    let dataDeHoje = new Date().toISOString().split("T")[0];
+    if (firebaseImpl) {
+        firebaseImpl.dbAcessarDados(DB_TABLE_REALTIME_VIAGENSPERCURSO).where("DATA", "==", dataDeHoje)
+            .onSnapshot((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    let viagemPercurso = doc.data();
+                    if (viagemPercurso.TIPO_VEICULO && viagemPercurso.COORDENADAS &&
+                        viagemPercurso.NOME_ROTA && viagemPercurso.NOME_MOTORISTA) {
+                        hashMapRealTimePercurso.set(viagemPercurso.ID, viagemPercurso);
+                    }
+                });
+
+                if (camadaVeiculos) {
+                    camadaVeiculos.source.clear();
+                    processaDadosPercurso();
+                }
+            });
+
+        firebaseImpl.dbAcessarDados(DB_TABLE_REALTIME_VIAGENSALERTA).where("DATA", "==", dataDeHoje)
+            .onSnapshot((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    let alerta = doc.data();
+                    hashMapRealTimeAlerta.set(alerta["ID"], alerta);
+                });
+
+                if (camadaAlertas) {
+                    camadaAlertas.source.clear();
+                    processaDadosAlerta();
+                }
+            });
+    }
+}
+
+
+
