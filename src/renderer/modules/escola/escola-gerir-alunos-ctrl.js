@@ -176,8 +176,12 @@ $("#btnSalvar").on('click', () => {
         var promiseArrayAdd = new Array();
         alunosAdicionar.forEach((aID) => {
             console.log(aID, estadoEscola["ID_ESCOLA"])
+            let eID = estadoEscola["ID_ESCOLA"];
+            if (eID == null || eid == undefined) {
+                eID = estadoEscola["ID"];
+            }
             promiseArrayAdd.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
-                "ID_ESCOLA": String(estadoEscola["ID_ESCOLA"]), 
+                "ID_ESCOLA": String(eID), 
                 "ID_ALUNO": String(aID)
             }).then(() => updateProgresso()));
         })
