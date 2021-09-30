@@ -19,6 +19,9 @@ var versao = app.getVersion();
 
 // Imports de I/O do NodeJS
 var fs = require("fs-extra");
+var axios = require("axios");
+var md5 = require("md5");
+var BASE_URL = "https://sete.transportesufg.eng.br";
 
 // Imports de biblioteca de caminhos (para acessar e navegar no sistema de arquivos)
 // app.getPath retorna a pasta do SO que armazina os dados de configuração do app

@@ -251,6 +251,7 @@ $(document).ready(function () {
     $("#loginsubmit").click(() => {
         var email = $("#loginemail").val();
         var password = $("#loginpassword").val();
+        var md5password = md5(password);
         var lembrarlogin = $("#loginlembrar").is(":checked");
 
         $("#loginform").validate();
@@ -267,90 +268,60 @@ $(document).ready(function () {
                 showConfirmButton: false
             });
 
-            firebase.auth()
-                .signInWithEmailAndPassword(email, password)
-                .then((firebaseUser) => {
-                    // Set local config 
-                    if (lembrarlogin) {
-                        userconfig.set("LEMBRAR", true);
-                        userconfig.set("EMAIL", email);
-                        userconfig.set("PASSWORD", password);
-                    } else {
-                        userconfig.delete("LEMBRAR");
-                        userconfig.delete("EMAIL");
-                        userconfig.delete("PASSWORD");
-                    }
-                    userconfig.set("ID", firebaseUser.user.uid);
-                    return firebaseUser.user.uid
-                })
-                .then((uid) => dbObterPerfilUsuario(uid)) // Obtém o perfil remoto do usuário
-                .then((remoteData) => {
-                    userconfig.set("CIDADE", String(remoteData.CIDADE))
-                    userconfig.set("ESTADO", String(remoteData.ESTADO))
-                    userconfig.set("COD_CIDADE", String(remoteData.COD_CIDADE))
-                    userconfig.set("COD_ESTADO", String(remoteData.COD_ESTADO))
-                    userconfig.set("ID", remoteData["ID"])
+            axios.post(BASE_URL + "/authenticator/sete", {
+                usuario: email,
+                senha: md5password
+            }).then((seteUser) => {
+                debugger
+                // Set local config 
+                if (lembrarlogin) {
+                    userconfig.set("LEMBRAR", true);
+                    userconfig.set("EMAIL", email);
+                    userconfig.set("PASSWORD", password);
+                } else {
+                    userconfig.delete("LEMBRAR");
+                    userconfig.delete("EMAIL");
+                    userconfig.delete("PASSWORD");
+                }
 
-                    dadoUsuario = {
-                        "ID": remoteData["ID"],
-                        "NOME": remoteData["NOME"],
-                        "EMAIL": remoteData["EMAIL"],
-                        "CPF": remoteData["CPF"],
-                        "TELEFONE": remoteData["TELEFONE"],
-                        "CIDADE": remoteData["CIDADE"],
-                        "ESTADO": remoteData["ESTADO"],
-                        "PASSWORD": remoteData["PASSWORD"],
-                        "COD_CIDADE": parseInt(remoteData["COD_CIDADE"]),
-                        "COD_ESTADO": parseInt(remoteData["COD_ESTADO"])
-                    }
-                    userconfig.set("DADO_USUARIO", dadoUsuario)
-                    return dadoUsuario;
-                }).then((dadoUsuario) => {
-                    let cod_cidade = String(dadoUsuario["COD_CIDADE"]);
-                    return remotedb.collection("config").doc(cod_cidade).get({ source: "server" });
-                }).then((docConfig) => {
-                    let acessoLiberado = false;
-                    if (docConfig.exists) {
-                        arDataConfig = docConfig.data();
-                        let idUsuario = userconfig.get("ID");
-                        if (arDataConfig.users.indexOf(idUsuario) > -1) {
-                            acessoLiberado = true;
-                            // TODO: Checar o campo INIT posteriormente
-                        }
-                    } else {
-                        throw new Exception("Acesso ainda não foi liberado pela equipe do CECATE-UFG");
-                    }
-                    return acessoLiberado;
-                }).then(() => {
-                    return knex("IBGE_Municipios")
-                        .select()
-                        .where("codigo_ibge", userconfig.get("COD_CIDADE"))
-                }).then((res) => {
-                    userconfig.set("LATITUDE", res[0]["latitude"])
-                    userconfig.set("LONGITUDE", res[0]["longitude"])
+                userconfig.set("CIDADE", seteUser.data.data.cidade)
+                userconfig.set("ESTADO", seteUser.data.data.estado)
+                userconfig.set("COD_CIDADE", String(seteUser.data.data.codigo_cidade))
+                userconfig.set("COD_ESTADO", (seteUser.data.data.codigo_cidade + "").slice(0, 2))
+                userconfig.set("ID", String(seteUser.data.data.id_usuario))
+                userconfig.set("TIPO_PERMISSAO", String(seteUser.data.data.tipo_permissao))
+                dadoUsuario = {
+                    "ID": String(seteUser.data.data.id_usuario),
+                    "NOME": seteUser.data.data.nome,
+                    "EMAIL": seteUser.data.data.email,
+                    "CPF": seteUser.data.data.cpf,
+                    "TELEFONE": seteUser.data.data.telefone,
+                    "CIDADE": seteUser.data.data.cidade,
+                    "ESTADO": seteUser.data.data.estado,
+                    "PASSWORD": password,
+                    "COD_CIDADE": Number(seteUser.data.data.codigo_cidade),
+                    "COD_ESTADO": Number((seteUser.data.data.codigo_cidade + "").slice(0, 2))
+                }
+                userconfig.set("DADO_USUARIO", dadoUsuario)
 
-                    let codCidade = userconfig.get("COD_CIDADE")
-                    return remotedb.collection("municipios").doc(codCidade).set({
-                        LAST_UPDATE: new Date().toLocaleDateString()
-                    }, { merge: true });
-                }).then(() => document.location.href = "./dashboard.html")
-                .catch((err) => {
-                    if (err != null) {
-                        if (err.code == "auth/wrong-password") {
-                            errorFn("Senha incorreta")
-                        } else if (err.code == "auth/user-not-found") {
-                            errorFn("Usuário não encontrado")
-                        } else if (err.code == "auth/network-request-failed") {
-                            errorFn("Internet não está funcionando. Verifique a rede")
-                        } else if (err.code == "permission-denied") {
-                            errorFn(`Usuário ainda não foi ativado pela equipe do CECATE-UFG. 
-                                    Aguarde mais um pouquinho ou entre em contato com a
-                                    equipe de suporte (0800 616161)`)
-                        } else {
-                            errorFn("Erro ao tentar realizar login. Contate a equipe de suporte do CECATE-UFG (0800 616161)")
-                        }
-                    }
-                });
+                return dadoUsuario;
+            }).then(() => {
+                return knex("IBGE_Municipios")
+                    .select()
+                    .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+            }).then((res) => {
+                debugger
+                userconfig.set("LATITUDE", res[0]["latitude"])
+                userconfig.set("LONGITUDE", res[0]["longitude"])
+                document.location.href = "./dashboard.html"
+            }).catch((err) => {
+                if (err?.response?.data?.messages) {
+                    errorFn(err.response.data.messages);
+                } else {
+                    errorFn("Ocorreu um erro ao tentar fazer o login")
+                }
+            })
+
         }
     });
 
