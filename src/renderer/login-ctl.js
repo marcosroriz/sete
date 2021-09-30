@@ -290,6 +290,8 @@ $(document).ready(function () {
                 userconfig.set("COD_ESTADO", (seteUser.data.data.codigo_cidade + "").slice(0, 2))
                 userconfig.set("ID", String(seteUser.data.data.id_usuario))
                 userconfig.set("TIPO_PERMISSAO", String(seteUser.data.data.tipo_permissao))
+                userconfig.set("NOME", seteUser.data.data.nome)
+                userconfig.set("TOKEN", seteUser.data.access_token)
                 dadoUsuario = {
                     "ID": String(seteUser.data.data.id_usuario),
                     "NOME": seteUser.data.data.nome,
@@ -300,7 +302,8 @@ $(document).ready(function () {
                     "ESTADO": seteUser.data.data.estado,
                     "PASSWORD": password,
                     "COD_CIDADE": Number(seteUser.data.data.codigo_cidade),
-                    "COD_ESTADO": Number((seteUser.data.data.codigo_cidade + "").slice(0, 2))
+                    "COD_ESTADO": Number((seteUser.data.data.codigo_cidade + "").slice(0, 2)),
+                    "TOKEN": seteUser.data.access_token
                 }
                 userconfig.set("DADO_USUARIO", dadoUsuario)
 
