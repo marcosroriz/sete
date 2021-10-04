@@ -242,20 +242,23 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
 });
 
 
-dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
+restImpl.dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
 .then(res => preprocessarAlunos(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-.then(res => preprocessarEscolasTemAlunos(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-.then(res => preprocessarRotaTemAlunos(res))
+// .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+// .then(res => preprocessarEscolasTemAlunos(res))
+// .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+// .then(res => preprocessarRotaTemAlunos(res))
 .then((res) => adicionaDadosTabela(res))
-.catch((err) => errorFn(err))
+.catch((err) => {
+    debugger
+    errorFn(err)
+})
 
 // Preprocessa alunos
 var preprocessarAlunos = (res) => {
     $("#totalNumAlunos").text(res.length);
     for (let alunoRaw of res) {
-        let alunoJSON = parseAlunoDB(alunoRaw);
+        let alunoJSON = parseAlunoREST(alunoRaw);
         listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
     }
     return listaDeAlunos;

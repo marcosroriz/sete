@@ -207,6 +207,7 @@ dataTablesVeiculos.on('click', '.frotaRemove', function () {
 });
 
 dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+// restImpl.dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
 .then(res => processarVeiculos(res))
 .then(res => adicionaDadosTabela(res))
 .catch((err) => errorFn("Erro ao listar os veículos!", err))

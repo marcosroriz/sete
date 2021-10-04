@@ -1,31 +1,31 @@
 function GetAlunoFromForm() {
     return {
-        "LOC_LATITUDE": $("#reglat").val(), // real
-        "LOC_LONGITUDE": $("#reglon").val(), // real
-        "LOC_ENDERECO": $("#regend").val(), // string
-        "LOC_CEP": $("#regcep").val(), // string
-        "MEC_TP_LOCALIZACAO": parseInt($("input[name='areaUrbana']:checked").val()), // int
-        "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
-        "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
-        "DA_COLCHETE": $("#temColchete").is(":checked"), // bool
-        "DA_ATOLEIRO": $("#temAtoleiro").is(":checked"), // bool
-        "DA_PONTERUSTICA": $("#temPonte").is(":checked"), // bool
+        "loc_latitude": $("#reglat").val(), // real
+        "loc_longitude": $("#reglon").val(), // real
+        "loc_endereco": $("#regend").val(), // string
+        "loc_cep": $("#regcep").val(), // string
+        "mec_tp_localizacao": parseInt($("input[name='areaUrbana']:checked").val()), // int
+        "da_porteira": $("#temPorteira").is(":checked") ? "S" : "N", // str
+        "da_mataburro": $("#temMataBurro").is(":checked") ? "S" : "N", // str
+        "da_colchete": $("#temColchete").is(":checked") ? "S" : "N", // str
+        "da_atoleiro": $("#temAtoleiro").is(":checked") ? "S" : "N", // str
+        "da_ponterustica": $("#temPonte").is(":checked") ? "S" : "N", // str
 
-        "NOME": $("#regnome").val(), // string
-        "CPF": $("#regcpf").val(), // number
-        "DATA_NASCIMENTO": $("#regdata").val(), // string
-        "NOME_RESPONSAVEL": $("#regnomeresp").val(), // string
-        "TELEFONE_RESPONSAVEL": $("#regtelresp").val(), // string
-        "GRAU_RESPONSAVEL": $("#listareggrauresp").val(),
-        "SEXO": parseInt($("input[name='modoSexo']:checked").val()), // int
-        "COR": parseInt($("input[name='corAluno']:checked").val()), // int
-        "DEF_CAMINHAR": $("#temDeCaminhar").is(":checked"), // bool
-        "DEF_OUVIR": $("#temDeOuvir").is(":checked"), // bool
-        "DEF_ENXERGAR": $("#temDeEnxergar").is(":checked"), // bool
-        "DEF_MENTAL": $("#temDefMental").is(":checked"), // bool
+        "nome": $("#regnome").val(), // string
+        "cpf": $("#regcpf").val(), // number
+        "data_nascimento": $("#regdata").val(), // string
+        "nome_responsavel": $("#regnomeresp").val(), // string
+        "telefone_responavel": $("#regtelresp").val(), // string
+        "grau_responsavel": $("#listareggrauresp").val(),
+        "sexo": parseInt($("input[name='modoSexo']:checked").val()), // int
+        "cor": parseInt($("input[name='corAluno']:checked").val()), // int
+        "def_caminhar": $("#temDeCaminhar").is(":checked") ? "S" : "N", // str
+        "def_ouvir": $("#temDeOuvir").is(":checked") ? "S" : "N", // str
+        "def_enxergar": $("#temDeEnxergar").is(":checked") ? "S" : "N", // str
+        "def_mental": $("#temDefMental").is(":checked") ? "S" : "N", // str
 
-        "TURNO": parseInt($("input[name='turnoAluno']:checked").val()), // int
-        "NIVEL": parseInt($("input[name='nivelAluno']:checked").val()), // int
+        "turno": parseInt($("input[name='turnoAluno']:checked").val()), // int
+        "nivel": parseInt($("input[name='nivelAluno']:checked").val()), // int
     };
 }
 
@@ -58,15 +58,31 @@ function PopulateAlunoFromState(estadoAlunoJSON) {
 
     $("input[name='turnoAluno']").val([estadoAlunoJSON["TURNO"]]);
     $("input[name='nivelAluno']").val([estadoAlunoJSON["NIVEL"]]);
-    
+
     if (estadoAlunoJSON["ID_ESCOLA"]) {
         $("#listaescola").val(estadoAlunoJSON["ID_ESCOLA"]);
     }
 
     if (estadoAlunoJSON["ID_ROTA"]) {
         $("#listarota").val(estadoAlunoJSON["ID_ROTA"]);
-    }    
+    }
 }
+
+// Transformar linha da API REST para JSON
+var parseAlunoREST = function (alunoRaw) {
+    let alunoJSON = Object.assign({}, alunoRaw);
+    // Arrumando campos novos para os que já usamos. 
+    // Atualmente os campos são em caixa alta (e.g. NOME ao invés de nome)
+    // Entretanto, a API está retornando valores em minúsculo
+    for (let attr of Object.keys(alunoJSON)) {
+        alunoJSON[attr.toUpperCase()] = alunoJSON[attr];
+    }
+
+    // Fixa o ID
+    alunoJSON["ID"] = alunoJSON["id_aluno"];
+
+    return parseAlunoDB(alunoJSON);
+};
 
 // Transformar linha do DB para JSON
 var parseAlunoDB = function (alunoRaw) {
@@ -74,6 +90,33 @@ var parseAlunoDB = function (alunoRaw) {
     alunoJSON["ESCOLA"] = "Sem escola cadastrada";
     alunoJSON["ROTA"] = "Sem rota cadastrada";
     alunoJSON["ID_ESCOLA"] = 0;
+
+    if (alunoJSON["da_porteira"] == "S") alunoJSON["DA_PORTEIRA"] = true;
+    else alunoJSON["DA_PORTEIRA"] = false;
+
+    if (alunoJSON["da_mataburro"] == "S") alunoJSON["DA_MATABURRO"] = true;
+    else alunoJSON["DA_MATABURRO"] = false;
+
+    if (alunoJSON["da_colchete"] == "S") alunoJSON["DA_COLCHETE"] = true;
+    else alunoJSON["DA_COLCHETE"] = false;
+
+    if (alunoJSON["da_atoleiro"] == "S") alunoJSON["DA_ATOLEIRO"] = true;
+    else alunoJSON["DA_ATOLEIRO"] = false;
+
+    if (alunoJSON["da_ponterustica"] == "S") alunoJSON["DA_PONTERUSTICA"] = true;
+    else alunoJSON["DA_PONTERUSTICA"] = false;
+
+    if (alunoJSON["def_caminhar"] == "S") alunoJSON["DEF_CAMINHAR"] = true;
+    else alunoJSON["DEF_CAMINHAR"] = false;
+
+    if (alunoJSON["def_ouvir"] == "S") alunoJSON["DEF_OUVIR"] = true;
+    else alunoJSON["DEF_OUVIR"] = false;
+
+    if (alunoJSON["def_enxergar"] == "S") alunoJSON["DEF_ENXERGAR"] = true;
+    else alunoJSON["DEF_ENXERGAR"] = false;
+
+    if (alunoJSON["def_mental"] == "S") alunoJSON["DEF_MENTAL"] = true;
+    else alunoJSON["DEF_MENTAL"] = false;
 
     if (alunoRaw["NOME_RESPONSAVEL"] == undefined ||
         alunoRaw["NOME_RESPONSAVEL"] == null) {
@@ -86,7 +129,7 @@ var parseAlunoDB = function (alunoRaw) {
     } else {
         alunoJSON["GEOREF"] = "Não";
     }
-    
+
     switch (alunoRaw["MEC_TP_LOCALIZACAO"]) {
         case 1:
             alunoJSON["LOCALIZACAO"] = "Urbana";

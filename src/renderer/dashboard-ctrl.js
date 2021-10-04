@@ -67,6 +67,10 @@ firebase.auth().onAuthStateChanged((user) => {
     }
 });
 
+if (userconfig.get("NOME")) {
+    $("#userName").html(userconfig.get("NOME").split(" ")[0]);
+}
+
 // Verifica se DB está sincronizado antes de colocar dados na tela do dashboard
 dbEstaSincronizado()
     .then((estaSincronizado) => {

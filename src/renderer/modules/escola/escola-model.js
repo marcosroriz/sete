@@ -58,6 +58,21 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#temHorarioNoite").prop("checked", estadoEscolaJSON["HORARIO_NOTURNO"]);
 }
 
+
+// Transformar linha da API REST para JSON
+var parseEscolaREST = function (escolaRaw) {
+    let escolaJSON = Object.assign({}, escolaRaw);
+    // Arrumando campos novos para os que já usamos. 
+    // Atualmente os campos são em caixa alta (e.g. NOME ao invés de nome)
+    // Entretanto, a API está retornando valores em minúsculo
+    for (let attr of Object.keys(escolaJSON)) {
+        escolaJSON[attr.toUpperCase()] = escolaJSON[attr];
+    }
+
+    return parseEscolaDB(escolaJSON);
+};
+
+
 // Transformar linha do DB para JSON
 var parseEscolaDB = function (escolaRaw) {
     var escolaJSON = Object.assign({}, escolaRaw);
@@ -138,7 +153,7 @@ var parseEscolaMECDB = function (escolaRaw) {
     escolaJSON["MEC_CO_UF"] = Number(escolaRaw["CO_UF"]);
     escolaJSON["MEC_CO_MUNICIPIO"] = Number(escolaRaw["CO_MUNICIPIO"]);
     escolaJSON["MEC_TP_LOCALIZACAO"] = Number(escolaRaw["TP_LOCALIZACAO"]);
-    
+
     switch (Number(escolaRaw["TP_LOCALIZACAO"])) {
         case 1:
             escolaJSON["LOCALIZACAO"] = "Urbana";
