@@ -1,32 +1,39 @@
 function GetAlunoFromForm() {
-    return {
-        "loc_latitude": $("#reglat").val(), // real
-        "loc_longitude": $("#reglon").val(), // real
-        "loc_endereco": $("#regend").val(), // string
-        "loc_cep": $("#regcep").val(), // string
-        "mec_tp_localizacao": parseInt($("input[name='areaUrbana']:checked").val()), // int
-        "da_porteira": $("#temPorteira").is(":checked") ? "S" : "N", // str
-        "da_mataburro": $("#temMataBurro").is(":checked") ? "S" : "N", // str
-        "da_colchete": $("#temColchete").is(":checked") ? "S" : "N", // str
-        "da_atoleiro": $("#temAtoleiro").is(":checked") ? "S" : "N", // str
-        "da_ponterustica": $("#temPonte").is(":checked") ? "S" : "N", // str
-
+    let data = {
         "nome": $("#regnome").val(), // string
-        "cpf": $("#regcpf").val(), // number
         "data_nascimento": $("#regdata").val(), // string
-        "nome_responsavel": $("#regnomeresp").val(), // string
-        "telefone_responavel": $("#regtelresp").val(), // string
-        "grau_responsavel": $("#listareggrauresp").val(),
         "sexo": parseInt($("input[name='modoSexo']:checked").val()), // int
         "cor": parseInt($("input[name='corAluno']:checked").val()), // int
         "def_caminhar": $("#temDeCaminhar").is(":checked") ? "S" : "N", // str
         "def_ouvir": $("#temDeOuvir").is(":checked") ? "S" : "N", // str
         "def_enxergar": $("#temDeEnxergar").is(":checked") ? "S" : "N", // str
         "def_mental": $("#temDefMental").is(":checked") ? "S" : "N", // str
-
+        "mec_tp_localizacao": parseInt($("input[name='areaUrbana']:checked").val()), // int
         "turno": parseInt($("input[name='turnoAluno']:checked").val()), // int
         "nivel": parseInt($("input[name='nivelAluno']:checked").val()), // int
-    };
+        "da_porteira": $("#temPorteira").is(":checked") ? "S" : "N", // str
+        "da_mataburro": $("#temMataBurro").is(":checked") ? "S" : "N", // str
+        "da_colchete": $("#temColchete").is(":checked") ? "S" : "N", // str
+        "da_atoleiro": $("#temAtoleiro").is(":checked") ? "S" : "N", // str
+        "da_ponterustica": $("#temPonte").is(":checked") ? "S" : "N", // str
+    }
+
+    if ($("#reglat").val()) data["loc_latitude"] = $("#reglat").val();
+    if ($("#reglon").val()) data["loc_longitude"] = $("#reglon").val();
+    if ($("#regend").val()) data["loc_endereco"] = $("#regend").val();
+    if ($("#regcep").val()) data["loc_cep"] = $("#regcep").val();
+
+    if ($("#regnomeresp").val() != "") data["nome_responsavel"] = $("#regnomeresp").val();
+
+    if ($("#regcpf").val()) data["cpf"] = String($("#regcpf").val()).replace(/\D/g, '');
+    if ($("#regtelresp").val()) data["telefone_responsavel"] = $("#regtelresp").val()
+    if ($("#listareggrauresp").val() != "-1") {
+        data["grau_responsavel"] = Number($("#listareggrauresp").val());
+    } else {
+        data["grau_responsavel"] = 0;
+    }
+
+    return data
 }
 
 function PopulateAlunoFromState(estadoAlunoJSON) {
@@ -348,6 +355,75 @@ function InserirAluno(aluno) {
             .catch((err) => { console.log(err); throw err })
             .finally(() => { });
     }
+}
+
+function BuscarTodosAlunosREST() {
+    return restImpl.dbGETColecao(DB_TABLE_ALUNO);
+}
+
+function BuscarAlunosREST(id) {
+    return restImpl.dbGETEntidade(DB_TABLE_ALUNO, "/" + id);
+}
+
+function InserirAlunoREST(alunoJSON, idEscola, idRota) {
+    return restImpl.dbPOST(DB_TABLE_ALUNO, "", alunoJSON)
+        .then((res) => {
+            let promisses = [];
+
+            debugger
+            if (idEscola != 0) {
+                promisses.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
+                    "ID_ESCOLA": idEscola,
+                    "ID_ALUNO": res.id
+                }))
+            }
+
+            if (idRota != 0) {
+                promisses.push(dbInserirPromise(DB_TABLE_ROTA_ATENDE_ALUNO, {
+                    "ID_ROTA": idRota,
+                    "ID_ALUNO": res.id
+                }))
+            }
+
+            return Promise.all(promisses)
+        })
+}
+function AtualizarAlunoREST(alunoJSON, idAluno, idEscola, idEscolaAnterior, idRota, idRotaAnterior) {
+    let promessasBasicas = [];
+
+    // Atualiza aluno
+    promessasBasicas.push(restImpl.dbPUT(DB_TABLE_ALUNO, "/" + idAluno, alunoJSON))
+
+    // Muda escola se mudou
+    if (idEscola != idEscolaAnterior && idEscolaAnterior != 0) {
+        promessasBasicas.push(restImpl.dbDELETE(DB_TABLE_ALUNO, "/" + idAluno + "/escola"));
+    }
+
+    // Mesma lógica da entidade escola para rota
+    if (idRota != idRotaAnterior && idRotaAnterior != 0) {
+        promessasBasicas.push(restImpl.dbDELETE(DB_TABLE_ALUNO, "/" + idAluno + "/rota"));
+    }
+
+    return Promise.all(promessasBasicas)
+        .then(() => {
+            let promessasNovasRelacoes = [];
+
+            // Muda escola se mudou 
+            // Insere caso seja dif de 0 (sem escola)
+            if (idEscola != idEscolaAnterior && idEscola != 0) {
+                promessasNovasRelacoes.push(restImpl.dbPOST(DB_TABLE_ALUNO, "/" + idAluno + "/escola", {
+                    id_escola: Number(idEscola)
+                }));
+            }
+
+            // Mesma lógica da entidade escola para rota
+            if (idRota != idRotaAnterior && idRota != 0) {
+                promessasNovasRelacoes.push(restImpl.dbPOST(DB_TABLE_ALUNO, "/" + idAluno + "/rota", {
+                    id_rota: Number(idRota)
+                }))
+            }
+            return Promise.all(promessasNovasRelacoes)
+        })
 }
 
 function AtualizarAluno(aluno) {

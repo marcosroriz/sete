@@ -116,29 +116,40 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
     ]
 });
 
-restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, estadoAluno["ID"])
+ObterAlunoREST(estadoAluno["ID"])
     .then((alunoRaw) => {
         aluno = parseAlunoREST(alunoRaw);
         return aluno;
     })
-    // .then(() => restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, estadoAluno["ID"] + "/escola"))
-    // .then((escolaRaw) => {
-    //     debugger
-    //     let escola = parseEscolaREST(escolaRaw);
+    .then(async () => {
+        try {
+            let escolaRaw = await restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, estadoAluno["ID"] + "/escola");
+            let escola = parseEscolaREST(escolaRaw);
 
-    //     aluno["ID_ESCOLA"] = escola["id"];
-    //     aluno["ESCOLA"] = escola["NOME"];
-    //     aluno["ESCOLA_LOC_LATITUDE"] = escola["LOC_LATITUDE"];
-    //     aluno["ESCOLA_LOC_LONGITUDE"] = escola["LOC_LONGITUDE"];
-    //     aluno["ESCOLA_MEC_CO_UF"] = escola["MEC_CO_UF"];
-    //     aluno["ESCOLA_MEC_CO_MUNICIPIO"] = escola["MEC_CO_MUNICIPIO"];
-    //     aluno["ESCOLA_MEC_TP_LOCALIZACAO"] = escola["MEC_TP_LOCALIZACAO"];
-    //     aluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = escola["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
-    //     aluno["ESCOLA_CONTATO_RESPONSAVEL"] = escola["CONTATO_RESPONSAVEL"];
-    //     aluno["ESCOLA_CONTATO_TELEFONE"] = escola["CONTATO_TELEFONE"];
+            aluno["ID_ESCOLA"] = escola["id"];
+            aluno["ESCOLA"] = escola["NOME"];
+            aluno["ESCOLA_LOC_LATITUDE"] = escola["LOC_LATITUDE"];
+            aluno["ESCOLA_LOC_LONGITUDE"] = escola["LOC_LONGITUDE"];
+            aluno["ESCOLA_MEC_CO_UF"] = escola["MEC_CO_UF"];
+            aluno["ESCOLA_MEC_CO_MUNICIPIO"] = escola["MEC_CO_MUNICIPIO"];
+            aluno["ESCOLA_MEC_TP_LOCALIZACAO"] = escola["MEC_TP_LOCALIZACAO"];
+            aluno["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = escola["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
+            aluno["ESCOLA_CONTATO_RESPONSAVEL"] = escola["CONTATO_RESPONSAVEL"];
+            aluno["ESCOLA_CONTATO_TELEFONE"] = escola["CONTATO_TELEFONE"];
+        } catch (err) {
+            aluno["ESCOLA"] = null;
+        }
 
-    //     return aluno;
-    // })
+        // TODO: arrumar isso assim que a API estiver estável
+        try {
+            let rotaRaw = await restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, estadoAluno["ID"] + "/rota");
+            aluno["ROTA"] = rotaRaw;
+        } catch (error) {
+            aluno["ROTA"] = null;
+        }
+
+        return aluno;
+    })
     .then(() => popularTabelaAluno())
     .then(() => plotaDadosNoMapa())
     .catch((err) => {
@@ -327,10 +338,10 @@ function popularTabelaAluno() {
         }
     }
 
-    if (aluno["ROTA"]) {
-        dataTableAluno.row.add(["ROTA", aluno["ROTA"]]);
-    } else {
+    if (aluno["ROTA"] == "Sem rota cadastrada") {
         dataTableAluno.row.add(["ROTA", "Rota não informada"]);
+    } else {
+        dataTableAluno.row.add(["ROTA", aluno["ROTA"]]);
     }
 
     dataTableAluno.draw();
