@@ -69,6 +69,9 @@ var parseEscolaREST = function (escolaRaw) {
         escolaJSON[attr.toUpperCase()] = escolaJSON[attr];
     }
 
+    // Fixa o ID
+    escolaJSON["ID"] = escolaJSON["id_escola"];
+
     return parseEscolaDB(escolaJSON);
 };
 
