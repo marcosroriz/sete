@@ -22,6 +22,46 @@ module.exports = {
     restAPI,
     dbFonteDoDado: "cache",
 
+    dbGETColecao: (nomeColecao, path = "") => {
+        let caminho = nomeColecao + "/" + codCidade + path;
+        return restAPI.get(caminho)
+            .then((res) => Promise.resolve(res.data.data));
+    },
+
+    dbGETEntidade: (nomeColecao, path) => {
+        let caminho = nomeColecao + "/" + codCidade + path;
+        return restAPI.get(caminho)
+            .then((res) => Promise.resolve(res.data));
+    },
+
+    dbPOST: (nomeColecao, path, dado) => {
+        let caminho = nomeColecao + "/" + codCidade + path;
+        debugger
+        return restAPI.post(caminho, dado)
+            .then((res) => {
+                debugger
+                return Promise.resolve(res.data.result)
+            });
+    },
+
+    dbPUT: (nomeColecao, path, dado) => {
+        let caminho = nomeColecao + "/" + codCidade + path;
+
+        return restAPI.put(caminho, dado)
+            .then((res) => {
+                return Promise.resolve(res.data.result)
+            })
+    },
+
+    dbDELETE: (nomeColecao, path) => {
+        let caminho = nomeColecao + "/" + codCidade + path;
+
+        return restAPI.delete(caminho)
+            .then((res) => {
+                return Promise.resolve(res.data.result)
+            })
+    },
+
     dbBuscarTodosDadosPromise: (nomeColecao) => {
         let caminho = nomeColecao + "/" + codCidade;
         return restAPI.get(caminho)
@@ -41,6 +81,10 @@ module.exports = {
             .then((res) => {
                 debugger
                 return Promise.resolve(res.data)
+            })
+            .catch((err) => {
+                debugger
+                console.log(err);
             });
     },
 

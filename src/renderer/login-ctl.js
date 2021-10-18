@@ -312,7 +312,6 @@ $(document).ready(function () {
                     .select()
                     .where("codigo_ibge", userconfig.get("COD_CIDADE"))
             }).then((res) => {
-                debugger
                 userconfig.set("LATITUDE", res[0]["latitude"])
                 userconfig.set("LONGITUDE", res[0]["longitude"])
                 document.location.href = "./dashboard.html"
