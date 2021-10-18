@@ -42,6 +42,23 @@ function PopulateRotaFromState(estadoRotaJSON) {
     $("#temHorarioNoite").prop("checked", estadoRotaJSON["TURNO_NOTURNO"]);
 }
 
+
+// Transformar linha da API REST para JSON
+var parseRotaDBREST = function (rotaRaw) {
+    let rotaJSON = Object.assign({}, rotaRaw);
+    // Arrumando campos novos para os que já usamos. 
+    // Atualmente os campos são em caixa alta (e.g. NOME ao invés de nome)
+    // Entretanto, a API está retornando valores em minúsculo
+    for (let attr of Object.keys(rotaJSON)) {
+        rotaJSON[attr.toUpperCase()] = rotaJSON[attr];
+    }
+
+    // Fixa o ID
+    rotaJSON["ID"] = rotaJSON["id_rota"];
+
+    return parseRotaDB(rotaJSON);
+};
+
 // Transformar linha do DB para JSON
 var parseRotaDB = function (rotaRaw) {
     var rotaJSON = Object.assign({}, rotaRaw);

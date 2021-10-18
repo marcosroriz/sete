@@ -116,14 +116,14 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
     ]
 });
 
-ObterAlunoREST(estadoAluno["ID"])
+restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}`)
     .then((alunoRaw) => {
         aluno = parseAlunoREST(alunoRaw);
         return aluno;
     })
     .then(async () => {
         try {
-            let escolaRaw = await restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, estadoAluno["ID"] + "/escola");
+            let escolaRaw = await restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}/escola`);            
             let escola = parseEscolaREST(escolaRaw);
 
             aluno["ID_ESCOLA"] = escola["id"];
@@ -142,8 +142,8 @@ ObterAlunoREST(estadoAluno["ID"])
 
         // TODO: arrumar isso assim que a API estiver estável
         try {
-            let rotaRaw = await restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, estadoAluno["ID"] + "/rota");
-            aluno["ROTA"] = rotaRaw;
+            let rotaRaw = await restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}/rota`);
+            aluno["ROTA"] = rotaRaw.nome;
         } catch (error) {
             aluno["ROTA"] = null;
         }
@@ -154,7 +154,6 @@ ObterAlunoREST(estadoAluno["ID"])
     .then(() => plotaDadosNoMapa())
     .catch((err) => {
         console.log(err);
-        debugger
         errorFn("Erro ao listar o aluno", err)
     })
 

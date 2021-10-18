@@ -224,7 +224,7 @@ $("#salvaraluno").on('click', () => {
     }
 });
 
-restImpl.dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
+restImpl.dbGETColecao(DB_TABLE_ESCOLA)
     .then((res) => {
         res.sort((e1, e2) => {
             return ('' + e1["nome"]).localeCompare(e2["nome"]);
@@ -237,13 +237,13 @@ restImpl.dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
         });
 
         if (estaEditando) {
-            return restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, idAluno + "/escola");
+            return restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${idAluno}/escola`);
         } else {
             return false;
         }
     })
     .then((escola) => {
-        if ($("#listaescola option[value='" + escola.id_escola + "']").length > 0) {
+        if (escola && $("#listaescola option[value='" + escola.id_escola + "']").length > 0) {
             $("#listaescola").val(escola.id_escola);
 
             // ID da escola anterior
@@ -251,11 +251,10 @@ restImpl.dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
         }
     })
     .catch((err) => {
-        debugger
         console.log("Aluno sem escola ainda", err);
     })
 
-restImpl.dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
+restImpl.dbGETColecao(DB_TABLE_ROTA)
     .then((res) => {
         res.sort((e1, e2) => {
             return ('' + e1["nome"]).localeCompare(e2["nome"]);
@@ -268,28 +267,26 @@ restImpl.dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
         });
 
         if (estaEditando) {
-            return restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, idAluno + "/rota");
+            return restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${idAluno}/rota`);
         } else {
             return false;
         }
     })
     .then((rota) => {
-        if (rota) {
-            // TODO
-            // ID da rota anterior
-            // idRotaAnterior = rota.id_rota;
-            console.log(rota);
+        if (rota && $("#listarota option[value='" + rota.id_rota + "']").length > 0) {
+            $("#listarota").val(rota.id_rota);
+
+            // ID da escola anterior
+            idRotaAnterior = rota.id_rota;
         }
     })
     .catch((err) => {
-        debugger
         console.log("Aluno sem rota ainda", err);
     })
 
 
-
 if (estaEditando) {
-    restImpl.dbBuscarDadosEspecificosPromise(DB_TABLE_ALUNO, estadoAluno["ID"])
+    restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}`)
         .then((alunoRaw) => {
             if (alunoRaw) {
                 estadoAluno = parseAlunoREST(alunoRaw);
@@ -315,7 +312,7 @@ function preencheDadosParaEdicao() {
         estadoAluno["LOC_LATITUDE"] != null && estadoAluno["LOC_LATITUDE"] != undefined) {
         posicaoAluno = gerarMarcador(estadoAluno["LOC_LATITUDE"],
             estadoAluno["LOC_LONGITUDE"],
-            "img/icones/casamarker.png", 25, 40);
+            "img/icones/aluno-marcador.png", 25, 40);
         vectorSource.addFeature(posicaoAluno);
 
         mapa["map"].getView().fit(vectorSource.getExtent(), {

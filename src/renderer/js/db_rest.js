@@ -36,12 +36,7 @@ module.exports = {
 
     dbPOST: (nomeColecao, path, dado) => {
         let caminho = nomeColecao + "/" + codCidade + path;
-        debugger
         return restAPI.post(caminho, dado)
-            .then((res) => {
-                debugger
-                return Promise.resolve(res.data.result)
-            });
     },
 
     dbPUT: (nomeColecao, path, dado) => {
@@ -57,9 +52,6 @@ module.exports = {
         let caminho = nomeColecao + "/" + codCidade + path;
 
         return restAPI.delete(caminho)
-            .then((res) => {
-                return Promise.resolve(res.data.result)
-            })
     },
 
     dbBuscarTodosDadosPromise: (nomeColecao) => {

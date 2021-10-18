@@ -370,24 +370,26 @@ function InserirAlunoREST(alunoJSON, idEscola, idRota) {
         .then((res) => {
             let promisses = [];
 
-            debugger
-            if (idEscola != 0) {
-                promisses.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
-                    "ID_ESCOLA": idEscola,
-                    "ID_ALUNO": res.id
-                }))
-            }
+            if (res?.data?.messages?.id) {
+                let idAluno = res.data.messages.id;
 
-            if (idRota != 0) {
-                promisses.push(dbInserirPromise(DB_TABLE_ROTA_ATENDE_ALUNO, {
-                    "ID_ROTA": idRota,
-                    "ID_ALUNO": res.id
-                }))
+                if (idEscola != 0) {
+                    promisses.push(restImpl.dbPOST(DB_TABLE_ALUNO, "/" + idAluno + "/escola", {
+                        "id_escola": Number(idEscola),
+                    }))
+                }
+    
+                if (idRota != 0) {
+                    promisses.push(restImpl.dbPOST(DB_TABLE_ALUNO, "/" + idAluno + "/rota", {
+                        "id_rota": Number(idRota),
+                    }))
+                }
             }
 
             return Promise.all(promisses)
         })
 }
+
 function AtualizarAlunoREST(alunoJSON, idAluno, idEscola, idEscolaAnterior, idRota, idRotaAnterior) {
     let promessasBasicas = [];
 
@@ -424,20 +426,4 @@ function AtualizarAlunoREST(alunoJSON, idAluno, idEscola, idEscolaAnterior, idRo
             }
             return Promise.all(promessasNovasRelacoes)
         })
-}
-
-function AtualizarAluno(aluno) {
-    knex('Aluno')
-        .where('ID_ALUNO', '=', aluno.ID_ALUNO)
-        .update(aluno).then(() => { SuccessAluno(); })
-        .catch((err) => { console.log(err); throw err })
-        .finally(() => { });
-}
-
-function DeleteAluno(row, id) {
-    knex('Aluno')
-        .where('ID_ALUNO', '=', id)
-        .del().then(() => { DeleteRow(row); })
-        .catch((err) => { console.log(err); throw err })
-        .finally(() => { });
 }

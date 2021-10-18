@@ -57,7 +57,7 @@ var defaultTableConfig = {
                                 })
 
                                 var progresso = 0;
-                                var max = rawDados.length * 3 + 1;
+                                var max = rawDados.length;
 
                                 function updateProgress() {
                                     progresso++;
@@ -69,37 +69,12 @@ var defaultTableConfig = {
                                 var promiseArray = new Array();
 
                                 rawDados.forEach(a => {
-                                    promiseArray.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", a["ID"])
-                                        .then(() => updateProgress())
-                                    );
-
-                                    // Remove da escola atual (se tiver matriculado)
-                                    remotedb.collection("municipios")
-                                    .doc(codCidade)
-                                    .collection(DB_TABLE_ESCOLA_TEM_ALUNOS)
-                                    .where("ID_ALUNO", "==", a["ID"])
-                                    .get({ source: "cache" })
-                                    .then((snapshotDocumentos) => {
-                                        updateProgress()
-                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
-                                    })
-
-                                    // Remove da rota atual (se tiver matriculado)
-                                    remotedb.collection("municipios")
-                                    .doc(codCidade)
-                                    .collection(DB_TABLE_ROTA_ATENDE_ALUNO)
-                                    .where("ID_ALUNO", "==", a["ID"])
-                                    .get({ source: "cache" })
-                                    .then((snapshotDocumentos) => {
-                                        updateProgress()
-                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
-                                    })
+                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${a.ID}`).then(() => updateProgress()));
                                 })
 
-                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
-
                                 Promise.all(promiseArray)
-                                .then(() => {
+                                .then((res) => {
+                                    debugger
                                     successDialog(text = msgConclusao);
                                     dataTablesAlunos.rows('.selected').remove();
                                     dataTablesAlunos.draw();
@@ -220,14 +195,12 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
     ).then((result) => {
         let listaPromisePraRemover = []
         if (result.value) {
-            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", estadoAluno["ID"]));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
-            listaPromisePraRemover.push(dbAtualizaVersao());
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${estadoAluno.ID}`));
         }
 
         return Promise.all(listaPromisePraRemover)
     }).then((res) => {
+        debugger
         if (res.length > 0) {
             dataTablesAlunos.row($tr).remove();
             dataTablesAlunos.draw();
@@ -242,7 +215,7 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
 });
 
 
-restImpl.dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
+restImpl.dbGETColecao(DB_TABLE_ALUNO)
 .then(res => preprocessarAlunos(res))
 // .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
 // .then(res => preprocessarEscolasTemAlunos(res))
