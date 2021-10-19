@@ -245,12 +245,18 @@ function preencheRelacoes() {
     dashPromises.push(dbBuscarTodosDadosNoServidorPromise(DB_TABLE_REALTIME_VIAGENSPERCURSO).then((res) => {
         let dataDeHoje = new Date().toISOString().split("T")[0];
         for (let viagemPercurso of res) {
-            let dataViagem = viagemPercurso.DATA_INICIO.split("T")[0];
+            if (viagemPercurso.DATA_INICIO) {
+                try {
+                    let dataViagem = viagemPercurso.DATA_INICIO.split("T")[0];
 
-            if (dataViagem == dataDeHoje) {
-                if (viagemPercurso.TIPO_VEICULO && viagemPercurso.COORDENADAS &&
-                    viagemPercurso.NOME_ROTA && viagemPercurso.NOME_MOTORISTA) {
-                    hashMapRealTimePercurso.set(viagemPercurso.ID, viagemPercurso);
+                    if (dataViagem == dataDeHoje) {
+                        if (viagemPercurso.TIPO_VEICULO && viagemPercurso.COORDENADAS &&
+                            viagemPercurso.NOME_ROTA && viagemPercurso.NOME_MOTORISTA) {
+                            hashMapRealTimePercurso.set(viagemPercurso.ID, viagemPercurso);
+                        }
+                    }
+                } catch (err) {
+                    console.error("ERROR", err)
                 }
             }
         }
