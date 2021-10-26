@@ -94,8 +94,9 @@ var parseAlunoREST = function (alunoRaw) {
 // Transformar linha do DB para JSON
 var parseAlunoDB = function (alunoRaw) {
     var alunoJSON = Object.assign({}, alunoRaw);
-    alunoJSON["ESCOLA"] = "Sem escola cadastrada";
-    alunoJSON["ROTA"] = "Sem rota cadastrada";
+    if (!alunoJSON["escola"]) alunoJSON["ESCOLA"] = "Sem escola cadastrada";
+    if (!alunoJSON["rota"]) alunoJSON["ROTA"] = "Sem rota cadastrada";
+    
     alunoJSON["ID_ESCOLA"] = 0;
 
     if (alunoJSON["da_porteira"] == "S") alunoJSON["DA_PORTEIRA"] = true;

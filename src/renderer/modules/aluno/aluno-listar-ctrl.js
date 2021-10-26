@@ -193,14 +193,13 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
         "Ao remover esse aluno ele será retirado do sistema das rotas " +
         "e das escolas que possuir vínculo."
     ).then((result) => {
-        let listaPromisePraRemover = []
+        let listaPromisePraRemover = [];
         if (result.value) {
             listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${estadoAluno.ID}`));
         }
 
         return Promise.all(listaPromisePraRemover)
     }).then((res) => {
-        debugger
         if (res.length > 0) {
             dataTablesAlunos.row($tr).remove();
             dataTablesAlunos.draw();

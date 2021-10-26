@@ -91,10 +91,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
                 ).then((result) => {
                     let listaPromisePraRemover = []
                     if (result.value) {
-                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", aluno["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", aluno["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", aluno["ID"]));
-                        listaPromisePraRemover.push(dbAtualizaVersao());
+                        listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${estadoAluno.ID}`));
                     }
 
                     return Promise.all(listaPromisePraRemover)

@@ -325,3 +325,14 @@ i.tab-icon {
     padding-left: 20px;
     padding-top: 12px;
 }
+
+.btn-custom-popup {
+    border: 0px;
+    vertical-align: top;
+    margin-left: 1em;
+}
+
+.btn-custom-popup .fa {
+    font-size: 1.5em;
+    vertical-align: middle;
+}
