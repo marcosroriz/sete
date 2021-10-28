@@ -72,6 +72,11 @@ var parseEscolaREST = function (escolaRaw) {
     // Fixa o ID
     escolaJSON["ID"] = escolaJSON["id_escola"];
 
+    // Fixa num de alunos
+    if (escolaJSON["qtd_alunos"]) {
+        escolaJSON["NUM_ALUNOS"] = escolaJSON["qtd_alunos"];
+    }
+
     return parseEscolaDB(escolaJSON);
 };
 
@@ -139,8 +144,9 @@ var parseEscolaDB = function (escolaRaw) {
     if (escolaRaw["MEC_IN_PROFISSIONALIZANTE"]) regimeEnsino.push("Profissionalizante");
     escolaJSON["REGIME"] = regimeEnsino.join(", ");
 
-
-    escolaJSON["NUM_ALUNOS"] = 0;
+    if (!escolaJSON["NUM_ALUNOS"]) {
+        escolaJSON["NUM_ALUNOS"] = 0;
+    }
 
     return escolaJSON;
 };

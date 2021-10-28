@@ -234,10 +234,12 @@ dataTableEscolas.on('click', '.escolaRemove', function () {
 });
 
 
-dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
+restImpl.dbGETColecao(DB_TABLE_ESCOLA)
 .then(res => preprocessarEscolas(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS))
-.then((res) => preprocessarRelacaoEscolaAluno(res))
+// dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
+// .then(res => preprocessarEscolas(res))
+// .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS))
+// .then((res) => preprocessarRelacaoEscolaAluno(res))
 .then((res) => adicionaDadosTabela(res))
 .catch((err) => errorFn("Erro ao listar as escolas!", err))
 
@@ -245,8 +247,7 @@ dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
 var preprocessarEscolas = (res) => {
     $("#totalNumEscolas").text(res.length);
     for (let escolaRaw of res) {
-        let escolaJSON = parseEscolaDB(escolaRaw);
-        escolaJSON["NUM_ALUNOS"] = 0;
+        let escolaJSON = parseEscolaREST(escolaRaw);
         listaDeEscolas.set(escolaJSON["ID"], escolaJSON);
     }
     return listaDeEscolas;
