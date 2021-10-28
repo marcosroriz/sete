@@ -1,36 +1,48 @@
 function GetEscolaFromForm() {
-    return {
-        "LOC_LATITUDE": $("#reglat").val(), // real
-        "LOC_LONGITUDE": $("#reglon").val(), // real
-        "MEC_CO_UF": parseInt($("#regestado").val()), // int
-        "MEC_CO_MUNICIPIO": parseInt($("#regcidade").val()), // int
-        "LOC_ENDERECO": $("#regend").val(), // string
-        "LOC_CEP": $("#regcep").val(), // string
-        "MEC_TP_LOCALIZACAO": parseInt($("input[name='areaUrbana']:checked").val()), // int
-        "MEC_TP_LOCALIZACAO_DIFERENCIADA": parseInt($("input[name='locDif']:checked").val()), // int
-        "NOME": $("#nomeEscola").val(), // string
-        "MEC_NO_ENTIDADE": $("#nomeEscola").val(), // string
-        "CONTATO_RESPONSAVEL": $("#nomeContato").val(), // string
-        "CONTATO_TELEFONE": $("#telContato").val(), // string
-        "CONTATO_EMAIL": $("#emailContato").val(), // string
-        "MEC_TP_DEPENDENCIA": parseInt($("input[name='tipoDependencia']:checked").val()), // int
-        "MEC_IN_REGULAR": $("#temEnsinoRegular").is(":checked"), // bool
-        "MEC_IN_EJA": $("#temEnsinoEJA").is(":checked"), // bool
-        "MEC_IN_PROFISSIONALIZANTE": $("#temEnsinoProf").is(":checked"), // bool
-        "ENSINO_PRE_ESCOLA": $("#temEnsinoInfantil").is(":checked"), // bool
-        "ENSINO_FUNDAMENTAL": $("#temEnsinoFundamental").is(":checked"), // bool
-        "ENSINO_MEDIO": $("#temEnsinoMedio").is(":checked"), // bool
-        "ENSINO_SUPERIOR": $("#temEnsinoUniversitario").is(":checked"), // bool
-        "HORARIO_MATUTINO": $("#temHorarioManha").is(":checked"), // bool
-        "HORARIO_VESPERTINO": $("#temHorarioTarde").is(":checked"), // bool
-        "HORARIO_NOTURNO": $("#temHorarioNoite").is(":checked"), // bool
-    };
+    let data = {
+        "mec_co_uf": parseInt($("#regestado").val()), // int
+        "mec_co_municipio": parseInt($("#regcidade").val()), // int
+        "mec_tp_localizacao": parseInt($("input[name='areaUrbana']:checked").val()), // int
+        "mec_tp_localizacao_diferenciada": parseInt($("input[name='locDif']:checked").val()), // int
+        "mec_no_entidade": $("#nomeEscola").val(), // string
+        "nome": $("#nomeEscola").val(), // string
+        
+        "horario_matutino": $("#temHorarioManha").is(":checked") ? "S" : "N", // str
+        "horario_vespertino": $("#temHorarioTarde").is(":checked") ? "S" : "N", // str
+        "horario_noturno": $("#temHorarioNoite").is(":checked") ? "S" : "N", // str
+
+        "mec_tp_dependencia": parseInt($("input[name='tipoDependencia']:checked").val()), // int
+        "mec_in_regular": $("#temEnsinoRegular").is(":checked") ? "S" : "N", // str
+        "mec_in_eja": $("#temEnsinoEJA").is(":checked") ? "S" : "N", // str
+        "mec_in_profissionalizante": $("#temEnsinoProf").is(":checked") ? "S" : "N", // str
+        "mec_in_especial_exclusiva": $("#temEnsinoEspecial").is(":checked") ? "S" : "N", // str
+
+        "ensino_pre_escola": $("#temEnsinoInfantil").is(":checked") ? "S" : "N", // str
+        "ensino_fundamental": $("#temEnsinoFundamental").is(":checked") ? "S" : "N", // str
+        "ensino_medio": $("#temEnsinoMedio").is(":checked") ? "S" : "N", // str
+        "ensino_superior": $("#temEnsinoUniversitario").is(":checked") ? "S" : "N", // str
+    }
+
+    if ($("#reglat").val()) data["loc_latitude"] = $("#reglat").val();
+    if ($("#reglon").val()) data["loc_longitude"] = $("#reglon").val();
+    if ($("#regend").val()) data["loc_endereco"] = $("#regend").val();
+    if ($("#regcep").val()) data["loc_cep"] = $("#regcep").val();
+
+    if ($("#inepEscola").val()) data["mec_co_entidade"] = parseInt($("#inepEscola").val());
+
+    if ($("#nomeContato").val() != "") data["contato_responsavel"] = $("#nomeContato").val();
+    if ($("#telContato").val() != "") data["contato_telefone"] = $("#telContato").val();
+    if ($("#emailContato").val() != "") data["contato_email"] = $("#emailContato").val();
+
+    return data;
 }
 
 function PopulateEscolaFromState(estadoEscolaJSON) {
     $(".pageTitle").html("Atualizar Escola");
-    $("#reglat").val(estadoEscolaJSON["LOC_LATITUDE"]);
-    $("#reglon").val(estadoEscolaJSON["LOC_LONGITUDE"]);
+    
+    if (estadoEscolaJSON["LOC_LATITUDE"]) $("#reglat").val(estadoEscolaJSON["LOC_LATITUDE"]);
+    if (estadoEscolaJSON["LOC_LONGITUDE"]) $("#reglon").val(estadoEscolaJSON["LOC_LONGITUDE"]);
+    
     $("#regestado").val(estadoEscolaJSON["MEC_CO_UF"]);
     $("#regestado").trigger("change");
     $("#regcidade").val(estadoEscolaJSON["MEC_CO_MUNICIPIO"]);
@@ -49,10 +61,13 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#temEnsinoRegular").prop("checked", estadoEscolaJSON["MEC_IN_REGULAR"]);
     $("#temEnsinoEJA").prop("checked", estadoEscolaJSON["MEC_IN_EJA"]);
     $("#temEnsinoProf").prop("checked", estadoEscolaJSON["MEC_IN_PROFISSIONALIZANTE"]);
+    $("#temEnsinoEspecial").prop("checked", estadoEscolaJSON["MEC_IN_ESPECIAL_EXCLUSIVA"]);
+    
+    $("#temEnsinoInfantil").prop("checked", estadoEscolaJSON["ENSINO_PRE_ESCOLA"]);
     $("#temEnsinoFundamental").prop("checked", estadoEscolaJSON["ENSINO_FUNDAMENTAL"]);
-    $("#temEnsinoFundamental").prop("checked", estadoEscolaJSON["ENSINO_PRE_ESCOLA"]);
     $("#temEnsinoMedio").prop("checked", estadoEscolaJSON["ENSINO_MEDIO"]);
-    $("#temEnsinoUniversitario").prop("checked", estadoEscolaJSON["MEC_IN_PROFIENSINO_SUPERIORSSIONALIZANTE"]);
+    $("#temEnsinoUniversitario").prop("checked", estadoEscolaJSON["ENSINO_SUPERIOR"]);
+    
     $("#temHorarioManha").prop("checked", estadoEscolaJSON["HORARIO_MATUTINO"]);
     $("#temHorarioTarde").prop("checked", estadoEscolaJSON["HORARIO_VESPERTINO"]);
     $("#temHorarioNoite").prop("checked", estadoEscolaJSON["HORARIO_NOTURNO"]);
@@ -121,17 +136,29 @@ var parseEscolaDB = function (escolaRaw) {
             escolaJSON["DEPENDENCIA"] = "Municipal";
     }
 
+    let propParaTransformar = ["MEC_IN_REGULAR", "MEC_IN_EJA", "MEC_IN_PROFISSIONALIZANTE",  "MEC_IN_ESPECIAL_EXCLUSIVA",
+                               "ENSINO_FUNDAMENTAL", "ENSINO_PRE_ESCOLA", "ENSINO_MEDIO", "ENSINO_SUPERIOR", 
+                               "HORARIO_MATUTINO", "HORARIO_VESPERTINO", "HORARIO_NOTURNO"];
+
+    for (let prop of propParaTransformar) {
+        if (escolaJSON[prop] == "S") {
+            escolaJSON[prop.toUpperCase()] = true;
+        } else {
+            escolaJSON[prop.toUpperCase()] = false;
+        }
+    }
+
     var tipoEnsino = new Array();
-    if (escolaRaw["ENSINO_PRE_ESCOLA"]) tipoEnsino.push("Infantil")
-    if (escolaRaw["ENSINO_FUNDAMENTAL"]) tipoEnsino.push("Fundamental");
-    if (escolaRaw["ENSINO_MEDIO"]) tipoEnsino.push("Médio");
-    if (escolaRaw["ENSINO_SUPERIOR"]) tipoEnsino.push("Superior");
+    if (escolaJSON["ENSINO_PRE_ESCOLA"]) tipoEnsino.push("Infantil")
+    if (escolaJSON["ENSINO_FUNDAMENTAL"]) tipoEnsino.push("Fundamental");
+    if (escolaJSON["ENSINO_MEDIO"]) tipoEnsino.push("Médio");
+    if (escolaJSON["ENSINO_SUPERIOR"]) tipoEnsino.push("Superior");
     escolaJSON["ENSINO"] = tipoEnsino.join(", ");
 
     var horarioEnsino = new Array();
-    if (escolaRaw["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
-    if (escolaRaw["HORARIO_VESPERTINO"]) horarioEnsino.push("Tarde");
-    if (escolaRaw["HORARIO_NOTURNO"]) horarioEnsino.push("Noite");
+    if (escolaJSON["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
+    if (escolaJSON["HORARIO_VESPERTINO"]) horarioEnsino.push("Tarde");
+    if (escolaJSON["HORARIO_NOTURNO"]) horarioEnsino.push("Noite");
 
     if (horarioEnsino != 0)
         escolaJSON["HORARIO"] = horarioEnsino.join(", ");
@@ -139,9 +166,9 @@ var parseEscolaDB = function (escolaRaw) {
         escolaJSON["HORARIO"] = "Não informado"
 
     var regimeEnsino = new Array();
-    if (escolaRaw["MEC_IN_REGULAR"]) regimeEnsino.push("Regular");
-    if (escolaRaw["MEC_IN_EJA"]) regimeEnsino.push("EJA");
-    if (escolaRaw["MEC_IN_PROFISSIONALIZANTE"]) regimeEnsino.push("Profissionalizante");
+    if (escolaJSON["MEC_IN_REGULAR"]) regimeEnsino.push("Regular");
+    if (escolaJSON["MEC_IN_EJA"]) regimeEnsino.push("EJA");
+    if (escolaJSON["MEC_IN_PROFISSIONALIZANTE"]) regimeEnsino.push("Profissionalizante");
     escolaJSON["REGIME"] = regimeEnsino.join(", ");
 
     if (!escolaJSON["NUM_ALUNOS"]) {

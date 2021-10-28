@@ -79,7 +79,7 @@ var dataTableEscolas = $("#datatables").DataTable({
                                 })
 
                                 var progresso = 0;
-                                var max = rawDados.length * 3 + 1;
+                                var max = rawDados.length;
 
                                 function updateProgress() {
                                     progresso++;
@@ -91,34 +91,11 @@ var dataTableEscolas = $("#datatables").DataTable({
                                 var promiseArray = new Array();
 
                                 rawDados.forEach(escola => {
-                                    promiseArray.push(dbRemoverDadoPorIDPromise(DB_TABLE_ESCOLA, "ID_ESCOLA", escola["ID"])
+                                    promiseArray.push(
+                                        restImpl.dbDELETE(DB_TABLE_ESCOLA, `/${escola.ID}`)
                                         .then(() => updateProgress())
                                     );
-
-                                    // Remove o vínculo com os alunos
-                                    remotedb.collection("municipios")
-                                    .doc(codCidade)
-                                    .collection(DB_TABLE_ESCOLA_TEM_ALUNOS)
-                                    .where("ID_ESCOLA", "==", escola["ID"])
-                                    .get({ source: "cache" })
-                                    .then((snapshotDocumentos) => {
-                                        updateProgress()
-                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
-                                    })
-
-                                    // Remove a escola das rotas
-                                    remotedb.collection("municipios")
-                                    .doc(codCidade)
-                                    .collection(DB_TABLE_ROTA_PASSA_POR_ESCOLA)
-                                    .where("ID_ESCOLA", "==", escola["ID"])
-                                    .get({ source: "cache" })
-                                    .then((snapshotDocumentos) => {
-                                        updateProgress()
-                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
-                                    })
                                 })
-
-                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
 
                                 Promise.all(promiseArray)
                                 .then(() => {
@@ -210,12 +187,9 @@ dataTableEscolas.on('click', '.escolaRemove', function () {
                   "Ao remover uma escola os alunos remanescentes da mesma " + 
                   "deverão ser alocados novamente a outra(s) escola(s)."
     ).then((result) => {
-        let listaPromisePraRemover = []
+        let listaPromisePraRemover = [];
         if (result.value) {
-            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ESCOLA, "ID_ESCOLA", estadoEscola["ID"]));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", estadoEscola["ID"]));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", estadoEscola["ID"]));
-            listaPromisePraRemover.push(dbAtualizaVersao());
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ESCOLA, `/${estadoEscola.ID}`));
         }
 
         return Promise.all(listaPromisePraRemover)

@@ -197,7 +197,7 @@ function dtInitFiltros(dt, colunas) {
             } else {
                 select.on('change', function (evt) {
                     var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                    column.search(val ? val + '$' : '', true, false).draw();
+                    column.search(val ? val + '$' : '', true, true).draw();
                 });
 
                 column.data().unique().sort().each(function (d, j) {
