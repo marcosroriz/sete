@@ -65,24 +65,24 @@ window.onresize = function () {
     }, 200);
 }
 
-dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
+
+restImpl.dbGETColecao(DB_TABLE_ESCOLA)
     .then(res => processarEscolas(res))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
-    .then(res => preprocessarAlunos(res))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS))
-    .then((res) => preprocessarRelacaoEscolaAluno(res))
+    // .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
+    // .then(res => preprocessarAlunos(res))
+    // .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS))
+    // .then((res) => preprocessarRelacaoEscolaAluno(res))
     .then((res) => adicionaDadosMapa(res))
 
 
 // Processa escolas
 var processarEscolas = (res) => {
-    res.sort((a, b) => a["NOME"].localeCompare(b["NOME"]))
+    res.sort((a, b) => a["nome"].localeCompare(b["nome"]))
 
     for (let escolaRaw of res) {
-        let escolaJSON = parseEscolaDB(escolaRaw);
+        let escolaJSON = parseEscolaREST(escolaRaw);
         let escolaID = escolaJSON["ID"];
         escolaJSON["ID_ESCOLA"] = escolaID;
-        escolaJSON["NUM_ALUNOS"] = 0;
         escolaJSON["ALUNOS"] = [];
         hashMapEscolas.set(escolaID, escolaJSON);
     }
@@ -157,12 +157,66 @@ adicionaDadosMapa = (res) => {
 // Select para lidar com click nas escolas
 var selectEscola = selectPonto("ESCOLA");
 
+// Botão de editar e remover escola
+var btnEditar;
+var btnRemover;
+
+// Rotina para editar escola (verifica se usuário tem ctz antes)
+function editarEscola(escolaID) {
+    return goaheadDialog('Editar essa escola?',
+        "Gostaria de editar os dados desta escola?",
+    ).then((result) => {
+        Swal2.close();
+        if (result.value) {
+            estadoEscola = hashMapEscolas.get(escolaID);
+            action = "editarEscola";
+            navigateDashboard("./modules/escola/escola-cadastrar-view.html");
+        }
+    })
+}
+// Rotina para remover escola (verifica se usuário tem ctz antes)
+function removerEscola(escolaID) {
+    return confirmDialog('Remover essa escola?',
+        "Ao remover esse escola, ela será retirada do sistema das rotas e os alunos perderão o vínculo com a mesma no sistema."
+    ).then((result) => {
+        let listaPromisePraRemover = [];
+        if (result.value) {
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ESCOLA, `/${escolaID}`));
+        }
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Escola removida com sucesso!",
+                confirmButtonText: 'Recarregar o mapa'
+            }).then(() => navigateDashboard("./modules/escola/escola-visualizar-view.html"));
+        }
+    }).catch((err) => errorFn("Erro ao remover a escola", err))
+}
+
 // Popup escola
 mapaViz["map"].addInteraction(selectEscola);
 var popupEscola = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectEscola,
     closeBox: true,
+    onshow: () => {
+        let eID = selectEscola.features_["array_"][0].get("ID");
+        btnEditar = $('<a href="#" id="btnEditar" class="btn btn-custom-popup btn-warning"><i class="fa fa-edit"></i></a>');
+        btnEditar.on('click', () => editarEscola(eID));
+        $(".ol-popupfeature").append(btnEditar)
+
+        btnRemover = $('<a href="#" id="btnRemover" class="btn btn-custom-popup btn-danger"><i class="fa fa-trash"></i></a>');
+        btnRemover.on('click', () => removerEscola(eID));
+        $(".ol-popupfeature").append(btnRemover)
+    },
+    onclose: () => {
+        $("#btnEditar").remove();
+        $("#btnRemover").remove();
+    },
+
     template: {
         title: (elem) => {
             return elem.get("NOME");
@@ -171,14 +225,8 @@ var popupEscola = new ol.Overlay.PopupFeature({
             'HORARIO': {
                 title: 'Horário de Func.'
             },
-            'CONTATO_TELEFONE': {
-                title: "Telefone"
-            },
             'ENSINO': {
                 title: 'Ensino'
-            },
-            'REGIME': {
-                title: 'Regime'
             },
             'NUM_ALUNOS': {
                 title: 'Número de alunos'
@@ -190,15 +238,26 @@ var popupEscola = new ol.Overlay.PopupFeature({
 // Adiciona no mapa
 mapaViz["map"].addOverlay(popupEscola);
 
-$("#escolaViz").on('change', (e) => {
+$("#escolaViz").on('change', async (e) => {
     var eID = e.target.value;
 
     if (eID != "0" && eID != 0) {
+        eID = Number(eID)
         if (escolas.has(eID)) {
             vSource.clear();
 
             let escolaJSON = hashMapEscolas.get(eID);
             let alunos = escolaJSON["ALUNOS"];
+
+            if (alunos.length == 0) {
+                let listaDeAlunosRaw = await restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${eID}/alunos`);
+                for (let alunoRaw of listaDeAlunosRaw.data) {
+                    let alunoJSON = parseAlunoREST(alunoRaw);
+                    escolaJSON["ALUNOS"].push(alunoJSON);
+                    console.log(alunoJSON)
+                }
+                hashMapEscolas.set(eID, escolaJSON);
+            }
 
             plotarBuffer(escolaJSON);
 
@@ -207,8 +266,11 @@ $("#escolaViz").on('change', (e) => {
             }
 
             plotarEscola(escolaJSON);
-            let coordenadasEscola = escolas.get(eID)
-            mapaViz["map"].getView().setCenter(ol.proj.fromLonLat(coordenadasEscola))
+
+            mapaViz["map"].getView().fit(vSource.getExtent(), {
+                padding: [40, 40, 40, 40]
+            });
+            mapaViz["map"].updateSize();
         } else {
             errorFn("Esta escola ainda não foi georeferenciada")
         }
@@ -216,8 +278,8 @@ $("#escolaViz").on('change', (e) => {
         // Limpando dados do mapa
         vSource.clear();
 
-        let escolaArray = [...hashMapEscolas.values()];
-        for (let escolaJSON of escolaArray) {
+        for (let eKey of escolas.keys()) {
+            let escolaJSON = hashMapEscolas.get(eKey);
             plotarEscola(escolaJSON);
         }
 
@@ -249,12 +311,6 @@ var popupAluno = new ol.Overlay.PopupFeature({
             'SEXO': {
                 title: 'Sexo'
             },
-            'DATA_NASCIMENTO': {
-                title: 'Data de Nascimento'
-            },
-            'ESCOLA': {
-                title: 'Escola'
-            },
             'NIVELSTR': {
                 title: 'Nível'
             },
@@ -268,45 +324,52 @@ mapaViz["map"].addOverlay(popupAluno);
 
 // Cria feature de uma escola
 var plotarEscola = (escolaJSON) => {
-    let escolaID = escolaJSON["ID_ESCOLA"];
-    let lat = escolaJSON["LOC_LATITUDE"];
-    let lng = escolaJSON["LOC_LONGITUDE"];
+    if (escolaJSON["LOC_LONGITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != undefined &&
+        escolaJSON["LOC_LATITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != undefined) {
+        let escolaID = escolaJSON["ID_ESCOLA"] || escolaJSON["ID"];
+        let lat = escolaJSON["LOC_LATITUDE"];
+        let lng = escolaJSON["LOC_LONGITUDE"];
+        console.log(escolaID, lat, lng)
 
-    posicaoEscola = gerarMarcador(lat, lng, "img/icones/escola-marcador.png", 25, 50);
-    posicaoEscola.set("NOME", escolaJSON["NOME"]);
-    posicaoEscola.set("TIPO", "ESCOLA");
-    posicaoEscola.set("HORARIO", escolaJSON["HORARIO"]);
-    posicaoEscola.set("ENSINO", escolaJSON["ENSINO"]);
-    posicaoEscola.set("REGIME", escolaJSON["REGIME"]);
-    posicaoEscola.set("ENSINO", escolaJSON["ENSINO"])
-    posicaoEscola.set("NUM_ALUNOS", escolaJSON["NUM_ALUNOS"]);
-    posicaoEscola.set("CONTATO_TELEFONE", escolaJSON["CONTATO_TELEFONE"]);
+        posicaoEscola = gerarMarcador(lat, lng, "img/icones/escola-marcador.png", 25, 50);
+        posicaoEscola.set("ID", escolaID);
+        posicaoEscola.set("NOME", escolaJSON["NOME"]);
+        posicaoEscola.set("TIPO", "ESCOLA");
+        posicaoEscola.set("HORARIO", escolaJSON["HORARIO"]);
+        posicaoEscola.set("ENSINO", escolaJSON["ENSINO"]);
+        posicaoEscola.set("REGIME", escolaJSON["REGIME"]);
+        posicaoEscola.set("ENSINO", escolaJSON["ENSINO"])
+        posicaoEscola.set("NUM_ALUNOS", escolaJSON["NUM_ALUNOS"]);
+        posicaoEscola.set("CONTATO_TELEFONE", escolaJSON["CONTATO_TELEFONE"]);
 
-    vSource.addFeature(posicaoEscola);
-    escolas.set(escolaID, [lng, lat]);
+        vSource.addFeature(posicaoEscola);
+        escolas.set(escolaID, [lng, lat]);
+    }
 }
 
 // Cria feature de um aluno
 var plotarAluno = (aluno) => {
-    let alat = aluno["LOC_LATITUDE"];
-    let alng = aluno["LOC_LONGITUDE"];
-    let p = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
+    if (aluno["LOC_LONGITUDE"] != "" && aluno["LOC_LONGITUDE"] != undefined &&
+        aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != undefined) {
+        let alat = aluno["LOC_LATITUDE"];
+        let alng = aluno["LOC_LONGITUDE"];
+        let p = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
 
-    p.setId(aluno["ID_ALUNO"]);
-    p.set("NOME", aluno["NOME"]);
-    p.set("DATA_NASCIMENTO", aluno["DATA_NASCIMENTO"]);
-    p.set("ESCOLA", aluno["ESCOLA"]);
-    p.set("TURNOSTR", aluno["TURNOSTR"]);
-    p.set("NIVELSTR", aluno["NIVELSTR"]);
-    p.set("TIPO", "ALUNO");
+        p.setId(aluno["ID_ALUNO"]);
+        p.set("NOME", aluno["NOME"]);
+        p.set("ESCOLA", aluno["ESCOLA"]);
+        p.set("TURNOSTR", aluno["TURNOSTR"]);
+        p.set("NIVELSTR", aluno["NIVELSTR"]);
+        p.set("TIPO", "ALUNO");
 
-    if (aluno["SEXO"] == 1) {
-        p.set("SEXO", "Masculino");
-    } else {
-        p.set("SEXO", "Feminino");
+        if (aluno["SEXO"] == 1) {
+            p.set("SEXO", "Masculino");
+        } else {
+            p.set("SEXO", "Feminino");
+        }
+
+        vSource.addFeature(p);
     }
-
-    vSource.addFeature(p);
 }
 
 // Buffer
