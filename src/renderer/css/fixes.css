@@ -418,6 +418,21 @@ img#pageIcon {
     height: 40px;
 }
 
+.input-group-prepend {
+    background-color: #E3E3E3;
+    color: #9c9c9c;
+    padding: 8px 12px;
+    height: 40px;
+    box-shadow: none;
+    border-radius: 4px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    transition: all 300ms linear;
+    border-bottom-color: #E3E3E3;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+}
+
 .input-group-append {
     background-color: #E3E3E3;
     color: #9c9c9c;

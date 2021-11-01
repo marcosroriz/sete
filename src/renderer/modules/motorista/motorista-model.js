@@ -1,24 +1,31 @@
 function GetMotoristaFromForm() {
-    return {
-        "NOME": $("#regnome").val(), // string
-        "CPF": $("#regcpf").val(), // string
-        "DATA_NASCIMENTO": $("#regdata").val(), // string
-        "TELEFONE": $("#regtelresp").val(), // string
-        "SEXO": $("input[name='modoSexo']:checked").val(), // int
-        "ANT_CRIMINAIS": $("#regantecedentes").val(), // int
-        
-        "CNH": $("#regcnh").val(), // number
-        "DATA_VALIDADE_CNH": $("#regcnhvalidade").val(),
-
-        "TEM_CNH_A": $("#cnhA").is(":checked"), // bool
-        "TEM_CNH_B": $("#cnhB").is(":checked"), // bool
-        "TEM_CNH_C": $("#cnhC").is(":checked"), // bool
-        "TEM_CNH_D": $("#cnhD").is(":checked"), // bool
-        "TEM_CNH_E": $("#cnhE").is(":checked"), // bool
-        "TURNO_MANHA": $("#temHorarioManha").is(":checked"), // bool
-        "TURNO_TARDE": $("#temHorarioTarde").is(":checked"), // bool
-        "TURNO_NOITE": $("#temHorarioNoite").is(":checked"), // bool
+    let data = {
+        "nome": $("#regnome").val(), // string
+        "cpf": String($("#regcpf").val()).replace(/\D/g, ''), // string
+        "data_nascimento": $("#regdata").val(), // string
+        "sexo": Number($("input[name='modoSexo']:checked").val()), // int       
+        "cnh": $("#regcnh").val(), // number
+        "tem_cnh_a": $("#cnhA").is(":checked") ? "S" : "N", // str
+        "tem_cnh_b": $("#cnhB").is(":checked") ? "S" : "N", // str
+        "tem_cnh_c": $("#cnhC").is(":checked") ? "S" : "N", // str
+        "tem_cnh_d": $("#cnhD").is(":checked") ? "S" : "N", // str
+        "tem_cnh_e": $("#cnhE").is(":checked") ? "S" : "N", // str
+        "turno_manha": $("#temHorarioManha").is(":checked") ? "S" : "N", // str
+        "turno_tarde": $("#temHorarioTarde").is(":checked") ? "S" : "N", // str
+        "turno_noite": $("#temHorarioNoite").is(":checked") ? "S" : "N", // str
     }
+ 
+    // if ($("input[name='vinculo']:checked").length > 0) {
+    //     data["vinculo"] = Number($("input[name='vinculo']:checked").val()) // int
+    // }
+
+    // if ($("#regsalario").val() != "") data["salario"] = $("#regsalario").val();
+    // if ($("#regtelresp").val() != "") data["telefone"] = $("#regtelresp").val();
+    // if ($("#regcnhvalidade").val() != "") data["data_validade_cnh"] = $("#regcnhvalidade").val();
+    // if ($("#regantecedentes").val() != "") data["ant_criminais"] = $("#regantecedentes").val();
+
+    debugger
+    return data;
 }
 
 function PopulateMotoristaFromState(estadoMotoristaJSON) {
@@ -26,13 +33,28 @@ function PopulateMotoristaFromState(estadoMotoristaJSON) {
     $("#regnome").val(estadoMotoristaJSON["NOME"]);
     $("#regcpf").val(estadoMotoristaJSON["CPF"]);
     $("#regdata").val(estadoMotoristaJSON["DATA_NASCIMENTO"]);
-    $("#regtelresp").val(estadoMotoristaJSON["TELEFONE"]);
     $("input[name='modoSexo']").val([estadoMotoristaJSON["SEXO"]]);
-    $("#regantecedentes").val(estadoMotoristaJSON["ANT_CRIMINAIS"]);
-
     $("#regcnh").val(estadoMotoristaJSON["CNH"]);
+
     if (estadoMotoristaJSON["DATA_VALIDADE_CNH"]) {
         $("#regcnhvalidade").val(estadoMotoristaJSON["DATA_VALIDADE_CNH"]);
+    }
+
+    if (estadoMotoristaJSON["TELEFONE"]) {
+        $("#regtelresp").val(estadoMotoristaJSON["TELEFONE"]);
+    }
+
+
+    if (estadoMotoristaJSON["SALARIO"]) {
+        $("#regsalario").val(estadoMotoristaJSON["SALARIO"]);
+    }
+
+    if (estadoMotoristaJSON["ANT_CRIMINAIS"]) {
+        $("#regantecedentes").val(estadoMotoristaJSON["ANT_CRIMINAIS"]);
+    }
+
+    if (estadoMotoristaJSON["VINCULO"]) {
+        $("input[name='vinculo']").val([estadoMotoristaJSON["VINCULO"]]);
     }
 
     $("#cnhA").prop("checked", estadoMotoristaJSON["TEM_CNH_A"]);
