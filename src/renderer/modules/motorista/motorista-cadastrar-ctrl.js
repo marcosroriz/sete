@@ -14,6 +14,7 @@ $(".cpfmask").mask('000.000.000-00', { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".datanasc").mask('00/00/0000');
 $('.cnh').mask('000000000-00', { reverse: true });
+$('.money').mask('#.##0,00', {reverse: true});
 
 var validadorFormulario = $("#wizardCadastrarMotoristaForm").validate({
     // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
