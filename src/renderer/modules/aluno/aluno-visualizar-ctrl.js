@@ -44,7 +44,7 @@ function editarAluno(alunoID) {
 // Rotina para remover aluno (verifica se usuário tem ctz antes)
 function removerAluno(alunoID) {
     return confirmDialog('Remover esse aluno?',
-        "Ao remover esse aluno ele será retirado do sistema das rotas e das escolas que possuir vínculo."
+        "Ao remover esse aluno, ele será retirado do sistema das rotas e das escolas que possuir vínculo."
     ).then((result) => {
         let listaPromisePraRemover = [];
         if (result.value) {
@@ -61,7 +61,6 @@ function removerAluno(alunoID) {
             }).then(() => navigateDashboard("./modules/aluno/aluno-visualizar-view.html"));
         }
     }).catch((err) => errorFn("Erro ao remover o(a) aluno(a)", err))
-
 }
 
 // Popup aluno
