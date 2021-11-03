@@ -13,6 +13,7 @@ $('.cep').mask('00000-000');
 $(".cpfmask").mask('000.000.000-00', { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".datanasc").mask('00/00/0000');
+$(".datavalida").mask('00/00/0000');
 $('.cnh').mask('000000000-00', { reverse: true });
 $('.money').mask('#.##0,00', {reverse: true});
 
@@ -40,10 +41,9 @@ var validadorFormulario = $("#wizardCadastrarMotoristaForm").validate({
                 required: true,
                 cnh: true
             },
-            regcnhvalidade: {
-                required: false,
-                datanasc: true
-            },
+            // regcnhvalidade: {
+            //     datavalida: true,
+            // },
             'habilitado[]': {
                 required: true,
                 minlength: 1
@@ -104,7 +104,7 @@ var completeForm = () => {
     });
 }
 
-$("#salvarmotorista").on('click', () => {
+$("#salvarmotorista").on('click', async () => {
     $("[name='regcnh']").valid();
     $("[name='habilitado[]']").valid();
     $("[name='temHorario[]']").valid();
@@ -116,42 +116,53 @@ $("#salvarmotorista").on('click', () => {
         return false;
     } else {
         // Verifica se já existe um motoriosta com o dado CPF
-        let cpf = $("#regcpf").val();
+        let cpf = motoristaJSON["cpf"];
 
-        dbBuscarDadosEspecificosPromise(DB_TABLE_MOTORISTA, "CPF", cpf)
-        .then((res) => {
-            if (!estaEditando && res.length != 0) {
-                errorFn("Já existe um motorista com o CPF indicado. " +
-                        "Por favor digite outro CPF ou exclua este motorista primeiro.",
-                        '', "Ops... CPF duplicado")
-            } else {
-                if ($("#regdocpessoaispdf")[0].files.length != 0) {
-                    var oriFile = $("#regdocpessoaispdf")[0].files[0].path;
-                    var dstFile = path.join(userDataDir, $("#regcpf").val() + ".pdf");
-                    motoristaJSON["ARQUIVO_DOCPESSOAIS_ANEXO"] = dstFile;
+        debugger
+        loadingFn("Cadastrando o motorista ...");
+        let existeCPF = false;
+        try {
+            let res = await restImpl.dbGETEntidade(DB_TABLE_MOTORISTA, `/${cpf}`);
+            debugger
+            existeCPF = true;
+            console.log(res);
+        } catch (err) {
+            debugger
+            existeCPF = false;
+            console.log(err);
+        }
         
-                    fs.copySync(oriFile, dstFile);
-                    console.log("Salvando arquivo do motorista", dstFile);
-                }
 
-                if (estaEditando) {
-                    loadingFn("Editando o motorista ...")
-
-                    let idMotorista = estadoMotorista["ID"];
-                    dbAtualizarPromise(DB_TABLE_MOTORISTA, motoristaJSON, idMotorista)
-                    .then(() => dbAtualizaVersao())
-                    .then(() => completeForm())
-                    .catch((err) => errorFn("Erro ao atualizar o motorista.", err))
-                } else {
-                    loadingFn("Cadastrando o motorista ...")
-                    
-                    dbInserirPromise(DB_TABLE_MOTORISTA, motoristaJSON)
-                    .then(() => dbAtualizaVersao())
-                    .then(() => completeForm())
-                    .catch((err) => errorFn("Erro ao salvar o motorista.", err))
-                }
+        if (existeCPF && !estaEditando) {
+            errorFn("Já existe um motorista com o CPF indicado. " +
+                    "Por favor digite outro CPF ou exclua este motorista primeiro.",
+                    '', "Ops... CPF duplicado")
+        } else {
+            if ($("#regdocpessoaispdf")[0].files.length != 0) {
+                var oriFile = $("#regdocpessoaispdf")[0].files[0].path;
+                var dstFile = path.join(userDataDir, $("#regcpf").val() + ".pdf");
+                motoristaJSON["ARQUIVO_DOCPESSOAIS_ANEXO"] = dstFile;
+    
+                fs.copySync(oriFile, dstFile);
+                console.log("Salvando arquivo do motorista", dstFile);
             }
-        })
+
+            if (estaEditando) {
+                loadingFn("Editando o motorista ...")
+
+                let idMotorista = estadoMotorista["ID"];
+                restImpl.dbPUT(DB_TABLE_MOTORISTA, "/" + idMotorista, escolaJSON)
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao atualizar o motorista.", err))
+            } else {
+                loadingFn("Cadastrando o motorista ...")
+                
+                restImpl.dbPOST(DB_TABLE_MOTORISTA, "", motoristaJSON)
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao salvar o motorista.", err))
+            }
+        }
+
     }
 });
 

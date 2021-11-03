@@ -21,10 +21,9 @@ function GetMotoristaFromForm() {
 
     // if ($("#regsalario").val() != "") data["salario"] = $("#regsalario").val();
     // if ($("#regtelresp").val() != "") data["telefone"] = $("#regtelresp").val();
-    // if ($("#regcnhvalidade").val() != "") data["data_validade_cnh"] = $("#regcnhvalidade").val();
+    if ($("#regcnhvalidade").val() != "") data["data_validade_cnh"] = $("#regcnhvalidade").val();
     // if ($("#regantecedentes").val() != "") data["ant_criminais"] = $("#regantecedentes").val();
 
-    debugger
     return data;
 }
 
@@ -67,31 +66,57 @@ function PopulateMotoristaFromState(estadoMotoristaJSON) {
     $("#temHorarioNoite").prop("checked", estadoMotoristaJSON["TURNO_NOITE"]);
 }
 
+// Transformar linha da API REST para JSON
+var parseMotoristaREST = function (motoristaRaw) {
+    let motoristaJSON = Object.assign({}, motoristaRaw);
+    // Arrumando campos novos para os que já usamos. 
+    // Atualmente os campos são em caixa alta (e.g. NOME ao invés de nome)
+    // Entretanto, a API está retornando valores em minúsculo
+    for (let attr of Object.keys(motoristaJSON)) {
+        motoristaJSON[attr.toUpperCase()] = motoristaJSON[attr];
+    }
+
+    // Fixa o ID
+    motoristaJSON["ID"] = motoristaJSON["cpf"];
+
+    return parseMotoristaDB(motoristaJSON);
+};
 
 // Transformar linha do DB para JSON
 var parseMotoristaDB = function (motoristaRaw) {
     var motoristaJSON = Object.assign({}, motoristaRaw);
     motoristaJSON["ROTAS"] = 0;
 
-    if (!motoristaRaw["DATA_VALIDADE_CNH"]) {
+    if (motoristaRaw["DATA_VALIDADE_CNH"] == "" || motoristaRaw["DATA_VALIDADE_CNH"] == null) {
         motoristaJSON["DATA_VALIDADE_CNH_STR"] = "Não informada";
     } else {
         motoristaJSON["DATA_VALIDADE_CNH_STR"] = motoristaRaw["DATA_VALIDADE_CNH"];
 
     }
 
+    let propParaTransformar = ["TEM_CNH_A", "TEM_CNH_B", "TEM_CNH_C", "TEM_CNH_D", "TEM_CNH_E", 
+                               "TURNO_MANHA", "TURNO_TARDE", "TURNO_NOITE"];
+
+    for (let prop of propParaTransformar) {
+        if (motoristaJSON[prop] == "S") {
+            motoristaJSON[prop.toUpperCase()] = true;
+        } else {
+            motoristaJSON[prop.toUpperCase()] = false;
+        }
+    }
+
     var categorias = new Array();
-    if (motoristaRaw["TEM_CNH_A"]) categorias.push("A");
-    if (motoristaRaw["TEM_CNH_B"]) categorias.push("B");
-    if (motoristaRaw["TEM_CNH_C"]) categorias.push("C");
-    if (motoristaRaw["TEM_CNH_D"]) categorias.push("D");
-    if (motoristaRaw["TEM_CNH_E"]) categorias.push("E");
+    if (motoristaJSON["TEM_CNH_A"]) categorias.push("A");
+    if (motoristaJSON["TEM_CNH_B"]) categorias.push("B");
+    if (motoristaJSON["TEM_CNH_C"]) categorias.push("C");
+    if (motoristaJSON["TEM_CNH_D"]) categorias.push("D");
+    if (motoristaJSON["TEM_CNH_E"]) categorias.push("E");
     motoristaJSON["CATEGORIAS"] = categorias.join(", ");
 
     var turno = new Array();
-    if (motoristaRaw["TURNO_MANHA"]) turno.push("Manhã");
-    if (motoristaRaw["TURNO_TARDE"]) turno.push("Tarde");
-    if (motoristaRaw["TURNO_NOITE"]) turno.push("Noite");
+    if (motoristaJSON["TURNO_MANHA"]) turno.push("Manhã");
+    if (motoristaJSON["TURNO_TARDE"]) turno.push("Tarde");
+    if (motoristaJSON["TURNO_NOITE"]) turno.push("Noite");
     motoristaJSON["TURNOSTR"] = turno.join(", ");
 
     return motoristaJSON;
