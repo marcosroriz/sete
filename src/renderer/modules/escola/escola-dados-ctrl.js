@@ -6,6 +6,7 @@
 // Variáveis que armazena a escola, seus alunos e rotas
 var alunosDaEscola = [];
 var rotasDaEscola = [];
+var hashMapAlunos = new Map();
 
 // Cria mapa na cidade atual
 var mapaDetalhe = novoMapaOpenLayers("mapDetalheEscola", cidadeLatitude, cidadeLongitude);
@@ -323,6 +324,7 @@ var plotarDadosNoMapa = () => {
     alunosDaEscola.forEach((aluno) => {
         if (aluno["LOC_LONGITUDE"] != "" && aluno["LOC_LONGITUDE"] != undefined &&
             aluno["LOC_LATITUDE"] != "" && aluno["LOC_LATITUDE"] != undefined) {
+            hashMapAlunos.set(aluno["ID"], aluno);
             vSource.addFeature(plotarAluno(aluno));
         }
     });
@@ -346,8 +348,8 @@ var plotarAluno = (aluno) => {
     let p = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
 
     p.setId(aluno["ID_ALUNO"]);
+    p.set("ID", aluno["ID_ALUNO"]);
     p.set("NOME", aluno["NOME"]);
-    p.set("DATA_NASCIMENTO", aluno["DATA_NASCIMENTO"]);
     p.set("TURNOSTR", aluno["TURNOSTR"]);
     p.set("NIVELSTR", aluno["NIVELSTR"]);
     p.set("TIPO", "ALUNO")
@@ -361,6 +363,42 @@ var plotarAluno = (aluno) => {
     return p;
 }
 
+
+// Rotina para editar aluno (verifica se usuário tem ctz antes)
+function editarAluno(alunoID) {
+    return goaheadDialog('Editar esse aluno?',
+        "Gostaria de editar os dados deste aluno?",
+    ).then((result) => {
+        Swal2.close();
+        if (result.value) {
+            estadoAluno = hashMapAlunos.get(alunoID);
+            action = "editarAluno";
+            navigateDashboard("./modules/aluno/aluno-cadastrar-view.html");
+        }
+    })
+}
+// Rotina para remover aluno (verifica se usuário tem ctz antes)
+function removerAluno(alunoID) {
+    return confirmDialog('Remover esse aluno?',
+        "Ao remover esse aluno, ele será retirado do sistema das rotas e das escolas que possuir vínculo."
+    ).then((result) => {
+        let listaPromisePraRemover = [];
+        if (result.value) {
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${alunoID}`));
+        }
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Aluno(a) removido(a) com sucesso!",
+                confirmButtonText: 'Recarregar os dados da escola'
+            }).then(() => navigateDashboard("./modules/escola/escola-dados-view.html"));
+        }
+    }).catch((err) => errorFn("Erro ao remover o(a) aluno(a)", err))
+}
+
 // Select para lidar com click no aluno
 var selectAluno = selectPonto("ALUNO");
 
@@ -370,6 +408,16 @@ var popupAluno = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectAluno,
     closeBox: true,
+    onshow: () => {
+        let alunoID = selectAluno.features_["array_"][0].get("ID");
+        btnEditar = $('<a href="#" id="btnEditar" class="btn btn-custom-popup btn-warning"><i class="fa fa-edit"></i></a>');
+        btnEditar.on('click', () => editarAluno(alunoID));
+        $(".ol-popupfeature").append(btnEditar)
+
+        btnRemover = $('<a href="#" id="btnRemover" class="btn btn-custom-popup btn-danger"><i class="fa fa-trash"></i></a>');
+        btnRemover.on('click', () => removerAluno(alunoID));
+        $(".ol-popupfeature").append(btnRemover)
+    },    
     template: {
         title: (elem) => {
             return "Aluno " + elem.get("NOME");
@@ -380,9 +428,6 @@ var popupAluno = new ol.Overlay.PopupFeature({
             },
             'SEXO': {
                 title: 'Sexo'
-            },
-            'DATA_NASCIMENTO': {
-                title: 'Data de Nascimento'
             },
             'ESCOLA': {
                 title: 'Escola'

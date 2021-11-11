@@ -9,7 +9,7 @@ var listaDeAlunos = new Map();
 var antAlunosAtendidos  = new Set();
 var novoAlunosAtendidos = new Set();
 var atendidoPorOutraEscola = new Set();
-var naoAtendidosPorNenhuma = new Set();
+// var naoAtendidosPorNenhuma = new Set();
 
 // Filtros
 $('#alunosOutros').textFilter($('#filtroOutrosAlunos'));
@@ -18,57 +18,63 @@ $('#alunosAtendidos').textFilter($('#filtroTxtAtendidos'));
 // Título da escola sendo gerida
 $(".tituloSecao span").text(estadoEscola["NOME"]);
 
-// Pegar alunos e discrimina aqueles atendidos por esta escola dos outros
-dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO")
-.then(res => processarAlunosAtendidos(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
-.then(res => processarAlunosRestantes(res))
-.then(() => adicionaDadosNaTela())
-.catch(err => errorFn("Erro ao detalhar alunos atendidos pela escola: " + estadoEscola["NOME"], err))
+async function carregarDados() {
+    try {
+        // Pegar alunos e discrimina aqueles atendidos por esta escola dos outros
+        let res = await restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${estadoEscola.ID}/alunos`);
+        let alunosAtendidosRaw = res.data;
 
-// Processa alunos atendidos (precisamos discriminar se são por essa escola ou não)
-var processarAlunosAtendidos = (res) => {
-    res.forEach((aluno) => {
-        let aID = String(aluno["ID_ALUNO"]);
-        listaDeAlunos.set(aID, aluno);
+        alunosAtendidosRaw.forEach((alunoRaw) => {
+            let alunoJSON = parseAlunoREST(alunoRaw);
+            let aID = String(alunoJSON["id_aluno"]);
+            listaDeAlunos.set(aID, alunoJSON);
 
-        if (estadoEscola["ID"] == aluno["ID_ESCOLA"]) {
             antAlunosAtendidos.add(aID);
             novoAlunosAtendidos.add(aID);
-        } else {
-            atendidoPorOutraEscola.add(aID);
-        }
-    })
+        });
+    } catch (err) {
+        // Escola não tem alunos
+        console.log("ERROR", err);
+    }
 
-    return listaDeAlunos;
+    try {
+        // Pegar todos os alunos
+        let todosAlunosRaw = await restImpl.dbGETColecao(DB_TABLE_ALUNO);
+
+        todosAlunosRaw.forEach((alunoRaw) => {
+            let alunoJSON = parseAlunoREST(alunoRaw);
+            let aID = String(alunoJSON["id_aluno"]);
+            listaDeAlunos.set(aID, alunoJSON);
+
+            if (!antAlunosAtendidos.has(aID)) {
+                listaDeAlunos.set(aID, alunoJSON);
+                atendidoPorOutraEscola.add(aID);
+            }
+        });
+    } catch (err) {
+        // Não há outros alunos
+        console.log("ERROR", err);
+    }
+
+    return Promise.resolve(listaDeAlunos)
 }
 
-// Processa alunos não atendidos
-var processarAlunosRestantes = (res) => {
-    res.forEach((aluno) => {
-        let aID = String(aluno["ID"]);
-
-        if (!(antAlunosAtendidos.has(aID) || atendidoPorOutraEscola.has(aID))) {
-            listaDeAlunos.set(aID, aluno);
-            naoAtendidosPorNenhuma.add(aID);
-        }
-    })
-
-    return listaDeAlunos;
-}
+carregarDados()
+.then(() => adicionaDadosNaTela())
+.catch(err => errorFn("Erro ao detalhar alunos atendidos pela escola: " + estadoEscola["NOME"], err))
 
 // Adiciona dados na tela
 var adicionaDadosNaTela = () => {
     // Alunos atendidos por esta escola
     let alunosAtendidos = []
     for (aID of antAlunosAtendidos) {
-        alunosAtendidos.push(listaDeAlunos.get(aID))
+        alunosAtendidos.push(listaDeAlunos.get(aID));
     }
-    alunosAtendidos = alunosAtendidos.sort((a, b) => a["NOME"].toLowerCase().localeCompare(b["NOME"].toLowerCase(), "pt-BR"))
+    alunosAtendidos = alunosAtendidos.sort((a, b) => a["NOME"].toLowerCase().localeCompare(b["NOME"].toLowerCase(), "pt-BR"));
 
     alunosAtendidos.forEach((aluno) => {
-        let aID = aluno["ID_ALUNO"];
-        let aNome = aluno["NOME"] + " (" + aluno["DATA_NASCIMENTO"] + ")";
+        let aID = aluno["ID"];
+        let aNome = aluno["NOME"].toUpperCase();
         $('#alunosAtendidos').append(`<option value="${aID}">${aNome}</option>`);
     })
 
@@ -76,28 +82,13 @@ var adicionaDadosNaTela = () => {
     let outrosAlunos = []
 
     for (aID of atendidoPorOutraEscola) {
-        aluno = listaDeAlunos.get(aID)
-        outrosAlunos.push({
-            "ID": aluno["ID_ALUNO"],
-            "NOME": aluno["NOME"],
-            "DATA_NASCIMENTO": aluno["DATA_NASCIMENTO"] 
-        })
-    }
-
-    // Alunos atendidos por nenhuma
-    for (aID of naoAtendidosPorNenhuma) {
-        aluno = listaDeAlunos.get(aID)
-        outrosAlunos.push({
-            "ID": aluno["ID"],
-            "NOME": aluno["NOME"],
-            "DATA_NASCIMENTO": aluno["DATA_NASCIMENTO"] 
-        })
+        outrosAlunos.push(listaDeAlunos.get(aID));
     }
 
     outrosAlunos = outrosAlunos.sort((a, b) => a["NOME"].toLowerCase().localeCompare(b["NOME"].toLowerCase(), "pt-BR"))
     outrosAlunos.forEach((aluno) => {
         let aID = aluno["ID"];
-        let aNome = aluno["NOME"] + " (" + aluno["DATA_NASCIMENTO"] + ")";
+        let aNome = aluno["NOME"].toUpperCase();
         $('#alunosOutros').append(`<option value="${aID}">${aNome}</option>`);
     })
 }
@@ -156,37 +147,39 @@ $("#btnSalvar").on('click', () => {
         $('.progress-bar').text(progressoPorcentagem + "%")
     }
 
-    // Primeiro, remover relações que mudaram
+    // Primeiro, remover relações que mudaram, isto é, tirar as escolas antigas dos alunos que vão entrar e daqueles que sairam
     var promiseArrayRemove = new Array();
     alunosAdicionar.forEach((aID) => {
-        promiseArrayRemove.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS,
-                                                            "ID_ALUNO", String(aID))
-                                .then(() => updateProgresso()))
+        promiseArrayRemove.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${aID}/escola`).then((msg) => {
+            console.log(msg); updateProgresso()
+        }))
     })
         
     alunosRemover.forEach((aID) => {
-        promiseArrayRemove.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS,
-                                                            "ID_ALUNO", String(aID))
-                                .then(() => updateProgresso()))
+        promiseArrayRemove.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${aID}/escola`).then((msg) => {
+            console.log(msg); updateProgresso()
+        }))
     })
 
     Promise.all(promiseArrayRemove)
     .then(() => {
         // Agora, vamos adicionar as novas relações
-        var promiseArrayAdd = new Array();
+        var novosAlunosParaEscola = [];
         alunosAdicionar.forEach((aID) => {
             console.log(aID, estadoEscola["ID_ESCOLA"])
-            let eID = estadoEscola["ID_ESCOLA"];
-            if (eID == null || eid == undefined) {
-                eID = estadoEscola["ID"];
-            }
-            promiseArrayAdd.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
-                "ID_ESCOLA": String(eID), 
-                "ID_ALUNO": String(aID)
-            }).then(() => updateProgresso()));
+            novosAlunosParaEscola.push({
+                "id_aluno": aID
+            })
         })
 
-        return Promise.all(promiseArrayAdd)
+        let eID = estadoEscola["ID_ESCOLA"];
+        if (eID == null || eID == undefined) {
+            eID = estadoEscola["ID"];
+        }
+
+        return restImpl.dbPOST(DB_TABLE_ESCOLA, `/${eID}/alunos`, {
+            "alunos": novosAlunosParaEscola
+        })
     })
     .then(() => Swal2.fire({
         title: "Alunos salvos com sucesso",
@@ -217,19 +210,18 @@ $("#btnCancelar").on('click', () => {
     })
 });
 
-var filtroApenasSem = false;
-$("#mostrarApenasSem").click(() => {
-    filtroApenasSem = !filtroApenasSem;
-    if (filtroApenasSem) {
-        $("#alunosOutros option").hide();
+// var filtroApenasSem = false;
+// $("#mostrarApenasSem").click(() => {
+//     filtroApenasSem = !filtroApenasSem;
+//     if (filtroApenasSem) {
+//         $("#alunosOutros option").hide();
 
-        for (var aID of naoAtendidosPorNenhuma) {
-            $(`option[value=${aID}]`).show();
-        }        
-    } else {
-        $("#alunosOutros option").show();
-    }
-
-})
+//         for (var aID of naoAtendidosPorNenhuma) {
+//             $(`option[value=${aID}]`).show();
+//         }        
+//     } else {
+//         $("#alunosOutros option").show();
+//     }
+// })
 
 action = "gerirEscola"
