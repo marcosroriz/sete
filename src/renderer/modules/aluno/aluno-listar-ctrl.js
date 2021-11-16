@@ -269,7 +269,7 @@ var preprocessarEscolasTemAlunos = (res) => {
         let eNome = escolaRaw["NOME"];
         
         let alunoJSON = listaDeAlunos.get(aID);
-        if (alunoJSON && eID != undefined && eID != "undefined" && eID != null) {
+        if (alunoJSON && eID != undefined && eID != "undefined" && eID != null && eNome != null && eNome != undefined) {
             alunoJSON["ID_ESCOLA"] = eID;
             alunoJSON["ESCOLA"] = eNome;
             alunoJSON["ESCOLA_LOC_LATITUDE"] = escolaRaw["LOC_LATITUDE"];

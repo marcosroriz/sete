@@ -24,7 +24,10 @@ dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", DB_TABLE_ALUNO, "ID_AL
 .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
 .then(res => processarAlunosRestantes(res))
 .then(() => adicionaDadosNaTela())
-.catch(err => errorFn("Erro ao detalhar alunos atendidos pela escola: " + estadoEscola["NOME"], err))
+.catch(err => {
+    debugger
+    errorFn("Erro ao detalhar alunos atendidos pela escola: " + estadoEscola["NOME"], err)
+})
 
 // Processa alunos atendidos (precisamos discriminar se são por essa escola ou não)
 var processarAlunosAtendidos = (res) => {
@@ -77,21 +80,25 @@ var adicionaDadosNaTela = () => {
 
     for (aID of atendidoPorOutraEscola) {
         aluno = listaDeAlunos.get(aID)
-        outrosAlunos.push({
-            "ID": aluno["ID_ALUNO"],
-            "NOME": aluno["NOME"],
-            "DATA_NASCIMENTO": aluno["DATA_NASCIMENTO"] 
-        })
+        if (aluno != null && aluno["NOME"]) {
+            outrosAlunos.push({
+                "ID": aluno["ID_ALUNO"],
+                "NOME": aluno["NOME"],
+                "DATA_NASCIMENTO": aluno["DATA_NASCIMENTO"]
+            })
+        }
     }
 
     // Alunos atendidos por nenhuma
     for (aID of naoAtendidosPorNenhuma) {
-        aluno = listaDeAlunos.get(aID)
-        outrosAlunos.push({
-            "ID": aluno["ID"],
-            "NOME": aluno["NOME"],
-            "DATA_NASCIMENTO": aluno["DATA_NASCIMENTO"] 
-        })
+        aluno = listaDeAlunos.get(aID);
+        if (aluno != null && aluno["NOME"]) {
+            outrosAlunos.push({
+                "ID": aluno["ID"],
+                "NOME": aluno["NOME"],
+                "DATA_NASCIMENTO": aluno["DATA_NASCIMENTO"] 
+            })
+        }
     }
 
     outrosAlunos = outrosAlunos.sort((a, b) => a["NOME"].toLowerCase().localeCompare(b["NOME"].toLowerCase(), "pt-BR"))
@@ -104,8 +111,8 @@ var adicionaDadosNaTela = () => {
 
 $("#colocarAluno").on('click', () => {
     for (var aID of $("#alunosOutros").val()) {
-        var aNome = $(`option[value=${aID}]`).text();
-        $(`option[value=${aID}]`).remove();
+        var aNome = $(`option[value="${aID}"]`).text();
+        $(`option[value="${aID}"]`).remove();
         $('#alunosAtendidos').append(`<option value="${aID}">${aNome}</option>`);
         novoAlunosAtendidos.add(aID);
     }
@@ -115,8 +122,8 @@ $("#colocarAluno").on('click', () => {
 
 $("#tirarAluno").on('click', () => {
     for (var aID of $("#alunosAtendidos").val()) {
-        var aNome = $(`option[value=${aID}]`).text();
-        $(`option[value=${aID}]`).remove();
+        var aNome = $(`option[value="${aID}"]`).text();
+        $(`option[value="${aID}"]`).remove();
         $('#alunosOutros').append(`<option value="${aID}">${aNome}</option>`);
         novoAlunosAtendidos.delete(aID);
     }
@@ -177,7 +184,7 @@ $("#btnSalvar").on('click', () => {
         alunosAdicionar.forEach((aID) => {
             console.log(aID, estadoEscola["ID_ESCOLA"])
             let eID = estadoEscola["ID_ESCOLA"];
-            if (eID == null || eid == undefined) {
+            if (eID == null || eID == undefined) {
                 eID = estadoEscola["ID"];
             }
             promiseArrayAdd.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
@@ -203,6 +210,7 @@ $("#btnSalvar").on('click', () => {
     }))
     .then(() => navigateDashboard("./modules/escola/escola-listar-view.html"))
     .catch((err) => {
+        debugger
         Swal2.close();
         errorFn("Erro ao associar os alunos a escola!", err)
     })
@@ -222,9 +230,9 @@ $("#mostrarApenasSem").click(() => {
     filtroApenasSem = !filtroApenasSem;
     if (filtroApenasSem) {
         $("#alunosOutros option").hide();
-
         for (var aID of naoAtendidosPorNenhuma) {
-            $(`option[value=${aID}]`).show();
+            console.log(`option[value=${aID}]`)
+            $(`option[value="${aID}"]`).show();
         }        
     } else {
         $("#alunosOutros option").show();
