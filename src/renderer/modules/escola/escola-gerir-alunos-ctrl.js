@@ -116,7 +116,7 @@ $("#tirarAluno").on('click', () => {
 });
 
 // Salvar alunos
-$("#btnSalvar").on('click', () => {
+$("#btnSalvar").on('click', async () => {
     Swal2.fire({
         title: "Aguarde, fazendo alteração nos dados da escola...",
         imageUrl: "img/icones/processing.gif",
@@ -149,6 +149,13 @@ $("#btnSalvar").on('click', () => {
 
     // Primeiro, remover relações que mudaram, isto é, tirar as escolas antigas dos alunos que vão entrar e daqueles que sairam
     var promiseArrayRemove = new Array();
+    for (let aID of alunosAdicionar) {
+        try {
+            
+        } catch (error) {
+            
+        }
+    }
     alunosAdicionar.forEach((aID) => {
         promiseArrayRemove.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${aID}/escola`).then((msg) => {
             console.log(msg); updateProgresso()

@@ -111,6 +111,60 @@ function preprocess(arquivo) {
     }
 }
 
+function ConverteAlunoParaREST(aluno, idEscola) {
+    let alunoJSON ={
+        "id_escola": Number(idEscola),
+
+        "nome": aluno["NOME"], // string
+        "data_nascimento": aluno["DATA_NASCIMENTO"], // string
+        "nome_responsavel": aluno["NOME_RESPONSAVEL"],
+        
+        "sexo": aluno["SEXO"], // int
+        "cor": aluno["COR"], // int
+        
+        "mec_tp_localizacao": aluno["MEC_TP_LOCALIZACAO"],
+        "turno": aluno["TURNO"], // int
+        "nivel": aluno["NIVEL"],
+        
+        "def_caminhar": aluno["DEF_CAMINHAR"] ? "S" : "N", // str
+        "def_ouvir": aluno["DEF_OUVIR"] ? "S" : "N", // str
+        "def_enxergar": aluno["DEF_ENXERGAR"] ? "S" : "N", // str
+        "def_mental": aluno["DEF_MENTAL"] ? "S" : "N", // str
+    }
+
+    if (aluno["LOC_CEP"]) alunoJSON["loc_cep"] = aluno["LOC_CEP"];
+    if (aluno["CPF"]) alunoJSON["cpf"] = String(aluno["CPF"]).replace(/\D/g, '');
+
+    return alunoJSON;
+}
+
+function ConverteEscolaParaREST(escola) {
+    let escolaJSON = Object.assign({}, escola);
+    // Arrumando campos novos para os que já usamos. 
+    // Atualmente os campos são em caixa alta (e.g. NOME ao invés de nome)
+    // Entretanto, a API está retornando valores em minúsculo
+    for (let attr of Object.keys(escolaJSON)) {
+        escolaJSON[attr.toLowerCase()] = escolaJSON[attr];
+        delete escolaJSON[attr]
+    }
+
+    // Transforma de boolean para "S" / "N"
+    let propParaTransformar = ["MEC_IN_REGULAR", "MEC_IN_EJA", "MEC_IN_PROFISSIONALIZANTE", "MEC_IN_ESPECIAL_EXCLUSIVA",
+        "ENSINO_FUNDAMENTAL", "ENSINO_PRE_ESCOLA", "ENSINO_MEDIO", "ENSINO_SUPERIOR",
+        "HORARIO_MATUTINO", "HORARIO_VESPERTINO", "HORARIO_NOTURNO"];
+
+    for (let prop of propParaTransformar) {
+        if (escolaJSON[prop.toLowerCase()]) {
+            escolaJSON[prop.toLowerCase()] = "S";
+        } else {
+            escolaJSON[prop.toLowerCase()] = "N";
+        }
+    }
+
+    return escolaJSON;
+
+}
+
 function realizaImportacao(rawDados) {
     Swal2.fire({
         title: "Importando os dados...",
@@ -160,6 +214,9 @@ function realizaImportacao(rawDados) {
     // Promessas de Relações Antigas
     var promiseArrayRelacoesAntigas = new Array();
     
+    let censoEscolas = [];
+    let censoAlunos = [];
+
     // Para cada escola
     dados.forEach((escolaSelecionada) => {
         // Obtem uma cópia da escola
@@ -182,36 +239,45 @@ function realizaImportacao(rawDados) {
             relEscolaAluno[idEscola].push(idAluno);
 
             // Insere o Aluno no Banco de Dados
-            aluno = tiraUndefined(aluno)
-            promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
-                                               .then(() => updateProgresso()))
+            aluno = tiraUndefined(aluno);
+            let alunoREST = ConverteAlunoParaREST(aluno, idEscola);
+            
+            censoAlunos.push(alunoREST);
+            // promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
+            //                                    .then(() => updateProgresso()))
 
             // Remove da escola atual (se tiver matriculado)
-            remotedb.collection("municipios")
-                    .doc(codCidade)
-                    .collection("escolatemalunos")
-                    .where("ID_ALUNO", "==", idAluno)
-                    .get({ source: "cache" })
-                    .then((snapshotDocumentos) => {
-                        updateProgresso()
-                        snapshotDocumentos.forEach(doc => {
-                            promiseArrayRelacoesAntigas.push(doc.ref.delete())
-                        })
-                    })
+            // remotedb.collection("municipios")
+            //         .doc(codCidade)
+            //         .collection("escolatemalunos")
+            //         .where("ID_ALUNO", "==", idAluno)
+            //         .get({ source: "cache" })
+            //         .then((snapshotDocumentos) => {
+            //             updateProgresso()
+            //             snapshotDocumentos.forEach(doc => {
+            //                 promiseArrayRelacoesAntigas.push(doc.ref.delete())
+            //             })
+            //         })
             // // Remove da escola atual (se tiver matriculado)
             // promiseArray.push(dbRemoverDadoSimplesPromise("escolatemalunos", "ID_ALUNO", idAluno)
             //                                               .then(() => updateProgresso()))
         }
 
-        // Apaga o atributo aluno da escola
-        delete escola["ALUNOS"];
+        if (Object.keys(escola["ALUNOS"]).length > 0) {
+            // Apaga o atributo aluno da escola
+            delete escola["ALUNOS"];
 
-        // Adiciona esta escola no banco de dados
-        escola = tiraUndefined(escola)
-        promiseArray.push(dbInserirPromise("escolas", escola, String(idEscola))
-                                          .then(() => updateProgresso()))
+            // Adiciona esta escola no banco de dados
+            escola = tiraUndefined(escola);
+            let escolaREST = ConverteEscolaParaREST(escola);
+            censoEscolas.push(escolaREST)
+        }
+        
+        // promiseArray.push(dbInserirPromise("escolas", escola, String(idEscola))
+        //                                   .then(() => updateProgresso()))
     })
 
+    debugger
     Promise.all(promiseArray)
     .then(() => {
         return Promise.all(promiseArrayRelacoesAntigas);
