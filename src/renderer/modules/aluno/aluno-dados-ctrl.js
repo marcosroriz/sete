@@ -46,9 +46,9 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
             extend: 'excel',
             className: 'btnExcel',
             extension: ".xlsx",
-            filename: "Aluno" + aluno["NOME"],
+            filename: "Aluno " + estadoAluno["NOME"],
             title: appTitle,
-            messageTop: "Dados do Aluno: " + aluno["NOME"],
+            messageTop: "Dados do Aluno: " + estadoAluno["NOME"],
             text: 'Exportar para Excel/LibreOffice',
             customize: function (xlsx) {
                 var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -61,7 +61,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
         {
             extend: 'pdfHtml5',
             orientation: "landscape",
-            title: "Aluno",
+            title: "Aluno " + estadoAluno,
             extension: ".pdf",
             text: "Exportar para PDF",
             exportOptions: {
@@ -134,7 +134,7 @@ restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}`)
             aluno["ESCOLA_CONTATO_RESPONSAVEL"] = escola["CONTATO_RESPONSAVEL"];
             aluno["ESCOLA_CONTATO_TELEFONE"] = escola["CONTATO_TELEFONE"];
         } catch (err) {
-            aluno["ESCOLA"] = null;
+            aluno["ESCOLA"] = "Aluno sem escola";
         }
 
         // TODO: arrumar isso assim que a API estiver estável
@@ -142,7 +142,7 @@ restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}`)
             let rotaRaw = await restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}/rota`);
             aluno["ROTA"] = rotaRaw.nome;
         } catch (error) {
-            aluno["ROTA"] = null;
+            aluno["ROTA"] = "Sem rota cadastrada";
         }
 
         return aluno;
@@ -334,11 +334,7 @@ function popularTabelaAluno() {
         }
     }
 
-    if (aluno["ROTA"] == "Sem rota cadastrada") {
-        dataTableAluno.row.add(["ROTA", "Rota não informada"]);
-    } else {
-        dataTableAluno.row.add(["ROTA", aluno["ROTA"]]);
-    }
+    dataTableAluno.row.add(["ROTA", aluno["ROTA"]]);
 
     dataTableAluno.draw();
 
