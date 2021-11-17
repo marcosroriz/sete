@@ -113,17 +113,44 @@ malhaLayer.setStyle((feature) => {
     }
 })
 
+
 // Plot
-var plotarAluno = (alunoRaw) => {
+var plotarMarcadorNumerico = (alunoRaw, num, nomes) => {
     let lat = alunoRaw["LOC_LATITUDE"];
     let lng = alunoRaw["LOC_LONGITUDE"];
-    let icon = "img/icones/aluno-marcador.png";
 
-    let marcador = gerarMarcador(lat, lng, icon);
-    marcador.set("nome", alunoRaw["NOME"]);
-    marcador.set("content", alunoRaw["NOME"]);
-    malhaSource.addFeature(marcador);
+    let p = gerarMarcadorNumerico(lat, lng, num, tamanho_fonte=0.6);
+
+    p.setId(alunoRaw["ID_ALUNO"]);
+    p.set("ID", alunoRaw["ID_ALUNO"]);
+    p.set("Alunos", nomes.join("<br>"));
+    p.set("TIPO", "ALUNO_NUMERICO")
+    malhaSource.addFeature(p);
 }
+
+// Select para lidar com click no aluno
+var selectNumerico = selectPonto("ALUNO_NUMERICO");
+
+// Popup aluno
+mapa["map"].addInteraction(selectNumerico);
+var popupAlunoNumerico = new ol.Overlay.PopupFeature({
+    popupClass: "default anim",
+    select: selectNumerico,
+    closeBox: true,
+    template: {
+        title: (elem) => {
+            return "Aluno";
+        },
+        attributes: {
+            'Alunos': {
+                title: 'Alunos'
+            },
+        }
+    }
+});
+// Adiciona no mapa
+mapa["map"].addOverlay(popupAlunoNumerico);
+
 
 var plotarEscola = (escolaRaw) => {
     let lat = escolaRaw["LOC_LATITUDE"];
@@ -154,6 +181,7 @@ if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAP
     malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]))
 } else {
     $("#mapDetalheRota").hide();
+    $("#dataTableListaDeAlunosNumerada").hide();
 }
 
 // Tira o btn group do datatable
@@ -303,6 +331,36 @@ var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
                  { targets: 4, render: renderAtMostXCharacters(50) }],
     autoWidth: false,
     bAutoWidth: false,
+    buttons: [
+        {
+            extend: 'excel',
+            className: 'btnExcel',
+            filename: "Rota" + estadoRota["NOME"],
+            title: appTitle,
+            messageTop: "Dados da Rota: " + estadoRota["NOME"],
+            text: 'Exportar para Excel/LibreOffice',
+            customize: function (xlsx) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                $('row c[r^="A"]', sheet).attr('s', '2');
+                $('row[r="1"] c[r^="A"]', sheet).attr('s', '27');
+                $('row[r="2"] c[r^="A"]', sheet).attr('s', '3');
+            }
+        },
+        {
+            extend: 'pdfHtml5',
+            orientation: "landscape",
+            title: "Rota",
+            text: "Exportar para PDF",
+            exportOptions: {
+                columns: [0, 1]
+            },
+            customize: function (doc) {
+                doc = docReport(doc);
+                doc.content[2].table.widths = ['30%', '70%'];
+            }
+        },
+    ],
     lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
     pagingType: "full_numbers",
     order: [[0, "asc"]],
@@ -321,7 +379,70 @@ var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
             "previous": "Anterior"
         },
     },
-    dom: 'frtip',
+    dom: 'frtipB',
+});
+
+var dataTableListaDeAlunosNumerada = $("#dataTableListaDeAlunosNumerada").DataTable({
+    columns: [
+        { data: 'NUM', width: "15%" },
+        { data: 'NOME', width: "25%" },
+        { data: 'LOCALIZACAO', width: "15%" },
+        { data: 'NIVELSTR', width: "150px" },
+        { data: 'TURNOSTR', width: "150px" },
+    ],
+    columnDefs: [ { targets: 0, type: "num" },
+                  { targets: 1, render: renderAtMostXCharacters(50) }],
+    autoWidth: false,
+    bAutoWidth: false,
+    buttons: [
+        {
+            extend: 'excel',
+            className: 'btnExcel',
+            filename: "Rota" + estadoRota["NOME"],
+            title: appTitle,
+            messageTop: "Dados da Rota: " + estadoRota["NOME"],
+            text: 'Exportar para Excel/LibreOffice',
+            customize: function (xlsx) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                $('row c[r^="A"]', sheet).attr('s', '2');
+                $('row[r="1"] c[r^="A"]', sheet).attr('s', '27');
+                $('row[r="2"] c[r^="A"]', sheet).attr('s', '3');
+            }
+        },
+        {
+            extend: 'pdfHtml5',
+            orientation: "landscape",
+            title: "Rota",
+            text: "Exportar para PDF",
+            exportOptions: {
+                columns: [0, 1]
+            },
+            customize: function (doc) {
+                doc = docReport(doc);
+                doc.content[2].table.widths = ['30%', '70%'];
+            }
+        },
+    ],
+    lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
+    pagingType: "full_numbers",
+    order: [[0, "asc"]],
+    language: {
+        "search": "_INPUT_",
+        "searchPlaceholder": "Procurar alunos",
+        "lengthMenu": "Mostrar _MENU_ alunos por página",
+        "zeroRecords": "Não encontrei nenhum aluno cadastrado",
+        "info": "Mostrando página _PAGE_ de _PAGES_",
+        "infoEmpty": "Sem registros disponíveis",
+        "infoFiltered": "(Alunos filtrados a partir do total de _MAX_ alunos)",
+        "paginate": {
+            "first": "Primeira",
+            "last": "Última",
+            "next": "Próxima",
+            "previous": "Anterior"
+        },
+    },
+    dom: 'frtipB',
 });
 
 estadoRota["ALUNOS"].forEach(aluno => {
@@ -365,14 +486,93 @@ var preprocessarRelacaoAlunoEscola = (res) => {
 
 // Adiciona dados de alunos e escola nas respectivas tabelas e mapa
 var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
-    listaDeAlunos.forEach(aluno => {
-        if (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
-            aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined) {
-            plotarAluno(aluno)
-        }
+    if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
+        try {
+            // let rotaGeoJson = (new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]);
+            // rotaGeoJson[0].getGeometry().flatCoordinates[1]
+            let primeiro_ponto = JSON.parse(estadoRota["SHAPE"]).features[0].geometry.coordinates[0];
+            
+            let novaListaDeAlunos = [...listaDeAlunos.values()];
+            let alunosComGPS = novaListaDeAlunos.filter(aluno => (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
+                                                                  aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
+                                                                  aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
+            alunosComGPS.forEach(aluno => {
+                aluno["COORD"] = [aluno.LOC_LONGITUDE, aluno.LOC_LATITUDE]
+            })
 
-        dataTableListaDeAlunos.row.add(aluno);
-    })
+            // let ponto_atual = [primeiro_ponto[0], primeiro_ponto[1]];
+            let ponto_atual = ol.proj.transform([primeiro_ponto[0], primeiro_ponto[1]], "EPSG:3857", "EPSG:4326")
+            let num = 1;
+            while (alunosComGPS.length != 0) {
+                alunosComGPS.sort((a, b) => {
+                    let adist = ol.sphere.getDistance(ponto_atual, a["COORD"]);
+                    let bdist = ol.sphere.getDistance(ponto_atual, b["COORD"]);
+
+                    return adist - bdist;
+                })
+
+                // Pega o aluno mais próximo do ponto atual da rota
+                let aluno_original = alunosComGPS.shift();
+                let nome_alunos = ["⚫ " + aluno_original.NOME];
+
+                // Salva o número/ID do aluno
+                let num_original = num;
+                aluno_original["NUM"] = num;
+                
+                // Adiciona na tabela
+                dataTableListaDeAlunos.row.add(aluno_original);
+                dataTableListaDeAlunosNumerada.row.add(aluno_original);
+
+                // Aluno vira o próximo ponto
+                ponto_atual = aluno_original["COORD"];
+                num++;
+
+                // Veja se tem outros alunos próximos, se sim, coloque todos juntos nesse local
+                if (alunosComGPS.length > 0) {
+                    let dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
+                    while (dist < 500) {
+                        let prox_aluno = alunosComGPS.shift();
+                        prox_aluno["NUM"] = num++;
+
+                        // Adiciona no nome dos alunos
+                        nome_alunos.push("⚫ " + prox_aluno.NOME);
+
+                        // Adiciona na tabela
+                        dataTableListaDeAlunos.row.add(prox_aluno);
+                        dataTableListaDeAlunosNumerada.row.add(prox_aluno);
+
+                        dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
+                    }
+                } 
+
+                if (num > num_original + 1) {
+                    plotarMarcadorNumerico(aluno_original, String(num_original) + "-" + String(num - 1), nome_alunos);
+                } else {
+                    plotarMarcadorNumerico(aluno_original, String(num - 1), nome_alunos);
+                }
+            }
+
+            let alunosSemGPS = novaListaDeAlunos.filter(aluno => !(aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
+                                                                   aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
+                                                                   aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
+            alunosSemGPS.forEach(aluno => {
+                aluno["NUM"] = "---";
+                dataTableListaDeAlunos.row.add(aluno);
+                dataTableListaDeAlunosNumerada.row.add(aluno);
+            })
+        } catch (error) {
+            dataTableListaDeAlunos.clear();
+            dataTableListaDeAlunosNumerada.clear();
+        
+            listaDeAlunos.forEach(aluno => {
+                dataTableListaDeAlunos.row.add(aluno);
+            })
+        }
+    } else {
+        listaDeAlunos.forEach(aluno => {
+            dataTableListaDeAlunos.row.add(aluno);
+        })
+    }
 
     listaDeEscolas.forEach(escola => {
         if (escola["LOC_LONGITUDE"] != null && escola["LOC_LONGITUDE"] != undefined &&
@@ -384,6 +584,7 @@ var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
     })
 
     dataTableListaDeAlunos.draw()
+    dataTableListaDeAlunosNumerada.draw()
     dataTableListaDeEscolas.draw()
     return true;
 }

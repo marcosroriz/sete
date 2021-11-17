@@ -76,13 +76,22 @@ function getRowOnClick(t) {
 // Esta função limita o número de caracteres que aparece na célula da tabela
 function renderAtMostXCharacters(x = 50) {
     return function (data, type, row) {
-        return data.length > x ? data.substr(0, x) + '…' : data;
+        if (typeof(data) == "string") {
+            return data.length > x ? data.substr(0, x) + '…' : data;
+        } else {
+            return "";
+        }
     }
 }
 
 // Equivalente a função anterior, mas não precisa da datatable, dar para usar na String
 function renderEllipsis(data, x = 50) {
-    return data.length > x ? data.substr(0, x) + '…' : data;
+    if (typeof(data) == "string") {
+        return data.length > x ? data.substr(0, x) + '…' : data;
+    } else {
+        return "";
+    }
+    
 }
 
 

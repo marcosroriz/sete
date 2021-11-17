@@ -287,6 +287,39 @@ var gerarMarcador = (lat, lng, icon, anchorX = 12, anchorY = 37) => {
     return p;
 }
 
+var gerarMarcadorNumerico = (lat, lng, numero, tamanho_fonte=0.8) => {
+    let p = new ol.Feature({
+        "geometry": new ol.geom.Point(ol.proj.fromLonLat([lng, lat]))
+    });
+
+    p.setStyle(new ol.style.Style({
+        image: new ol.style.FontSymbol({
+            form: "marker",
+            gradient: false,
+            // glyph: "fa-euro",
+            text: String(numero),
+            font: 'Roboto',
+            fontSize: tamanho_fonte,
+            fontStyle: "bold",
+            radius: 25,
+            //offsetX: -15,
+            rotation: 0,
+            rotateWithView: false,
+            // offsetY: $("#offset").prop('checked') ? -Number($("#radius").val()) : 0,
+            color: "#000",
+            fill: new ol.style.Fill({
+                color: "#bae7ff"
+            }),
+            stroke: new ol.style.Stroke({
+                color: "#34abeb",
+                width: 2
+            })
+        }),
+    }));
+
+    return p;
+}
+
 var selectPonto = (tipo) => {
     return new ol.interaction.Select({
         hitTolerance: 5,
