@@ -133,8 +133,8 @@ $("#btnSalvar").on('click', async () => {
         </div>
         `
     })
-    var alunosAdicionar = new Set([...novoAlunosAtendidos].filter(x => !antAlunosAtendidos.has(x)));
-    var alunosRemover = new Set([...antAlunosAtendidos].filter(x => !novoAlunosAtendidos.has(x)));
+    let alunosAdicionar = new Set([...novoAlunosAtendidos].filter(x => !antAlunosAtendidos.has(x)));
+    let alunosRemover = new Set([...antAlunosAtendidos].filter(x => !novoAlunosAtendidos.has(x)));
 
     // Número de operações a serem realizadas (barra de progresso)
     var totalOperacoes = alunosAdicionar.size + alunosAdicionar.size + alunosRemover.size; 
@@ -149,46 +149,34 @@ $("#btnSalvar").on('click', async () => {
 
     // Primeiro, remover relações que mudaram, isto é, tirar as escolas antigas dos alunos que vão entrar e daqueles que sairam
     var promiseArrayRemove = new Array();
-    for (let aID of alunosAdicionar) {
+    let alunosModificados = new Set([...alunosAdicionar, ...alunosRemover]);
+
+    for (let aID of alunosModificados) {
         try {
-            
+            await restImpl.dbDELETE(DB_TABLE_ALUNO, `/${aID}/escola`);
         } catch (error) {
-            
+            console.log(error);
+        } finally {
+            updateProgresso();
         }
     }
+
+    // Agora, vamos adicionar as novas relações
+    let novosAlunosParaEscola = [];
     alunosAdicionar.forEach((aID) => {
-        promiseArrayRemove.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${aID}/escola`).then((msg) => {
-            console.log(msg); updateProgresso()
-        }))
-    })
-        
-    alunosRemover.forEach((aID) => {
-        promiseArrayRemove.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${aID}/escola`).then((msg) => {
-            console.log(msg); updateProgresso()
-        }))
-    })
-
-    Promise.all(promiseArrayRemove)
-    .then(() => {
-        // Agora, vamos adicionar as novas relações
-        var novosAlunosParaEscola = [];
-        alunosAdicionar.forEach((aID) => {
-            console.log(aID, estadoEscola["ID_ESCOLA"])
-            novosAlunosParaEscola.push({
-                "id_aluno": aID
-            })
-        })
-
-        let eID = estadoEscola["ID_ESCOLA"];
-        if (eID == null || eID == undefined) {
-            eID = estadoEscola["ID"];
-        }
-
-        return restImpl.dbPOST(DB_TABLE_ESCOLA, `/${eID}/alunos`, {
-            "alunos": novosAlunosParaEscola
+        novosAlunosParaEscola.push({
+            "id_aluno": aID
         })
     })
-    .then(() => Swal2.fire({
+
+    let eID = estadoEscola["ID_ESCOLA"];
+    if (eID == null || eID == undefined) {
+        eID = estadoEscola["ID"];
+    }
+
+    return restImpl.dbPOST(DB_TABLE_ESCOLA, `/${eID}/alunos`, {
+        "alunos": novosAlunosParaEscola
+    }).then(() => Swal2.fire({
         title: "Alunos salvos com sucesso",
         text: "Clique abaixo para retornar ao painel administrativo.",
         type: "success",
