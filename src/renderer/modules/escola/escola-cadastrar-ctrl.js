@@ -115,6 +115,9 @@ var validadorFormulario = $("#wizardCadastrarEscolaForm").validate({
                 required: true,
                 minlength: 3
             },
+            inepEscola: {
+                required: true
+            },
             telContato: {
                 minlength: 10
             },
@@ -149,6 +152,9 @@ var validadorFormulario = $("#wizardCadastrarEscolaForm").validate({
             },
             areaUrbana: {
                 required: "Por favor selecione a localização da escola",
+            },
+            inepEscola: {
+                required: "Por favor digite o código INEP da escola"
             },
             locDif: {
                 required: "Por favor informe se a escola está situada em área diferenciada"

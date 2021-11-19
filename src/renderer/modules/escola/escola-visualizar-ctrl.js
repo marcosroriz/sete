@@ -216,7 +216,6 @@ var popupEscola = new ol.Overlay.PopupFeature({
         $("#btnEditar").remove();
         $("#btnRemover").remove();
     },
-
     template: {
         title: (elem) => {
             return elem.get("NOME");
@@ -250,11 +249,13 @@ $("#escolaViz").on('change', async (e) => {
             let alunos = escolaJSON["ALUNOS"];
 
             if (alunos.length == 0) {
+                listaDeAlunos.clear();
+                
                 let listaDeAlunosRaw = await restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${eID}/alunos`);
                 for (let alunoRaw of listaDeAlunosRaw.data) {
                     let alunoJSON = parseAlunoREST(alunoRaw);
                     escolaJSON["ALUNOS"].push(alunoJSON);
-                    console.log(alunoJSON)
+                    listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
                 }
                 hashMapEscolas.set(eID, escolaJSON);
             }
@@ -294,12 +295,62 @@ $("#escolaViz").on('change', async (e) => {
 // Select para lidar com click no aluno
 var selectAluno = selectPonto("ALUNO");
 
+// Rotina para editar aluno (verifica se usuário tem ctz antes)
+function editarAluno(alunoID) {
+    return goaheadDialog('Editar esse aluno?',
+        "Gostaria de editar os dados deste aluno?",
+    ).then((result) => {
+        Swal2.close();
+        if (result.value) {
+            estadoAluno = listaDeAlunos.get(alunoID);
+            action = "editarAluno";
+            navigateDashboard("./modules/aluno/aluno-cadastrar-view.html");
+        }
+    })
+}
+// Rotina para remover aluno (verifica se usuário tem ctz antes)
+function removerAluno(alunoID) {
+    return confirmDialog('Remover esse aluno?',
+        "Ao remover esse aluno, ele será retirado do sistema das rotas e das escolas que possuir vínculo."
+    ).then((result) => {
+        let listaPromisePraRemover = [];
+        if (result.value) {
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${alunoID}`));
+        }
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Aluno(a) removido(a) com sucesso!",
+                confirmButtonText: 'Recarregar o mapa'
+            }).then(() => navigateDashboard("./modules/aluno/aluno-visualizar-view.html"));
+        }
+    }).catch((err) => errorFn("Erro ao remover o(a) aluno(a)", err))
+}
+
+
 // Popup aluno
 mapaViz["map"].addInteraction(selectAluno);
 var popupAluno = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectAluno,
     closeBox: true,
+    onshow: () => {
+        let aID = selectAluno.features_["array_"][0].get("ID");
+        btnEditar = $('<a href="#" id="btnEditar" class="btn btn-custom-popup btn-warning"><i class="fa fa-edit"></i></a>');
+        btnEditar.on('click', () => editarAluno(aID));
+        $(".ol-popupfeature").append(btnEditar)
+
+        btnRemover = $('<a href="#" id="btnRemover" class="btn btn-custom-popup btn-danger"><i class="fa fa-trash"></i></a>');
+        btnRemover.on('click', () => removerAluno(aID));
+        $(".ol-popupfeature").append(btnRemover)
+    },
+    onclose: () => {
+        $("#btnEditar").remove();
+        $("#btnRemover").remove();
+    },
     template: {
         title: (elem) => {
             return "Aluno " + elem.get("NOME");
@@ -356,6 +407,7 @@ var plotarAluno = (aluno) => {
         let p = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
 
         p.setId(aluno["ID_ALUNO"]);
+        p.set("ID", aluno["ID_ALUNO"]);
         p.set("NOME", aluno["NOME"]);
         p.set("ESCOLA", aluno["ESCOLA"]);
         p.set("TURNOSTR", aluno["TURNOSTR"]);
