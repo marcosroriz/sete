@@ -9,6 +9,7 @@ var DB_TABLES = ["alunos", "escolas", "escolatemalunos", "fornecedores",
     "ordemdeservico", "rotas", "rotaatendealuno", "rotadirigidapormotorista",
     "rotapassaporescolas", "rotapossuiveiculo", "veiculos"]
 
+var DB_TABLE_CENSO = "censo";
 var DB_TABLE_ALUNO = "alunos";
 var DB_TABLE_ESCOLA = "escolas";
 var DB_TABLE_ROTA = "rotas";

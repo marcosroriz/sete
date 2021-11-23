@@ -165,7 +165,7 @@ function ConverteEscolaParaREST(escola) {
 
 }
 
-function realizaImportacao(rawDados) {
+async function realizaImportacao(rawDados) {
     Swal2.fire({
         title: "Importando os dados...",
         imageUrl: "img/icones/processing.gif",
@@ -192,13 +192,13 @@ function realizaImportacao(rawDados) {
     dados.forEach((escolaSelecionada) => {
         numAlunos += Object.keys(baseDados[escolaSelecionada["ID"]]["ALUNOS"]).length
     })
-    var totalOperacoes = numEscolas + numAlunos + numAlunos + numAlunos; 
+    var totalOperacoes = numEscolas + numAlunos; 
 
     // Barra de progresso (valor atual)
     var progresso = 0;
 
-    function updateProgresso() {
-        progresso++;
+    function updateProgresso(n = 1) {
+        progresso = progresso + n;
         let progressoPorcentagem = Math.round(100 * (progresso / totalOperacoes))
         $('.progress-bar').css('width', progressoPorcentagem + "%")
         $('.progress-bar').text(progressoPorcentagem + "%")
@@ -218,7 +218,11 @@ function realizaImportacao(rawDados) {
     let censoAlunos = [];
 
     // Para cada escola
-    dados.forEach((escolaSelecionada) => {
+    dados.forEach(async (escolaSelecionada) => {
+        // Zero dado da escola e aluno
+        censoEscolas = [];
+        censoAlunos = [];
+
         // Obtem uma cópia da escola
         let idEscola = escolaSelecionada["ID"];
         var escola = Object.assign({}, baseDados[idEscola])
@@ -241,7 +245,6 @@ function realizaImportacao(rawDados) {
             // Insere o Aluno no Banco de Dados
             aluno = tiraUndefined(aluno);
             let alunoREST = ConverteAlunoParaREST(aluno, idEscola);
-            
             censoAlunos.push(alunoREST);
             // promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
             //                                    .then(() => updateProgresso()))
@@ -270,33 +273,54 @@ function realizaImportacao(rawDados) {
             // Adiciona esta escola no banco de dados
             escola = tiraUndefined(escola);
             let escolaREST = ConverteEscolaParaREST(escola);
+            
+            escolaREST["mec_co_municipio"] = codCidade;
             censoEscolas.push(escolaREST)
         }
         
-        // promiseArray.push(dbInserirPromise("escolas", escola, String(idEscola))
-        //                                   .then(() => updateProgresso()))
-    })
-
-    debugger
-    Promise.all(promiseArray)
-    .then(() => {
-        return Promise.all(promiseArrayRelacoesAntigas);
-    })
-    .then(() => {
-        var promiseArrayRelacoes = new Array();
-        for (let [idEscola, alunos] of Object.entries(relEscolaAluno)) {
-            for (let idAluno of Object.values(alunos)) {
-                promiseArrayRelacoes.push(dbInserirPromise("escolatemalunos", {
-                    "ID_ESCOLA": String(idEscola),
-                    "ID_ALUNO": idAluno
-                })
-                .then(() => updateProgresso()))
-            }
+        let payload = {
+            "alunos": censoAlunos,
+            "escolas": censoEscolas
         }
 
-        return Promise.all(promiseArrayRelacoes)
+        // let tam_update = censoAlunos.length + censoEscolas.length;
+        // promiseArray.push(restImpl.dbPOST(DB_TABLE_CENSO, "", payload)
+        //                                   .then((msg) => {
+        //                                       console.log(msg);
+        //                                       updateProgresso(tam_update)
+        //                                       return Promise.resolve();
+        //                                   }))
+        
+        let tam_update = censoAlunos.length + censoEscolas.length;
+        try {
+            await restImpl.dbPOST(DB_TABLE_CENSO, "", payload);
+            updateProgresso(tam_update)
+        } catch (error) {
+            debugger
+            console.log(error);
+        }
     })
-    .then(() => dbAtualizaVersao())
+
+    Promise.all(promiseArray)
+    // .then(() => {
+    //     debugger
+    //     return Promise.all(promiseArrayRelacoesAntigas);
+    // })
+    // .then(() => {
+    //     var promiseArrayRelacoes = new Array();
+    //     for (let [idEscola, alunos] of Object.entries(relEscolaAluno)) {
+    //         for (let idAluno of Object.values(alunos)) {
+    //             promiseArrayRelacoes.push(dbInserirPromise("escolatemalunos", {
+    //                 "ID_ESCOLA": String(idEscola),
+    //                 "ID_ALUNO": idAluno
+    //             })
+    //             .then(() => updateProgresso()))
+    //         }
+    //     }
+
+    //     return Promise.all(promiseArrayRelacoes)
+    // })
+    // .then(() => dbAtualizaVersao())
     .then(() => Swal2.fire({
             title: "Parabéns!",
             text: "Os dados foram importados com sucesso.",
