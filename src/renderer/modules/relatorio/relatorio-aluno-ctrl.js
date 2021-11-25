@@ -360,11 +360,13 @@ var preprocessarAlunos = (res) => {
 
 // Preprocessa escolas
 var preprocessarEscolasTemAlunos = (res) => {
-    totalNumEscolas = res.length;
+    let setEscolas = new Set();
     for (let escolaRaw of res) {
         let aID = escolaRaw["ID_ALUNO"];
         let eID = escolaRaw["ID_ESCOLA"];
         let eNome = escolaRaw["NOME"];
+
+        setEscolas.add(eID);
 
         let alunoJSON = listaDeAlunos.get(aID);
         alunoJSON["ID_ESCOLA"] = eID;
@@ -380,20 +382,27 @@ var preprocessarEscolasTemAlunos = (res) => {
 
         listaDeAlunos.set(aID, alunoJSON);
     }
+
+    totalNumEscolas = setEscolas.size;
     return listaDeAlunos;
 };
 
 // Preprocessa rotas
 var preprocessarRotaTemAlunos = (res) => {
-    totalNumRotas = res.length;
+    let setRotas = new Set();
+    
     res.forEach((rota) => {
         let aID = rota["ID_ALUNO"];
         let alunoJSON =  listaDeAlunos.get(aID);
+
+        let rID = rota["ID_ROTA"];
+        setRotas.add(rID);
         
         alunoJSON["ROTA"] = rota["NOME"];
         listaDeAlunos.set(aID, alunoJSON);
     })
 
+    totalNumRotas = setRotas.size;
     return listaDeAlunos;
 }
 
