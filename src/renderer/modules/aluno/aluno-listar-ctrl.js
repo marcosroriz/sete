@@ -74,7 +74,6 @@ var defaultTableConfig = {
 
                                 Promise.all(promiseArray)
                                 .then((res) => {
-                                    debugger
                                     successDialog(text = msgConclusao);
                                     dataTablesAlunos.rows('.selected').remove();
                                     dataTablesAlunos.draw();
@@ -221,10 +220,7 @@ restImpl.dbGETColecao(DB_TABLE_ALUNO)
 // .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
 // .then(res => preprocessarRotaTemAlunos(res))
 .then((res) => adicionaDadosTabela(res))
-.catch((err) => {
-    debugger
-    errorFn(err)
-})
+.catch((err) => errorFn(err))
 
 // Preprocessa alunos
 var preprocessarAlunos = (res) => {
