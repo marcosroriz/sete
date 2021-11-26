@@ -80,7 +80,9 @@ function callbackPreprocessCenso(err, arqProcessado, baseDadosProcessada) {
                 NUMERO: Object.keys(escolaValues["ALUNOS"]).length,
                 SELECT: count++
             }
-            dataTableCenso.row.add(escola);
+            // if (Object.keys(escolaValues["ALUNOS"]).length > 0) {
+                dataTableCenso.row.add(escola);
+            // }
         }
         dataTableCenso.draw();
         $("#datatables thead input[type='checkbox']").trigger('click');
@@ -131,6 +133,9 @@ function ConverteAlunoParaREST(aluno, idEscola) {
         "def_enxergar": aluno["DEF_ENXERGAR"] ? "S" : "N", // str
         "def_mental": aluno["DEF_MENTAL"] ? "S" : "N", // str
     }
+
+    if (aluno["mec_id_inep"]) alunoJSON["mec_id_inep"] = aluno["mec_id_inep"];
+    if (aluno["mec_id_proprio"]) alunoJSON["mec_id_proprio"] = aluno["mec_id_proprio"];
 
     if (aluno["LOC_CEP"]) alunoJSON["loc_cep"] = aluno["LOC_CEP"];
     if (aluno["CPF"]) alunoJSON["cpf"] = String(aluno["CPF"]).replace(/\D/g, '');
@@ -208,17 +213,11 @@ async function realizaImportacao(rawDados) {
     // posteriormente adicionar na tabela escolatemalunos
     var relEscolaAluno = {};
     
-    // Vamos Inserir os Alunos e as Escolas
-    var promiseArray = new Array();
-    
-    // Promessas de Relações Antigas
-    var promiseArrayRelacoesAntigas = new Array();
-    
     let censoEscolas = [];
     let censoAlunos = [];
 
     // Para cada escola
-    dados.forEach(async (escolaSelecionada) => {
+    for (let escolaSelecionada of dados) {
         // Zero dado da escola e aluno
         censoEscolas = [];
         censoAlunos = [];
@@ -246,24 +245,6 @@ async function realizaImportacao(rawDados) {
             aluno = tiraUndefined(aluno);
             let alunoREST = ConverteAlunoParaREST(aluno, idEscola);
             censoAlunos.push(alunoREST);
-            // promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
-            //                                    .then(() => updateProgresso()))
-
-            // Remove da escola atual (se tiver matriculado)
-            // remotedb.collection("municipios")
-            //         .doc(codCidade)
-            //         .collection("escolatemalunos")
-            //         .where("ID_ALUNO", "==", idAluno)
-            //         .get({ source: "cache" })
-            //         .then((snapshotDocumentos) => {
-            //             updateProgresso()
-            //             snapshotDocumentos.forEach(doc => {
-            //                 promiseArrayRelacoesAntigas.push(doc.ref.delete())
-            //             })
-            //         })
-            // // Remove da escola atual (se tiver matriculado)
-            // promiseArray.push(dbRemoverDadoSimplesPromise("escolatemalunos", "ID_ALUNO", idAluno)
-            //                                               .then(() => updateProgresso()))
         }
 
         if (Object.keys(escola["ALUNOS"]).length > 0) {
@@ -283,60 +264,29 @@ async function realizaImportacao(rawDados) {
             "escolas": censoEscolas
         }
 
-        // let tam_update = censoAlunos.length + censoEscolas.length;
-        // promiseArray.push(restImpl.dbPOST(DB_TABLE_CENSO, "", payload)
-        //                                   .then((msg) => {
-        //                                       console.log(msg);
-        //                                       updateProgresso(tam_update)
-        //                                       return Promise.resolve();
-        //                                   }))
-        
         let tam_update = censoAlunos.length + censoEscolas.length;
         try {
             await restImpl.dbPOST(DB_TABLE_CENSO, "", payload);
             updateProgresso(tam_update)
         } catch (error) {
-            debugger
             console.log(error);
+            return errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em 0800 616161. " +
+                           "Envie o arquivo da base de dados para verificar o que está acontecendo.", error);
         }
+    }
+
+    return Swal2.fire({
+        title: "Parabéns!",
+        text: "Os dados foram importados com sucesso.",
+        icon: "success",
+        type: "success",
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+        button: "Fechar"
     })
-
-    Promise.all(promiseArray)
-    // .then(() => {
-    //     debugger
-    //     return Promise.all(promiseArrayRelacoesAntigas);
-    // })
-    // .then(() => {
-    //     var promiseArrayRelacoes = new Array();
-    //     for (let [idEscola, alunos] of Object.entries(relEscolaAluno)) {
-    //         for (let idAluno of Object.values(alunos)) {
-    //             promiseArrayRelacoes.push(dbInserirPromise("escolatemalunos", {
-    //                 "ID_ESCOLA": String(idEscola),
-    //                 "ID_ALUNO": idAluno
-    //             })
-    //             .then(() => updateProgresso()))
-    //         }
-    //     }
-
-    //     return Promise.all(promiseArrayRelacoes)
-    // })
-    // .then(() => dbAtualizaVersao())
-    .then(() => Swal2.fire({
-            title: "Parabéns!",
-            text: "Os dados foram importados com sucesso.",
-            icon: "success",
-            type: "success",
-            closeOnClickOutside: false,
-            allowOutsideClick: false,
-            button: "Fechar"
-        }))
     .then(() => {
         navigateDashboard("./dashboard-main.html");
     })
-    .catch(err => {
-        errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em 0800 616161")
-    })
-
 }
 
 $('#importarAlunosCenso').on('click', () => {
