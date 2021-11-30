@@ -85,28 +85,24 @@ var dataTableInstitucional = $("#dataTableInstitucional").DataTable({
             className: "btnApagar",
             action: function (e, dt, node, config) {
                 action = "apagarEscola";
-                confirmDialog('Remover esse aluno?',
-                  "Ao remover esse aluno ele será retirado do sistema das rotas " + 
-                  "e das escolas que possuir vínculo."
+                confirmDialog('Remover essa escola?',
+                  "Ao remover essa escola ela será retirado do sistema das rotas " + 
+                  "e dos alunos que possuí vínculo."
                 ).then((result) => {
                     let listaPromisePraRemover = []
                     if (result.value) {
-                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ESCOLA, "ID_ESCOLA", estadoEscola["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", estadoEscola["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", estadoEscola["ID"]));
-                        listaPromisePraRemover.push(dbAtualizaVersao());
+                        listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ESCOLA, `/${estadoEscola.ID}`));
                     }
-
                     return Promise.all(listaPromisePraRemover)
                 }).then((res) => {
                     if (res.length > 0) {
-                        dataTableEscolas.row($tr).remove();
-                        dataTableEscolas.draw();
                         Swal2.fire({
                             title: "Sucesso!",
                             icon: "success",
-                            text: "Aluno(a) removido(a) com sucesso!",
+                            text: "Escola removida com sucesso!",
                             confirmButtonText: 'Retornar a página de administração'
+                        }).then(() => {
+                            navigateDashboard("./modules/escola/escola-listar-view.html");
                         });
                     }
                 }).catch((err) => errorFn("Erro ao remover a escola", err))
