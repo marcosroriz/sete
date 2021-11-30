@@ -15,14 +15,13 @@ function GetMotoristaFromForm() {
         "turno_noite": $("#temHorarioNoite").is(":checked") ? "S" : "N", // str
     }
  
-    // if ($("input[name='vinculo']:checked").length > 0) {
-    //     data["vinculo"] = Number($("input[name='vinculo']:checked").val()) // int
-    // }
+    if ($("input[name='vinculo']:checked").length > 0) {
+        data["vinculo"] = Number($("input[name='vinculo']:checked").val()) // int
+    }
 
-    // if ($("#regsalario").val() != "") data["salario"] = $("#regsalario").val();
-    // if ($("#regtelresp").val() != "") data["telefone"] = $("#regtelresp").val();
+    if ($("#regsalario").val() != "") data["salario"] = $("#regsalario").val();
     if ($("#regcnhvalidade").val() != "") data["data_validade_cnh"] = $("#regcnhvalidade").val();
-    // if ($("#regantecedentes").val() != "") data["ant_criminais"] = $("#regantecedentes").val();
+    if ($("#regantecedentes").val() != "") data["ant_criminais"] = $("#regantecedentes").val();
 
     return data;
 }

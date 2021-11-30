@@ -118,7 +118,6 @@ $("#salvarmotorista").on('click', async () => {
         // Verifica se já existe um motoriosta com o dado CPF
         let cpf = motoristaJSON["cpf"];
 
-        debugger
         loadingFn("Cadastrando o motorista ...");
         let existeCPF = false;
         try {
