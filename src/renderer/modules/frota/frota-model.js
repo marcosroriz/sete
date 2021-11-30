@@ -1,19 +1,50 @@
 function GetVeiculoFromForm() {
-    return {
-        "MODO": $("input[name='tipoModal']:checked").val(), // int
-        "MARCA": $("#tipoMarca").val(), // int
-        "TIPO": $("#tipoVeiculo").val(), // int
-        "MODELO": $("#listamodelo").val(),
-        "ANO": $("#reganoaquisicao").val(),
-        "ORIGEM": $("input[name='origemVeiculo']:checked").val(),
+    let modo = Number($("input[name='tipoModal']:checked").val());
+    let data = {
+        "modo": modo,
+        "marca": $("#tipoMarca").val(),
+        "tipo": $("#tipoVeiculo").val(), // int
+        "modelo": $("#listamodelo").val(),
+        "ano": $("#reganoaquisicao").val(),
+        "origem": Number($("input[name='origemVeiculo']:checked").val()),
+        "placa": $("#regplaca").val().toUpperCase(),
+        "renavam": $("#regrenavam").val(),
+        "capacidade": $("#capacidade").val(),
+        "manutencao": $("#temHorarioManha").is(":checked") ? "S" : "N", // str
+    }
+    
+    if ($("#regkm").val() != "" && $("#regkm").val() != null) {
+        data["km_inicial"] = $("#regkm").val();
+    }
+    if ($("#regkm").val() != "" && $("#regkm").val() != null) {
+        data["km_atual"] = $("#regkm").val();
+    }
+    if ($("#numeroDePneus").val() != "" && $("#numeroDePneus").val() != null) {
+        data["numero_de_pneus"] = $("#numeroDePneus").val();
+    }
+    if ($("#vidaUtilPneu").val() != "" && $("#vidaUtilPneu").val() != null) {
+        data["vida_util_do_pneu"] = $("#vidaUtilPneu").val();
+    }
+    if ($("#numCavalos").val() != "" && $("#numCavalos").val() != null) {
+        data["potencia_do_motor"] = $("#numCavalos").val();
+    }
+    if ($("#precoVeiculo").val() != "" && $("#precoVeiculo").val() != null) {
+        data["preco"] = $("#precoVeiculo").val();
+    }
+    if ($("#regipva").val() != "" && $("#regipva").val() != null) {
+        data["ipva"] = $("#regipva").val();
+    }
+    if ($("#regdpvat").val() != "" && $("#regdpvat").val() != null) {
+        data["dpvat"] = $("#regdpvat").val();
+    }
+    if ($("#regseguroanual").val() != "" && $("#regseguroanual").val() != null) {
+        data["seguro_anual"] = $("#regseguroanual").val();
+    }
+    if ($("#consumoVeiculo").val() != "" && $("#consumoVeiculo").val() != null) {
+        data["consumo"] = $("#consumoVeiculo").val();
+    }
 
-        "PLACA": $("#regplaca").val().toUpperCase(),
-        "RENAVAM": $("#regrenavam").val(),
-        "KM_INICIAL": $("#regkm").val(),
-        "KM_ATUAL": $("#regkm").val(),
-        "CAPACIDADE": $("#capacidade").val(),
-        "MANUTENCAO": Boolean(parseInt($("input[name='manutencao']:checked").val())), // boolean
-    };
+    return data;
 }
 
 function GetOSFromForm() {
@@ -88,12 +119,28 @@ var parseOSDB = function (osRaw) {
     return osJSON;
 }
 
+// Transformar linha da API REST para JSON
+var parseVeiculoREST = function (veiculoRaw) {
+    let veiculoJSON = Object.assign({}, veiculoRaw);
+    // Arrumando campos novos para os que já usamos. 
+    // Atualmente os campos são em caixa alta (e.g. NOME ao invés de nome)
+    // Entretanto, a API está retornando valores em minúsculo
+    for (let attr of Object.keys(veiculoJSON)) {
+        veiculoJSON[attr.toUpperCase()] = veiculoJSON[attr];
+    }
+
+    // Fixa o ID
+    veiculoJSON["ID"] = veiculoJSON["id_veiculo"];
+
+    return parseVeiculoDB(veiculoJSON);
+};
+
 var parseVeiculoDB = function (veiculoRaw) {
     var veiculoJSON = Object.assign({}, veiculoRaw);
     veiculoJSON["CAPACIDADE_ATUAL"] = 0;
     veiculoJSON["CAPACIDADE"] = Number(veiculoJSON["CAPACIDADE"]);
 
-    if (veiculoJSON["MANUTENCAO"]) {
+    if (veiculoJSON["MANUTENCAO"] == "Sim" || veiculoJSON["MANUTENCAO"] == true) {
         veiculoJSON["ESTADO"] = "Manutenção";
     } else {
         veiculoJSON["ESTADO"] = "Operação";

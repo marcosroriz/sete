@@ -70,11 +70,11 @@
                                                 <div class="obrlabel">
                                                     Obrigatório
                                                 </div>
-                                                <label class="control-label">
+                                                <label class="control-label col-4">
                                                     <b>Qual o tipo de veículo?</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-7 mt-1">
+                                                <div class="col-6 mt-1">
                                                     <select id="tipoVeiculo" name="tipoVeiculo" class="form-control">
                                                         <option class="tipoNeutro" value="0">Selecione o modal primeiro
                                                         </option>
@@ -103,23 +103,82 @@
                                                 <div class="obrlabel">
                                                     Obrigatório
                                                 </div>
-                                                <label class="control-label">
+                                                <label class="control-label col-4">
                                                     <b>Qual a marca do veículo?</b>
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-7 mt-1">
+                                                <div class="col-6 mt-1">
                                                     <select id="tipoMarca" name="tipoMarca" class="form-control">
-                                                        <option class="tipoNeutro" value="0">Selecione o modal primeiro</option>
+                                                        <option class="tipoNeutro" value="0">Selecione o modal primeiro
+                                                        </option>
                                                         <option class="tipoRodo" value="1">Iveco</option>
                                                         <option class="tipoRodo" value="2">Mercedes-Benz</option>
                                                         <option class="tipoRodo" value="3">Renault</option>
                                                         <option class="tipoRodo" value="4">Volkswagen</option>
                                                         <option class="tipoRodo" value="5">Volare</option>
-                                                        <option class="tipoAqua" value="6">EMGEPRON (Empresa Gerencial de Projetos Navais)</option>
+                                                        <option class="tipoAqua" value="6">EMGEPRON (Empresa Gerencial
+                                                            de Projetos Navais)</option>
                                                         <option class="tipoAqua" value="7">ESTALEIRO B3</option>
                                                         <option class="tipoAqua" value="8">Yamanha</option>
                                                         <option value="10">Outra</option>
                                                     </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 tipoRodo">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Optativa
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Número de Pneus:</b>
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="numeroDePneus" name="numeroDePneus" type="number"
+                                                        placeholder="4" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 tipoRodo">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Optativa
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Vida útil do pneu:</b>
+                                                </label>
+                                                <div class="input-group col-6">
+                                                    <input id="vidaUtilPneu" name="vidaUtilPneu" type="number"
+                                                        placeholder="20" class="form-control">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">km rodados</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="obrlabel">
+                                                    Optativa
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    <b>Potência do motor:</b>
+                                                </label>
+                                                <div class="input-group col-6">
+                                                    <input id="numCavalos" name="numCavalos" type="number"
+                                                        placeholder="80" class="form-control">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">cavalos</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -168,6 +227,26 @@
                                                         min="1900" max="2050"
                                                         placeholder="Informe o ano de aquisição do veículo:"
                                                         class="form-control anoaquisicao">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Preço do Veículo:
+                                                </label>
+                                                <div class="input-group col-6">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">R$</span>
+                                                    </div>
+                                                    <input id="precoVeiculo" name="precoVeiculo" type="text"
+                                                        placeholder="Valor em Reais" class="form-control money">
                                                 </div>
                                             </div>
                                         </div>
@@ -224,8 +303,7 @@
                                                 </label>
                                                 <div class="col-6">
                                                     <input id="regplaca" name="regplaca" type="text"
-                                                           placeholder="Formato AAA-0000" 
-                                                           class="form-control placa">
+                                                        placeholder="Formato AAA-0000" class="form-control placa">
                                                 </div>
                                             </div>
                                         </div>
@@ -248,13 +326,14 @@
                                                 </div>
                                             </div>
                                             <div class="row text-center">
-                                                <span class="col-12 mt-3 mb-0 hint">Informe 9 dígitos (formato antigo) ou 11 dígitos (formato novo)</span>
+                                                <span class="col-12 mt-3 mb-0 hint">Informe 9 dígitos (formato antigo)
+                                                    ou 11 dígitos (formato novo)</span>
                                             </div>
                                         </div>
                                     </div>
 
 
-                                    <div class="col-12">
+                                    <div class="col-12 tipoRodo">
                                         <div class="form-group">
                                             <div class="row">
                                                 <div class="optlabel">
@@ -288,8 +367,7 @@
                                                 <div class="input-group col-6">
                                                     <input id="capacidade" name="capacidade" type="text"
                                                         placeholder="Informe a capacidade do veículo:"
-                                                        onkeypress="return onlynumber();"
-                                                        class="form-control">
+                                                        onkeypress="return onlynumber();" class="form-control">
                                                     <div class="input-group-append">
                                                         <span class="input-group-text">passageiros</span>
                                                     </div>
@@ -329,6 +407,146 @@
                                             </div>
                                         </div>
                                     </div>
+
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Valor do IPVA do Veículo (anual e com licensiamento)
+                                                </label>
+                                                <div class="input-group col-6 mt-2">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">R$</span>
+                                                    </div>
+                                                    <input id="regipva" name="regipva" type="text"
+                                                        placeholder="Valor em Reais" class="form-control money">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Valor anual do DPVAT do Veículo
+                                                </label>
+                                                <div class="input-group col-6 mt-2">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">R$</span>
+                                                    </div>
+                                                    <input id="regdpvat" name="regdpvat" type="text"
+                                                        placeholder="Valor em Reais" class="form-control money">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Seguro anual do veículo
+                                                </label>
+                                                <div class="input-group col-6 mt-2">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">R$</span>
+                                                    </div>
+                                                    <input id="regseguroanual" name="regseguroanual" type="text"
+                                                        placeholder="Valor em Reais" class="form-control money">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label" id="input-consumo-label">
+                                                    Consumo do veículo (KM/L)
+                                                </label>
+                                                <div class="input-group col-6 mt-2">
+                                                    <input id="consumoVeiculo" name="consumoVeiculo" type="text"
+                                                        placeholder="Informe o consumo do veículo:"
+                                                        class="form-control kmmask">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text" id="input-consumo-unidade">km</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="col-12 mb-3">
+                                                <label class="control-label">
+                                                    <b>Tipo de combustível preferencial</b>
+                                                </label>
+                                            </div>
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="tipoCombustivel" value="G">
+                                                        <span class="form-check-sign"></span>
+                                                        Gasolina
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="tipoCombustivel" value="D">
+                                                        <span class="form-check-sign"></span>
+                                                        Diesel
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="tipoCombustivel" value="E">
+                                                        <span class="form-check-sign"></span>
+                                                        Etanol
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="tipoCombustivel" value="N">
+                                                        <span class="form-check-sign"></span>
+                                                        Gás Natural
+                                                    </label>
+                                                </div>
+
+                                                <div class="form-check form-check-radio">
+                                                    <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="tipoCombustivel" value="O">
+                                                        <span class="form-check-sign"></span>
+                                                        Outro
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                 </div>
                                 <!-- Fim aba dados detalhes -->
                             </div>

@@ -13,6 +13,8 @@ $('.cep').mask("00000-000");
 $(".cpfmask").mask("000.000.000-00", { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".anoaquisicao").mask("0000");
+$('.money').mask('#.##0,00', {reverse: true});
+
 $(".placa").mask("SSS-ZZZZ", {
     translation: {
         'Z': {
@@ -36,12 +38,18 @@ $("input[name='tipoModal']").on("change", (evt) => {
 
         $("#tipoVeiculo").val($('.tipoRodo')[0].value);
         $("#tipoMarca").val($('.tipoRodo')[0].value);
+
+        $("#input-consumo-label").text("Consumo do veículo (KM/L)");
+        $("#input-consumo-unidade").text("KM/L");
     } else {
         $(".tipoRodo").hide();
         $(".tipoAqua").show();
 
         $("#tipoVeiculo").val($('.tipoAqua')[0].value);
         $("#tipoMarca").val(6);
+
+        $("#input-consumo-label").text("Consumo do veículo (L/HORA)");
+        $("#input-consumo-unidade").text("L / HORA");
     }
 });
 
@@ -135,6 +143,7 @@ $("#salvarveiculo").on('click', () => {
     $("#capacidade").valid();
     $("[name='manutencao']").valid();
     var veiculoJSON = GetVeiculoFromForm();
+    debugger
 
     var $valid = $('#wizardCadastrarVeiculoForm').valid();
     if (!$valid) {
@@ -143,18 +152,21 @@ $("#salvarveiculo").on('click', () => {
         if (estaEditando) {
             loadingFn("Editando o veículo ...")
             let idVeiculo = estadoVeiculo["ID"];
-
-            dbAtualizarPromise(DB_TABLE_VEICULO, veiculoJSON, idVeiculo)
-                .then(() => dbAtualizaVersao())
+            restImpl.dbPUT(DB_TABLE_VEICULO, "/" + idVeiculo, veiculoJSON)
                 .then(() => completeForm())
-                .catch((err) => errorFn("Erro ao atualizar o veículo.", err))
+                .catch((err) => {
+                    debugger
+                    errorFn("Erro ao atualizar o veículo.", err)
+                })
         } else {
             loadingFn("Cadastrando o veículo ...")
 
-            dbInserirPromise(DB_TABLE_VEICULO, veiculoJSON)
-                .then(() => dbAtualizaVersao())
-                .then(() => completeForm())
-                .catch((err) => errorFn("Erro ao salvar o veículo.", err))
+            restImpl.dbPOST(DB_TABLE_VEICULO, "", veiculoJSON)
+            .then(() => completeForm())
+            .catch((err) => {
+                debugger
+                errorFn("Erro ao salvar o veiculo.", err)
+            })
         }
     }
 });
