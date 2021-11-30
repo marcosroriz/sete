@@ -7,6 +7,9 @@
 // Variável que armazena os alunos apresentados (será preenchida)
 var listaDeAlunos = new Map();
 
+// Variável que armazena o número de alunos
+var numAlunos = 0;
+
 // Configura o DataTables
 var defaultTableConfig = {
     // A função abaixo inicia nossa pré-configuração do datatable
@@ -77,6 +80,9 @@ var defaultTableConfig = {
                                     successDialog(text = msgConclusao);
                                     dataTablesAlunos.rows('.selected').remove();
                                     dataTablesAlunos.draw();
+
+                                    numAlunos = numAlunos - rawDados.length;
+                                    $("#totalNumAlunos").text(String(numAlunos));
                                 })
                             }
                         })
@@ -215,16 +221,15 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
 
 restImpl.dbGETColecao(DB_TABLE_ALUNO)
 .then(res => preprocessarAlunos(res))
-// .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-// .then(res => preprocessarEscolasTemAlunos(res))
-// .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-// .then(res => preprocessarRotaTemAlunos(res))
-.then((res) => adicionaDadosTabela(res))
-.catch((err) => errorFn(err))
+.then(res => adicionaDadosTabela(res))
+.catch(err => errorFn(err))
 
 // Preprocessa alunos
 var preprocessarAlunos = (res) => {
     $("#totalNumAlunos").text(res.length);
+
+    numAlunos = Number(res.length);
+
     for (let alunoRaw of res) {
         let alunoJSON = parseAlunoREST(alunoRaw);
         listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
