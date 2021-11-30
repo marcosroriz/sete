@@ -134,40 +134,77 @@ function mostraSeTemUpdate(firstAcess) {
 }
 
 // Preenche Dashboard
-function preencheDashboard() {
-    var dashPromises = new Array();
+async function preencheDashboard() {
+    let dashPromises = new Array();
 
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ALUNO).then((res) => {
-        res.forEach(aluno => hashMapAlunos.set(aluno["ID"], parseAlunoDB(aluno)))
-    }))
+    let alunos = [];
+    let escolas = [];
+    let alunosRAW = [];
+    let escolasRAW = [];
+    let escolaSet = new Set();
+    try {
+        alunosRAW = await restImpl.dbGETColecao(DB_TABLE_ALUNO);
+        escolasRAW = await restImpl.dbGETColecao(DB_TABLE_ESCOLA);
 
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA).then((res) => {
-        res.forEach(escola => {
-            let escolaJSON = parseEscolaDB(escola);
-            escolaJSON["NUM_ALUNOS"] = 0;
-            hashMapEscolas.set(escolaJSON["ID"], escolaJSON);
-        })
-    }))
+        alunosRAW.forEach(aluno => {
+            let alunoJSON = parseAlunoREST(aluno);
 
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS).then((res) => {
-        $("#alunosAtendidos").text(res.length);
+            // Adiciona no hashmap
+            hashMapAlunos.set(alunoJSON["ID"], alunoJSON);
 
-        let escolasAtendidas = new Set()
-        res.forEach(relEscolaAluno => escolasAtendidas.add(relEscolaAluno["ID_ESCOLA"]))
+            if (aluno.escola && aluno.escola != "Não Informada") {
+                alunos.add(aluno);
+                escolaSet.add(aluno.escola);
+            }
+        });
 
-        $("#escolasAtendidas").text(escolasAtendidas.size);
-    }))
+        escolas = [...escolaSet];
+    } finally {
+        $("#alunosAtendidos").text(alunos.length + " / "  + alunosRAW.length);
+        $("#escolasAtendidas").text(escolas.length + " / " + escolasRAW.length);
+    }
+    
+    let veiculos = [];
+    let func = naofunc = 0;
+    try {
+        veiculos = await restImpl.dbGETColecao(DB_TABLE_VEICULO);
 
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_VEICULO).then((res) => {
-        let func = naofunc = 0;
-        res.forEach(veiculo => {
-            let veiculoJSON = parseVeiculoDB(veiculo);
+        veiculos.forEach(veiculo => {
+            let veiculoJSON = parseVeiculoREST(veiculo);
             hashMapVeiculos.set(veiculoJSON["ID"], veiculoJSON);
-            veiculo["MANUTENCAO"] ? naofunc++ : func++
+            veiculoJSON["MANUTENCAO"] == "Sim" ? naofunc++ : func++
         })
+    } finally {
         $("#veiculosFuncionamento").text(func);
         $("#veiculosNaoFuncionamento").text(naofunc);
-    }))
+    }
+
+    let rotas = [];
+    let totalRotas = 0;
+    let totalKM = 0;
+    let totalKMMedio = 0;
+    let totalTempo = 0;
+    try {
+        rotas = await restImpl.dbGETColecao(DB_TABLE_ROTA);
+        totalRotas = rotas.length;
+
+        rotas.forEach(rota => {
+            let rotaJSON = parseRotaDBREST(rota);
+            rotaJSON["NUM_ALUNOS_ROTA"] = 0;
+            hashMapRotas.set(rotaJSON["ID"], rotaJSON);
+
+            let rotakm = Number(String(rotaJSON.km).replace(",","."))
+            totalKM = totalKM + rotakm;
+        })
+    } finally {
+        if (totalRotas != 0) {
+            totalKMMedio = Math.round(totalKM / totalRotas);
+        }
+        $("#qtdeRotas").text(totalRotas);
+        $("#kmTotal").text(Math.round(totalKM) + " km");
+        $("#kmMedio").text(totalKMMedio + " km");
+        $("#tempoMedio").text(totalTempo + " min");
+    }
 
     dashPromises.push(dbBuscarTodosDadosNoServidorPromise(DB_TABLE_REALTIME_VIAGENSALERTA).then((res) => {
         let dataDeHoje = new Date().toISOString().split("T")[0];
@@ -179,28 +216,28 @@ function preencheDashboard() {
         })
     }))
 
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ROTA).then((res) => {
-        var totalRotas = res.length;
-        var totalKM = 0;
-        var totalKMMedio = 0;
-        var totalTempo = 0;
-        res.forEach((rota) => {
-            totalKM = totalKM + parseFloat(rota["KM"]);
-            totalTempo = totalTempo + parseFloat(rota["TEMPO"]);
-            rota["NUM_ALUNOS_ROTA"] = 0;
-            hashMapRotas.set(rota["ID"], rota)
-        });
+    // dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ROTA).then((res) => {
+    //     var totalRotas = res.length;
+    //     var totalKM = 0;
+    //     var totalKMMedio = 0;
+    //     var totalTempo = 0;
+    //     res.forEach((rota) => {
+    //         totalKM = totalKM + parseFloat(rota["KM"]);
+    //         totalTempo = totalTempo + parseFloat(rota["TEMPO"]);
+    //         rota["NUM_ALUNOS_ROTA"] = 0;
+    //         hashMapRotas.set(rota["ID"], rota)
+    //     });
 
-        if (totalRotas != 0) {
-            totalKMMedio = Math.round(totalKM / totalRotas);
-            totalTempo = Math.round(totalTempo / totalRotas);
-        }
+    //     if (totalRotas != 0) {
+    //         totalKMMedio = Math.round(totalKM / totalRotas);
+    //         totalTempo = Math.round(totalTempo / totalRotas);
+    //     }
 
-        $("#qtdeRotas").text(totalRotas);
-        $("#kmTotal").text(Math.round(totalKM) + " km");
-        $("#kmMedio").text(totalKMMedio + " km");
-        $("#tempoMedio").text(totalTempo + " min");
-    }))
+    //     $("#qtdeRotas").text(totalRotas);
+    //     $("#kmTotal").text(Math.round(totalKM) + " km");
+    //     $("#kmMedio").text(totalKMMedio + " km");
+    //     $("#tempoMedio").text(totalTempo + " min");
+    // }))
 
     return Promise.all(dashPromises)
 }
