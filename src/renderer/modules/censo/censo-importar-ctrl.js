@@ -80,9 +80,9 @@ function callbackPreprocessCenso(err, arqProcessado, baseDadosProcessada) {
                 NUMERO: Object.keys(escolaValues["ALUNOS"]).length,
                 SELECT: count++
             }
-            // if (Object.keys(escolaValues["ALUNOS"]).length > 0) {
+            if (Object.keys(escolaValues["ALUNOS"]).length > 0) {
                 dataTableCenso.row.add(escola);
-            // }
+            }
         }
         dataTableCenso.draw();
         $("#datatables thead input[type='checkbox']").trigger('click');
