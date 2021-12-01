@@ -110,7 +110,6 @@ $("#salvarmotorista").on('click', async () => {
     $("[name='temHorario[]']").valid();
     
     var motoristaJSON = GetMotoristaFromForm();
-
     var $valid = $('#wizardCadastrarMotoristaForm').valid();
     if (!$valid) {
         return false;
@@ -122,11 +121,9 @@ $("#salvarmotorista").on('click', async () => {
         let existeCPF = false;
         try {
             let res = await restImpl.dbGETEntidade(DB_TABLE_MOTORISTA, `/${cpf}`);
-            debugger
             existeCPF = true;
             console.log(res);
         } catch (err) {
-            debugger
             existeCPF = false;
             console.log(err);
         }
@@ -150,7 +147,7 @@ $("#salvarmotorista").on('click', async () => {
                 loadingFn("Editando o motorista ...")
 
                 let idMotorista = estadoMotorista["ID"];
-                restImpl.dbPUT(DB_TABLE_MOTORISTA, "/" + idMotorista, escolaJSON)
+                restImpl.dbPUT(DB_TABLE_MOTORISTA, "/" + idMotorista, motoristaJSON)
                 .then(() => completeForm())
                 .catch((err) => errorFn("Erro ao atualizar o motorista.", err))
             } else {
@@ -166,23 +163,32 @@ $("#salvarmotorista").on('click', async () => {
 });
 
 if (estaEditando) {
-    PopulateMotoristaFromState(estadoMotorista); 
-    
-    // Reativa máscaras
-    $('.cep').trigger('input');
-    $(".cpfmask").trigger('input');
-    $(".telmask").trigger('input');
-    $(".datanasc").trigger('input');
-    $('.cnh').trigger('input');
+    restImpl.dbGETEntidade(DB_TABLE_MOTORISTA, `/${estadoMotorista.ID}`)
+    .then((motoristaRaw) => {
+        if (motoristaRaw) {
+            estadoMotorista = parseMotoristaREST(motoristaRaw);
+            PopulateMotoristaFromState(estadoMotorista);
 
-    $("#cancelarAcao").on('click', () => {
-        cancelDialog()
-        .then((result) => {
-            if (result.value) {
-                navigateDashboard(lastPage);
-            }
-        })
-    });
+            // Reativa máscaras
+            $('.cep').trigger('input');
+            $(".cpfmask").trigger('input');
+            $(".telmask").trigger('input');
+            $(".datanasc").trigger('input');
+            $('.cnh').trigger('input');
+            $("#regsalario").trigger('input');
+
+            $("#cancelarAcao").on('click', () => {
+                cancelDialog()
+                    .then((result) => {
+                        if (result.value) {
+                            navigateDashboard(lastPage);
+                        }
+                    })
+            });
+        }
+    }).catch((err) => {
+        errorFn("Erro ao editar o motorista", err)
+    })
 }
 
 action = "cadastrarMotorista"

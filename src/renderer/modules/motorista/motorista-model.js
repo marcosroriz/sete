@@ -19,7 +19,14 @@ function GetMotoristaFromForm() {
         data["vinculo"] = Number($("input[name='vinculo']:checked").val()) // int
     }
 
-    if ($("#regsalario").val() != "") data["salario"] = $("#regsalario").val();
+    if ($("#regsalario").val() != "") {
+        data["salario"] = strToNumber($("#regsalario").val());
+    }
+
+    if ($("#regtelresp").val() != "") {
+        data["telefone"] = $("#regtelresp").val();
+    }
+
     if ($("#regcnhvalidade").val() != "") data["data_validade_cnh"] = $("#regcnhvalidade").val();
     if ($("#regantecedentes").val() != "") data["ant_criminais"] = $("#regantecedentes").val();
 
@@ -103,6 +110,8 @@ var parseMotoristaDB = function (motoristaRaw) {
             motoristaJSON[prop.toUpperCase()] = false;
         }
     }
+
+    motoristaJSON["SALARIO"] = Number(motoristaJSON["SALARIO"]);
 
     var categorias = new Array();
     if (motoristaJSON["TEM_CNH_A"]) categorias.push("A");

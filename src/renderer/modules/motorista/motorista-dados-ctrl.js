@@ -72,12 +72,9 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
                                "rotas e das escolas que possuir vínculo."
                 ).then((res) => {
                     let listaPromisePraRemover = []
-                    if (res.value) {
-                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
-                        listaPromisePraRemover.push(dbAtualizaVersao());
+                    if (result.value) {
+                        listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_MOTORISTA, `/${estadoMotorista.ID}`));
                     }
-
                     return Promise.all(listaPromisePraRemover)
                 }).then((res) => {
                     if (res.length > 0) {
@@ -90,7 +87,7 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
                             navigateDashboard("./modules/motorista/motorista-listar-view.html");
                         });
                     }
-                }).catch((err) => errorFn("Erro ao remover a escola", err))
+                }).catch((err) => errorFn("Erro ao remover o motorista", err))
             }
         },
     ]
@@ -149,7 +146,13 @@ var popularTabelaMotorista = () => {
     })
 }
 
-popularTabelaMotorista();
+restImpl.dbGETEntidade(DB_TABLE_MOTORISTA, `/${estadoMotorista.ID}`)
+.then((motoristaRaw) => {
+    let detalhesDoMotorista = parseMotoristaREST(motoristaRaw);
+    Object.assign(estadoMotorista, detalhesDoMotorista);
+    return estadoMotorista;
+}).then(() => popularTabelaMotorista())
+
 
 $("#detalheInitBtn").click();
 
