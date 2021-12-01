@@ -297,3 +297,7 @@ cssParaCarregar.forEach((css) => {
     head.appendChild(link);
   }
 });
+
+function strToNumber(str) {
+  return Number(String(str).replace(".","").replace(",","."));
+}
