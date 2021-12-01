@@ -9,6 +9,26 @@ var restAPI = axios.create({
     headers: { 'Authorization': userconfig.get("TOKEN") }
 });
 
+// Refresh do token
+restAPI.interceptors.response.use((response) => {
+    return response
+}, async function (error) {
+    const originalRequest = error.config;
+
+    if (error.response.status === 403 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        const username = userconfig.get("EMAIL");
+        const userpass = md5(userconfig.get("PASSWORD"));
+        const resp = await axios.post(BASE_URL + "/authenticator/sete", {
+            usuario: username,
+            senha: userpass
+        });
+        userconfig.set("TOKEN", resp.data.access_token.access_token)
+        restAPI.defaults.headers.Authorization = resp.data.access_token.access_token;
+        return restAPI(originalRequest);
+    }
+    return Promise.reject(error);
+});
 
 // Função que desempacota os documentos da API em um vetor de dados
 function DesempacotaPromise(snapshotDocumentos) {
