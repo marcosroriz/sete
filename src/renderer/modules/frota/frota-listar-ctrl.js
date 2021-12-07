@@ -76,7 +76,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                                 })
 
                                 var progresso = 0;
-                                var max = rawDados.length * 2 + 1;
+                                var max = rawDados.length;
 
                                 function updateProgress() {
                                     progresso++;
@@ -87,20 +87,13 @@ var dataTablesVeiculos = $("#datatables").DataTable({
 
                                 var promiseArray = new Array();
                                 
-                                // Removendo cada motorista
+                                // Removendo cada veículo
                                 rawDados.forEach(v => {
                                     let idVeiculo = v["ID"];
-                                    promiseArray.push(
-                                        dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", idVeiculo)
-                                        .then(() => updateProgress())
-                                    );
-                                    promiseArray.push(
-                                        dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", idVeiculo)
-                                        .then(() => updateProgress())
-                                    );
+                                    console.log(DB_TABLE_VEICULO, "/", idVeiculo);
+                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_VEICULO, `/${idVeiculo}`).then(() => updateProgress()));
                                 })
-
-                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
+                                
                                 Promise.all(promiseArray)
                                 .then(() => {
                                     successDialog(text = msgConclusao);
@@ -206,8 +199,8 @@ dataTablesVeiculos.on('click', '.frotaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover o veículo", err))
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
-// restImpl.dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+// dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+restImpl.dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
 .then(res => processarVeiculos(res))
 .then(res => adicionaDadosTabela(res))
 .catch((err) => errorFn("Erro ao listar os veículos!", err))
@@ -216,7 +209,8 @@ dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
 var processarVeiculos = (res) => {
     $("#totalNumVeiculos").text(res.length);
     for (let veiculoRaw of res) {
-        let veiculoJSON = parseVeiculoDB(veiculoRaw);
+        console.log(veiculoRaw)
+        let veiculoJSON = parseVeiculoREST(veiculoRaw);
         veiculoJSON["ID_VEICULO"] = veiculoJSON["ID"]
         listaDeVeiculos.set(veiculoJSON["ID_VEICULO"], veiculoJSON);
     }

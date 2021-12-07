@@ -3,45 +3,45 @@ function GetVeiculoFromForm() {
     let data = {
         "modo": modo,
         "marca": $("#tipoMarca").val(),
-        "tipo": $("#tipoVeiculo").val(), // int
+        "tipo": $("#tipoVeiculo").val(), 
         "modelo": $("#listamodelo").val(),
         "ano": $("#reganoaquisicao").val(),
         "origem": Number($("input[name='origemVeiculo']:checked").val()),
         "placa": $("#regplaca").val().toUpperCase(),
         "renavam": $("#regrenavam").val(),
-        "capacidade": $("#capacidade").val(),
+        "capacidade": Number($("#capacidade").val()),
         "manutencao": $("#temHorarioManha").is(":checked") ? "S" : "N", // str
     }
     
     if ($("#regkm").val() != "" && $("#regkm").val() != null) {
-        data["km_inicial"] = $("#regkm").val();
+        data["km_inicial"] = strToNumber($("#regkm").val());
     }
     if ($("#regkm").val() != "" && $("#regkm").val() != null) {
-        data["km_atual"] = $("#regkm").val();
+        data["km_atual"] = strToNumber($("#regkm").val());
     }
     if ($("#numeroDePneus").val() != "" && $("#numeroDePneus").val() != null) {
-        data["numero_de_pneus"] = $("#numeroDePneus").val();
+        data["numero_de_pneus"] = Number($("#numeroDePneus").val());
     }
     if ($("#vidaUtilPneu").val() != "" && $("#vidaUtilPneu").val() != null) {
-        data["vida_util_do_pneu"] = $("#vidaUtilPneu").val();
+        data["vida_util_do_pneu"] = Number($("#vidaUtilPneu").val());
     }
     if ($("#numCavalos").val() != "" && $("#numCavalos").val() != null) {
-        data["potencia_do_motor"] = $("#numCavalos").val();
+        data["potencia_do_motor"] = Number($("#numCavalos").val());
     }
     if ($("#precoVeiculo").val() != "" && $("#precoVeiculo").val() != null) {
-        data["preco"] = $("#precoVeiculo").val();
+        data["preco"] = strToNumber($("#precoVeiculo").val());
     }
     if ($("#regipva").val() != "" && $("#regipva").val() != null) {
-        data["ipva"] = $("#regipva").val();
+        data["ipva"] = strToNumber($("#regipva").val());
     }
     if ($("#regdpvat").val() != "" && $("#regdpvat").val() != null) {
-        data["dpvat"] = $("#regdpvat").val();
+        data["dpvat"] = strToNumber($("#regdpvat").val());
     }
     if ($("#regseguroanual").val() != "" && $("#regseguroanual").val() != null) {
-        data["seguro_anual"] = $("#regseguroanual").val();
+        data["seguro_anual"] = strToNumber($("#regseguroanual").val());
     }
     if ($("#consumoVeiculo").val() != "" && $("#consumoVeiculo").val() != null) {
-        data["consumo"] = $("#consumoVeiculo").val();
+        data["consumo"] = strToNumber($("#consumoVeiculo").val());
     }
 
     return data;

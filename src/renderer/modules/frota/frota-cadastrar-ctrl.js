@@ -15,7 +15,7 @@ $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".anoaquisicao").mask("0000");
 $('.money').mask('#.##0,00', {reverse: true});
 
-$(".placa").mask("SSS-ZZZZ", {
+$(".placa").mask("ZZZ-ZZZZ", {
     translation: {
         'Z': {
             pattern: /[A-Za-z0-9]/
@@ -172,21 +172,28 @@ $("#salvarveiculo").on('click', () => {
 });
 
 if (estaEditando) {
-    PopulateVeiculoFromState(estadoVeiculo);
-    $('.cep').trigger("input");
-    $(".cpfmask").trigger("input");
-    $(".telmask").trigger("input");
-    $(".anoaquisicao").trigger("input");
-    $(".placa").trigger("input");
-    $(".renavam").trigger("input");
-    $(".kmmask").trigger("input");
+    restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${estadoVeiculo.ID}`)
+    .then((veiculoRaw) => {
+        if (veiculoRaw) {
+            estadoVeiculo = parseVeiculoREST(veiculoRaw);
 
-    $("#cancelarAcao").click(() => {
-        cancelDialog()
-            .then((result) => {
-                if (result.value) {
-                    navigateDashboard(lastPage);
-                }
-            })
-    });
+            PopulateVeiculoFromState(estadoVeiculo);
+            $('.cep').trigger("input");
+            $(".cpfmask").trigger("input");
+            $(".telmask").trigger("input");
+            $(".anoaquisicao").trigger("input");
+            $(".placa").trigger("input");
+            $(".renavam").trigger("input");
+            $(".kmmask").trigger("input");
+        
+            $("#cancelarAcao").click(() => {
+                cancelDialog()
+                    .then((result) => {
+                        if (result.value) {
+                            navigateDashboard(lastPage);
+                        }
+                    })
+            });
+        }
+    })
 }
