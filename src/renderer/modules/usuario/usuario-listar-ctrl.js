@@ -106,7 +106,10 @@ dbBuscarTodosUsuarios()
 .then((listaDeUsuarios) => adicionaDadosTabela(listaDeUsuarios))
 .then(() => mostraCamposAdmin())
 .then(() => Swal2.close())
-.catch((err) => errorFn("Erro ao acessar os dados dos usuários cadastrados", err))
+.catch((err) => {
+    debugger
+    errorFn("Erro ao acessar os dados dos usuários cadastrados", err)
+})
 
 // Processa os usuários permitidos
 function processaUsuariosPermitidos(relUsuariosPermitidos) {
@@ -129,10 +132,13 @@ function processaUsuariosPermitidos(relUsuariosPermitidos) {
 function insereDadoNaLista(listaEspecificaDeUsuarios, papelSTR, papelNUM) {
     listaEspecificaDeUsuarios.forEach(idUsuario => {
         let usuarioAlvo = listaDeTodosOsUsuarios.get(idUsuario);
-        usuarioAlvo["PAPEL"] = papelSTR;
-        usuarioAlvo["PAPELNUM"] = papelNUM;
+        if (usuarioAlvo) {
+            usuarioAlvo["PAPEL"] = papelSTR;
+            usuarioAlvo["PAPELNUM"] = papelNUM;
+            
+            listaDeUsuarios.set(idUsuario, usuarioAlvo);
+        }
         
-        listaDeUsuarios.set(idUsuario, usuarioAlvo)
     })
 }
 
