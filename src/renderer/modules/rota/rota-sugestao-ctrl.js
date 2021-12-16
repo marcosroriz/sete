@@ -71,6 +71,7 @@ function startTool() {
     .then(() => listaElementos())
     .catch((err) => {
         let code = err.code;
+        debugger
         if (code == "erro:malha") {
             informarNaoExistenciaDado("Malha não cadastrada", 
                                       "Cadastrar malha",
@@ -302,21 +303,23 @@ function processarVinculoAlunoEscolas(res) {
         let eNome = vinculoRaw["NOME"];
 
         let alunoJSON = alunoMap.get(aID);
-        alunoJSON["ESCOLA_ID"] = eID;
-        alunoJSON["ESCOLA_NOME"] = eNome;
-
-        // Verificar se escola do aluno está georeferenciada
-        let escolaAluno = escolaMap.get(String(eID));
-
-        if (escolaAluno && escolaAluno["GPS"]) {
-            alunoJSON["ESCOLA_TEM_GPS"] = true;
-            alunoMap.set(aID, alunoJSON);
-
-            escolaAluno["TEM_ALUNO_COM_GPS"] = true;
-            escolaMap.set(eID, escolaAluno);
-            
-            numVinculo++;
-            escolasVinculo.push(eNome)
+        if (alunoJSON) {
+            alunoJSON["ESCOLA_ID"] = eID;
+            alunoJSON["ESCOLA_NOME"] = eNome;
+    
+            // Verificar se escola do aluno está georeferenciada
+            let escolaAluno = escolaMap.get(String(eID));
+    
+            if (escolaAluno && escolaAluno["GPS"]) {
+                alunoJSON["ESCOLA_TEM_GPS"] = true;
+                alunoMap.set(aID, alunoJSON);
+    
+                escolaAluno["TEM_ALUNO_COM_GPS"] = true;
+                escolaMap.set(eID, escolaAluno);
+                
+                numVinculo++;
+                escolasVinculo.push(eNome)
+            }
         }
     }
 
@@ -884,7 +887,6 @@ ipcRenderer.on("end:route-generation", function (evt, routesJSON) {
 
         // Desenha novas rotas
         rotasGeradas = new Map();
-        debugger
         drawRoutes(routesJSON);
 
         // Ativa grupo
