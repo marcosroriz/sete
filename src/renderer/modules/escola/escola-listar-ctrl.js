@@ -39,7 +39,13 @@ var dataTableEscolas = $("#datatables").DataTable({
         ],
         columnDefs: [
             { targets: 0, 'checkboxes': { 'selectRow': true } },
-            { targets: 1, type: 'locale-compare', render: renderAtMostXCharacters(50) },
+            {
+                targets: 1, type: 'locale-compare',
+                render: {
+                    "filter": data => data,
+                    "display": renderAtMostXCharacters(50)
+                }
+            },
         ],
         buttons: [
             {

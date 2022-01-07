@@ -14,7 +14,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
             style: 'multi',
             info: false
         },
-        "order": [[ 1, "asc" ]],
+        "order": [[1, "asc"]],
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'PLACA', width: "12%" },
@@ -36,7 +36,14 @@ var dataTablesVeiculos = $("#datatables").DataTable({
         ],
         columnDefs: [
             { targets: 0, 'checkboxes': { 'selectRow': true } },
-            { targets: 1,  render: renderAtMostXCharacters(50), type: 'locale-compare' },
+            {
+                targets: 1,
+                render: {
+                    "filter": data => data,
+                    "display": renderAtMostXCharacters(50)
+                },
+                type: 'locale-compare'
+            },
         ],
         buttons: [
             {
@@ -46,7 +53,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                     var rawDados = dataTablesVeiculos.rows('.selected').data().toArray();
                     if (rawDados.length == 0) {
                         errorFn("Por favor, selecione pelo menos um veículo a ser removido.", "",
-                                "Nenhuma veículo selecionado")
+                            "Nenhuma veículo selecionado")
                     } else {
                         let msg = `Você tem certeza que deseja remover os ${rawDados.length} veículos selecionados?`;
                         let msgConclusao = "Os veículos foram removidos com sucesso";
@@ -55,16 +62,16 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                             msgConclusao = "O veículo foi removido com sucesso";
                         }
 
-                        goaheadDialog(msg ,"Esta operação é irreversível. Você tem certeza?")
-                        .then((res) => {
-                            if (res.isConfirmed) {
-                                Swal2.fire({
-                                    title: "Removendo os veículos da base de dados...",
-                                    imageUrl: "img/icones/processing.gif",
-                                    closeOnClickOutside: false,
-                                    allowOutsideClick: false,
-                                    showConfirmButton: false,
-                                    html: `
+                        goaheadDialog(msg, "Esta operação é irreversível. Você tem certeza?")
+                            .then((res) => {
+                                if (res.isConfirmed) {
+                                    Swal2.fire({
+                                        title: "Removendo os veículos da base de dados...",
+                                        imageUrl: "img/icones/processing.gif",
+                                        closeOnClickOutside: false,
+                                        allowOutsideClick: false,
+                                        showConfirmButton: false,
+                                        html: `
                                 <br />
                                 <div class="progress" style="height: 20px;">
                                     <div id="pbar" class="progress-bar" role="progressbar" 
@@ -73,46 +80,46 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                                     </div>
                                 </div>
                                 `
-                                })
+                                    })
 
-                                var progresso = 0;
-                                var max = rawDados.length * 2 + 1;
+                                    var progresso = 0;
+                                    var max = rawDados.length * 2 + 1;
 
-                                function updateProgress() {
-                                    progresso++;
-                                    var progressPorcentagem = Math.round(100 * (progresso / max))
+                                    function updateProgress() {
+                                        progresso++;
+                                        var progressPorcentagem = Math.round(100 * (progresso / max))
 
-                                    $('.progress-bar').css('width', progressPorcentagem + "%")
+                                        $('.progress-bar').css('width', progressPorcentagem + "%")
+                                    }
+
+                                    var promiseArray = new Array();
+
+                                    // Removendo cada motorista
+                                    rawDados.forEach(v => {
+                                        let idVeiculo = v["ID"];
+                                        promiseArray.push(
+                                            dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", idVeiculo)
+                                                .then(() => updateProgress())
+                                        );
+                                        promiseArray.push(
+                                            dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", idVeiculo)
+                                                .then(() => updateProgress())
+                                        );
+                                    })
+
+                                    promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
+                                    Promise.all(promiseArray)
+                                        .then(() => {
+                                            successDialog(text = msgConclusao);
+                                            dataTablesVeiculos.rows('.selected').remove();
+                                            dataTablesVeiculos.draw();
+                                        })
                                 }
-
-                                var promiseArray = new Array();
-                                
-                                // Removendo cada motorista
-                                rawDados.forEach(v => {
-                                    let idVeiculo = v["ID"];
-                                    promiseArray.push(
-                                        dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", idVeiculo)
-                                        .then(() => updateProgress())
-                                    );
-                                    promiseArray.push(
-                                        dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", idVeiculo)
-                                        .then(() => updateProgress())
-                                    );
-                                })
-
-                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
-                                Promise.all(promiseArray)
-                                .then(() => {
-                                    successDialog(text = msgConclusao);
-                                    dataTablesVeiculos.rows('.selected').remove();
-                                    dataTablesVeiculos.draw();
-                                })
-                            }
-                        })
-                        .catch((err) => {
-                            Swal2.close()
-                            errorFn("Erro ao remover os veículos", err)
-                        })
+                            })
+                            .catch((err) => {
+                                Swal2.close()
+                                errorFn("Erro ao remover os veículos", err)
+                            })
                     }
                 }
             },
@@ -123,7 +130,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                 title: appTitle,
                 text: 'Exportar para Planilha',
                 exportOptions: {
-                    columns: [ 1, 2, 3, 4, 5, 6, 7, 8]
+                    columns: [1, 2, 3, 4, 5, 6, 7, 8]
                 },
                 customize: function (xlsx) {
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -143,13 +150,13 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                 customize: function (doc) {
                     doc.content[1].table.widths = ['10%', '15%', '10%', '15%', '13%', '13%', '12%', '12%'];
                     doc = docReport(doc);
-                    
+
                     // O datatable coloca o select dentro do header, vamos tirar isso
                     for (col of doc.content[3].table.body[0]) {
                         col.text = col.text.split("    ")[0];
                     }
 
-                    doc.content[2].text = listaDeVeiculos?.size +  " " + doc.content[2].text;
+                    doc.content[2].text = listaDeVeiculos?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
@@ -181,8 +188,8 @@ dataTablesVeiculos.on('click', '.frotaRemove', function () {
 
     action = "apagarVeiculo";
     confirmDialog("Remover esse veículo?",
-                  "Ao remover esse veículo ele será retirado do sistema das "
-                + "rotas e das escolas que possuir vínculo."
+        "Ao remover esse veículo ele será retirado do sistema das "
+        + "rotas e das escolas que possuir vínculo."
     ).then((res) => {
         let listaPromisePraRemover = []
         if (res.value) {
@@ -207,9 +214,9 @@ dataTablesVeiculos.on('click', '.frotaRemove', function () {
 });
 
 dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
-.then(res => processarVeiculos(res))
-.then(res => adicionaDadosTabela(res))
-.catch((err) => errorFn("Erro ao listar os veículos!", err))
+    .then(res => processarVeiculos(res))
+    .then(res => adicionaDadosTabela(res))
+    .catch((err) => errorFn("Erro ao listar os veículos!", err))
 
 // Processar motoristas
 var processarVeiculos = (res) => {

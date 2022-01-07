@@ -15,7 +15,7 @@ var dataTablesRotas = $("#datatables").DataTable({
             style: 'multi',
             info: false
         },
-        "order": [[ 1, "asc" ]],
+        "order": [[1, "asc"]],
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'NOME', width: "20%" },
@@ -35,7 +35,13 @@ var dataTablesRotas = $("#datatables").DataTable({
         ],
         columnDefs: [
             { targets: 0, 'checkboxes': { 'selectRow': true } },
-            { targets: 1,  render: renderAtMostXCharacters(50) }
+            {
+                targets: 1,
+                render: {
+                    "filter": data => data,
+                    "display": renderAtMostXCharacters(50)
+                }
+            }
         ],
         buttons: [
             {
@@ -45,7 +51,7 @@ var dataTablesRotas = $("#datatables").DataTable({
                     var rawDados = dataTablesRotas.rows('.selected').data().toArray();
                     if (rawDados.length == 0) {
                         errorFn("Por favor, selecione pelo menos uma rota a ser removida.", "",
-                                "Nenhuma rota selecionada")
+                            "Nenhuma rota selecionada")
                     } else {
                         let msg = `Você tem certeza que deseja remover as ${rawDados.length} rotas selecionadas?`;
                         let msgConclusao = "As rotas foram removidas com sucesso";
@@ -54,16 +60,16 @@ var dataTablesRotas = $("#datatables").DataTable({
                             msgConclusao = "A rota foi removida com sucesso";
                         }
 
-                        goaheadDialog(msg ,"Esta operação é irreversível. Você tem certeza?")
-                        .then((res) => {
-                            if (res.isConfirmed) {
-                                Swal2.fire({
-                                    title: "Removendo as rotas da base de dados...",
-                                    imageUrl: "img/icones/processing.gif",
-                                    closeOnClickOutside: false,
-                                    allowOutsideClick: false,
-                                    showConfirmButton: false,
-                                    html: `
+                        goaheadDialog(msg, "Esta operação é irreversível. Você tem certeza?")
+                            .then((res) => {
+                                if (res.isConfirmed) {
+                                    Swal2.fire({
+                                        title: "Removendo as rotas da base de dados...",
+                                        imageUrl: "img/icones/processing.gif",
+                                        closeOnClickOutside: false,
+                                        allowOutsideClick: false,
+                                        showConfirmButton: false,
+                                        html: `
                                 <br />
                                 <div class="progress" style="height: 20px;">
                                     <div id="pbar" class="progress-bar" role="progressbar" 
@@ -72,58 +78,58 @@ var dataTablesRotas = $("#datatables").DataTable({
                                     </div>
                                 </div>
                                 `
-                                })
+                                    })
 
-                                var progresso = 0;
-                                var max = rawDados.length * 5 + 1;
+                                    var progresso = 0;
+                                    var max = rawDados.length * 5 + 1;
 
-                                function updateProgress() {
-                                    progresso++;
-                                    var progressPorcentagem = Math.round(100 * (progresso / max))
+                                    function updateProgress() {
+                                        progresso++;
+                                        var progressPorcentagem = Math.round(100 * (progresso / max))
 
-                                    $('.progress-bar').css('width', progressPorcentagem + "%")
+                                        $('.progress-bar').css('width', progressPorcentagem + "%")
+                                    }
+
+                                    var promiseArray = new Array();
+
+                                    // Removendo cada rota
+                                    rawDados.forEach(r => {
+                                        let idRota = r["ID"];
+                                        promiseArray.push(
+                                            dbRemoverDadoPorIDPromise(DB_TABLE_ROTA, "ID_ROTA", idRota)
+                                                .then(() => updateProgress())
+                                        );
+                                        promiseArray.push(
+                                            dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", idRota)
+                                                .then(() => updateProgress())
+                                        );
+                                        promiseArray.push(
+                                            dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ROTA", idRota)
+                                                .then(() => updateProgress())
+                                        );
+                                        promiseArray.push(
+                                            dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_ROTA", idRota)
+                                                .then(() => updateProgress())
+                                        );
+                                        promiseArray.push(
+                                            dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_ROTA", idRota)
+                                                .then(() => updateProgress())
+                                        );
+                                    })
+
+                                    promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
+                                    Promise.all(promiseArray)
+                                        .then(() => {
+                                            successDialog(text = msgConclusao);
+                                            dataTablesRotas.rows('.selected').remove();
+                                            dataTablesRotas.draw();
+                                        })
                                 }
-
-                                var promiseArray = new Array();
-
-                                // Removendo cada rota
-                                rawDados.forEach(r => {
-                                    let idRota = r["ID"];
-                                    promiseArray.push(
-                                        dbRemoverDadoPorIDPromise(DB_TABLE_ROTA, "ID_ROTA", idRota)
-                                        .then(() => updateProgress())
-                                    );
-                                    promiseArray.push(
-                                        dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", idRota)
-                                        .then(() => updateProgress())
-                                    );
-                                    promiseArray.push(
-                                        dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ROTA", idRota)
-                                        .then(() => updateProgress())
-                                    );
-                                    promiseArray.push(
-                                        dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_ROTA", idRota)
-                                        .then(() => updateProgress())
-                                    );
-                                    promiseArray.push(
-                                        dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_ROTA", idRota)
-                                        .then(() => updateProgress())
-                                    );
-                                })
-
-                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
-                                Promise.all(promiseArray)
-                                .then(() => {
-                                    successDialog(text = msgConclusao);
-                                    dataTablesRotas.rows('.selected').remove();
-                                    dataTablesRotas.draw();
-                                })
-                            }
-                        })
-                        .catch((err) => {
-                            Swal2.close()
-                            errorFn("Erro ao remover as rotas", err)
-                        })
+                            })
+                            .catch((err) => {
+                                Swal2.close()
+                                errorFn("Erro ao remover as rotas", err)
+                            })
                     }
                 }
             },
@@ -134,7 +140,7 @@ var dataTablesRotas = $("#datatables").DataTable({
                 title: appTitle,
                 text: 'Exportar para Planilha',
                 exportOptions: {
-                    columns: [ 1, 2, 3, 4, 5, 6]
+                    columns: [1, 2, 3, 4, 5, 6]
                 },
                 customize: function (xlsx) {
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -154,13 +160,13 @@ var dataTablesRotas = $("#datatables").DataTable({
                 customize: function (doc) {
                     doc.content[1].table.widths = ['30%', '12%', '8%', '20%', '20%', '10%'];
                     doc = docReport(doc);
-                    
+
                     // O datatable coloca o select dentro do header, vamos tirar isso
                     for (col of doc.content[3].table.body[0]) {
                         col.text = col.text.split("    ")[0];
                     }
 
-                    doc.content[2].text = listaDeRotas?.size +  " " + doc.content[2].text;
+                    doc.content[2].text = listaDeRotas?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
@@ -191,8 +197,8 @@ dataTablesRotas.on('click', '.rotaRemove', function () {
 
     action = "apagarMotorista";
     confirmDialog("Remover essa rota?",
-                  "Ao remover essa rota ela será retirado do sistema e os alunos e "
-                + "escolas que possuir vínculo deverão ser rearranjadas novamente."
+        "Ao remover essa rota ela será retirado do sistema e os alunos e "
+        + "escolas que possuir vínculo deverão ser rearranjadas novamente."
     ).then((res) => {
         let listaPromisePraRemover = []
         if (res.value) {
@@ -221,13 +227,13 @@ dataTablesRotas.on('click', '.rotaRemove', function () {
 
 
 dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
-.then(res => processarRotas(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
-.then((res) => processarAlunosPorRota(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-.then((res) => processarEscolasPorRota(res))
-.then((res) => adicionaDadosTabela(res))
-.catch((err) => errorFn("Erro ao listar as escolas!", err))
+    .then(res => processarRotas(res))
+    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
+    .then((res) => processarAlunosPorRota(res))
+    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+    .then((res) => processarEscolasPorRota(res))
+    .then((res) => adicionaDadosTabela(res))
+    .catch((err) => errorFn("Erro ao listar as escolas!", err))
 
 // Processar rotas
 var processarRotas = (res) => {
@@ -235,12 +241,12 @@ var processarRotas = (res) => {
     for (let rotaRaw of res) {
         let rotaJSON = parseRotaDB(rotaRaw);
         rotaJSON["STRESCOLAS"] = "Não cadastrado";
-        rotaJSON["STRALUNOS"]  = "Não cadastrado";
+        rotaJSON["STRALUNOS"] = "Não cadastrado";
         rotaJSON["NUMESCOLAS"] = 0;
-        rotaJSON["NUMALUNOS"]  = 0;
-        rotaJSON["ALUNOS"]     = [];
-        rotaJSON["ESCOLAS"]    = [];
-        rotaJSON["ID_ROTA"]    = rotaJSON["ID"];
+        rotaJSON["NUMALUNOS"] = 0;
+        rotaJSON["ALUNOS"] = [];
+        rotaJSON["ESCOLAS"] = [];
+        rotaJSON["ID_ROTA"] = rotaJSON["ID"];
         listaDeRotas.set(rotaJSON["ID"], rotaJSON);
     }
     return listaDeRotas;
