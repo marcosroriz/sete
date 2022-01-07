@@ -25,7 +25,12 @@ var dataTablesFornecedores = $("#datatables").DataTable({
                     '<a href="#" class="btn btn-link btn-danger fornecedorRemove"><i class="fa fa-times"></i></a>'
             }
         ],
-        columnDefs: [{ targets: 0,  render: renderAtMostXCharacters(50) }],
+        columnDefs: [{
+            targets: 0, render: {
+                "filter": data => data,
+                "display": renderAtMostXCharacters(50)
+            }
+        }],
         dom: 'lfrtipB',
         buttons: [
             {

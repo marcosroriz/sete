@@ -36,7 +36,12 @@ var dataTablesMotoristas = $("#datatables").DataTable({
         ],
         columnDefs: [
             { targets: 0, 'checkboxes': { 'selectRow': true } },
-            { targets: 1,  render: renderAtMostXCharacters(50) }
+            {
+                targets: 1, render: {
+                    "filter": data => data,
+                    "display": renderAtMostXCharacters(50)
+                }
+            }
         ],
         buttons: [
             {

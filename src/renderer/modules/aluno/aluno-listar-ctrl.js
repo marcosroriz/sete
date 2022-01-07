@@ -183,8 +183,18 @@ defaultTableConfig["columnDefs"] = [
         "searchable": true
     },
     { targets: 0, 'checkboxes': { 'selectRow': true } },
-    { targets: 1, render: renderAtMostXCharacters(50) },
-    { targets: 5, render: renderAtMostXCharacters(50) },
+    {
+        targets: 1, render: {
+            "filter": data => data,
+            "display": renderAtMostXCharacters(50)
+        }
+    },
+    {
+        targets: 5, render: {
+            "filter": data => data,
+            "display": renderAtMostXCharacters(50)
+        }
+    },
 ];
 
 var dataTablesAlunos = $("#datatables").DataTable(defaultTableConfig)

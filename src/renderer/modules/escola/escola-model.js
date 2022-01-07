@@ -50,7 +50,7 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#temEnsinoEJA").prop("checked", estadoEscolaJSON["MEC_IN_EJA"]);
     $("#temEnsinoProf").prop("checked", estadoEscolaJSON["MEC_IN_PROFISSIONALIZANTE"]);
     $("#temEnsinoFundamental").prop("checked", estadoEscolaJSON["ENSINO_FUNDAMENTAL"]);
-    $("#temEnsinoFundamental").prop("checked", estadoEscolaJSON["ENSINO_PRE_ESCOLA"]);
+    $("#temEnsinoInfantil").prop("checked", estadoEscolaJSON["ENSINO_PRE_ESCOLA"]);
     $("#temEnsinoMedio").prop("checked", estadoEscolaJSON["ENSINO_MEDIO"]);
     $("#temEnsinoUniversitario").prop("checked", estadoEscolaJSON["MEC_IN_PROFIENSINO_SUPERIORSSIONALIZANTE"]);
     $("#temHorarioManha").prop("checked", estadoEscolaJSON["HORARIO_MATUTINO"]);
