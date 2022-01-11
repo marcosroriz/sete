@@ -25,6 +25,8 @@ var DB_TABLE_ROTA_PASSA_POR_ESCOLA = "rotapassaporescolas";
 var DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA = "rotadirigidapormotorista";
 var DB_TABLE_ROTA_POSSUI_VEICULO = "rotapossuiveiculo";
 
+var DB_TABLE_PARAMETROS = "parametros";
+
 var DB_TABLE_REALTIME_VIAGENSPERCURSO = "viagenspercurso";
 var DB_TABLE_REALTIME_VIAGENSALERTA = "viagensalertas";
 

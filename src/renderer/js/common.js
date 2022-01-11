@@ -299,5 +299,11 @@ cssParaCarregar.forEach((css) => {
 });
 
 function strToNumber(str) {
-  return Number(String(str).replace(".","").replace(",","."));
+  if (String(str).includes(".") && String(str).includes(",")) {
+    return Number(String(str).replace(".", "").replace(",", "."));
+  } else if (String(str).includes(".") && !(String(str).includes(","))) {
+    return Number(String(str));
+  } else {
+    return Number(String(str).replace(".", "").replace(",", "."));
+  }
 }
