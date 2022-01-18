@@ -2,11 +2,13 @@
 // Este arquivo contém o script de controle da tela rota-cadastrar-view. 
 // O mesmo serve tanto para cadastrar, quanto para alterar os dados de uma rota.
 // Também é feito consultas nos dados de veículos, alunos e escolas para permitir
-// vinculá-los com a rota
+// vinculá-los com a rota.
 
 // Verifica se é um cadastro novo ou é uma edição
 var estaEditando = false;
+var idRota = "";
 if (action == "editarRota") {
+    idRota = estadoRota["ID"];
     estaEditando = true;
 }
 
@@ -40,7 +42,7 @@ $(".cpfmask").mask('000.000.000-00', { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".datanasc").mask('00/00/0000');
 $('.numbermask').mask('00000000');
-$(".kmmask").mask("000000,00", { reverse: true });
+$(".kmmask").mask("000000.00", { reverse: true });
 $('.cnh').mask('000000000-00', { reverse: true });
 
 var validadorFormulario = $("#wizardCadastrarRotaForm").validate({
@@ -222,106 +224,225 @@ function carregaVeiculoMotorista(veiculos, motoristas) {
     }
 }
 
-var veiculosPromise = dbBuscarTodosDadosPromise(DB_TABLE_VEICULO);
-var motoristaPromise = dbBuscarTodosDadosPromise(DB_TABLE_MOTORISTA);
-var escolasPromise = dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA);
-var alunosPromise = dbBuscarTodosDadosPromise(DB_TABLE_ALUNO);
+restImpl.dbGETColecao(DB_TABLE_VEICULO)
+.then((veiculos) => {
+    // Processando Veiculos
+    if (veiculos.length != 0) {
+        for (let veiculoRaw of veiculos) {
+            let veiculoJSON = parseVeiculoREST(veiculoRaw);
+            let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`
+            $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID"]}">${vSTR}</option>`);
+        }
+    }
+    $("#tipoVeiculo").val($("#tipoVeiculo option:first").val());
 
-if (estaEditando) {
-    var veiculoEspecificoPromise = dbBuscarDadosEspecificosPromise(DB_TABLE_ROTA_POSSUI_VEICULO,
-                                    "ID_ROTA", estadoRota["ID"]);
-    var motoristaEspecificoPromise = dbBuscarDadosEspecificosPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA,
-                                    "ID_ROTA", estadoRota["ID"]);
+    if (estaEditando) {
+        console.log(DB_TABLE_ROTA, `/${idRota}/veiculos`)
+        return restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}/veiculos`);
+    } else {
+        return false;
+    }
+}).then((rota) => {
+    if (rota && $("#listarota option[value='" + rota.id_rota + "']").length > 0) {
+        $("#listarota").val(rota.id_rota);
 
-    Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise,
-                 veiculoEspecificoPromise, motoristaEspecificoPromise])
-        .then((res) => {
-            // Processa Veiculos e Motoristas
-            carregaVeiculoMotorista(res[0], res[1]);
+        // ID da rota anterior
+        idRotaAnterior = rota.id_rota;
 
-            // Seleciona veículos da rota
-            if (res[4].length != 0) {
-                $("#tipoVeiculo").val(res[4][0]["ID_VEICULO"]);
-            }
+        // Veiculo anterior existe
+        veiculoInformadoPrev = true;
+    }
+})
+.catch((err) => {
+    // console.log("Rota sem veículo", err);
+})
 
-            // Seleciona motorista da rota
-            if (res[5].length != 0) {
-                var mlist = new Array();
-                res[5].forEach(m => mlist.push(m["CPF_MOTORISTA"]))
-                $("#tipoMotorista").selectpicker('val', mlist)
-            }
+restImpl.dbGETColecao(DB_TABLE_MOTORISTA)
+.then((motoristas) => {
+    // Processando Motoristas
+    if (motoristas.length != 0) {
+        for (let motoristaRaw of motoristas) {
+            let motoristaJSON = parseMotoristaREST(motoristaRaw);
+            $('#tipoMotorista').append(`<option value="${motoristaJSON["ID"]}">${motoristaJSON["NOME"]}</option>`);
+        }
+        $('#tipoMotorista').selectpicker({
+            noneSelectedText: "Escolha pelo menos um motorista"
+        });
 
-            PopulateRotaFromState(estadoRota);
-            $('.horamask').trigger('input');
-            $('.cep').trigger('input');
-            $(".cpfmask").trigger('input');
-            $(".telmask").trigger('input');
-            $(".datanasc").trigger('input');
-            $('.numbermask').trigger('input');
-            $(".kmmask").trigger('input');
-            $('.cnh').trigger('input');
+        motoristaInformadoPrev = true;
+    } else {
+        $('#tipoMotorista').removeClass("selectpicker")
+        $('#tipoMotorista').addClass("form-control")
+        $('#tipoMotorista').removeAttr("multiple")
+        $('#tipoMotorista').val(-1)
+        $('#tipoMotorista').change()
 
-            let todosAlunos = convertListToMap(res[3])
-            let todasEscolas = convertListToMap(res[2])
-            let alunosAtendidos = convertListToMap(estadoRota["ALUNOS"], "ID_ALUNO");
-            let escolasAtendidas = convertListToMap(estadoRota["ESCOLAS"], "ID_ESCOLA");
+        $(".marcarTodosLabel").hide()
+        $("#tipoMotorista").parent().addClass("mt-2")
+    }
+})
+
+// Adicionando os alunos na tela de rotas
+restImpl.dbGETColecao(DB_TABLE_ESCOLA)
+.then(async (alunos) => {
+    // Processando alunos
+    if (alunos.length != 0) {
+        let alunosAtendidos = new Map();
+        try {
+            alunosAtendidos = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}/alunos`);
+        } catch (error) {
+            alunosAtendidos = new Map();
+        }
+
+        $("#totalNumAlunos").text(alunosAtendidos.size);
+        
+        alunos.sort((a, b) => a["nome"].localeCompare(b["nome"]))
+        alunos.forEach(alunoRaw => {
+            let alunoJSON = parseAlunoREST(alunoRaw);
+            let alunoSTR = alunoJSON["NOME"]; // + " (" + alunoJSON["CPF"] + ")";
+            let alunoID = alunoJSON["ID"];
             
-            $("#totalNumAlunos").text(alunosAtendidos.size);
-            $("#totalNumEscolas").text(escolasAtendidas.size);
-
-            todosAlunos.forEach(aluno => {
-                let alunoSTR = aluno["NOME"] + " (" + aluno["DATA_NASCIMENTO"] + ")";
-                let alunoID = aluno["ID"];
-                if (alunosAtendidos.has(aluno["ID"])) {
-                    antAlunos.add(alunoID);
-                    novosAlunos.add(alunoID);
-                    $('#alunosAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
-                } else {
-                    $('#alunosNaoAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
-                }
-            })
-
-            todasEscolas.forEach(escola => {
-                let escolaID = escola["ID"];
-                if (escolasAtendidas.has(escola["ID"])) {
-                    antEscolas.add(escolaID);
-                    novasEscolas.add(escolaID);
-                    $('#escolasAtentidas').append(`<option value="${escolaID}">${escola["NOME"]}</option>`);
-                } else {
-                    $('#escolasNaoAtendidas').append(`<option value="${escolaID}">${escola["NOME"]}</option>`);
-                }
-            })
-
-            $("#cancelarAcao").on('click', () => {
-                cancelDialog()
-                .then((result) => {
-                    if (result.value) {
-                        navigateDashboard(lastPage);
-                    }
-                })
-            });
+            if (alunosAtendidos.has(alunoJSON["ID"])) {
+                antAlunos.add(alunoID);
+                novosAlunos.add(alunoID);
+                $('#alunosAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
+            } else {
+                $('#alunosNaoAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
+            }
         })
-} else {
-    Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise])
-    .then((res) => {
-        // Processa Veiculos e Motoristas
-        carregaVeiculoMotorista(res[0], res[1]);
+    }
+})
 
-        // Processando Escolas
-        var escolasResult = res[2];
-        for (let escolaRaw of escolasResult) {
-            listaDeEscolas.set(escolaRaw["ID"], escolaRaw);
-            $('#escolasNaoAtendidas').append(`<option value="${escolaRaw["ID"]}">${escolaRaw["NOME"]}</option>`);
-        }
 
-        // Processando Alunos
-        var alunosResult = res[3];
-        for (let alunoRaw of alunosResult) {
-            listaDeAlunos.set(alunoRaw["ID"], alunoRaw);
-            $('#alunosNaoAtendidos').append(`<option value="${alunoRaw["ID"]}">${alunoRaw["NOME"]} (${alunoRaw["DATA_NASCIMENTO"]})</option>`);
-        }
-    })
-}
+// Adicionando os alunos na tela de rotas
+restImpl.dbGETColecao(DB_TABLE_ALUNO)
+.then(async (escolas) => {
+    // Processando alunos
+    if (escolas.length != 0) {
+        debugger
+        let escolasAtendidas = new Map();
+        // try {
+        //     escolasAtendidas = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}/escolas`);
+        // } catch (error) {
+        //     escolasAtendidas = new Map();
+        // }
+
+        $("#totalNumEscolas").text(escolasAtendidas.size);
+
+        escolas.forEach(escolaRaw => {
+            let escolaJSON = parseEscolaREST(escolaRaw);
+            let escolaID = escolaJSON["ID"];
+            if (escolasAtendidas.has(escolaJSON["ID"])) {
+                antEscolas.add(escolaID);
+                novasEscolas.add(escolaID);
+                $('#escolasAtentidas').append(`<option value="${escolaID}">${escolaJSON["NOME"]}</option>`);
+            } else {
+                $('#escolasNaoAtendidas').append(`<option value="${escolaID}">${escolaJSON["NOME"]}</option>`);
+            }
+        })
+    }
+})
+
+// var veiculosPromise = dbBuscarTodosDadosPromise(DB_TABLE_VEICULO);
+// var motoristaPromise = dbBuscarTodosDadosPromise(DB_TABLE_MOTORISTA);
+// var escolasPromise = dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA);
+// var alunosPromise = dbBuscarTodosDadosPromise(DB_TABLE_ALUNO);
+
+// if (estaEditando) {
+//     var veiculoEspecificoPromise = dbBuscarDadosEspecificosPromise(DB_TABLE_ROTA_POSSUI_VEICULO,
+//                                     "ID_ROTA", estadoRota["ID"]);
+//     var motoristaEspecificoPromise = dbBuscarDadosEspecificosPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA,
+//                                     "ID_ROTA", estadoRota["ID"]);
+
+//     Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise,
+//                  veiculoEspecificoPromise, motoristaEspecificoPromise])
+//         .then((res) => {
+//             // Processa Veiculos e Motoristas
+//             carregaVeiculoMotorista(res[0], res[1]);
+
+//             // Seleciona veículos da rota
+//             if (res[4].length != 0) {
+//                 $("#tipoVeiculo").val(res[4][0]["ID_VEICULO"]);
+//             }
+
+//             // Seleciona motorista da rota
+//             if (res[5].length != 0) {
+//                 var mlist = new Array();
+//                 res[5].forEach(m => mlist.push(m["CPF_MOTORISTA"]))
+//                 $("#tipoMotorista").selectpicker('val', mlist)
+//             }
+
+//             PopulateRotaFromState(estadoRota);
+//             $('.horamask').trigger('input');
+//             $('.cep').trigger('input');
+//             $(".cpfmask").trigger('input');
+//             $(".telmask").trigger('input');
+//             $(".datanasc").trigger('input');
+//             $('.numbermask').trigger('input');
+//             $(".kmmask").trigger('input');
+//             $('.cnh').trigger('input');
+
+//             let todosAlunos = convertListToMap(res[3])
+//             let todasEscolas = convertListToMap(res[2])
+//             let alunosAtendidos = convertListToMap(estadoRota["ALUNOS"], "ID_ALUNO");
+//             let escolasAtendidas = convertListToMap(estadoRota["ESCOLAS"], "ID_ESCOLA");
+            
+//             $("#totalNumAlunos").text(alunosAtendidos.size);
+//             $("#totalNumEscolas").text(escolasAtendidas.size);
+
+//             todosAlunos.forEach(aluno => {
+//                 let alunoSTR = aluno["NOME"] + " (" + aluno["DATA_NASCIMENTO"] + ")";
+//                 let alunoID = aluno["ID"];
+//                 if (alunosAtendidos.has(aluno["ID"])) {
+//                     antAlunos.add(alunoID);
+//                     novosAlunos.add(alunoID);
+//                     $('#alunosAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
+//                 } else {
+//                     $('#alunosNaoAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
+//                 }
+//             })
+
+//             todasEscolas.forEach(escola => {
+//                 let escolaID = escola["ID"];
+//                 if (escolasAtendidas.has(escola["ID"])) {
+//                     antEscolas.add(escolaID);
+//                     novasEscolas.add(escolaID);
+//                     $('#escolasAtentidas').append(`<option value="${escolaID}">${escola["NOME"]}</option>`);
+//                 } else {
+//                     $('#escolasNaoAtendidas').append(`<option value="${escolaID}">${escola["NOME"]}</option>`);
+//                 }
+//             })
+
+//             $("#cancelarAcao").on('click', () => {
+//                 cancelDialog()
+//                 .then((result) => {
+//                     if (result.value) {
+//                         navigateDashboard(lastPage);
+//                     }
+//                 })
+//             });
+//         })
+// } else {
+//     Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise])
+//     .then((res) => {
+//         // Processa Veiculos e Motoristas
+//         carregaVeiculoMotorista(res[0], res[1]);
+
+//         // Processando Escolas
+//         var escolasResult = res[2];
+//         for (let escolaRaw of escolasResult) {
+//             listaDeEscolas.set(escolaRaw["ID"], escolaRaw);
+//             $('#escolasNaoAtendidas').append(`<option value="${escolaRaw["ID"]}">${escolaRaw["NOME"]}</option>`);
+//         }
+
+//         // Processando Alunos
+//         var alunosResult = res[3];
+//         for (let alunoRaw of alunosResult) {
+//             listaDeAlunos.set(alunoRaw["ID"], alunoRaw);
+//             $('#alunosNaoAtendidos').append(`<option value="${alunoRaw["ID"]}">${alunoRaw["NOME"]} (${alunoRaw["DATA_NASCIMENTO"]})</option>`);
+//         }
+//     })
+// }
 
 $("#colocarEscola").on("click", () => {
     for (var eID of $("#escolasNaoAtendidas").val()) {

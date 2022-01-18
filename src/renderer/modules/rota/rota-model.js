@@ -69,28 +69,38 @@ var parseRotaDB = function (rotaRaw) {
     } else {
         rotaJSON["KMSTR"] = rotaRaw["KM"] + " km";
     }
+
+    let propParaTransformar = ["turno_matutino", "turno_vespertino", "turno_noturno"];
+    for (let prop of propParaTransformar) {
+        if (rotaJSON[prop] == "S") {
+            rotaJSON[prop.toUpperCase()] = true;
+        } else {
+            rotaJSON[prop.toUpperCase()] = false;
+        }
+    }
+
     var turno = new Array();
-    if (rotaRaw["TURNO_MATUTINO"]) turno.push("Manhã");
-    if (rotaRaw["TURNO_VESPERTINO"]) turno.push("Tarde");
-    if (rotaRaw["TURNO_NOTURNO"]) turno.push("Noite");
+    if (rotaJSON["TURNO_MATUTINO"]) turno.push("Manhã");
+    if (rotaJSON["TURNO_VESPERTINO"]) turno.push("Tarde");
+    if (rotaJSON["TURNO_NOTURNO"]) turno.push("Noite");
     if (turno.length == 0) {
         rotaJSON["TURNOSTR"] = "Não informado"
     } else {
         rotaJSON["TURNOSTR"] = turno.join(", ");
     }
 
-    if (rotaRaw["SHAPE"] != "" && rotaRaw["SHAPE"] != undefined) {
+    if (rotaJSON["SHAPE"] != "" && rotaJSON["SHAPE"] != undefined) {
         rotaJSON["GEOREF"] = "Sim";
     } else {
         rotaJSON["GEOREF"] = "Não";
     }
 
     var dificuldadesAcesso = new Array();
-    if (rotaRaw["DA_PORTEIRA"]) { dificuldadesAcesso.push("Porteira"); }
-    if (rotaRaw["DA_MATABURRO"]) { dificuldadesAcesso.push("Mata-Burro"); }
-    if (rotaRaw["DA_COLCHETE"]) { dificuldadesAcesso.push("Colchete"); }
-    if (rotaRaw["DA_ATOLEIRO"]) { dificuldadesAcesso.push("Atoleiro"); }
-    if (rotaRaw["DA_PONTERUSTICA"]) { dificuldadesAcesso.push("Ponte Rústica"); }
+    if (rotaJSON["DA_PORTEIRA"]) { dificuldadesAcesso.push("Porteira"); }
+    if (rotaJSON["DA_MATABURRO"]) { dificuldadesAcesso.push("Mata-Burro"); }
+    if (rotaJSON["DA_COLCHETE"]) { dificuldadesAcesso.push("Colchete"); }
+    if (rotaJSON["DA_ATOLEIRO"]) { dificuldadesAcesso.push("Atoleiro"); }
+    if (rotaJSON["DA_PONTERUSTICA"]) { dificuldadesAcesso.push("Ponte Rústica"); }
     rotaJSON["DIFICULDADESTR"] = dificuldadesAcesso.join(", ");
 
     return rotaJSON;
