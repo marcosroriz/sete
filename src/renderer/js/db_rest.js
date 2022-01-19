@@ -74,6 +74,12 @@ module.exports = {
         return restAPI.delete(caminho)
     },
 
+    dbDELETEComParam: (nomeColecao, path, dado) => {
+        let caminho = nomeColecao + "/" + codCidade + path;
+
+        return restAPI.delete(caminho, { data: dado })
+    },
+
     dbBuscarTodosDadosPromise: (nomeColecao) => {
         let caminho = nomeColecao + "/" + codCidade;
         return restAPI.get(caminho)

@@ -1,24 +1,25 @@
 function GetRotaFromForm() {
-    return {
-        "TIPO": $("input[name='tipoRota']:checked").val(), // int
-        "NOME": $("#regnome").val(), // string
-        "HORA_IDA_INICIO": $("#reginicioida").val(), // text
-        "HORA_IDA_TERMINO": $("#regterminoida").val(), // text
-        "HORA_VOLTA_INICIO": $("#reginiciovolta").val(), // text
-        "HORA_VOLTA_TERMINO": $("#regterminovolta").val(), // text
-        "KM": $("#regkm").val(), // text
-        "TEMPO": $("#regtempo").val(), // text
+    let data = {
+        "tipo": Number($("input[name='tipoRota']:checked").val()), // int
+        "nome": $("#regnome").val(), // string
+        "hora_ida_inicio": $("#reginicioida").val(), // text
+        "hora_ida_termino": $("#regterminoida").val(), // text
+        "hora_volta_inicio": $("#reginiciovolta").val(), // text
+        "hora_volta_termino": $("#regterminovolta").val(), // text
+        "km": strToNumber($("#regkm").val()), // number
+        "tempo": strToNumber($("#regtempo").val()), // number
 
-        "DA_PORTEIRA": $("#temPorteira").is(":checked"), // bool
-        "DA_MATABURRO": $("#temMataBurro").is(":checked"), // bool
-        "DA_COLCHETE": $("#temColchete").is(":checked"), // bool
-        "DA_ATOLEIRO": $("#temAtoleiro").is(":checked"), // bool
-        "DA_PONTERUSTICA": $("#temPonte").is(":checked"), // bool
+        "da_porteira": $("#temPorteira").is(":checked") ? "S" : "N", // str
+        "da_mataburro": $("#temMataBurro").is(":checked") ? "S" : "N", // str
+        "da_colchete": $("#temColchete").is(":checked") ? "S" : "N", // str
+        "da_atoleiro": $("#temAtoleiro").is(":checked") ? "S" : "N", // str
+        "da_ponterustica": $("#temPonte").is(":checked") ? "S" : "N", // str
 
-        "TURNO_MATUTINO": $("#temHorarioManha").is(":checked"), // bool
-        "TURNO_VESPERTINO": $("#temHorarioTarde").is(":checked"), // bool
-        "TURNO_NOTURNO": $("#temHorarioNoite").is(":checked"), // bool
+        "turno_matutino": $("#temHorarioManha").is(":checked") ? "S" : "N", // str
+        "turno_vespertino": $("#temHorarioTarde").is(":checked") ? "S" : "N", // str
+        "turno_noturno": $("#temHorarioNoite").is(":checked") ? "S" : "N", // str
     }
+    return data;
 }
 
 function PopulateRotaFromState(estadoRotaJSON) {
@@ -70,7 +71,8 @@ var parseRotaDB = function (rotaRaw) {
         rotaJSON["KMSTR"] = rotaRaw["KM"] + " km";
     }
 
-    let propParaTransformar = ["turno_matutino", "turno_vespertino", "turno_noturno"];
+    let propParaTransformar = ["turno_matutino", "turno_vespertino", "turno_noturno",
+                                "da_porteira", "da_mataburro", "da_colchete", "da_atoleiro", "da_ponterustica"];
     for (let prop of propParaTransformar) {
         if (rotaJSON[prop] == "S") {
             rotaJSON[prop.toUpperCase()] = true;
