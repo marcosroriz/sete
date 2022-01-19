@@ -541,12 +541,12 @@ var adicionarDadosAlunoEscolaTabelaEMapa = () => {
                         dataTableListaDeAlunos.row.add(prox_aluno);
                         dataTableListaDeAlunosNumerada.row.add(prox_aluno);
 
-
                         if (alunosComGPS.length !== 0) {
                             dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
                         } else {
                             break;
                         }
+
                     }
                 }
 
