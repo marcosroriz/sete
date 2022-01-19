@@ -67,11 +67,11 @@ var getGeomStyle = function (feature) {
                 pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
                 return;
             } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) ||
-                       (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
+                (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
                 plotSeta = true;
             } else {
                 let pontoAtual = ol.proj.transform(end, 'EPSG:3857', 'EPSG:4326');
-                
+
                 let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
 
                 if (distancia > 2000) {
@@ -84,7 +84,7 @@ var getGeomStyle = function (feature) {
                 var dx = end[0] - start[0];
                 var dy = end[1] - start[1];
                 var rotation = Math.atan2(dy, dx);
-    
+
                 // arrows
                 styles.push(new ol.style.Style({
                     geometry: new ol.geom.Point(end),
@@ -119,7 +119,7 @@ var plotarMarcadorNumerico = (alunoRaw, num, nomes) => {
     let lat = alunoRaw["LOC_LATITUDE"];
     let lng = alunoRaw["LOC_LONGITUDE"];
 
-    let p = gerarMarcadorNumerico(lat, lng, num, tamanho_fonte=0.6);
+    let p = gerarMarcadorNumerico(lat, lng, num, tamanho_fonte = 0.6);
 
     p.setId(alunoRaw["ID_ALUNO"]);
     p.set("ID", alunoRaw["ID_ALUNO"]);
@@ -247,8 +247,8 @@ var configTable = {
             action: function (e, dt, node, config) {
                 action = "apagarRota";
                 confirmDialog("Remover essa rota?",
-                              "Ao remover essa rota ela será retirado do sistema e os alunos e "
-                            + "escolas que possuir vínculo deverão ser rearranjadas novamente."
+                    "Ao remover essa rota ela será retirado do sistema e os alunos e "
+                    + "escolas que possuir vínculo deverão ser rearranjadas novamente."
                 ).then((res) => {
                     let listaPromisePraRemover = []
                     if (res.value) {
@@ -328,7 +328,7 @@ var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
         { data: 'ESCOLA', width: "25%" },
     ],
     columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50) },
-                 { targets: 4, render: renderAtMostXCharacters(50) }],
+    { targets: 4, render: renderAtMostXCharacters(50) }],
     autoWidth: false,
     bAutoWidth: false,
     buttons: [
@@ -390,8 +390,8 @@ var dataTableListaDeAlunosNumerada = $("#dataTableListaDeAlunosNumerada").DataTa
         { data: 'NIVELSTR', width: "150px" },
         { data: 'TURNOSTR', width: "150px" },
     ],
-    columnDefs: [ { targets: 0, type: "num" },
-                  { targets: 1, render: renderAtMostXCharacters(50) }],
+    columnDefs: [{ targets: 0, type: "num" },
+    { targets: 1, render: renderAtMostXCharacters(50) }],
     autoWidth: false,
     bAutoWidth: false,
     buttons: [
@@ -454,11 +454,11 @@ estadoRota["ESCOLAS"].forEach(escola => {
 })
 
 dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA")
-.then(res => preprocessarRelacaoAlunoEscola(res))
-.then(() => adicionarDadosAlunoEscolaTabelaEMapa())
+    .then(res => preprocessarRelacaoAlunoEscola(res))
+    .then(() => adicionarDadosAlunoEscolaTabelaEMapa())
 
 dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM)
-.then(res => processarGaragem(res))
+    .then(res => processarGaragem(res))
 
 // Processa garagem
 var processarGaragem = (res) => {
@@ -485,17 +485,17 @@ var preprocessarRelacaoAlunoEscola = (res) => {
 };
 
 // Adiciona dados de alunos e escola nas respectivas tabelas e mapa
-var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
+var adicionarDadosAlunoEscolaTabelaEMapa = () => {
     if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
         try {
             // let rotaGeoJson = (new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]);
             // rotaGeoJson[0].getGeometry().flatCoordinates[1]
             let primeiro_ponto = JSON.parse(estadoRota["SHAPE"]).features[0].geometry.coordinates[0];
-            
+
             let novaListaDeAlunos = [...listaDeAlunos.values()];
             let alunosComGPS = novaListaDeAlunos.filter(aluno => (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
-                                                                  aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
-                                                                  aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
+                aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
+                aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
             alunosComGPS.forEach(aluno => {
                 aluno["COORD"] = [aluno.LOC_LONGITUDE, aluno.LOC_LATITUDE]
             })
@@ -518,7 +518,7 @@ var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
                 // Salva o número/ID do aluno
                 let num_original = num;
                 aluno_original["NUM"] = num;
-                
+
                 // Adiciona na tabela
                 dataTableListaDeAlunos.row.add(aluno_original);
                 dataTableListaDeAlunosNumerada.row.add(aluno_original);
@@ -541,9 +541,14 @@ var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
                         dataTableListaDeAlunos.row.add(prox_aluno);
                         dataTableListaDeAlunosNumerada.row.add(prox_aluno);
 
-                        dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
+
+                        if (alunosComGPS.length !== 0) {
+                            dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
+                        } else {
+                            break;
+                        }
                     }
-                } 
+                }
 
                 if (num > num_original + 1) {
                     plotarMarcadorNumerico(aluno_original, String(num_original) + "-" + String(num - 1), nome_alunos);
@@ -553,8 +558,8 @@ var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
             }
 
             let alunosSemGPS = novaListaDeAlunos.filter(aluno => !(aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
-                                                                   aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
-                                                                   aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
+                aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
+                aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
             alunosSemGPS.forEach(aluno => {
                 aluno["NUM"] = "---";
                 dataTableListaDeAlunos.row.add(aluno);
@@ -563,7 +568,7 @@ var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
         } catch (error) {
             dataTableListaDeAlunos.clear();
             dataTableListaDeAlunosNumerada.clear();
-        
+
             listaDeAlunos.forEach(aluno => {
                 dataTableListaDeAlunos.row.add(aluno);
             })
@@ -593,7 +598,7 @@ var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
 var plotaDadosAlunoEscola = () => {
     listaDeAlunos.forEach(aluno => {
         if (aluno["LOC_A"])
-        dataTableListaDeAlunos.row.add(aluno);
+            dataTableListaDeAlunos.row.add(aluno);
     })
 
     listaDeEscolas.forEach(escola => {
