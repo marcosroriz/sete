@@ -90,20 +90,26 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM)
+restImpl.dbGETColecao(DB_TABLE_GARAGEM)
     .then(res => processarGaragem(res))
 
 // Processa garagem
 var processarGaragem = (res) => {
-    for (let garagemRaw of res) {
+    debugger
+    if (res.length > 0) {
         action = "editarGaragem";
-        idGaragem = garagemRaw["ID"]
-        $("#reglat").val(garagemRaw["LOC_LATITUDE"]);
-        $("#reglon").val(garagemRaw["LOC_LONGITUDE"]);
-        $("#regcep").val(garagemRaw["LOC_CEP"]);
-        $("#regend").val(garagemRaw["LOC_ENDERECO"]);
+        for (let garagemRaw of res) {
+            idGaragem = garagemRaw.id_garagem;
+            $("#regcep").val(garagemRaw["loc_cep"]);
+            $("#regend").val(garagemRaw["loc_endereco"]);
 
-        plotaGaragem(garagemRaw["LOC_LATITUDE"], garagemRaw["LOC_LONGITUDE"])
+            if (garagemRaw["loc_longitude"] != null && garagemRaw["loc_longitude"] != undefined &&
+                garagemRaw["loc_latitude"] != null && garagemRaw["loc_latitude"] != undefined) {
+                $("#reglat").val(garagemRaw["loc_latitude"]);
+                $("#reglon").val(garagemRaw["loc_longitude"]);
+                plotaGaragem(garagemRaw["loc_latitude"], garagemRaw["loc_longitude"])
+            }
+        }
     }
 
     if (!vSource.isEmpty()) {
@@ -160,23 +166,22 @@ $("#salvargaragem").on('click', () => {
         return false;
     } else {
         var garagemJSON = {};
-        garagemJSON["LOC_LATITUDE"] = $("#reglat").val();
-        garagemJSON["LOC_LONGITUDE"] = $("#reglon").val();
-        garagemJSON["LOC_ENDERECO"] = $("#regend").val();
-        garagemJSON["LOC_CEP"] = $("#regcep").val();
+        garagemJSON["nome"] = "GARAGEM";
+        garagemJSON["loc_latitude"] = $("#reglat").val();
+        garagemJSON["loc_longitude"] = $("#reglon").val();
+        garagemJSON["loc_endereco"] = $("#regend").val();
+        garagemJSON["loc_cep"] = $("#regcep").val();
 
         if (action == "editarGaragem") {
             loadingFn("Atualizando os dados da garagem...")
 
-            dbAtualizarPromise(DB_TABLE_GARAGEM, garagemJSON, idGaragem)
-                .then(() => dbAtualizaVersao())
+            restImpl.dbPUT(DB_TABLE_GARAGEM, `/${idGaragem}`, garagemJSON)
                 .then(() => completeForm())
                 .catch((err) => errorFn("Erro ao atualizar a escola.", err))
         } else {
             loadingFn("Cadastrando a garagem ...")
 
-            dbInserirPromise(DB_TABLE_GARAGEM, garagemJSON)
-                .then(() => dbAtualizaVersao())
+            restImpl.dbPOST(DB_TABLE_GARAGEM, "", garagemJSON)
                 .then(() => completeForm())
                 .catch((err) => errorFn("Erro ao salvar a garagem.", err))
         }
