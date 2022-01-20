@@ -40,6 +40,9 @@ var Swal2 = require("sweetalert2");
 var htmlToImage = require("html-to-image");
 var domtoimage = require("dom-to-image");
 
+// Variáveis de debug
+var DEBUG = true;
+
 // Variáveis Basicas
 var appTitle = "SETE - Software Eletrônico de Gestão do Transporte Escolar";
 var userData = {};
@@ -194,8 +197,6 @@ function configMostrarResultadoValidacao() {
         .addClass("has-success");
     },
     errorPlacement: function (error, element) {
-      console.log(error);
-      console.log(element);
       $(element).closest(".form-group").append(error).addClass("has-error");
     },
   };

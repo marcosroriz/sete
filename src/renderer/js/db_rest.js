@@ -44,38 +44,58 @@ module.exports = {
 
     dbGETColecao: (nomeColecao, path = "") => {
         let caminho = nomeColecao + "/" + codCidade + path;
+        if (DEBUG) { console.debug("GET COLECAO REQUEST ", caminho) }
+
         return restAPI.get(caminho)
-            .then((res) => Promise.resolve(res.data.data));
+            .then((res) => {
+                if (DEBUG) { console.debug("GET COLECAO REPLY", caminho, res.data.data) }
+                return Promise.resolve(res.data.data)
+            });
     },
 
     dbGETEntidade: (nomeColecao, path) => {
         let caminho = nomeColecao + "/" + codCidade + path;
+        if (DEBUG) { console.debug("GET ENTIDADE REQUEST", caminho) }
+
         return restAPI.get(caminho)
-            .then((res) => Promise.resolve(res.data));
+            .then((res) => {
+                if (DEBUG) { console.debug("GET ENTIDADE REPLY", caminho, res.data) }
+                return Promise.resolve(res.data)
+            });
     },
 
     dbPOST: (nomeColecao, path, dado) => {
         let caminho = nomeColecao + "/" + codCidade + path;
+        if (DEBUG) { console.debug("POST REQUEST", caminho, dado) }
+
         return restAPI.post(caminho, dado)
+            .then((res) => {
+                if (DEBUG) { console.debug("POST REPLY", caminho, res) }
+                return Promise.resolve(res);
+            })
     },
 
     dbPUT: (nomeColecao, path, dado) => {
         let caminho = nomeColecao + "/" + codCidade + path;
+        if (DEBUG) { console.debug("PUT REQUEST", caminho, dado) }
 
         return restAPI.put(caminho, dado)
             .then((res) => {
+                if (DEBUG) { console.debug("PUT REPLY", caminho, res.data.result) }
                 return Promise.resolve(res.data.result)
             })
     },
 
     dbDELETE: (nomeColecao, path) => {
         let caminho = nomeColecao + "/" + codCidade + path;
+        if (DEBUG) { console.debug("DELETE REQUEST", caminho) }
 
         return restAPI.delete(caminho)
     },
 
     dbDELETEComParam: (nomeColecao, path, dado) => {
         let caminho = nomeColecao + "/" + codCidade + path;
+        if (DEBUG) { console.debug("DELETE REQUEST COM PARAM", caminho, dado) }
 
         return restAPI.delete(caminho, { data: dado })
     },

@@ -14,6 +14,7 @@ var DB_TABLE_ALUNO = "alunos";
 var DB_TABLE_ESCOLA = "escolas";
 var DB_TABLE_ROTA = "rotas";
 var DB_TABLE_MOTORISTA = "motoristas";
+var DB_TABLE_MONITOR = "monitores";
 var DB_TABLE_VEICULO = "veiculos";
 var DB_TABLE_GARAGEM = "garagens";
 var DB_TABLE_FORNECEDOR = "fornecedores";
