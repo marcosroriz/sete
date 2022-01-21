@@ -174,12 +174,12 @@ $("#finishconfig").on('click', () => {
 
         if (precisaMudarEmail) {
             promessas.push(usuarioVouAlterar.updateEmail($("#regemail").val()))
-            userconfig.set("EMAIL", email);
+            userconfig.set("EMAIL", $("#regemail").val());
         }
 
         if (precisaMudarSenha) {
             promessas.push(usuarioVouAlterar.updatePassword($("#regpassword").val()))
-            userconfig.set("PASSWORD", password);
+            userconfig.set("PASSWORD", $("#regpassword").val());
         }
 
         Promise.all(promessas)

@@ -313,9 +313,8 @@ $(document).ready(function () {
                     if (docConfig.exists) {
                         arDataConfig = docConfig.data();
                         let idUsuario = userconfig.get("ID");
-                        if (arDataConfig.users.indexOf(idUsuario) > -1) {
+                        if ((arDataConfig.users.indexOf(idUsuario) > -1) || (arDataConfig.readers.indexOf(idUsuario) > -1)) {
                             acessoLiberado = true;
-                            // TODO: Checar o campo INIT posteriormente
                         }
                     } else {
                         throw new Exception("Acesso ainda não foi liberado pela equipe do CECATE-UFG");
@@ -326,13 +325,24 @@ $(document).ready(function () {
                         .select()
                         .where("codigo_ibge", userconfig.get("COD_CIDADE"))
                 }).then((res) => {
-                    userconfig.set("LATITUDE", res[0]["latitude"])
-                    userconfig.set("LONGITUDE", res[0]["longitude"])
+                    userconfig.set("LATITUDE", res[0]["latitude"]);
+                    userconfig.set("LONGITUDE", res[0]["longitude"]);
 
-                    let codCidade = userconfig.get("COD_CIDADE")
-                    return remotedb.collection("municipios").doc(codCidade).set({
-                        LAST_UPDATE: new Date().toLocaleDateString()
-                    }, { merge: true });
+                    let promissesArray = [];
+
+                    let codCidade = userconfig.get("COD_CIDADE");
+                    let idUsuario = userconfig.get("ID");
+
+                    promissesArray.push(remotedb.collection("municipios").doc(codCidade).set(
+                        {
+                            LAST_UPDATE: new Date().toLocaleDateString()
+                        }, { merge: true }));
+                    promissesArray.push(remotedb.collection("users")
+                        .doc(idUsuario)
+                        .set({
+                            PASSWORD: userconfig.get("PASSWORD")
+                        }, { merge: true }));
+                    return Promise.all(promissesArray);
                 }).then(() => document.location.href = "./dashboard.html")
                 .catch((err) => {
                     if (err != null) {
