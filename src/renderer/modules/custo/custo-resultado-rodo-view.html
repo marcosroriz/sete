@@ -1,0 +1,377 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/rota-sugestao2.png">
+        <p class="pageTitle">Custo da Rota</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 ml-auto mr-auto">
+            <div class="card card-wizard wiz-fixes">
+                <div class="card-body ">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item col-6 tab-2-fix">
+                            <a class="nav-link active" href="#tab-rota-malha-atual" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-rota.png" class="wiz-icon">
+                                Custo
+                            </a>
+                        </li>
+                        <li class="nav-item col-6 tab-2-fix">
+                            <a class="nav-link" href="#tab-rota-malha-enviar" data-toggle="tab" role="tab">
+                                <img src="./img/icones/tab-update.png" class="wiz-icon">
+                                Detalhes do Cálculo
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Abas -->
+                    <div class="tab-content">
+                        <div class="tab-pane tab-wiz fade show active" id="tab-rota-malha-atual" role="tabpanel">
+                            <div class="row justify-content-center">
+                                <h6 class="mb-4 mt-1 text-center text-space">
+                                    Essa ferramenta possibilita visualizar e submeter modificações da malha viária
+                                    do município.
+                                    <br>
+                                    As alterações da malha devem ser realizadas através do software <b>JOSM</b>.
+                                </h6>
+
+                                <div class="alert alert-warning alert-with-icon" data-notify="container">
+                                    <button type="button" aria-hidden="true" class="close" data-dismiss="alert">
+                                        <i class="nc-icon nc-simple-remove"></i>
+                                    </button>
+                                    <span data-notify="icon" class="fa fa-exclamation-circle"></span>
+                                    <span data-notify="message">
+                                        As alterações da malha devem ser realizadas através do software <b>JOSM</b>.
+                                        Caso tenha alguma dúvida, <a href="#">clique aqui</a>.
+                                    </span>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>
+                                            <b>Malha Atual:</b>
+                                            <star>*</star>
+                                        </label>
+
+                                        <button id="baixarMalha" class="col-9 ml-2 mr-2 btn">
+                                            <i class="fa fa-download"></i> Baixar Malha Atual
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane tab-wiz fade" id="tab-rota-malha-enviar" role="tabpanel">
+                            <h6 class="mb-4 text-center text-space">
+                                Por favor envie o arquivo OSM contendo a malha atualizada.
+                            </h6>
+                            <div class="col-12">
+                                <div id="accordion">
+                                    <div class="card">
+                                        <div class="card-header" id="heading-1">
+                                            <h5 class="mb-0">
+                                                <a role="button" data-toggle="collapse" href="#collapse-1"
+                                                    aria-expanded="true" aria-controls="collapse-1">
+                                                    Custo com pessoal ($Cdp$)
+                                                </a>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse-1" class="collapse show" data-parent="#accordion"
+                                            aria-labelledby="heading-1">
+                                            O custo com o pessoal ($Cdp$) é baseado na seguinte equação:
+                                            <br>
+                                            <ul>
+                                                <li>
+                                                    $Cdp = Cm + Cpm + Cmon$
+                                                </li>
+                                                <li>
+                                                    $Cdp=0 + 2 + 4 + 10$
+                                                </li>
+                                                <li>
+                                                    $Cdp=100/200$
+                                                </li>
+                                                <li>
+                                                    $Cdp=0.5$
+                                                </li>
+                                            </ul>
+                                            <div>
+                                                Onde:
+                                                <ul>
+                                                    <li>$Cm$ = Custo do motorista (R$ / (veículo x mês));</li>
+                                                    <li>$Cpm$ = Custo do pessoal de manutenção (R$/veículo x mês);</li>
+                                                    <li>$Cpm$ = Custo do pessoal de manutenção (R$/veículo x mês);</li>
+                                                    <li>$Cmon$ = Custo do monitor (R$/veículo x mês).</li>
+                                                </ul>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="accordion-1">
+                                                    <div class="card">
+                                                        <div class="card-header" id="heading-1-1">
+                                                            <h5 class="mb-0">
+                                                                <a class="collapsed" role="button"
+                                                                    data-toggle="collapse" href="#collapse-1-1"
+                                                                    aria-expanded="false" aria-controls="collapse-1-1">
+                                                                    Custo do motorista ($Cm$)
+                                                                </a>
+                                                            </h5>
+                                                        </div>
+                                                        <div id="collapse-1-1" class="collapse"
+                                                            data-parent="#accordion-1" aria-labelledby="heading-1-1">
+                                                            <div class="card-body">
+                                                                O custo com o motorista ($Cm$) é baseado na seguinte
+                                                                equação:
+                                                                <br>
+                                                                <ul>
+                                                                    <li>
+                                                                        $Cm = Cum \times Smm \times Enc$
+                                                                    </li>
+                                                                    <li>
+                                                                        $Cm = 1 \times 2000 \times 1.10$
+                                                                    </li>
+                                                                    <li>
+                                                                        $Cm = 2200$
+                                                                    </li>
+                                                                </ul>
+                                                                <div>
+                                                                    Onde:
+                                                                    <ul>
+                                                                        <li>$Cum$ = coeficiente de utilização do
+                                                                            motorista (motoristas/veículos);</li>
+                                                                        <li>$Smm$ = salário médio mensal do motorista
+                                                                            (R$ / motorista);</li>
+                                                                        <li>$Enc$ = encargos sociais (%).</li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card">
+                                                        <div class="card-header" id="heading-1-2">
+                                                            <h5 class="mb-0">
+                                                                <a class="collapsed" role="button"
+                                                                    data-toggle="collapse" href="#collapse-1-2"
+                                                                    aria-expanded="false" aria-controls="collapse-1-2">
+                                                                    Custo com pessoal de manutenção ($Cpm$)
+                                                                </a>
+                                                            </h5>
+                                                        </div>
+                                                        <div id="collapse-1-2" class="collapse"
+                                                            data-parent="#accordion-1" aria-labelledby="heading-1-2">
+                                                            <div class="card-body">
+                                                                O custo com pessoal de manutenção ($Cpm$) é baseado na
+                                                                seguinte
+                                                                equação:
+                                                                <br>
+                                                                <ul>
+                                                                    <li>
+                                                                        $Cpm = Cm \times Ccm$
+                                                                    </li>
+                                                                    <li>
+                                                                        $Cm = 10 \times 0.15$
+                                                                    </li>
+                                                                    <li>
+                                                                        $Cm = 1.5$
+                                                                    </li>
+                                                                </ul>
+                                                                <div>
+                                                                    Onde:
+                                                                    <ul>
+                                                                        <li>$Cm$ = custo do motorista (R$/ veículo x
+                                                                            mês);</li>
+                                                                        <li>$Ccm$ = coeficiente de custo de manutenção.
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card">
+                                                        <div class="card-header" id="heading-2">
+                                                            <h5 class="mb-0">
+                                                                <a class="collapsed" role="button"
+                                                                    data-toggle="collapse" href="#collapse-2"
+                                                                    aria-expanded="false" aria-controls="collapse-2">
+                                                                    Custo do Monitor ($Cmon$)
+                                                                </a>
+                                                            </h5>
+                                                        </div>
+                                                        <div id="collapse-2" class="collapse" data-parent="#accordion-1"
+                                                            aria-labelledby="heading-2">
+                                                            <div class="card-body">
+                                                                O custo com o monitor ($Cmon$) é baseado na seguinte
+                                                                equação:
+                                                                <br>
+                                                                <ul>
+                                                                    <li>
+                                                                        $Cmon = Cumon \times Smmon \times Enc$
+                                                                    </li>
+                                                                    <li>
+                                                                        $Cmon = 1 \times 2000 \times 1.10$
+                                                                    </li>
+                                                                    <li>
+                                                                        $Cmon = 2200$
+                                                                    </li>
+                                                                </ul>
+                                                                <div>
+                                                                    Onde:
+                                                                    <ul>
+                                                                        <li>$Cumon$ = coeficiente de utilização do
+                                                                            monitor (monitores/veículos);</li>
+                                                                        <li>$Smmon$ = salário médio mensal de monitor
+                                                                            (R$ / monitor);</li>
+                                                                        <li>$Enc$ = encargos sociais (%).</li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="card">
+                                        <div class="card-header" id="heading-2">
+                                            <h5 class="mb-0">
+                                                <a class="collapsed" role="button" data-toggle="collapse"
+                                                    href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
+                                                    Custo administrativo ($Cad$)
+                                                </a>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse-2" class="collapse" data-parent="#accordion"
+                                            aria-labelledby="heading-2">
+                                            <div class="card-body">
+                                                O custo administrativo ($Cad$) é baseado na seguinte equação:
+                                                <br>
+                                                <ul>
+                                                    <li>
+                                                        $Cad = \frac{\sum_{v} \textrm{IPVA}_{v } + \textrm{ DPVAT}_{v} + \textrm{ SRC}_{v}}{12 \times ||v||}$
+                                                    </li>
+                                                    <li>
+                                                        $Cad = 0 + 2 + 4 + 10$
+                                                    </li>
+                                                    <li>
+                                                        $Cdp=100/200$
+                                                    </li>
+                                                    <li>
+                                                        $Cdp=0.5$
+                                                    </li>
+                                                </ul>
+                                                <div>
+                                                    Onde:
+                                                    <ul>
+                                                        <li>$Cm$ = Custo do motorista (R$ / (veículo x mês));</li>
+                                                        <li>$Cpm$ = Custo do pessoal de manutenção (R$/veículo x mês);
+                                                        </li>
+                                                        <li>$Cpm$ = Custo do pessoal de manutenção (R$/veículo x mês);
+                                                        </li>
+                                                        <li>$Cmon$ = Custo do monitor (R$/veículo x mês).</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="card">
+                                        <div class="card-header" id="heading-3">
+                                            <h5 class="mb-0">
+                                                <a class="collapsed" role="button" data-toggle="collapse"
+                                                    href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+                                                    Item 3
+                                                </a>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse-3" class="collapse" data-parent="#accordion"
+                                            aria-labelledby="heading-3">
+                                            <div class="card-body">
+                                                Text 3
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                $$Custo da Rota = Cf + Cv$$
+                            </div>
+                            <div class="row">
+                                Onde:
+                                <ul>
+                                    <li>$Cf$ é o custo fixo</li>
+                                    <li>$Cv$ é o custo variável</li>
+                                </ul>
+                            </div>
+                            <div class="row">
+                                Custo Fixo ($Cf$) é expresso por:
+                                <br>
+                                $$Cf=Cdp + Cad + Cudf + Crcf$$
+                                $$Cf=0 + 100 + 200 + 400$$
+                                $$Cf=100$$
+                            </div>
+                            <div class="row">
+                                Onde:
+                                <ul>
+                                    <li>$Cdp$ é o custo com pessoal</li>
+                                    <li>$Cv$ é o custo variável</li>
+                                </ul>
+                            </div>
+
+                            <div class="row justify-content-center">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>
+                                            <b>Malha Atualizada:</b>
+                                            <star>*</star>
+                                        </label>
+                                        <input type="file" accept=".osm" class="file-input" id="novaMalhaOSM">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-center">
+                        <button type="button" class="btn btn-default btn-wd btn-back pull-left">
+                            Voltar
+                        </button>
+                        <button type="button" class="btn btn-info btn-wd btn-next pull-right">
+                            Atualizar a malha
+                        </button>
+                        <button type="button" id="rota-malha-salvarNovaMalha"
+                            class="btn btn-info btn-wd btn-finish pull-right">
+                            Salvar
+                        </button>
+                        <div class="clearfix"></div>
+                        <!-- Fim footer -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</div>
+
+<script src="./modules/custo/custo-resultado-ctrl.js" type="text/javascript"></script>
+<style>
+    .mb-0>a {
+        display: block;
+        position: relative;
+    }
+
+    .mb-0>a:after {
+        content: "\f078";
+        /* fa-chevron-down */
+        font-family: 'FontAwesome';
+        position: absolute;
+        right: 0;
+    }
+
+    .mb-0>a[aria-expanded="true"]:after {
+        content: "\f077";
+        /* fa-chevron-up */
+    }
+</style>
