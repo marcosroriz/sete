@@ -1,15 +1,15 @@
-// motorista-listar-ctrl.js
-// Este arquivo contém o script de controle da tela motorista-listar-view. O mesmo
-// apresenta os motoristas cadastrados em uma tabela.
+// monitor-listar-ctrl.js
+// Este arquivo contém o script de controle da tela monitor-listar-view. 
+// O mesmo apresenta os monitores cadastrados em uma tabela.
 
 // Preenchimento da Tabela via SQL
-var listaDeMotoristas = new Map();
+var listaDeMonitores = new Map();
 
 // DataTables
-var dataTablesMotoristas = $("#datatables").DataTable({
+var dataTablesMonitores = $("#datatables").DataTable({
     // A função abaixo inicia nossa pré-configuração do datatable
     // ver detalhe da função em js/datatable.extra.js
-    ...dtConfigPadrao("motorista"),
+    ...dtConfigPadrao("monitor"),
     ...{
         dom: 'rtilp<"clearfix m-2">B',
         select: {
@@ -19,19 +19,16 @@ var dataTablesMotoristas = $("#datatables").DataTable({
         "order": [[ 1, "asc" ]],
         columns: [
             { data: "SELECT", width: "60px" },
-            { data: 'NOME', width: "15%" },
-            { data: 'TELEFONE', width: "15%" },
-            { data: 'TURNOSTR', width: "300px" },
-            { data: 'CNH', width: "15%" },
-            { data: 'DATA_VALIDADE_CNH_STR', width: "15%" },
-            // { data: 'ROTAS', width: "15%" },
+            { data: 'NOME', width: "25%" },
+            { data: 'TELEFONE', width: "25%" },
+            { data: 'TURNOSTR', width: "25%" },
             {
                 data: "ACOES",
                 width: "110px",
                 sortable: false,
-                defaultContent: '<a href="#" class="btn btn-link btn-primary motoristaView"><i class="fa fa-search"></i></a>' +
-                    '<a href="#" class="btn btn-link btn-warning motoristaEdit"><i class="fa fa-edit"></i></a>' +
-                    '<a href="#" class="btn btn-link btn-danger motoristaRemove"><i class="fa fa-times"></i></a>'
+                defaultContent: '<a href="#" class="btn btn-link btn-primary monitorView"><i class="fa fa-search"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-warning monitorEdit"><i class="fa fa-edit"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-danger monitorRemove"><i class="fa fa-times"></i></a>'
             }
         ],
         columnDefs: [
@@ -40,26 +37,26 @@ var dataTablesMotoristas = $("#datatables").DataTable({
         ],
         buttons: [
             {
-                text: 'Remover motoristas',
+                text: 'Remover monitores',
                 className: 'btnRemover',
                 action: function (e, dt, node, config) {
-                    var rawDados = dataTablesMotoristas.rows('.selected').data().toArray();
+                    var rawDados = dataTablesMonitores.rows('.selected').data().toArray();
                     if (rawDados.length == 0) {
-                        errorFn("Por favor, selecione pelo menos um motorista a ser removido.", "",
-                                "Nenhuma motorista selecionado")
+                        errorFn("Por favor, selecione pelo menos um monitor a ser removido.", "",
+                                "Nenhum monitor selecionado")
                     } else {
-                        let msg = `Você tem certeza que deseja remover os ${rawDados.length} motoristas selecionados?`;
-                        let msgConclusao = "Os motoristas foram removidos com sucesso";
+                        let msg = `Você tem certeza que deseja remover os ${rawDados.length} monitores selecionados?`;
+                        let msgConclusao = "Os monitores foram removidos com sucesso";
                         if (rawDados.length == 1) {
-                            msg = `Você tem certeza que deseja remover o motorista selecionado?`;
-                            msgConclusao = "O motorista foi removido com sucesso";
+                            msg = `Você tem certeza que deseja remover o monitor selecionado?`;
+                            msgConclusao = "O monitor foi removido com sucesso";
                         }
 
                         goaheadDialog(msg ,"Esta operação é irreversível. Você tem certeza?")
-                        .then((res) => {
+                        .then(async (res) => {
                             if (res.isConfirmed) {
                                 Swal2.fire({
-                                    title: "Removendo os motoristas da base de dados...",
+                                    title: "Removendo os monitores da base de dados...",
                                     imageUrl: "img/icones/processing.gif",
                                     closeOnClickOutside: false,
                                     allowOutsideClick: false,
@@ -86,24 +83,26 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                                 }
 
                                 var promiseArray = new Array();
-                                
-                                // Removendo cada motorista
-                                rawDados.forEach(m => {
-                                    let idMotorista = m["ID"];
-                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_MOTORISTA, `/${idMotorista}`).then(() => updateProgress()));
-                                })
+                                // Removendo cada monitor
+                                for (let monitor of rawDados) {
+                                    let idmonitor = monitor["ID"];
+                                    // Workaround
+                                    await removeTodasAsRotasDoMonitor(idmonitor);
+
+                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_MONITOR, `/${idmonitor}`).then(() => updateProgress()));
+                                }
 
                                 Promise.all(promiseArray)
                                 .then(() => {
                                     successDialog(text = msgConclusao);
-                                    dataTablesMotoristas.rows('.selected').remove();
-                                    dataTablesMotoristas.draw();
+                                    dataTablesMonitores.rows('.selected').remove();
+                                    dataTablesMonitores.draw();
                                 })
                             }
                         })
                         .catch((err) => {
                             Swal2.close()
-                            errorFn("Erro ao remover os motoristas", err)
+                            errorFn("Erro ao remover os monitors", err)
                         })
                     }
                 }
@@ -127,7 +126,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
             {
                 extend: 'pdfHtml5',
                 orientation: "landscape",
-                title: "Motoristas cadastrados",
+                title: "monitors cadastrados",
                 text: "Exportar para PDF",
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5, 6]
@@ -141,7 +140,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                         col.text = col.text.split("    ")[0];
                     }
 
-                    doc.content[2].text = listaDeMotoristas?.size +  " " + doc.content[2].text;
+                    doc.content[2].text = listaDeMonitores?.size +  " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
@@ -149,85 +148,88 @@ var dataTablesMotoristas = $("#datatables").DataTable({
     }
 });
 
-dataTablesMotoristas.on('click', '.motoristaView', function () {
+dataTablesMonitores.on('click', '.monitorView', function () {
     var $tr = getRowOnClick(this);
 
-    estadoMotorista = dataTablesMotoristas.row($tr).data();
-    action = "visualizarMotorista";
-    navigateDashboard("./modules/motorista/motorista-dados-view.html");
+    estadoMonitor = dataTablesMonitores.row($tr).data();
+    action = "visualizarMonitor";
+    navigateDashboard("./modules/monitor/monitor-dados-view.html");
 });
 
-dataTablesMotoristas.on('click', '.motoristaEdit', function () {
+dataTablesMonitores.on('click', '.monitorEdit', function () {
     var $tr = getRowOnClick(this);
 
-    estadoMotorista = dataTablesMotoristas.row($tr).data();
-    action = "editarMotorista";
-    navigateDashboard("./modules/motorista/motorista-cadastrar-view.html");
+    estadoMonitor = dataTablesMonitores.row($tr).data();
+    action = "editarMonitor";
+    navigateDashboard("./modules/monitor/monitor-cadastrar-view.html");
 });
 
-dataTablesMotoristas.on('click', '.motoristaRemove', function () {
+dataTablesMonitores.on('click', '.monitorRemove', function () {
     var $tr = getRowOnClick(this);
-    estadoMotorista = dataTablesMotoristas.row($tr).data();
-    var idMotorista = estadoMotorista["CPF"];
+    estadoMonitor = dataTablesMonitores.row($tr).data();
+    var idMonitor = estadoMonitor["CPF"];
 
-    action = "apagarMotorista";
-    confirmDialog('Remover esse motorista?',
-                  "Ao remover esse motorista ele será retirado do sistema das  " + 
+    action = "apagarMonitor";
+    confirmDialog('Remover esse monitor?',
+                  "Ao remover esse monitor ele será retirado do sistema das  " + 
                   "rotas e das escolas que possuir vínculo."
-    ).then((res) => {
+    ).then(async (res) => {
         let listaPromisePraRemover = [];
         if (res.value) {
-            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_MOTORISTA, `/${idMotorista}`));
+            // Workaround
+            await removeTodasAsRotasDoMonitor(idMonitor);
+
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_MONITOR, `/${idMonitor}`));
         }
 
         return Promise.all(listaPromisePraRemover)
     }).then((res) => {
         if (res.length > 0) {
-            dataTablesMotoristas.row($tr).remove();
-            dataTablesMotoristas.draw();
+            dataTablesMonitores.row($tr).remove();
+            dataTablesMonitores.draw();
             Swal2.fire({
                 title: "Sucesso!",
                 icon: "success",
-                text: "Motorista removido com sucesso!",
+                text: "monitor removido com sucesso!",
                 confirmButtonText: 'Retornar a página de administração'
             });
         }
     }).catch((err) => errorFn("Erro ao remover a escola", err))
 });
 
-restImpl.dbGETColecao(DB_TABLE_MOTORISTA)
-.then(res => processarMotoristas(res))
+restImpl.dbGETColecao(DB_TABLE_MONITOR)
+.then(res => processarMonitores(res))
 .then(res => adicionaDadosTabela(res))
 .catch((err) => {
     console.log(err)
-    errorFn("Erro ao listar os motoristas!", err)
+    errorFn("Erro ao listar os monitors!", err)
 })
 
-// Processar motoristas
-var processarMotoristas = (res) => {
-    $("#totalNumMotoristas").text(res.length);
-    for (let motoristaRaw of res) {
-        let motoristaJSON = parseMotoristaREST(motoristaRaw);
-        listaDeMotoristas.set(motoristaJSON["ID"], motoristaJSON);
+// Processar monitors
+var processarMonitores = (res) => {
+    $("#totalNumMonitores").text(res.length);
+    for (let monitorRaw of res) {
+        let monitorJSON = parseMonitorREST(monitorRaw);
+        listaDeMonitores.set(monitorJSON["ID"], monitorJSON);
     }
-    return listaDeMotoristas;
+    return listaDeMonitores;
 }
 
 // Adiciona dados na tabela
 adicionaDadosTabela = (res) => {
     let i = 0;
-    res.forEach((motorista) => {
-        motorista["SELECT"] = i++;
-        dataTablesMotoristas.row.add(motorista);
+    res.forEach((monitor) => {
+        monitor["SELECT"] = i++;
+        dataTablesMonitores.row.add(monitor);
     });
 
-    dataTablesMotoristas.draw();
-    dtInitFiltros(dataTablesMotoristas, [3]);
+    dataTablesMonitores.draw();
+    dtInitFiltros(dataTablesMonitores, [3]);
 }
 
 
 $("#datatables_filter input").on('keyup', function () {
-    dataTablesMotoristas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+    dataTablesMonitores.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
 })
 
-action = "listarMotoristas";
+action = "listarMonitores";

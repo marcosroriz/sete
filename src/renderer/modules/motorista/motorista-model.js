@@ -51,7 +51,7 @@ function PopulateMotoristaFromState(estadoMotoristaJSON) {
 
 
     if (estadoMotoristaJSON["SALARIO"]) {
-        $("#regsalario").val(estadoMotoristaJSON["SALARIO"]);
+        $("#regsalario").val(numberToMoney(estadoMotoristaJSON["SALARIO"]));
     }
 
     if (estadoMotoristaJSON["ANT_CRIMINAIS"]) {

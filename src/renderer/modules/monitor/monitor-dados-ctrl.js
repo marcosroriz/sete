@@ -1,14 +1,14 @@
-// motorista-dados-ctrl.js
-// Este arquivo contém o script de controle da tela motorista-dados-view. 
-// O mesmo serve para detalhar os dados de um motorista
+// monitor-dados-ctrl.js
+// Este arquivo contém o script de controle da tela monitor-dados-view. 
+// O mesmo serve para detalhar os dados de um monitor
 
-var idMotorista = estadoMotorista["CPF"];
+var idMonitor = estadoMonitor["CPF"];
 
 // Tira o btn group do datatable
 $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons';
 
 // Cria DataTable Institucional
-var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
+var dataTableDadosMonitor = $("#dataTableDadosMonitor").DataTable({
     columns: [
         { width: "20%", className: "text-right detalheChave" },
         { width: "60%", className: "text-left detalheValor" },
@@ -29,9 +29,9 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
         {
             extend: 'excel',
             className: 'btnExcel',
-            filename: "Motorista" + estadoMotorista["NOME"],
+            filename: "Monitor" + estadoMonitor["NOME"],
             title: appTitle,
-            messageTop: "Dados do Motorista: " + estadoMotorista["NOME"],
+            messageTop: "Dados do Monitor: " + estadoMonitor["NOME"],
             text: 'Exportar para Excel/LibreOffice',
             customize: function (xlsx) {
                 var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -44,7 +44,7 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
         {
             extend: 'pdfHtml5',
             orientation: "landscape",
-            title: "Motorista",
+            title: "Monitor",
             text: "Exportar para PDF",
             exportOptions: {
                 columns: [0, 1]
@@ -58,24 +58,26 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
             text: "Modificar",
             className: "btnMoficar",
             action: function(e, dt, node, config) {
-                action = "editarMotorista";
-                navigateDashboard("./modules/motorista/motorista-cadastrar-view.html");
+                action = "editarMonitor";
+                navigateDashboard("./modules/monitor/monitor-cadastrar-view.html");
             }
         },
         {
             text: "Apagar",
             className: "btnApagar",
             action: function(e, dt, node, config) {
-                action = "apagarMotorista";
-                confirmDialog('Remover esse motorista?',
-                               "Ao remover esse motorista ele será retirado do sistema das  " + 
-                               "rotas e das escolas que possuir vínculo."
-                ).then((res) => {
+                action = "apagarMonitor";
+                confirmDialog('Remover esse monitor?',
+                               "Ao remover esse monitor ele será retirado do sistema das  " + 
+                               "rotas que possuir vínculo."
+                ).then(async (res) => {
+                    debugger
                     let listaPromisePraRemover = []
                     if (res.value) {
-                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
-                        listaPromisePraRemover.push(dbAtualizaVersao());
+                        // Workaround
+                        await removeTodasAsRotasDoMonitor(idMonitor);
+
+                        listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_MONITOR, `/${idMonitor}`))
                     }
 
                     return Promise.all(listaPromisePraRemover)
@@ -84,73 +86,70 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
                         Swal2.fire({
                             title: "Sucesso!",
                             icon: "success",
-                            text: "Motorista removido com sucesso!",
+                            text: "Monitor removido com sucesso!",
                             confirmButtonText: 'Retornar a página de administração'
                         }).then(() => {
-                            navigateDashboard("./modules/motorista/motorista-listar-view.html");
+                            navigateDashboard("./modules/monitor/monitor-listar-view.html");
                         });
                     }
-                }).catch((err) => errorFn("Erro ao remover a escola", err))
+                }).catch((err) => errorFn("Erro ao remover o monitor", err))
             }
         },
     ]
 });
 
-var popularTabelaMotorista = () => {
+function popularTabelaMonitor() {
     // Popular tabela utilizando escola escolhida (estado)
-    $("#detalheNomeMotorista").html(estadoMotorista["NOME"]);
+    $("#detalheNomeMonitor").html(estadoMonitor["NOME"]);
 
-    dataTableMotorista.row.add(["Nome do motorista", estadoMotorista["NOME"]]);
-    dataTableMotorista.row.add(["CPF", estadoMotorista["CPF"]]);
-    dataTableMotorista.row.add(["Data de nascimento", estadoMotorista["DATA_NASCIMENTO"]]);
+    dataTableDadosMonitor.row.add(["Nome do monitor", estadoMonitor["NOME"]]);
+    dataTableDadosMonitor.row.add(["CPF", estadoMonitor["CPF"]]);
+    dataTableDadosMonitor.row.add(["Data de nascimento", estadoMonitor["DATA_NASCIMENTO"]]);
     
-    if (estadoMotorista["TELEFONE"] != "") {
-        dataTableMotorista.row.add(["Telefone", estadoMotorista["TELEFONE"]]);
+    if (estadoMonitor["TELEFONE"] != "") {
+        dataTableDadosMonitor.row.add(["Telefone", estadoMonitor["TELEFONE"]]);
     } else {
-        dataTableMotorista.row.add(["Telefone", "Telefone não informado"]);
+        dataTableDadosMonitor.row.add(["Telefone", "Telefone não informado"]);
     }
 
-    if (estadoMotorista["CNH"] != "") {
-        dataTableMotorista.row.add(["CNH", estadoMotorista["CNH"]]);
-    } else {
-        dataTableMotorista.row.add(["CNH", "Não informada"]);
-    }
-
-    if (estadoMotorista["DATA_VALIDADE_CNH"] != "") {
-        dataTableMotorista.row.add(["Validade da CNH", estadoMotorista["DATA_VALIDADE_CNH"]]);
-    } else {
-        dataTableMotorista.row.add(["Validade da CNH", "Não informada"]);
-    }
-
-    dataTableMotorista.row.add(["Categorias de CNH", estadoMotorista["CATEGORIAS"]]);
-    dataTableMotorista.row.add(["Turnos de trabalhos", estadoMotorista["TURNOSTR"]]);
+    dataTableDadosMonitor.row.add(["Turnos de trabalhos", estadoMonitor["TURNOSTR"]]);
     
-    if (estadoMotorista["ANT_CRIMINAIS"] != "") {
-        dataTableMotorista.row.add(["Número do doc. de Antecedentes Criminais", estadoMotorista["ANT_CRIMINAIS"]]);
+    if (estadoMonitor["VINCULO"] != "") {
+        dataTableDadosMonitor.row.add(["Vínculo", estadoMonitor["VINCULOSTR"]]);
     } else {
-        dataTableMotorista.row.add(["Número do doc. de Antecedentes Criminais", "Não informado"]);
+        dataTableDadosMonitor.row.add(["Número do doc. de Antecedentes Criminais", "Não informado"]);
     }
 
-    if (estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"] != null &&
-        estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"] != "" &&
-        estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"] != undefined) {
-        dataTableMotorista.row.add(["Anexo dos documentos pessoais", 
-        `<button type="button" id="docAnexos" class="btn btn-primary btn-sm">
-                Ver documentos em anexos (PDF)
-        </button>`])
+    if (estadoMonitor["SALARIO"] && estadoMonitor["SALARIO"] != "" && estadoMonitor["SALARIO"] != NaN) {
+        dataTableDadosMonitor.row.add(["Salário", "R$ " + numberToMoney(estadoMonitor["SALARIO"])]);
     } else {
-        dataTableMotorista.row.add(["Anexo dos documentos pessoais", "Não enviado"]);
+        dataTableDadosMonitor.row.add(["Salário", "Não informado"]);
     }
 
-    dataTableMotorista.draw();
+    if (estadoMonitor["ROTAS"] && estadoMonitor["ROTAS"].length > 0) {
+        dataTableDadosMonitor.row.add(["Rotas que monitora", ""]);
+        for (let rota of estadoMonitor["ROTAS"]) {
+            dataTableDadosMonitor.row.add(["Rota: ", rota.nome]);
+        }
+    }
 
-    $("#docAnexos").click(() => {
-        shell.openItem(estadoMotorista["ARQUIVO_DOCPESSOAIS_ANEXO"]);
-    })
+    dataTableDadosMonitor.draw();
 }
 
-popularTabelaMotorista();
+
+restImpl.dbGETEntidade(DB_TABLE_MONITOR, `/${estadoMonitor.ID}`)
+.then((monitorRaw) => {
+    let detalhesDoMonitor = parseMonitorREST(monitorRaw);
+    Object.assign(estadoMonitor, detalhesDoMonitor);
+    return getRotasDoMonitor(estadoMonitor.ID);
+}).then((rotas) => {
+    if (rotas.length > 0) {
+        estadoMonitor["ROTAS"] = rotas;
+    }
+    return rotas;
+}).then(() => popularTabelaMonitor())
+.catch((err) => errorFn("Erro ao detalhadar a ficha do monitor", err))
 
 $("#detalheInitBtn").click();
 
-action = "detalharMotorista";
+action = "detalharMonitor";

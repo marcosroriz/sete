@@ -308,3 +308,7 @@ function strToNumber(str) {
     return Number(String(str).replace(".", "").replace(",", "."));
   }
 }
+
+function numberToMoney(num) {
+  return Number(Number(num).toFixed(2)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
