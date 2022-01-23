@@ -2,8 +2,6 @@
 // Este arquivo contém o script de controle da tela garagem-visualizar-view. 
 // O mesmo serve para visualizar e salvar a posição da garagem no mapa.
 
-const { Debugger } = require("electron");
-
 // Posição espacial da garagem
 var posicaoGaragem = null;
 

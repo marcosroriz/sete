@@ -10,7 +10,7 @@ function GetVeiculoFromForm() {
         "placa": $("#regplaca").val().toUpperCase(),
         "renavam": $("#regrenavam").val(),
         "capacidade": Number($("#capacidade").val()),
-        "manutencao": Number($("[name='manutencao']").val()) == 0 ? "S" : "N", // str
+        "manutencao": Number($("[name='manutencao']:checked").val()) == 0 ? "N" : "S", // str
         "tipo_combustivel": $("[name='tipoCombustivel']:checked").val()
     }
     

@@ -169,10 +169,7 @@ async function preProcessarSalvarRota(alunosAdicionar, alunosRemover, escolasRem
     if (estaEditando) {
         for (const eID of escolasRemover) {
             try {
-                await restImpl.dbDELETEComParam(DB_TABLE_ESCOLA, `/${eID}/rota`,
-                    {
-                        rotas: [{ "id_rota": estadoRota["ID"] }]
-                    });
+                await restImpl.dbDELETEComParam(DB_TABLE_ESCOLA, `/${eID}/rota`, { rotas: [{ "id_rota": estadoRota["ID"] }] });
             } catch (error) {
                 console.error(error);
             }
@@ -180,10 +177,7 @@ async function preProcessarSalvarRota(alunosAdicionar, alunosRemover, escolasRem
 
         for (const mID of motoristasRemover) {
             try {
-                await restImpl.dbDELETEComParam(DB_TABLE_ROTA, `/${idRota}/motoristas`,
-                    {
-                        "cpf_motorista": mID
-                    });
+                await restImpl.dbDELETEComParam(DB_TABLE_ROTA, `/${idRota}/motoristas`, { "cpf_motorista": mID });
             } catch (error) {
                 console.error(error);
             }
@@ -191,10 +185,7 @@ async function preProcessarSalvarRota(alunosAdicionar, alunosRemover, escolasRem
 
         for (const mID of monitoresRemover) {
             try {
-                await restImpl.dbDELETEComParam(DB_TABLE_MONITOR, `/${mID}/rota`,
-                    {
-                        "id_rota": idRota
-                    });
+                await restImpl.dbDELETEComParam(DB_TABLE_MONITOR, `/${mID}/rota`, { "id_rota": idRota });
             } catch (error) {
                 console.error(error);
             }
@@ -203,10 +194,7 @@ async function preProcessarSalvarRota(alunosAdicionar, alunosRemover, escolasRem
         for (const vID of veiculosRemover) {
             try {
                 if (vID != "-1" && vID != -1) {
-                    await restImpl.dbDELETEComParam(DB_TABLE_ROTA, `/${idRota}/veiculos`,
-                        {
-                            "id_veiculo": vID
-                        });
+                    await restImpl.dbDELETEComParam(DB_TABLE_ROTA, `/${idRota}/veiculos`, { "id_veiculo": vID });
                 }
             } catch (error) {
                 console.error(error);
@@ -312,7 +300,6 @@ $("#salvarrota").on("click", async () => {
     var novosVeiculos = new Set([$("#tipoVeiculo").val()]);
     var veiculosAdicionar = new Set([...novosVeiculos].filter(x => !antVeiculos.has(x)));
     var veiculosRemover = new Set([...antVeiculos].filter(x => !novosVeiculos.has(x)))
-    debugger
 
     var $valid = $('#wizardCadastrarRotaForm').valid();
     if (!$valid) {
@@ -329,14 +316,17 @@ $("#salvarrota").on("click", async () => {
                 console.log("Atualizando Rota com:", rotasJSON)
                 await restImpl.dbPUT(DB_TABLE_ROTA, `/${idRota}`, rotasJSON);
             } else {
-                console.log("Inserindo Rota com:", rotasJSON)
-                let resp = await restImpl.dbPOST(DB_TABLE_ROTA, `/${idRota}`, rotasJSON);
-                console.log(resp);
+                console.log("Inserindo Rota com:", rotasJSON);
+                let resp = await restImpl.dbPOST(DB_TABLE_ROTA, "", rotasJSON);
+                idRota = resp?.data?.messages?.id;
             }
 
-            posProcessamentoSalvarRota(idRota, alunosAdicionar, escolasAdicionar, motoristasAdicionar, monitoresAdicionar, veiculosAdicionar)
+            if (idRota == null || idRota == "") {
+                throw "IDROTA É NULO";
+            } else {
+                posProcessamentoSalvarRota(idRota, alunosAdicionar, escolasAdicionar, motoristasAdicionar, monitoresAdicionar, veiculosAdicionar)
+            }
         } catch (error) {
-            debugger
             console.log("Error")
         } finally {
             Swal2.close();
@@ -376,6 +366,7 @@ restImpl.dbGETColecao(DB_TABLE_MOTORISTA)
     .then((motoristas) => {
         // Processando Motoristas
         if (motoristas.length != 0) {
+            motoristas.sort((a, b) => a["nome"].localeCompare(b["nome"]))
             for (let motoristaRaw of motoristas) {
                 let motoristaJSON = parseMotoristaREST(motoristaRaw);
                 $('#tipoMotorista').append(`<option value="${motoristaJSON["ID"]}">${motoristaJSON["NOME"]}</option>`);
@@ -418,6 +409,8 @@ restImpl.dbGETColecao(DB_TABLE_MONITOR)
     .then((monitores) => {
         // Processando Monitores
         if (monitores.length != 0) {
+            monitores.sort((a, b) => a["nome"].localeCompare(b["nome"]))
+
             for (let monitorRaw of monitores) {
                 $('#tipoMonitor').append(`<option value="${monitorRaw["cpf"]}">${monitorRaw["nome"]}</option>`);
             }

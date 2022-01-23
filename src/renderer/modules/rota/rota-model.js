@@ -2,10 +2,6 @@ function GetRotaFromForm() {
     let data = {
         "tipo": Number($("input[name='tipoRota']:checked").val()), // int
         "nome": $("#regnome").val(), // string
-        "hora_ida_inicio": $("#reginicioida").val(), // text
-        "hora_ida_termino": $("#regterminoida").val(), // text
-        "hora_volta_inicio": $("#reginiciovolta").val(), // text
-        "hora_volta_termino": $("#regterminovolta").val(), // text
         "km": strToNumber($("#regkm").val()), // number
         "tempo": strToNumber($("#regtempo").val()), // number
 
@@ -19,6 +15,12 @@ function GetRotaFromForm() {
         "turno_vespertino": $("#temHorarioTarde").is(":checked") ? "S" : "N", // str
         "turno_noturno": $("#temHorarioNoite").is(":checked") ? "S" : "N", // str
     }
+
+    if ($("#reginicioida").val() != "") data["hora_ida_inicio"] = $("#reginicioida").val();
+    if ($("#regterminoida").val() != "") data["hora_ida_termino"] = $("#regterminoida").val();
+    if ($("#reginiciovolta").val() != "") data["hora_volta_inicio"] = $("#reginiciovolta").val();
+    if ($("#regterminovolta").val() != "") data["hora_volta_termino"] = $("#regterminovolta").val();
+
     return data;
 }
 
