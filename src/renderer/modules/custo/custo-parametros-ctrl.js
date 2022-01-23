@@ -117,7 +117,7 @@ restImpl.dbGETColecao(DB_TABLE_PARAMETROS)
 function adicionaDadosTabela(parametros) {
     parametros.forEach((param) => {
         param["descricao_parametro"] = param["descricao_parametro"].toUpperCase();
-        param["valor_padrao"] = param["valor"];
+        param["valor_padrao"] = param["valor_padrao"];
         dataTablesParametros.row.add(param);
     });
 
