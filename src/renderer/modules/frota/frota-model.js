@@ -10,7 +10,8 @@ function GetVeiculoFromForm() {
         "placa": $("#regplaca").val().toUpperCase(),
         "renavam": $("#regrenavam").val(),
         "capacidade": Number($("#capacidade").val()),
-        "manutencao": $("#temHorarioManha").is(":checked") ? "S" : "N", // str
+        "manutencao": Number($("[name='manutencao']").val()) == 0 ? "S" : "N", // str
+        "tipo_combustivel": $("[name='tipoCombustivel']:checked").val()
     }
     
     if ($("#regkm").val() != "" && $("#regkm").val() != null) {
@@ -91,10 +92,29 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
     $("#regrenavam").val(estadoVeiculoJSON["RENAVAM"]);
     $("#regkm").val(estadoVeiculoJSON["KM_INICIAL"]);
     $("#capacidade").val(estadoVeiculoJSON["CAPACIDADE"]);
-    if (estadoVeiculoJSON["MANUTENCAO"]) {
+    if (estadoVeiculoJSON["MANUTENCAO"] == "S") {
         $("input[name='manutencao'][value='1']").prop('checked', true)
     } else {
         $("input[name='manutencao'][value='0']").prop('checked', true)
+    }
+
+    if (estadoVeiculoJSON["tipo_combustivel"]) {
+        $(`input[name='tipoCombustivel'][value='${estadoVeiculoJSON["tipo_combustivel"]}']`).prop('checked', true)
+    }
+
+    if (estadoVeiculoJSON["km_atual"]) $("#regkm").val(numberToMoney(estadoVeiculoJSON["km_atual"]));
+    if (estadoVeiculoJSON["numero_de_pneus"]) $("#numeroDePneus").val(Number(estadoVeiculoJSON["numero_de_pneus"]));
+    if (estadoVeiculoJSON["vida_util_do_pneu"]) $("#vidaUtilPneu").val(strToNumber(estadoVeiculoJSON["vida_util_do_pneu"]));
+    if (estadoVeiculoJSON["potencia_do_motor"]) $("#numCavalos").val(strToNumber(estadoVeiculoJSON["potencia_do_motor"]));
+    if (estadoVeiculoJSON["preco"]) $("#precoVeiculo").val(numberToMoney(estadoVeiculoJSON["preco"]));
+
+    if (estadoVeiculoJSON["ipva"]) $("#regipva").val(numberToMoney(estadoVeiculoJSON["ipva"]));
+    if (estadoVeiculoJSON["dpvat"]) $("#regdpvat").val(numberToMoney(estadoVeiculoJSON["dpvat"]));
+    if (estadoVeiculoJSON["seguro_anual"]) $("#regseguroanual").val(numberToMoney(estadoVeiculoJSON["seguro_anual"]));
+    if (estadoVeiculoJSON["consumo"]) $("#consumoVeiculo").val(strToNumber(estadoVeiculoJSON["consumo"]));
+
+    if ($("#consumoVeiculo").val() != "" && $("#consumoVeiculo").val() != null) {
+        estadoVeiculoJSON["consumo"] = strToNumber($("#consumoVeiculo").val());
     }
 }
 
@@ -146,7 +166,7 @@ var parseVeiculoDB = function (veiculoRaw) {
         veiculoJSON["ESTADO"] = "Operação";
     }
 
-    if (veiculoJSON["ORIGEM"] == "1") {
+    if (veiculoJSON["ORIGEM"] == "1" || veiculoJSON["ORIGEM"] == "Próprio") {
         veiculoJSON["ORIGEMSTR"] = "Frota própria";
     } else {
         veiculoJSON["ORIGEMSTR"] = "Frota terceirizada";

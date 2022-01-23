@@ -24,7 +24,8 @@ $(".placa").mask("ZZZ-ZZZZ", {
 });
 
 $(".renavam").mask("0000000000-0");
-$(".kmmask").mask("000000,00", { reverse: true });
+$(".kmmask").mask("#.##0,00", { reverse: true });
+$(".consumomask").mask("00,00", { reverse: true });
 
 // Esconde tipo de veículo
 $(".tipoRodo").hide();
@@ -142,7 +143,6 @@ $("#salvarveiculo").on('click', () => {
     $("#capacidade").valid();
     $("[name='manutencao']").valid();
     var veiculoJSON = GetVeiculoFromForm();
-    debugger
 
     var $valid = $('#wizardCadastrarVeiculoForm').valid();
     if (!$valid) {
@@ -170,29 +170,71 @@ $("#salvarveiculo").on('click', () => {
     }
 });
 
-if (estaEditando) {
-    restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${estadoVeiculo.ID}`)
-    .then((veiculoRaw) => {
-        if (veiculoRaw) {
-            estadoVeiculo = parseVeiculoREST(veiculoRaw);
+// Preencher as marcas/modelos/tipos com dados do serv
+var promissesMetadados = [];
+promissesMetadados.push(restImpl.dbGETRaiz(DB_TABLE_VEICULO, "/tipo"))
+promissesMetadados.push(restImpl.dbGETRaiz(DB_TABLE_VEICULO, "/marcas"))
+promissesMetadados.push(restImpl.dbGETRaiz(DB_TABLE_VEICULO, "/modelos"))
 
-            PopulateVeiculoFromState(estadoVeiculo);
-            $('.cep').trigger("input");
-            $(".cpfmask").trigger("input");
-            $(".telmask").trigger("input");
-            $(".anoaquisicao").trigger("input");
-            $(".placa").trigger("input");
-            $(".renavam").trigger("input");
-            $(".kmmask").trigger("input");
-        
-            $("#cancelarAcao").click(() => {
-                cancelDialog()
-                    .then((result) => {
-                        if (result.value) {
-                            navigateDashboard(lastPage);
-                        }
-                    })
-            });
+Promise.all(promissesMetadados)
+.then((res) => {
+    let tipoVeiculos = res[0]?.data?.data;
+    let marcasVeiculos = res[1]?.data?.data;
+    let modelosVeiculos = res[2]?.data?.data;
+
+    if (tipoVeiculos) {
+        tipoVeiculos.sort((a, b) => a["tipo"].localeCompare(b["tipo"]))
+        for (let tipo of tipoVeiculos) {
+            if (tipo.id <= 8) {
+                $('#tipoVeiculo').append(`<option class="tipoRodo" value="${tipo.id}">${tipo.tipo}</option>`);
+            } else {
+                $('#tipoVeiculo').append(`<option class="tipoAqua" value="${tipo.id}">${tipo.tipo}</option>`);
+            }
         }
-    })
+    }
+    
+    if (marcasVeiculos) {
+        marcasVeiculos.sort((a, b) => a["marca"].localeCompare(b["marca"]))
+        for (let marca of marcasVeiculos) {
+                $('#tipoMarca').append(`<option value="${marca.id}">${marca.marca}</option>`);
+        }
+    }
+
+    if (modelosVeiculos) {
+        modelosVeiculos.sort((a, b) => a.id < b.id ? -1 : 1)
+        for (let modelo of modelosVeiculos) {
+                $('#listamodelo').append(`<option value="${modelo.id}">${modelo.modelo}</option>`);
+        }
+    }
+
+    return res;
+}).then(() => verificaEdicao())
+
+function verificaEdicao() {
+    if (estaEditando) {
+        restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${estadoVeiculo.ID}`)
+            .then((veiculoRaw) => {
+                if (veiculoRaw) {
+                    estadoVeiculo = parseVeiculoREST(veiculoRaw);
+
+                    PopulateVeiculoFromState(estadoVeiculo);
+                    $('.cep').trigger("input");
+                    $(".cpfmask").trigger("input");
+                    $(".telmask").trigger("input");
+                    $(".anoaquisicao").trigger("input");
+                    $(".placa").trigger("input");
+                    $(".renavam").trigger("input");
+                    $(".kmmask").trigger("input");
+                    $(".consumomask").trigger("input");
+                    $("#cancelarAcao").on('click', () => {
+                        cancelDialog()
+                            .then((result) => {
+                                if (result.value) {
+                                    navigateDashboard(lastPage);
+                                }
+                            })
+                    });
+                }
+            })
+    }
 }

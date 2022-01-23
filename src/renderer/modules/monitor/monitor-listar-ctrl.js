@@ -84,6 +84,7 @@ var dataTablesMonitores = $("#datatables").DataTable({
 
                                 var promiseArray = new Array();
                                 // Removendo cada monitor
+                                debugger
                                 for (let monitor of rawDados) {
                                     let idmonitor = monitor["ID"];
                                     // Workaround
@@ -194,7 +195,9 @@ dataTablesMonitores.on('click', '.monitorRemove', function () {
                 confirmButtonText: 'Retornar a página de administração'
             });
         }
-    }).catch((err) => errorFn("Erro ao remover a escola", err))
+    }).catch((err) => {
+        errorFn("Erro ao remover a escola", err)
+    })
 });
 
 restImpl.dbGETColecao(DB_TABLE_MONITOR)

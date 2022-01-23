@@ -18,8 +18,8 @@ var dataTablesVeiculos = $("#datatables").DataTable({
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'PLACA', width: "12%" },
-            { data: 'TIPOSTR', width: "12%" },
-            { data: 'MARCASTR', width: "12%" },
+            { data: 'TIPO', width: "12%" },
+            { data: 'MARCA', width: "12%" },
             { data: 'MODELOSTR', width: "12%" },
             { data: 'CAPACIDADE', width: "15%" },
             { data: 'CAPACIDADE_ATUAL', width: "15%" },

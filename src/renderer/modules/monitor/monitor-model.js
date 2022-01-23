@@ -17,6 +17,10 @@ function GetMonitorFromForm() {
         data["salario"] = strToNumber(String($("#regsalario").val()))
     }
 
+    if ($("#regtelresp").val() != "") {
+        data["telefone"] = $("#regtelresp").val();
+    }
+    
     return data;
 }
 
@@ -61,7 +65,7 @@ async function getRotasDoMonitor(cpf) {
 async function removeTodasAsRotasDoMonitor(cpf) {
     let rotas = [];
     try {
-        rotas = await restImpl.dbGETEntidade(DB_TABLE_MONITOR, `/${cpf}/rota`);
+        rotas = await restImpl.dbGETColecao(DB_TABLE_MONITOR, `/${cpf}/rota`);
     } catch (error) {
         if (error.response.data?.data) {
             rotas = error.response.data?.data;

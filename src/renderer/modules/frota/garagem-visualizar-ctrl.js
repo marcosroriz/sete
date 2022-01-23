@@ -2,6 +2,8 @@
 // Este arquivo contém o script de controle da tela garagem-visualizar-view. 
 // O mesmo serve para visualizar e salvar a posição da garagem no mapa.
 
+const { Debugger } = require("electron");
+
 // Posição espacial da garagem
 var posicaoGaragem = null;
 
@@ -94,20 +96,20 @@ restImpl.dbGETColecao(DB_TABLE_GARAGEM)
     .then(res => processarGaragem(res))
 
 // Processa garagem
-var processarGaragem = (res) => {
-    debugger
+var processarGaragem = async (res) => {
     if (res.length > 0) {
         action = "editarGaragem";
         for (let garagemRaw of res) {
             idGaragem = garagemRaw.id_garagem;
-            $("#regcep").val(garagemRaw["loc_cep"]);
-            $("#regend").val(garagemRaw["loc_endereco"]);
+            let garagemJSON = await restImpl.dbGETEntidade(DB_TABLE_GARAGEM, `/${idGaragem}`);
+            $("#regcep").val(garagemJSON["loc_cep"]);
+            $("#regend").val(garagemJSON["loc_endereco"]);
 
-            if (garagemRaw["loc_longitude"] != null && garagemRaw["loc_longitude"] != undefined &&
-                garagemRaw["loc_latitude"] != null && garagemRaw["loc_latitude"] != undefined) {
-                $("#reglat").val(garagemRaw["loc_latitude"]);
-                $("#reglon").val(garagemRaw["loc_longitude"]);
-                plotaGaragem(garagemRaw["loc_latitude"], garagemRaw["loc_longitude"])
+            if (garagemJSON["loc_longitude"] != null && garagemJSON["loc_longitude"] != undefined &&
+                garagemJSON["loc_latitude"] != null && garagemJSON["loc_latitude"] != undefined) {
+                $("#reglat").val(garagemJSON["loc_latitude"]);
+                $("#reglon").val(garagemJSON["loc_longitude"]);
+                plotaGaragem(garagemJSON["loc_latitude"], garagemJSON["loc_longitude"])
             }
         }
     }

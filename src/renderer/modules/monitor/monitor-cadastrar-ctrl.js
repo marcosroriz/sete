@@ -19,9 +19,6 @@ $(".datanasc").mask('00/00/0000');
 $(".datavalida").mask('00/00/0000');
 $('.money').mask('#.##0,00', { reverse: true });
 
-// Boolean que indica se o veículo e motoristas foram definidos previamente para esta rota
-var rotaInformadoPrev = false;
-
 var validadorFormulario = $("#wizardCadastrarMonitorForm").validate({
     // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
     ...configMostrarResultadoValidacao(),
@@ -129,7 +126,6 @@ $("#salvarMonitor").on('click', async () => {
             if (estaEditando) {
                 loadingFn("Editando o monitor ...")
 
-                let cpf = estadoMonitor["ID"];
                 try {
                     var novasRotas = new Set($("#tipoRota").val());
                     var rotasAdicionar = new Set([...novasRotas].filter(x => !antRotas.has(x)));
@@ -137,9 +133,11 @@ $("#salvarMonitor").on('click', async () => {
 
                     await restImpl.dbPUT(DB_TABLE_MONITOR, `/${cpf}`, monitorJSON);
 
-                    for (var rID of rotasAdicionar) {
-                        if (rID != "-1" && rID != -1) {
-                            await restImpl.dbPOST(DB_TABLE_MONITOR, `/${cpf}/rota`, { "id_rota": rID });
+                    if ($("#tipoRota").val() != "-1") {
+                        for (var rID of rotasAdicionar) {
+                            if (rID != "-1" && rID != -1) {
+                                await restImpl.dbPOST(DB_TABLE_MONITOR, `/${cpf}/rota`, { "id_rota": rID });
+                            }
                         }
                     }
 
@@ -157,9 +155,12 @@ $("#salvarMonitor").on('click', async () => {
 
                 try {
                     await restImpl.dbPOST(DB_TABLE_MONITOR, "", monitorJSON);
-                    for (var rID of $("#tipoRota").val()) {
-                        if (rID != "-1" && rID != -1) {
-                            await restImpl.dbPOST(DB_TABLE_MONITOR, `/${cpf}/rota`, { "id_rota": rID });
+
+                    if ($("#tipoRota").val() != "-1") {
+                        for (var rID of $("#tipoRota").val()) {
+                            if (rID != "-1" && rID != -1) {
+                                await restImpl.dbPOST(DB_TABLE_MONITOR, `/${cpf}/rota`, { "id_rota": rID });
+                            }
                         }
                     }
                     completeForm()
@@ -186,8 +187,6 @@ function preprocessarRotas(rotas) {
         $('#tipoRota').selectpicker({
             noneSelectedText: "Escolha pelo menos uma rota"
         });
-
-        rotaInformadoPrev = true;
     } else {
         $('#tipoRota').removeClass("selectpicker")
         $('#tipoRota').addClass("form-control")
@@ -229,7 +228,7 @@ function verificaEdicao() {
                     return getRotasDoMonitor(estadoMonitor.ID)
                 }
             }).then((rotasMonitor) => {
-                if (rotasMonitor) {
+                if (rotasMonitor && rotasMonitor.length > 0) {
                     let idRotas = [];
                     rotasMonitor.forEach(rota => {
                         antRotas.add(String(rota.id_rota));
