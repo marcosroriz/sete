@@ -99,7 +99,8 @@
                                     <div class="jumbotron btn-danger">
                                         <h2 id="precoCustoGrande">ERRO</h2>
                                         <h5>Não foi possível realizar o cálculo da rota.</h5>
-                                        <h5>Verifique quais parâmetros não foram informados na aba de detalhamento do cálculo</h3>
+                                        <h5>Verifique quais parâmetros não foram informados na aba de detalhamento do
+                                            cálculo</h3>
                                     </div>
                                 </div>
 
@@ -136,9 +137,6 @@
                             <div class="row">
                                 <ul>
                                     <li class="mathEqn">
-                                        $Custo = (12 \times Cf + 10 \times Cv) \times K_m$
-                                    </li>
-                                    <li class="mathEqn">
                                         $Custo = (12 \times Cf) + (10 \times Cv) \times K_m$
                                     </li>
                                     <li class="mathEqn" id="CustoRotaDetalhamento"></li>
@@ -146,7 +144,7 @@
                                 </ul>
                             </div>
                             <div class="row">
-                                Onde:
+                                Em que:
                                 <br>
                                 <ul>
                                     <li class="mathEqn">$Custo$ = Custo da rota (R$/veículo x mês);
@@ -181,14 +179,14 @@
                                                     <div class="row">
                                                         <ul>
                                                             <li class="mathEqn">
-                                                                $Cf = Cdp + Cad + Cudf + Crcf$
+                                                                $Cf = Cdp + Cad + Cud + Crf$
                                                             </li>
                                                             <li class="mathEqn" id="CustoFixoDetalhamento"></li>
                                                             <li class="mathEqn" id="CustoFixoValorFinal"></li>
                                                         </ul>
                                                     </div>
                                                     <div class="row">
-                                                        Onde:
+                                                        Em que:
                                                         <br>
                                                         <ul>
                                                             <li class="mathEqn">$Cf$ = Custo fixo da rota (R$/veículo x
@@ -199,12 +197,10 @@
                                                             <li class="mathEqn">$Cad$ = Custo administrativo (R$/veículo
                                                                 x
                                                                 mês).</li>
-                                                            <li class="mathEqn">$Cudf$ = Custo de depreciação mensal do
-                                                                capital investido nos veículos da rota (R$/veículo x
-                                                                mês);
-                                                            <li class="mathEqn">$Curf$ = Custo de remuneração do capital
-                                                                investido nos veículos
-                                                                da rota (R$/veículo x mês);
+                                                            <li class="mathEqn">$Cud$ = Custo de depreciação mensal do
+                                                                capital investido no veículo da rota (R$/veículo x mês);
+                                                            <li class="mathEqn">$Crf$ = Custo de remuneração do capital
+                                                                investido no veículo da rota (R$/veículo x mês);
 
                                                         </ul>
                                                     </div>
@@ -234,7 +230,7 @@
                                                                     </li>
                                                                 </ul>
                                                                 <div>
-                                                                    Onde:
+                                                                    Em que:
                                                                     <ul>
                                                                         <li class="mathEqn">$Cdp$ = Custo com pessoal
                                                                             (R$ / (veículo x
@@ -285,7 +281,7 @@
                                                                                         </li>
                                                                                     </ul>
                                                                                     <div>
-                                                                                        Onde:
+                                                                                        Em que:
                                                                                         <ul>
                                                                                             <li class="mathEqn">$Cm$ =
                                                                                                 Custo do motorista
@@ -342,7 +338,7 @@
                                                                                         </li>
                                                                                     </ul>
                                                                                     <div>
-                                                                                        Onde:
+                                                                                        Em que:
                                                                                         <ul>
                                                                                             <li class="mathEqn">$Cpm$ =
                                                                                                 Custo do pessoal de
@@ -393,7 +389,7 @@
                                                                                         </li>
                                                                                     </ul>
                                                                                     <div>
-                                                                                        Onde:
+                                                                                        Em que:
                                                                                         <ul>
                                                                                             <li class="mathEqn">$Cmon$ =
                                                                                                 Custo do monitor
@@ -440,10 +436,9 @@
                                                                     <br>
                                                                     <ul>
                                                                         <li class="mathEqn">
-                                                                            $Cad = \frac{\sum\limits_{i=1}^{v}
-                                                                            \textrm{IPVA}_{i} +
-                                                                            \textrm{DPVAT}_{i} +
-                                                                            \textrm{SRC}_{i}}{12 \times v}$
+                                                                            $Cad = \frac{\textrm{IPVA} +
+                                                                            \textrm{DPVAT} +
+                                                                            \textrm{SRC}}{12}$
                                                                         </li>
                                                                         <li class="mathEqn"
                                                                             id="CustoAdministrativoDetalhamento"></li>
@@ -451,23 +446,22 @@
                                                                             id="CustoAdministrativoValorFinal"></li>
                                                                     </ul>
                                                                     <div>
-                                                                        Onde:
+                                                                        Em que:
                                                                         <ul>
                                                                             <li class="mathEqn">$Cad$ = Custo
                                                                                 administrativo (R$/veículo x
                                                                                 mês).</li>
-                                                                            <li class="mathEqn">$1 \cdots v$ = Número de
-                                                                                veículos nesta
-                                                                                rota;</li>
-                                                                            <li class="mathEqn">$\textrm{IPVA}_{i}$ =
+                                                                            <li class="mathEqn">$\textrm{IPVA}$ =
                                                                                 Valor do IPVA (anual)
-                                                                                do veículo $i$ (R$/ano);</li>
-                                                                            <li class="mathEqn">$\textrm{DPVAT}_{i}$ =
+                                                                                do veículo da rota (R$/ano);</li>
+                                                                            <li class="mathEqn">$\textrm{DPVAT}$ =
                                                                                 Valor do DPVAT
-                                                                                (anual) do veículo $i$ (R$/ano);</li>
-                                                                            <li class="mathEqn">$\textrm{SRC}_{i}$ =
+                                                                                (anual) do veículo da rota (R$/ano);
+                                                                            </li>
+                                                                            <li class="mathEqn">$\textrm{SRC}$ =
                                                                                 Seguro de
-                                                                                responsabilidade civil do veículo $i$
+                                                                                responsabilidade civil do veículo da
+                                                                                rota
                                                                                 (R$/ano);</li>
                                                                         </ul>
                                                                     </div>
@@ -482,7 +476,7 @@
                                                                         data-toggle="collapse" href="#CustoDepreciacao"
                                                                         aria-expanded="false"
                                                                         aria-controls="CustoDepreciacao">
-                                                                        Custo de depreciação de frota ($Cudf$)
+                                                                        Custo de depreciação da frota ($Cud$)
                                                                     </a>
                                                                 </h5>
                                                             </div>
@@ -490,16 +484,15 @@
                                                                 data-parent="#CustoFixo"
                                                                 aria-labelledby="CustoDepreciacao">
                                                                 <div class="card-body">
-                                                                    O custo de depreciação de frota ($Cudf$) é baseado
+                                                                    O custo de depreciação da frota ($Cud$) é baseado
                                                                     na seguinte equação:
                                                                     <br>
                                                                     <ul>
                                                                         <li class="mathEqn">
-                                                                            $Cudf = \frac{\sum\limits_{i=1}^{v} Cdf_i
-                                                                            \times Pvsr_i} {12
+                                                                            $Cudf = \frac{Cdf \times Pvsr} {12
                                                                             \times v}$
                                                                         </li>
-                                                                        <li class="mathEqn">$Cdf_i = \frac{\max(0, VU -
+                                                                        <li class="mathEqn">$Cdf = \frac{\max(0, VU -
                                                                             j)}{1 + 2 + \cdots
                                                                             + VU} \times
                                                                             (1 - \frac{VR}{100})$</li>
@@ -516,32 +509,24 @@
                                                                             id="CustoDepreciacaoValorFinal"></li>
                                                                     </ul>
                                                                     <div>
-                                                                        Onde:
+                                                                        Em que:
                                                                         <ul>
                                                                             <li class="mathEqn">$Cudf$ = Custo de
                                                                                 depreciação mensal do
                                                                                 capital investido nos veículos da rota
                                                                                 (R$/veículo x mês);
                                                                             </li>
-                                                                            <li class="mathEqn">$1 \cdots v$ = Número de
-                                                                                veículos nesta
-                                                                                rota;</li>
-                                                                            <li class="mathEqn">$Cdf_i$ = Coeficiente de
-                                                                                depreciação do
-                                                                                $i$-ésimo veículo da rota;</li>
-                                                                            <li class="mathEqn">$Pvsr_i$ = Preço de um
-                                                                                veículo novo do tipo
-                                                                                $i$ (R$/veículo);</li>
+                                                                            <li class="mathEqn">$Cdf$ = Coeficiente de
+                                                                                depreciação do veículo da rota;</li>
+                                                                            <li class="mathEqn">$Pvsr$ = Preço de um
+                                                                                veículo novo desta rota (R$/veículo);</li>
                                                                             <li class="mathEqn">$VU$ = Vida útil adotada
-                                                                                para o veículos
-                                                                                desta rota (anos);</li>
+                                                                                para o veículos desta rota (anos);</li>
                                                                             <li class="mathEqn">$j$ = Valor da idade do
-                                                                                veículo arredondado
-                                                                                para o primeiro valor inteiro inferior
+                                                                                veículo arredondado para o primeiro valor inteiro inferior
                                                                                 (anos);</li>
                                                                             <li class="mathEqn">$VR$ = valor residual
-                                                                                adotado para o
-                                                                                veículo-tipo (anos).</li>
+                                                                                adotado para o veículo (anos).</li>
                                                                         </ul>
                                                                     </div>
                                                                 </div>
@@ -569,57 +554,47 @@
                                                                     <br>
                                                                     <ul>
                                                                         <li class="mathEqn">
-                                                                            $Cudf = \frac{\sum\limits_{i=1}^{v} Crf_i
-                                                                            \times Pvsr_i} {12
-                                                                            \times v}$
+                                                                            $Cudf = \frac{Crf \times Pvsr}{12}$
                                                                         </li>
                                                                         <li class="mathEqn">
-                                                                            $Crf_i = \left \{ 1 - \left (
+                                                                            $Crf = \left \{ 1 - \left (
                                                                             \frac{\sum\limits_{i=2}^{j}
-                                                                            \max(0, VU - (j - 2))}{1 + 2 + \cdots + VU}
+                                                                            \max(0, VU - (i - 2))}{1 + 2 + \cdots + VU}
                                                                             \right ) \times
                                                                             \left ( 1 - \frac{VR}{100} \right ) \right
                                                                             \} \times
                                                                             \textrm{TRC} $</li>
                                                                         <li class="mathEqn"
-                                                                            id="CustoDepreciacaoDetalhamentoPassoUm">
+                                                                            id="CustoRemuneracaoDetalhamentoPassoUm">
                                                                         </li>
                                                                         <li class="mathEqn"
-                                                                            id="CustoDepreciacaoDetalhamentoPassoDois">
+                                                                            id="CustoRemuneracaoDetalhamentoPassoDois">
                                                                         </li>
                                                                         <li class="mathEqn"
-                                                                            id="CustoDepreciacaoDetalhamentoPassoTres">
+                                                                            id="CustoRemuneracaoDetalhamentoPassoTres">
                                                                         </li>
                                                                         <li class="mathEqn"
-                                                                            id="CustoDepreciacaoValorFinal"></li>
+                                                                            id="CustoRemuneracaoValorFinal"></li>
                                                                     </ul>
                                                                     <div>
-                                                                        Onde:
+                                                                        Em que:
                                                                         <ul>
                                                                             <li class="mathEqn">$Cudf$ = Custo de
                                                                                 depreciação mensal do
                                                                                 capital investido nos veículos da rota
                                                                                 (R$/veículo x mês);
                                                                             </li>
-                                                                            <li class="mathEqn">$1 \cdots v$ = Número de
-                                                                                veículos nesta
-                                                                                rota;</li>
-                                                                            <li class="mathEqn">$Cdf_i$ = Coeficiente de
-                                                                                depreciação do
-                                                                                $i$-ésimo veículo da rota;</li>
-                                                                            <li class="mathEqn">$Pvsr_i$ = Preço de um
-                                                                                veículo novo do tipo
-                                                                                $i$ (R$/veículo);</li>
+                                                                            <li class="mathEqn">$Cdf$ = Coeficiente de
+                                                                                depreciação do veículo da rota;</li>
+                                                                            <li class="mathEqn">$Pvsr$ = Preço de um
+                                                                                veículo novo desta rota (R$/veículo);</li>
                                                                             <li class="mathEqn">$VU$ = Vida útil adotada
-                                                                                para o veículos
-                                                                                desta rota (anos);</li>
+                                                                                para o veículos desta rota (anos);</li>
                                                                             <li class="mathEqn">$j$ = Valor da idade do
-                                                                                veículo arredondado
-                                                                                para o primeiro valor inteiro inferior
+                                                                                veículo desta rota arrendodado para o primeiro valor inteiro inferior
                                                                                 (anos);</li>
                                                                             <li class="mathEqn">$VR$ = valor residual
-                                                                                adotado para o
-                                                                                veículo-tipo (anos).</li>
+                                                                                adotado para o veículo (anos).</li>
                                                                         </ul>
                                                                     </div>
                                                                 </div>
@@ -666,7 +641,7 @@
                                                         </ul>
                                                     </div>
                                                     <div class="row">
-                                                        Onde:
+                                                        Em que:
                                                         <br>
                                                         <ul>
                                                             <li class="mathEqn">$Cv$ = Custos variáveis (R$/km);</li>
@@ -700,10 +675,6 @@
                                                                     <li class="mathEqn">
                                                                         $Cc = Ccc \times Plc$
                                                                     </li>
-                                                                    <li class="mathEqn">
-                                                                        $Cc = \frac{\sum\limits_{i=1}^{v}
-                                                                        Ccc_{i}}{v} \times Plc$
-                                                                    </li>
                                                                     <li class="mathEqn"
                                                                         id="CustoCombustivelDetalhamento">
                                                                     </li>
@@ -711,7 +682,7 @@
                                                                     </li>
                                                                 </ul>
                                                                 <div>
-                                                                    Onde:
+                                                                    Em que:
                                                                     <ul>
                                                                         <li class="mathEqn">$Cc$ = Custo de combustível
                                                                             (R$/km);</li>
@@ -757,7 +728,7 @@
                                                                         </li>
                                                                     </ul>
                                                                     <div>
-                                                                        Onde:
+                                                                        Em que:
                                                                         <ul>
                                                                             <li class="mathEqn">$Col$ = custo de óleos e
                                                                                 lubrificantes (R$/km);</li>
@@ -792,12 +763,6 @@
                                                                     <br>
                                                                     <ul>
                                                                         <li class="mathEqn">
-                                                                            $Cr = \frac{\sum\limits_{i=1}^{v}
-                                                                            \frac{(Ppn \times {Np}_i) + (Pr \times
-                                                                            {Np}_i
-                                                                            \times Nr)}{{Vup}_i} }{v}$
-                                                                        </li>
-                                                                        <li class="mathEqn">
                                                                             $Cr = \frac{(Ppn \times {Np}) + (Pr
                                                                             \times{Np} \times Nr)}{{Vup}}$
                                                                         </li>
@@ -808,7 +773,7 @@
                                                                         </li>
                                                                     </ul>
                                                                     <div>
-                                                                        Onde:
+                                                                        Em que:
                                                                         <ul>
                                                                             <li class="mathEqn">$Cr$ = custo de rodagem
                                                                                 (R$/km);
@@ -863,7 +828,7 @@
                                                                             id="CustoPecaAcessoriosValorFinal"></li>
                                                                     </ul>
                                                                     <div>
-                                                                        Onde:
+                                                                        Em que:
                                                                         <ul>
                                                                             <li class="mathEqn">$Cpa$ = custo de peças e
                                                                                 acessórios (R$/km);</li>
