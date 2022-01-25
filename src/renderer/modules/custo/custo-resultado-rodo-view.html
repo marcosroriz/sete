@@ -34,10 +34,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row custoCorreto custo">
+                            <div class="row custoCorreto custo d-none">
                                 <div class="col-7">
-                                    <div class="jumbotron">
-                                        <h1 class="display-4">R$</h1>
+                                    <div class="jumbotron p-5">
+                                        <h3>Custo da rota (por ano):</h3>
+                                        <h2 id="precoCustoGrande">R$</h2>
                                     </div>
                                 </div>
                                 <div class="col-5">
@@ -47,9 +48,18 @@
                                                 <div class="col-4 cardCustoTitulo">
                                                     Custo por quilômetro
                                                 </div>
-                                                <div id="#custoPorKM" class="col-8 cardCustoValor">
-                                                    R$ 5000.10
+                                                <div class="col-8">
+                                                    <div class="row">
+                                                        <div id="custoPorKM" class="col-11 cardCustoValor">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="porAno col-11">
+                                                            ano
+                                                        </div>
+                                                    </div>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -60,428 +70,828 @@
                                                 <div class="col-4 cardCustoTitulo">
                                                     Custo por aluno
                                                 </div>
-                                                <div id="#custoPorAluno" class="col-8 cardCustoValor">
-                                                    R$ 5000.20
+                                                <div class="col-8">
+                                                    <div class="row">
+                                                        <div id="custoPorAluno" class="col-11 cardCustoValor"></div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="porAno col-11">
+                                                            ano
+                                                        </div>
+                                                    </div>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-
-                            <div class="row justify-content-center">
-                                <h6 class="mb-4 mt-1 text-center text-space">
-                                    Rota
-                                    <br>
-                                    As alterações da malha devem ser realizadas através do software <b>JOSM</b>.
-                                </h6>
-
-                                <div class="alert alert-warning alert-with-icon" data-notify="container">
-                                    <button type="button" aria-hidden="true" class="close" data-dismiss="alert">
-                                        <i class="nc-icon nc-simple-remove"></i>
-                                    </button>
-                                    <span data-notify="icon" class="fa fa-exclamation-circle"></span>
-                                    <span data-notify="message">
-                                        As alterações da malha devem ser realizadas através do software <b>JOSM</b>.
-                                        Caso tenha alguma dúvida, <a href="#">clique aqui</a>.
-                                    </span>
+                            <div class="row custoCorreto d-flex justify-center d-none">
+                                <div class="col-2"></div>
+                                <div class="col-8">
+                                    <div id="graficoCusto"></div>
+                                </div>
+                                <div class="col-2"></div>
+                            </div>
+                            <div class="row custoErro d-none">
+                                <div class="col-12">
+                                    <div class="jumbotron btn-danger">
+                                        <h2 id="precoCustoGrande">ERRO</h2>
+                                        <h5>Não foi possível realizar o cálculo da rota.</h5>
+                                        <h5>Verifique quais parâmetros não foram informados na aba de detalhamento do cálculo</h3>
+                                    </div>
                                 </div>
 
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label>
-                                            <b>Malha Atual:</b>
-                                            <star>*</star>
-                                        </label>
-
-                                        <button id="baixarMalha" class="col-9 ml-2 mr-2 btn">
-                                            <i class="fa fa-download"></i> Baixar Malha Atual
-                                        </button>
-                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="fresh-datatables">
+                                    <table id="dataTableDadosRota"
+                                        class="table table-striped table-no-bordered table-hover table-detalhe"
+                                        cellspacing="0" width="100%" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="2" id="detalheNomeRota" class="detalheTitulo"></th>
+                                                <th style="display:none"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="tab-pane tab-wiz fade" id="tab-custo-detalhe" role="tabpanel">
-                            <h6 class="mb-4 text-center text-space">
-                                Por favor envie o arquivo OSM contendo a malha atualizada.
-                            </h6>
-                            <div class="col-12">
-                                <div id="accordion">
-                                    <div class="card" id="CustoPessoalCard">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <a role="button" data-toggle="collapse" href="#CustoPessoal"
-                                                    aria-expanded="true" aria-controls="CustoPessoal">
-                                                    Custo com pessoal ($Cdp$)
-                                                </a>
-                                            </h5>
-                                        </div>
-                                        <div id="CustoPessoal" class="collapse show" data-parent="#accordion"
-                                            aria-labelledby="heading-1">
-                                            O custo com o pessoal ($Cdp$) é baseado na seguinte equação:
-                                            <br>
-                                            <ul>
-                                                <li class="mathEqn">
-                                                    $Cdp = Cm + Cpm + Cmon$
-                                                </li>
-                                                <li class="mathEqn" id="CustoPessoalDetalhamento">
-                                                </li>
-                                                <li class="mathEqn" id="CustoPessoalValorFinal">
-                                                </li>
-                                            </ul>
-                                            <div>
-                                                Onde:
-                                                <ul>
-                                                    <li class="mathEqn">$Cdp$ = Custo com pessoal (R$ / (veículo x
-                                                        mês));</li>
-                                                    <li class="mathEqn">$Cm$ = Custo do motorista (R$ / (veículo x
-                                                        mês));</li>
-                                                    <li class="mathEqn">$Cpm$ = Custo do pessoal de manutenção
-                                                        (R$/veículo x mês);</li>
-                                                    <li class="mathEqn">$Cmon$ = Custo do monitor (R$/veículo x mês).
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div class="card-body">
-                                                <div id="accordion-1">
-                                                    <div class="card">
-                                                        <div class="card-header" id="heading-1-1">
-                                                            <h5 class="mb-0">
-                                                                <a class="collapsed" role="button"
-                                                                    data-toggle="collapse" href="#collapse-1-1"
-                                                                    aria-expanded="false" aria-controls="collapse-1-1">
-                                                                    Custo do motorista ($Cm$)
-                                                                </a>
-                                                            </h5>
-                                                        </div>
-                                                        <div id="collapse-1-1" class="collapse"
-                                                            data-parent="#accordion-1" aria-labelledby="heading-1-1">
-                                                            <div class="card-body">
-                                                                O custo com o motorista ($Cm$) é baseado na seguinte
-                                                                equação:
-                                                                <br>
-                                                                <ul>
-                                                                    <li class="mathEqn">
-                                                                        $Cm = Cum \times Smm \times Enc$
-                                                                    </li>
-                                                                    <li class="mathEqn" id="CustoMotoristaDetalhamento">
-                                                                    </li>
-                                                                    <li class="mathEqn" id="CustoMotoristaValorFinal">
-                                                                    </li>
-                                                                </ul>
-                                                                <div>
-                                                                    Onde:
-                                                                    <ul>
-                                                                        <li class="mathEqn">$Cm$ = Custo do motorista
-                                                                            (R$ / (veículo x mês));</li>
-                                                                        <li class="mathEqn">$Cum$ = coeficiente de
-                                                                            utilização do
-                                                                            motorista (motoristas/veículos);</li>
-                                                                        <li class="mathEqn">$Smm$ = salário médio mensal
-                                                                            do motorista
-                                                                            (R$ / motorista);</li>
-                                                                        <li class="mathEqn">$Enc$ = encargos sociais
-                                                                            (%).</li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card">
-                                                        <div class="card-header" id="heading-1-2">
-                                                            <h5 class="mb-0">
-                                                                <a class="collapsed" role="button"
-                                                                    data-toggle="collapse" href="#collapse-1-2"
-                                                                    aria-expanded="false" aria-controls="collapse-1-2">
-                                                                    Custo com pessoal de manutenção ($Cpm$)
-                                                                </a>
-                                                            </h5>
-                                                        </div>
-                                                        <div id="collapse-1-2" class="collapse"
-                                                            data-parent="#accordion-1" aria-labelledby="heading-1-2">
-                                                            <div class="card-body">
-                                                                O custo com pessoal de manutenção ($Cpm$) é baseado na
-                                                                seguinte equação:
-                                                                <br>
-                                                                <ul>
-                                                                    <li class="mathEqn">
-                                                                        $Cpm = Cm \times Ccm$
-                                                                    </li>
-                                                                    <li class="mathEqn"
-                                                                        id="CustoManutencaoDetalhamento">
-                                                                    </li>
-                                                                    <li class="mathEqn" id="CustoManutencaoValorFinal">
-                                                                    </li>
-                                                                </ul>
-                                                                <div>
-                                                                    Onde:
-                                                                    <ul>
-                                                                        <li class="mathEqn">$Cpm$ = Custo do pessoal de
-                                                                            manutenção (R$/veículo x mês);</li>
-                                                                        <li class="mathEqn">$Cm$ = custo do motorista
-                                                                            (R$/ veículo x mês);</li>
-                                                                        <li class="mathEqn">$Ccm$ = coeficiente de custo
-                                                                            de manutenção.</li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card">
-                                                        <div class="card-header" id="heading-2">
-                                                            <h5 class="mb-0">
-                                                                <a class="collapsed" role="button"
-                                                                    data-toggle="collapse" href="#collapse-1-3"
-                                                                    aria-expanded="false" aria-controls="collapse-1-3">
-                                                                    Custo do Monitor ($Cmon$)
-                                                                </a>
-                                                            </h5>
-                                                        </div>
-                                                        <div id="collapse-1-3" class="collapse"
-                                                            data-parent="#accordion-1" aria-labelledby="heading-1-3">
-                                                            <div class="card-body">
-                                                                O custo com o monitor ($Cmon$) é baseado na seguinte
-                                                                equação:
-                                                                <br>
-                                                                <ul>
-                                                                    <li class="mathEqn">
-                                                                        $Cmon = Cumon \times Smmon \times Enc$
-                                                                    </li>
-                                                                    <li class="mathEqn" id="CustoMonitorDetalhamento">
-                                                                    </li>
-                                                                    <li class="mathEqn" id="CustoMonitorValorFinal">
-                                                                    </li>
-                                                                </ul>
-                                                                <div>
-                                                                    Onde:
-                                                                    <ul>
-                                                                        <li class="mathEqn">$Cmon$ = Custo do monitor
-                                                                            (R$/veículo x mês).</li>
-                                                                        <li class="mathEqn">$Cumon$ = coeficiente de
-                                                                            utilização do
-                                                                            monitor (monitores/veículos);</li>
-                                                                        <li class="mathEqn">$Smmon$ = salário médio
-                                                                            mensal de monitor
-                                                                            (R$ / monitor);</li>
-                                                                        <li class="mathEqn">$Enc$ = encargos sociais
-                                                                            (%).</li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card" id="CustoAdmCard">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <a class="collapsed" role="button" data-toggle="collapse"
-                                                    href="#CustoAdm" aria-expanded="false" aria-controls="CustoAdm">
-                                                    Custo administrativo ($Cad$)
-                                                </a>
-                                            </h5>
-                                        </div>
-                                        <div id="CustoAdm" class="collapse" data-parent="#accordion"
-                                            aria-labelledby="CustoAdm">
-                                            <div class="card-body">
-                                                O custo administrativo ($Cad$) é baseado na seguinte equação:
-                                                <br>
-                                                <ul>
-                                                    <li class="mathEqn">
-                                                        $Cad = \frac{\sum\limits_{i=1}^{v} \textrm{IPVA}_{i} +
-                                                        \textrm{DPVAT}_{i} +
-                                                        \textrm{SRC}_{i}}{12 \times v}$
-                                                    </li>
-                                                    <li class="mathEqn" id="CustoAdministrativoDetalhamento"></li>
-                                                    <li class="mathEqn" id="CustoAdministrativoValorFinal"></li>
-                                                </ul>
-                                                <div>
-                                                    Onde:
-                                                    <ul>
-                                                        <li class="mathEqn">$Cad$ = Custo administrativo (R$/veículo x
-                                                            mês).</li>
-                                                        <li class="mathEqn">$1 \cdots v$ = Número de veículos nesta
-                                                            rota;</li>
-                                                        <li class="mathEqn">$\textrm{IPVA}_{i}$ = Valor do IPVA (anual)
-                                                            do veículo $i$ (R$/ano);</li>
-                                                        <li class="mathEqn">$\textrm{DPVAT}_{i}$ = Valor do DPVAT
-                                                            (anual) do veículo $i$ (R$/ano);</li>
-                                                        <li class="mathEqn">$\textrm{SRC}_{i}$ = Seguro de
-                                                            responsabilidade civil do veículo $i$ (R$/ano);</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card" id="CustoDepreciacaoCard">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <a class="collapsed" role="button" data-toggle="collapse"
-                                                    href="#CustoDepreciacao" aria-expanded="false"
-                                                    aria-controls="CustoDepreciacao">
-                                                    Custo de depreciação de frota ($Cudf$)
-                                                </a>
-                                            </h5>
-                                        </div>
-                                        <div id="CustoDepreciacao" class="collapse" data-parent="#accordion"
-                                            aria-labelledby="CustoDepreciacao">
-                                            <div class="card-body">
-                                                O custo de depreciação de frota ($Cudf$) é baseado na seguinte equação:
-                                                <br>
-                                                <ul>
-                                                    <li class="mathEqn">
-                                                        $Cudf = \frac{\sum\limits_{i=1}^{v} Cdf_i \times Pvsr_i} {12
-                                                        \times v}$
-                                                    </li>
-                                                    <li class="mathEqn">$Cdf_i = \frac{\max(0, VU - j)}{1 + 2 + \cdots
-                                                        + VU} \times
-                                                        (1 - \frac{VR}{100})$</li>
-                                                    <li class="mathEqn" id="CustoDepreciacaoDetalhamentoPassoUm"></li>
-                                                    <li class="mathEqn" id="CustoDepreciacaoDetalhamentoPassoDois"></li>
-                                                    <li class="mathEqn" id="CustoDepreciacaoDetalhamentoPassoTres"></li>
-                                                    <li class="mathEqn" id="CustoDepreciacaoValorFinal"></li>
-                                                </ul>
-                                                <div>
-                                                    Onde:
-                                                    <ul>
-                                                        <li class="mathEqn">$Cudf$ = Custo de depreciação mensal do
-                                                            capital investido nos veículos da rota (R$/veículo x mês);
-                                                        </li>
-                                                        <li class="mathEqn">$1 \cdots v$ = Número de veículos nesta
-                                                            rota;</li>
-                                                        <li class="mathEqn">$Cdf_i$ = Coeficiente de depreciação do
-                                                            $i$-ésimo veículo da rota;</li>
-                                                        <li class="mathEqn">$Pvsr_i$ = Preço de um veículo novo do tipo
-                                                            $i$ (R$/veículo);</li>
-                                                        <li class="mathEqn">$VU$ = Vida útil adotada para o veículos
-                                                            desta rota (anos);</li>
-                                                        <li class="mathEqn">$j$ = Valor da idade do veículo arredondado
-                                                            para o primeiro valor inteiro inferior (anos);</li>
-                                                        <li class="mathEqn">$VR$ = valor residual adotado para o
-                                                            veículo-tipo (anos).</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card" id="CustoRemuneracaoCapitalCard">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <a class="collapsed" role="button" data-toggle="collapse"
-                                                    href="#CustoRemuneracao" aria-expanded="false"
-                                                    aria-controls="CustoRemuneracao">
-                                                    Custo de remuneração do capital ($Crf$)
-                                                </a>
-                                            </h5>
-                                        </div>
-                                        <div id="CustoRemuneracao" class="collapse" data-parent="#accordion"
-                                            aria-labelledby="CustoRemuneracao">
-                                            <div class="card-body">
-                                                O custo de remuneração do capital da frota ($Crf$) é baseado na seguinte
-                                                equação:
-                                                <br>
-                                                <ul>
-                                                    <li class="mathEqn">
-                                                        $Cudf = \frac{\sum\limits_{i=1}^{v} Crf_i \times Pvsr_i} {12
-                                                        \times v}$
-                                                    </li>
-                                                    <li class="mathEqn">
-                                                        $Crf_i = \left \{ 1 - \left ( \frac{\sum\limits_{i=2}^{j} \max(0, VU - (j - 2))}{1 + 2 + \cdots + VU} \right ) \times
-                                                        \left ( 1 - \frac{VR}{100} \right ) \right \} \times \textrm{TRC} $</li>
-                                                    <li class="mathEqn" id="CustoDepreciacaoDetalhamentoPassoUm"></li>
-                                                    <li class="mathEqn" id="CustoDepreciacaoDetalhamentoPassoDois"></li>
-                                                    <li class="mathEqn" id="CustoDepreciacaoDetalhamentoPassoTres"></li>
-                                                    <li class="mathEqn" id="CustoDepreciacaoValorFinal"></li>
-                                                </ul>
-                                                <div>
-                                                    Onde:
-                                                    <ul>
-                                                        <li class="mathEqn">$Cudf$ = Custo de depreciação mensal do
-                                                            capital investido nos veículos da rota (R$/veículo x mês);
-                                                        </li>
-                                                        <li class="mathEqn">$1 \cdots v$ = Número de veículos nesta
-                                                            rota;</li>
-                                                        <li class="mathEqn">$Cdf_i$ = Coeficiente de depreciação do
-                                                            $i$-ésimo veículo da rota;</li>
-                                                        <li class="mathEqn">$Pvsr_i$ = Preço de um veículo novo do tipo
-                                                            $i$ (R$/veículo);</li>
-                                                        <li class="mathEqn">$VU$ = Vida útil adotada para o veículos
-                                                            desta rota (anos);</li>
-                                                        <li class="mathEqn">$j$ = Valor da idade do veículo arredondado
-                                                            para o primeiro valor inteiro inferior (anos);</li>
-                                                        <li class="mathEqn">$VR$ = valor residual adotado para o
-                                                            veículo-tipo (anos).</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        <div class="card-header" id="heading-3">
-                                            <h5 class="mb-0">
-                                                <a class="collapsed" role="button" data-toggle="collapse"
-                                                    href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-                                                    Item 3
-                                                </a>
-                                            </h5>
-                                        </div>
-                                        <div id="collapse-3" class="collapse" data-parent="#accordion"
-                                            aria-labelledby="heading-3">
-                                            <div class="card-body">
-                                                Text 3
-                                            </div>
-                                        </div>
+                        <div class="tab-pane tab-wiz fade tab-accordion" id="tab-custo-detalhe" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <div class="totalText">
+                                        Custo da Rota
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                $$Custo da Rota = Cf + Cv$$
+                                <p>O custo da rota é expresso pela seguinte equação:
                             </div>
                             <div class="row">
-                                Onde:
                                 <ul>
-                                    <li class="mathEqn">$Cf$ é o custo fixo</li>
-                                    <li class="mathEqn">$Cv$ é o custo variável</li>
+                                    <li class="mathEqn">
+                                        $Custo = (12 \times Cf + 10 \times Cv) \times K_m$
+                                    </li>
+                                    <li class="mathEqn">
+                                        $Custo = (12 \times Cf) + (10 \times Cv) \times K_m$
+                                    </li>
+                                    <li class="mathEqn" id="CustoRotaDetalhamento"></li>
+                                    <li class="mathEqn" id="CustoRotaValorFinal"></li>
                                 </ul>
                             </div>
                             <div class="row">
-                                Custo Fixo ($Cf$) é expresso por:
-                                <br>
-                                $$Cf=Cdp + Cad + Cudf + Crcf$$
-                                $$Cf=0 + 100 + 200 + 400$$
-                                $$Cf=100$$
-                            </div>
-                            <div class="row">
                                 Onde:
+                                <br>
                                 <ul>
-                                    <li class="mathEqn">$Cdp$ é o custo com pessoal</li>
-                                    <li class="mathEqn">$Cv$ é o custo variável</li>
+                                    <li class="mathEqn">$Custo$ = Custo da rota (R$/veículo x mês);
+                                    </li>
+                                    <li class="mathEqn">$Cf$ = Custo fixo da rota (R$/veículo x mês);</li>
+                                    <li class="mathEqn">$Cv$ = Custo variável da rota (R$/veículo x mês).</li>
+                                    <li class="mathEqn">$K_m$ = Quilometragem mensal da rota (km).</li>
                                 </ul>
                             </div>
 
-                            <div class="row justify-content-center">
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label>
-                                            <b>Malha Atualizada:</b>
-                                            <star>*</star>
-                                        </label>
-                                        <input type="file" accept=".osm" class="file-input" id="novaMalhaOSM">
+
+                            <!-- Custo Fixo -->
+                            <div class="col-12">
+                                <div id="Cf">
+                                    <div class="card custoContainer">
+                                        <div class="card-header" id="heading-3">
+                                            <h5 class="mb-0">
+                                                <a class="collapsed tituloCusto" role="button" data-toggle="collapse"
+                                                    href="#CustoFixoContainer" aria-expanded="true"
+                                                    aria-controls="CustoFixoContainer">
+                                                    Custo Fixo ($Cf$)
+                                                </a>
+                                            </h5>
+                                        </div>
+                                        <div id="CustoFixoContainer" class="collapse show" data-parent="#Cf"
+                                            aria-labelledby="heading-3">
+                                            <div class="card-body">
+                                                <div class="col-12">
+                                                    <div class="row">
+                                                        <p>O custo fixo da rota ($Cf$) é expresso pela seguinte equação:
+                                                    </div>
+                                                    <div class="row">
+                                                        <ul>
+                                                            <li class="mathEqn">
+                                                                $Cf = Cdp + Cad + Cudf + Crcf$
+                                                            </li>
+                                                            <li class="mathEqn" id="CustoFixoDetalhamento"></li>
+                                                            <li class="mathEqn" id="CustoFixoValorFinal"></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="row">
+                                                        Onde:
+                                                        <br>
+                                                        <ul>
+                                                            <li class="mathEqn">$Cf$ = Custo fixo da rota (R$/veículo x
+                                                                mês);</li>
+                                                            <li class="mathEqn">$Cdp$ = Custo com pessoal (R$ / (veículo
+                                                                x
+                                                                mês));</li>
+                                                            <li class="mathEqn">$Cad$ = Custo administrativo (R$/veículo
+                                                                x
+                                                                mês).</li>
+                                                            <li class="mathEqn">$Cudf$ = Custo de depreciação mensal do
+                                                                capital investido nos veículos da rota (R$/veículo x
+                                                                mês);
+                                                            <li class="mathEqn">$Curf$ = Custo de remuneração do capital
+                                                                investido nos veículos
+                                                                da rota (R$/veículo x mês);
+
+                                                        </ul>
+                                                    </div>
+                                                    <div class="accordion" id="CustoFixo">
+                                                        <div class="card" id="CustoPessoalCard">
+                                                            <div class="card-header">
+                                                                <h5 class="mb-0">
+                                                                    <a role="button" data-toggle="collapse"
+                                                                        href="#CustoPessoal" aria-expanded="false"
+                                                                        aria-controls="CustoPessoal">
+                                                                        Custo com pessoal ($Cdp$)
+                                                                    </a>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="CustoPessoal" class="collapse"
+                                                                data-parent="#CustoFixo" aria-labelledby="heading-1">
+                                                                O custo com o pessoal ($Cdp$) é baseado na seguinte
+                                                                equação:
+                                                                <br>
+                                                                <ul>
+                                                                    <li class="mathEqn">
+                                                                        $Cdp = Cm + Cpm + Cmon$
+                                                                    </li>
+                                                                    <li class="mathEqn" id="CustoPessoalDetalhamento">
+                                                                    </li>
+                                                                    <li class="mathEqn" id="CustoPessoalValorFinal">
+                                                                    </li>
+                                                                </ul>
+                                                                <div>
+                                                                    Onde:
+                                                                    <ul>
+                                                                        <li class="mathEqn">$Cdp$ = Custo com pessoal
+                                                                            (R$ / (veículo x
+                                                                            mês));</li>
+                                                                        <li class="mathEqn">$Cm$ = Custo do motorista
+                                                                            (R$ / (veículo x
+                                                                            mês));</li>
+                                                                        <li class="mathEqn">$Cpm$ = Custo do pessoal de
+                                                                            manutenção
+                                                                            (R$/veículo x mês);</li>
+                                                                        <li class="mathEqn">$Cmon$ = Custo do monitor
+                                                                            (R$/veículo x mês).
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <div id="accordion-1">
+                                                                        <div class="card">
+                                                                            <div class="card-header" id="heading-1-1">
+                                                                                <h5 class="mb-0">
+                                                                                    <a class="collapsed" role="button"
+                                                                                        data-toggle="collapse"
+                                                                                        href="#collapse-1-1"
+                                                                                        aria-expanded="false"
+                                                                                        aria-controls="collapse-1-1">
+                                                                                        Custo do motorista ($Cm$)
+                                                                                    </a>
+                                                                                </h5>
+                                                                            </div>
+                                                                            <div id="collapse-1-1" class="collapse"
+                                                                                data-parent="#accordion-1"
+                                                                                aria-labelledby="heading-1-1">
+                                                                                <div class="card-body">
+                                                                                    O custo com o motorista ($Cm$) é
+                                                                                    baseado na seguinte
+                                                                                    equação:
+                                                                                    <br>
+                                                                                    <ul>
+                                                                                        <li class="mathEqn">
+                                                                                            $Cm = Cum \times Smm \times
+                                                                                            Enc$
+                                                                                        </li>
+                                                                                        <li class="mathEqn"
+                                                                                            id="CustoMotoristaDetalhamento">
+                                                                                        </li>
+                                                                                        <li class="mathEqn"
+                                                                                            id="CustoMotoristaValorFinal">
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                    <div>
+                                                                                        Onde:
+                                                                                        <ul>
+                                                                                            <li class="mathEqn">$Cm$ =
+                                                                                                Custo do motorista
+                                                                                                (R$ / (veículo x mês));
+                                                                                            </li>
+                                                                                            <li class="mathEqn">$Cum$ =
+                                                                                                coeficiente de
+                                                                                                utilização do
+                                                                                                motorista
+                                                                                                (motoristas/veículos);
+                                                                                            </li>
+                                                                                            <li class="mathEqn">$Smm$ =
+                                                                                                salário médio mensal
+                                                                                                do motorista
+                                                                                                (R$ / motorista);</li>
+                                                                                            <li class="mathEqn">$Enc$ =
+                                                                                                encargos sociais
+                                                                                                (%).</li>
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="card">
+                                                                            <div class="card-header" id="heading-1-2">
+                                                                                <h5 class="mb-0">
+                                                                                    <a class="collapsed" role="button"
+                                                                                        data-toggle="collapse"
+                                                                                        href="#collapse-1-2"
+                                                                                        aria-expanded="false"
+                                                                                        aria-controls="collapse-1-2">
+                                                                                        Custo com pessoal de manutenção
+                                                                                        ($Cpm$)
+                                                                                    </a>
+                                                                                </h5>
+                                                                            </div>
+                                                                            <div id="collapse-1-2" class="collapse"
+                                                                                data-parent="#accordion-1"
+                                                                                aria-labelledby="heading-1-2">
+                                                                                <div class="card-body">
+                                                                                    O custo com pessoal de manutenção
+                                                                                    ($Cpm$) é baseado na
+                                                                                    seguinte equação:
+                                                                                    <br>
+                                                                                    <ul>
+                                                                                        <li class="mathEqn">
+                                                                                            $Cpm = Cm \times Ccm$
+                                                                                        </li>
+                                                                                        <li class="mathEqn"
+                                                                                            id="CustoManutencaoDetalhamento">
+                                                                                        </li>
+                                                                                        <li class="mathEqn"
+                                                                                            id="CustoManutencaoValorFinal">
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                    <div>
+                                                                                        Onde:
+                                                                                        <ul>
+                                                                                            <li class="mathEqn">$Cpm$ =
+                                                                                                Custo do pessoal de
+                                                                                                manutenção (R$/veículo x
+                                                                                                mês);</li>
+                                                                                            <li class="mathEqn">$Cm$ =
+                                                                                                custo do motorista
+                                                                                                (R$/ veículo x mês);
+                                                                                            </li>
+                                                                                            <li class="mathEqn">$Ccm$ =
+                                                                                                coeficiente de custo
+                                                                                                de manutenção.</li>
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="card">
+                                                                            <div class="card-header" id="heading-2">
+                                                                                <h5 class="mb-0">
+                                                                                    <a class="collapsed" role="button"
+                                                                                        data-toggle="collapse"
+                                                                                        href="#collapse-1-3"
+                                                                                        aria-expanded="false"
+                                                                                        aria-controls="collapse-1-3">
+                                                                                        Custo do Monitor ($Cmon$)
+                                                                                    </a>
+                                                                                </h5>
+                                                                            </div>
+                                                                            <div id="collapse-1-3" class="collapse"
+                                                                                data-parent="#accordion-1"
+                                                                                aria-labelledby="heading-1-3">
+                                                                                <div class="card-body">
+                                                                                    O custo com o monitor ($Cmon$) é
+                                                                                    baseado na seguinte
+                                                                                    equação:
+                                                                                    <br>
+                                                                                    <ul>
+                                                                                        <li class="mathEqn">
+                                                                                            $Cmon = Cumon \times Smmon
+                                                                                            \times Enc$
+                                                                                        </li>
+                                                                                        <li class="mathEqn"
+                                                                                            id="CustoMonitorDetalhamento">
+                                                                                        </li>
+                                                                                        <li class="mathEqn"
+                                                                                            id="CustoMonitorValorFinal">
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                    <div>
+                                                                                        Onde:
+                                                                                        <ul>
+                                                                                            <li class="mathEqn">$Cmon$ =
+                                                                                                Custo do monitor
+                                                                                                (R$/veículo x mês).</li>
+                                                                                            <li class="mathEqn">$Cumon$
+                                                                                                = coeficiente de
+                                                                                                utilização do
+                                                                                                monitor
+                                                                                                (monitores/veículos);
+                                                                                            </li>
+                                                                                            <li class="mathEqn">$Smmon$
+                                                                                                = salário médio
+                                                                                                mensal de monitor
+                                                                                                (R$ / monitor);</li>
+                                                                                            <li class="mathEqn">$Enc$ =
+                                                                                                encargos sociais
+                                                                                                (%).</li>
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="card" id="CustoAdmCard">
+                                                            <div class="card-header">
+                                                                <h5 class="mb-0">
+                                                                    <a class="collapsed" role="button"
+                                                                        data-toggle="collapse" href="#CustoAdm"
+                                                                        aria-expanded="false" aria-controls="CustoAdm">
+                                                                        Custo administrativo ($Cad$)
+                                                                    </a>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="CustoAdm" class="collapse" data-parent="#CustoFixo"
+                                                                aria-labelledby="CustoAdm">
+                                                                <div class="card-body">
+                                                                    O custo administrativo ($Cad$) é baseado na seguinte
+                                                                    equação:
+                                                                    <br>
+                                                                    <ul>
+                                                                        <li class="mathEqn">
+                                                                            $Cad = \frac{\sum\limits_{i=1}^{v}
+                                                                            \textrm{IPVA}_{i} +
+                                                                            \textrm{DPVAT}_{i} +
+                                                                            \textrm{SRC}_{i}}{12 \times v}$
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoAdministrativoDetalhamento"></li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoAdministrativoValorFinal"></li>
+                                                                    </ul>
+                                                                    <div>
+                                                                        Onde:
+                                                                        <ul>
+                                                                            <li class="mathEqn">$Cad$ = Custo
+                                                                                administrativo (R$/veículo x
+                                                                                mês).</li>
+                                                                            <li class="mathEqn">$1 \cdots v$ = Número de
+                                                                                veículos nesta
+                                                                                rota;</li>
+                                                                            <li class="mathEqn">$\textrm{IPVA}_{i}$ =
+                                                                                Valor do IPVA (anual)
+                                                                                do veículo $i$ (R$/ano);</li>
+                                                                            <li class="mathEqn">$\textrm{DPVAT}_{i}$ =
+                                                                                Valor do DPVAT
+                                                                                (anual) do veículo $i$ (R$/ano);</li>
+                                                                            <li class="mathEqn">$\textrm{SRC}_{i}$ =
+                                                                                Seguro de
+                                                                                responsabilidade civil do veículo $i$
+                                                                                (R$/ano);</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="card" id="CustoDepreciacaoCard">
+                                                            <div class="card-header">
+                                                                <h5 class="mb-0">
+                                                                    <a class="collapsed" role="button"
+                                                                        data-toggle="collapse" href="#CustoDepreciacao"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="CustoDepreciacao">
+                                                                        Custo de depreciação de frota ($Cudf$)
+                                                                    </a>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="CustoDepreciacao" class="collapse"
+                                                                data-parent="#CustoFixo"
+                                                                aria-labelledby="CustoDepreciacao">
+                                                                <div class="card-body">
+                                                                    O custo de depreciação de frota ($Cudf$) é baseado
+                                                                    na seguinte equação:
+                                                                    <br>
+                                                                    <ul>
+                                                                        <li class="mathEqn">
+                                                                            $Cudf = \frac{\sum\limits_{i=1}^{v} Cdf_i
+                                                                            \times Pvsr_i} {12
+                                                                            \times v}$
+                                                                        </li>
+                                                                        <li class="mathEqn">$Cdf_i = \frac{\max(0, VU -
+                                                                            j)}{1 + 2 + \cdots
+                                                                            + VU} \times
+                                                                            (1 - \frac{VR}{100})$</li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoDepreciacaoDetalhamentoPassoUm">
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoDepreciacaoDetalhamentoPassoDois">
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoDepreciacaoDetalhamentoPassoTres">
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoDepreciacaoValorFinal"></li>
+                                                                    </ul>
+                                                                    <div>
+                                                                        Onde:
+                                                                        <ul>
+                                                                            <li class="mathEqn">$Cudf$ = Custo de
+                                                                                depreciação mensal do
+                                                                                capital investido nos veículos da rota
+                                                                                (R$/veículo x mês);
+                                                                            </li>
+                                                                            <li class="mathEqn">$1 \cdots v$ = Número de
+                                                                                veículos nesta
+                                                                                rota;</li>
+                                                                            <li class="mathEqn">$Cdf_i$ = Coeficiente de
+                                                                                depreciação do
+                                                                                $i$-ésimo veículo da rota;</li>
+                                                                            <li class="mathEqn">$Pvsr_i$ = Preço de um
+                                                                                veículo novo do tipo
+                                                                                $i$ (R$/veículo);</li>
+                                                                            <li class="mathEqn">$VU$ = Vida útil adotada
+                                                                                para o veículos
+                                                                                desta rota (anos);</li>
+                                                                            <li class="mathEqn">$j$ = Valor da idade do
+                                                                                veículo arredondado
+                                                                                para o primeiro valor inteiro inferior
+                                                                                (anos);</li>
+                                                                            <li class="mathEqn">$VR$ = valor residual
+                                                                                adotado para o
+                                                                                veículo-tipo (anos).</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="card" id="CustoRemuneracaoCapitalCard">
+                                                            <div class="card-header">
+                                                                <h5 class="mb-0">
+                                                                    <a class="collapsed" role="button"
+                                                                        data-toggle="collapse" href="#CustoRemuneracao"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="CustoRemuneracao">
+                                                                        Custo de remuneração do capital ($Crf$)
+                                                                    </a>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="CustoRemuneracao" class="collapse"
+                                                                data-parent="#CustoFixo"
+                                                                aria-labelledby="CustoRemuneracao">
+                                                                <div class="card-body">
+                                                                    O custo de remuneração do capital da frota ($Crf$) é
+                                                                    baseado na seguinte
+                                                                    equação:
+                                                                    <br>
+                                                                    <ul>
+                                                                        <li class="mathEqn">
+                                                                            $Cudf = \frac{\sum\limits_{i=1}^{v} Crf_i
+                                                                            \times Pvsr_i} {12
+                                                                            \times v}$
+                                                                        </li>
+                                                                        <li class="mathEqn">
+                                                                            $Crf_i = \left \{ 1 - \left (
+                                                                            \frac{\sum\limits_{i=2}^{j}
+                                                                            \max(0, VU - (j - 2))}{1 + 2 + \cdots + VU}
+                                                                            \right ) \times
+                                                                            \left ( 1 - \frac{VR}{100} \right ) \right
+                                                                            \} \times
+                                                                            \textrm{TRC} $</li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoDepreciacaoDetalhamentoPassoUm">
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoDepreciacaoDetalhamentoPassoDois">
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoDepreciacaoDetalhamentoPassoTres">
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoDepreciacaoValorFinal"></li>
+                                                                    </ul>
+                                                                    <div>
+                                                                        Onde:
+                                                                        <ul>
+                                                                            <li class="mathEqn">$Cudf$ = Custo de
+                                                                                depreciação mensal do
+                                                                                capital investido nos veículos da rota
+                                                                                (R$/veículo x mês);
+                                                                            </li>
+                                                                            <li class="mathEqn">$1 \cdots v$ = Número de
+                                                                                veículos nesta
+                                                                                rota;</li>
+                                                                            <li class="mathEqn">$Cdf_i$ = Coeficiente de
+                                                                                depreciação do
+                                                                                $i$-ésimo veículo da rota;</li>
+                                                                            <li class="mathEqn">$Pvsr_i$ = Preço de um
+                                                                                veículo novo do tipo
+                                                                                $i$ (R$/veículo);</li>
+                                                                            <li class="mathEqn">$VU$ = Vida útil adotada
+                                                                                para o veículos
+                                                                                desta rota (anos);</li>
+                                                                            <li class="mathEqn">$j$ = Valor da idade do
+                                                                                veículo arredondado
+                                                                                para o primeiro valor inteiro inferior
+                                                                                (anos);</li>
+                                                                            <li class="mathEqn">$VR$ = valor residual
+                                                                                adotado para o
+                                                                                veículo-tipo (anos).</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+
+                                </div>
+                            </div>
+
+
+                            <!-- Custo Variável -->
+                            <div class="col-12">
+                                <div id="Cv">
+                                    <div class="card custoContainer">
+                                        <div class="card-header" id="heading-3">
+                                            <h5 class="mb-0">
+                                                <a class="collapsed tituloCusto" role="button" data-toggle="collapse"
+                                                    href="#CustoVariavelContainer" aria-expanded="true"
+                                                    aria-controls="CustoVariavelContainer">
+                                                    Custo Variável ($Cv$)
+                                                </a>
+                                            </h5>
+                                        </div>
+                                        <div id="CustoVariavelContainer" class="collapse show" data-parent="#Cv"
+                                            aria-labelledby="heading-3">
+                                            <div class="card-body">
+                                                <div class="col-12">
+                                                    <div class="row">
+                                                        <p>O custo variável da rota ($Cv$) é expresso pela seguinte
+                                                            equação:
+                                                    </div>
+                                                    <div class="row">
+                                                        <ul>
+                                                            <li class="mathEqn">
+                                                                $Cv = Cc + Col + Cr + Cpa$
+                                                            </li>
+                                                            <li class="mathEqn" id="CustoVariavelDetalhamento"></li>
+                                                            <li class="mathEqn" id="CustoVariavelValorFinal"></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="row">
+                                                        Onde:
+                                                        <br>
+                                                        <ul>
+                                                            <li class="mathEqn">$Cv$ = Custos variáveis (R$/km);</li>
+                                                            <li class="mathEqn">$Cc$ = Custo de combustível (R$/km);
+                                                            </li>
+                                                            <li class="mathEqn">$Col$ = Custo de óleo e lubrificantes
+                                                                (R$/km);</li>
+                                                            <li class="mathEqn">$Cr$ = Custo da rodagem (R$/km);</li>
+                                                            <li class="mathEqn">$Cpa$ = Custo de peças e acessórios
+                                                                (R$/km).</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="accordion" id="CustoVariavel">
+                                                        <div class="card" id="CustoCombustivelCard">
+                                                            <div class="card-header">
+                                                                <h5 class="mb-0">
+                                                                    <a role="button" data-toggle="collapse"
+                                                                        href="#CustoCombustivel" aria-expanded="false"
+                                                                        aria-controls="CustoCombustivel">
+                                                                        Custo de combustível ($Cc$)
+                                                                    </a>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="CustoCombustivel" class="collapse"
+                                                                data-parent="#CustoVariavel"
+                                                                aria-labelledby="heading-1">
+                                                                O custo com o combustível ($Cc) é baseado na seguinte
+                                                                equação:
+                                                                <br>
+                                                                <ul>
+                                                                    <li class="mathEqn">
+                                                                        $Cc = Ccc \times Plc$
+                                                                    </li>
+                                                                    <li class="mathEqn">
+                                                                        $Cc = \frac{\sum\limits_{i=1}^{v}
+                                                                        Ccc_{i}}{v} \times Plc$
+                                                                    </li>
+                                                                    <li class="mathEqn"
+                                                                        id="CustoCombustivelDetalhamento">
+                                                                    </li>
+                                                                    <li class="mathEqn" id="CustoCombustivelValorFinal">
+                                                                    </li>
+                                                                </ul>
+                                                                <div>
+                                                                    Onde:
+                                                                    <ul>
+                                                                        <li class="mathEqn">$Cc$ = Custo de combustível
+                                                                            (R$/km);</li>
+                                                                        <li class="mathEqn">$Ccc_i$ = Coeficiente de
+                                                                            consumo de combustível do $i$-ésimo veículo
+                                                                            da rota (litros/km);</li>
+                                                                        <li class="mathEqn">$Plc$ = Preço médio do litro
+                                                                            do combustível (R$/litro).</li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="card" id="CustoOleoLubrificantesCard">
+                                                            <div class="card-header">
+                                                                <h5 class="mb-0">
+                                                                    <a class="collapsed" role="button"
+                                                                        data-toggle="collapse"
+                                                                        href="#CustoOleoLubrificantes"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="CustoOleoLubrificantes">
+                                                                        Custo com óleos e lubrificantes ($Col$)
+                                                                    </a>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="CustoOleoLubrificantes" class="collapse"
+                                                                data-parent="#CustoVariavel"
+                                                                aria-labelledby="CustoOleoLubrificantes">
+                                                                <div class="card-body">
+                                                                    Os custos com óleos e lubrificantes ($Col$) são
+                                                                    expressos pela seguinte
+                                                                    equação:
+                                                                    <br>
+                                                                    <ul>
+                                                                        <li class="mathEqn">
+                                                                            $Col = Ccol \times Plc$
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoOleoLubrificantesDetalhamento">
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoOleoLubrificantesValorFinal">
+                                                                        </li>
+                                                                    </ul>
+                                                                    <div>
+                                                                        Onde:
+                                                                        <ul>
+                                                                            <li class="mathEqn">$Col$ = custo de óleos e
+                                                                                lubrificantes (R$/km);</li>
+                                                                            <li class="mathEqn">$Ccol$ = coeficiente de
+                                                                                consumo de óleos e lubrificante
+                                                                                (litros/km);</li>
+                                                                            <li class="mathEqn">$Plc$ = Preço médio do
+                                                                                litro do combustível (R$/litro).</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="card" id="CustoRodagemCard">
+                                                            <div class="card-header">
+                                                                <h5 class="mb-0">
+                                                                    <a class="collapsed" role="button"
+                                                                        data-toggle="collapse" href="#CustoRodagem"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="CustoRodagem">
+                                                                        Custo de rodagem ($Cr$)
+                                                                    </a>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="CustoRodagem" class="collapse"
+                                                                data-parent="#CustoVariavel"
+                                                                aria-labelledby="CustoRodagem">
+                                                                <div class="card-body">
+                                                                    O custo de rodagem da rota ($Cr$) é baseado
+                                                                    na seguinte equação:
+                                                                    <br>
+                                                                    <ul>
+                                                                        <li class="mathEqn">
+                                                                            $Cr = \frac{\sum\limits_{i=1}^{v}
+                                                                            \frac{(Ppn \times {Np}_i) + (Pr \times
+                                                                            {Np}_i
+                                                                            \times Nr)}{{Vup}_i} }{v}$
+                                                                        </li>
+                                                                        <li class="mathEqn">
+                                                                            $Cr = \frac{(Ppn \times {Np}) + (Pr
+                                                                            \times{Np} \times Nr)}{{Vup}}$
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoRodagemDetalhamento">
+                                                                        </li>
+                                                                        <li class="mathEqn" id="CustoRodagemValorFinal">
+                                                                        </li>
+                                                                    </ul>
+                                                                    <div>
+                                                                        Onde:
+                                                                        <ul>
+                                                                            <li class="mathEqn">$Cr$ = custo de rodagem
+                                                                                (R$/km);
+                                                                            </li>
+                                                                            <li class="mathEqn">$1 \cdots v$ = Número de
+                                                                                veículos nesta
+                                                                                rota;</li>
+                                                                            <li class="mathEqn">$Ppn$ = preço médio do
+                                                                                pneu novo (R$/pneu);</li>
+                                                                            <li class="mathEqn">${Np}_i$ = número de
+                                                                                pneus do $i$-ésimo veículo da rota
+                                                                                (pneu);</li>
+                                                                            <li class="mathEqn">$Pr$ = preço médio da
+                                                                                recapagem (R$/pneu);</li>
+                                                                            <li class="mathEqn">$Nr$ = número de
+                                                                                recapagens;</li>
+                                                                            <li class="mathEqn">${Vup}_i$ = vida útil do
+                                                                                pneu do $i$-ésimo veículo (km).</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="card" id="CustoPecaAcessoriosCard">
+                                                            <div class="card-header">
+                                                                <h5 class="mb-0">
+                                                                    <a class="collapsed" role="button"
+                                                                        data-toggle="collapse"
+                                                                        href="#CustoPecaAcessorios"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="CustoPecaAcessorios">
+                                                                        Custo com peças e acessórios ($Cpa$)
+                                                                    </a>
+                                                                </h5>
+                                                            </div>
+                                                            <div id="CustoPecaAcessorios" class="collapse"
+                                                                data-parent="#CustoVariavel"
+                                                                aria-labelledby="CustoPecaAcessorios">
+                                                                <div class="card-body">
+                                                                    O custo com peça e acessórios ($Cpa$) é baseado na
+                                                                    seguinte equação:
+                                                                    <br>
+                                                                    <ul>
+                                                                        <li class="mathEqn">
+                                                                            $Cpa = \frac{Ccpa \times PVT}{Pmm}$
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoPecaAcessoriosDetalhamento">
+                                                                        </li>
+                                                                        <li class="mathEqn"
+                                                                            id="CustoPecaAcessoriosValorFinal"></li>
+                                                                    </ul>
+                                                                    <div>
+                                                                        Onde:
+                                                                        <ul>
+                                                                            <li class="mathEqn">$Cpa$ = custo de peças e
+                                                                                acessórios (R$/km);</li>
+                                                                            <li class="mathEqn">$Ccpa$ = coeficiente de
+                                                                                consumo de peças e acessórios (preço do
+                                                                                veículo
+                                                                                completo/veículo.mês);</li>
+                                                                            <li class="mathEqn">$PVT$ = preço do
+                                                                                veículo-tipo (R$);
+                                                                            </li>
+                                                                            <li class="mathEqn">$Pmm$ = percurso médio
+                                                                                mensal (km/veículo.mês).</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="card-footer text-center">
+                    <!-- <div class="card-footer text-center">
                         <button type="button" class="btn btn-default btn-wd btn-back pull-left">
                             Voltar
                         </button>
@@ -493,8 +903,7 @@
                             Salvar
                         </button>
                         <div class="clearfix"></div>
-                        <!-- Fim footer -->
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -540,18 +949,18 @@
         font-style: italic;
     }
 
-    #accordion .card {
+    .tab-accordion .card {
         box-shadow: none;
         padding: 10px;
         border: 1.5px solid #b9b7b7;
         margin: 0.5em 0em;
     }
 
-    #accordion .card .card-header {
+    .tab-accordion .card .card-header {
         padding: 0px;
     }
 
-    #accordion .card:hover {
+    .tab-accordion .card:hover {
         border: 1.5px solid orange;
         background-color: #fbfbfb;
     }
@@ -564,17 +973,17 @@
         border: 1.5px solid #e26060 !important;
     }
 
-    #accordion .card .card-header a {
+    .tab-accordion .card .card-header a {
         color: #3c3b3a;
         /* font-style: italic; */
         /* font-weight: bold; */
     }
 
-    #accordion .card:hover .card-header a {
+    .tab-accordion .card:hover .card-header a {
         font-weight: bold;
     }
 
-    #accordion ul li {
+    .tab-accordion ul li {
         /* height: auto; */
         list-style: none;
     }
@@ -595,5 +1004,37 @@
         height: 5px !important;
         margin: 0px -2px !important;
         min-height: 5px !important;
+    }
+
+    .card.custoContainer,
+    .card.custoContainer:hover {
+        border: none;
+    }
+
+    .custoContainer .card-header .tituloCusto {
+        font-size: 1em;
+        margin-bottom: 20px;
+        border-bottom-style: solid;
+    }
+
+    .cardCustoTitulo {
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        flex-direction: column;
+
+    }
+
+    .porAno {
+        text-align: center;
+        border-top-style: solid;
+        font-style: oblique;
+        border-color: grey;
+    }
+
+    .cardCustoValor {
+        font-size: 1.5em;
+        text-align: center;
+
     }
 </style>

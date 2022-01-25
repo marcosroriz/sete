@@ -84,7 +84,6 @@ var dataTablesMonitores = $("#datatables").DataTable({
 
                                 var promiseArray = new Array();
                                 // Removendo cada monitor
-                                debugger
                                 for (let monitor of rawDados) {
                                     let idmonitor = monitor["ID"];
                                     // Workaround
