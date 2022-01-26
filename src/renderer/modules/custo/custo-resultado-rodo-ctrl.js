@@ -31,11 +31,23 @@ restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}`)
     .then(() => MathJax.typeset())
     .then(() => mostraInformacoesCusto())
 
+var dataTableDadosRota = $("#dataTableDadosRota").DataTable({
+    columns: [
+        { width: "20%", className: "text-right detalheChave" },
+        { width: "60%", className: "text-left detalheValor" },
+    ],
+    autoWidth: false,
+    paging: false,
+    searching: false,
+    ordering: false,
+    dom: 't<"detalheToolBar">'
+});
 function preencheDadosBasicos(rota) {
     loadingFn("Calculando o custo da rota..." + rota.nome);
 
     $("#nomeRota").text(rota.nome);
-
+    dataTableDadosRota.row.add(["Nome da Rota", rota.nome]);
+    dataTableDadosRota.draw();
     return rota;
 }
 
@@ -70,78 +82,61 @@ async function pegarParametros(rota) {
     return rota;
 }
 
+function guardaParametroDetalhado(nomeParametro, valorParametro) {
+    det[nomeParametro] = {
+        "codigo_parametro": nomeParametro,
+        "result": true,
+        "valor": valorParametro
+    }
+}
+
 function calcularCustoFixo() {
     let custoComPessoalValido = calcularCustoComPessoal();
-    detalharCustoComPessoal(custoComPessoalValido);
-
     let custoAdministrativoValido = calcularCustoAdministrativo();
-    detalharCustoAdministrativo(custoAdministrativoValido);
-
     let custoDepreciacaoValido = calcularCustoDepreciacao();
-    detalharDepreciacao(custoDepreciacaoValido);
-
     let custoRemuneracaoValido = calcularCustoRemuneracao();
-    detalharRemuneracao(custoRemuneracaoValido);
-
+    let custoFixoValido = (custoComPessoalValido && custoAdministrativoValido &&
+                           custoDepreciacaoValido && custoRemuneracaoValido)
     // Calcula custo fixo
     let CUSTO_FIXO = 0;
-    if (custoComPessoalValido && custoAdministrativoValido &&
-        custoDepreciacaoValido && custoRemuneracaoValido) {
-        CUSTO_FIXO = det.CUSTO_COM_PESSOAL.valor +
-            det.CUSTO_ADMINISTRATIVO.valor +
-            det.CUSTO_DEPRECIACAO_FROTA.valor + 
-            det.CUSTO_REMUNERACAO_FROTA.valor;
+    if (custoFixoValido) {
+        CUSTO_FIXO = det.CUSTO_COM_PESSOAL.valor + det.CUSTO_ADMINISTRATIVO.valor + 
+                     det.CUSTO_DEPRECIACAO_FROTA.valor +  det.CUSTO_REMUNERACAO_FROTA.valor;
 
-        det.CUSTO_FIXO = {
-            "codigo_parametro": "CUSTO_FIXO",
-            "result": true,
-            "valor": CUSTO_FIXO
-        }
-
-        detalharCustoFixo();
+        guardaParametroDetalhado("CUSTO_FIXO", CUSTO_FIXO);
     }
+
+    detalharCustoFixo(custoComPessoalValido, custoAdministrativoValido, custoDepreciacaoValido, custoRemuneracaoValido);
 
     if (DEBUG) { console.debug("CUSTO_FIXO", CUSTO_FIXO) }
 
-    return (custoComPessoalValido && custoAdministrativoValido &&
-        custoDepreciacaoValido && custoRemuneracaoValido);
+    return custoFixoValido;
 }
 
 function calcularCustoVariavel(custoFixoValido) {
     let custoComCombustivelValido = calcularCustoComCombustivel();
-    detalharCustoCombustivel(custoComCombustivelValido);
-
     let custoComOleoLubrificantesValido = calcularCustoComOleoLubrificantes();
-    detalharCustoOleoLubrificantes(custoComOleoLubrificantesValido);
-
     let custoDeRodagemValido = calcularCustoDeRodagem();
-    detalharCustoDeRodagem(custoDeRodagemValido);
-
     let custoDePecasAcessoriosValido = calcularCustoPecasAcessorios();
-    detalharCustoPecasAcessorios(custoDePecasAcessoriosValido);
+    let custoVariavelValido = (custoComCombustivelValido && custoComOleoLubrificantesValido &&
+                               custoDeRodagemValido && custoDePecasAcessoriosValido);
 
     // Calcula custo variável
     let CUSTO_VARIAVEL = 0;
-    if (custoComCombustivelValido && custoComOleoLubrificantesValido &&
-        custoDeRodagemValido && custoDePecasAcessoriosValido) {
-        CUSTO_VARIAVEL = det.CUSTO_COM_COMBUSTIVEL.valor +
-            det.CUSTO_OLEO_LUBRIFICANTES.valor +
-            det.CUSTO_DE_RODAGEM.valor +
-            det.CUSTO_PECAS_ACESSORIOS.valor;
+    if (custoVariavelValido) {
+        CUSTO_VARIAVEL = det.CUSTO_COM_COMBUSTIVEL.valor + det.CUSTO_OLEO_LUBRIFICANTES.valor +
+                         det.CUSTO_DE_RODAGEM.valor + det.CUSTO_PECAS_ACESSORIOS.valor;
 
-        det.CUSTO_VARIAVEL = {
-            "codigo_parametro": "CUSTO_VARIAVEL",
-            "result": true,
-            "valor": CUSTO_VARIAVEL
-        }
-
-        detalharCustoVariavel();
+        guardaParametroDetalhado("CUSTO_VARIAVEL", CUSTO_VARIAVEL);
     }
+
+    detalharCustoVariavel(custoComCombustivelValido, custoComOleoLubrificantesValido,
+                          custoDeRodagemValido, custoDePecasAcessoriosValido);
+
     if (DEBUG) { console.debug("CUSTO_VARIAVEL", CUSTO_VARIAVEL) }
 
     // Retorna se custo final é válido, fazendo a junção lógica com o custofixo
-    return (custoFixoValido && custoComCombustivelValido && custoComOleoLubrificantesValido &&
-        custoDeRodagemValido && custoDePecasAcessoriosValido);
+    return (custoFixoValido && custoVariavelValido);
 }
 
 function calcularCustoFinal(custoFinalValido) {
@@ -153,34 +148,30 @@ function calcularCustoFinal(custoFinalValido) {
         CUSTO_FINAL = (12 * det.CUSTO_FIXO.valor) + ((10 * det.CUSTO_VARIAVEL.valor) * det.KM_MENSAL_ROTA.valor * 20 * 2);
         CUSTO_KM = CUSTO_FINAL / (det.KM_MENSAL_ROTA.valor * 2);
 
+        guardaParametroDetalhado("CUSTO_FINAL", CUSTO_FINAL);
+        guardaParametroDetalhado("CUSTO_FINAL_POR_MES", CUSTO_FINAL / 12);
+        guardaParametroDetalhado("CUSTO_FINAL_POR_DIA", CUSTO_FINAL / 365);
 
-        det.CUSTO_FINAL = {
-            "codigo_parametro": "CUSTO_FINAL",
-            "result": true,
-            "valor": CUSTO_FINAL
-        }
-
-        det.CUSTO_KM = {
-            "codigo_parametro": "CUSTO_KM",
-            "result": true,
-            "valor": CUSTO_KM
-        }
+        guardaParametroDetalhado("CUSTO_KM", CUSTO_KM);
+        guardaParametroDetalhado("CUSTO_KM_POR_MES", CUSTO_KM / 12);
+        guardaParametroDetalhado("CUSTO_KM_POR_DIA", CUSTO_KM / 365);
 
         if (det.NUM_ALUNOS.valor > 0) {
             CUSTO_ALUNO = CUSTO_FINAL / (det.NUM_ALUNOS.valor);
-            det.CUSTO_ALUNO = {
-                "codigo_parametro": "CUSTO_ALUNO",
-                "result": true,
-                "valor": CUSTO_ALUNO
-            }
-        }
 
-        detalharCustoFinal();
+            guardaParametroDetalhado("CUSTO_ALUNO", CUSTO_ALUNO);
+            guardaParametroDetalhado("CUSTO_ALUNO_POR_MES", CUSTO_ALUNO / 12);
+            guardaParametroDetalhado("CUSTO_ALUNO_POR_DIA", CUSTO_ALUNO / 365);
+        }
     }
 
-    if (DEBUG) { console.debug("CUSTO_FINAL", CUSTO_FINAL) }
-    if (DEBUG) { console.debug("CUSTO_KM", CUSTO_KM) }
-    if (DEBUG) { console.debug("CUSTO_ALUNO", CUSTO_ALUNO) }
+    detalharCustoFinal(custoFinalValido);
+
+    if (DEBUG) { 
+        console.debug("CUSTO_FINAL", CUSTO_FINAL);
+        console.debug("CUSTO_KM", CUSTO_KM);
+        console.debug("CUSTO_ALUNO", CUSTO_ALUNO);
+    }
 
     rotaValida = custoFinalValido;
     return custoFinalValido;
@@ -189,7 +180,11 @@ function calcularCustoFinal(custoFinalValido) {
 function formataMoeda(nomeParametro, casasDecimais = 2) {
     let num = Number(det[nomeParametro].valor).toFixed(2);
     return Intl.NumberFormat("pt-BR").format(num)
+}
 
+function formataModelaComCifrao(nomeParametro) {
+    let num = Number(det[nomeParametro].valor).toFixed(2);
+    return Intl.NumberFormat("pt-BR", { style: 'currency', currency: 'BRL' }).format(num);
 }
 
 function formataOutputParametro(nomeParametro, casasDecimais = 2) {
@@ -208,159 +203,104 @@ function formataOutputParametro(nomeParametro, casasDecimais = 2) {
     }
 }
 
-function detalharCustoComPessoal(custoComPessoalValido) {
-    if (!custoComPessoalValido) {
-        $("#CustoPessoalCard").addClass("erroCusto");
-    }
-    $("#CustoMotoristaDetalhamento").text(`$Cm = ${formataOutputParametro("COEFICIENTE_UTILIZACAO_MOTORISTA")} 
-                                           \\times ${formataOutputParametro("SALARIO_MEDIO_MOTORISTA")} 
-                                           \\times ${formataOutputParametro("ENCARGOS_SOCIAIS")}$`)
-    $("#CustoMotoristaValorFinal").text(`$Cm = ${formataOutputParametro("CUSTO_COM_MOTORISTA")}$`)
+function detalharCustoFixo(custoComPessoalValido, custoAdmValido, 
+                                custoDepreciacaoValido, custoRemuneracaoValido) {
+    if (!custoComPessoalValido) { $("#CustoPessoalCard").addClass("erroCusto"); }
+    if (!custoAdmValido) { $("#CustoAdmCard").addClass("erroCusto"); }
+    if (!custoDepreciacaoValido) { $("#CustoDepreciacaoCard").addClass("erroCusto"); }
+    if (!custoRemuneracaoValido) { $("#CustoRemuneracaoCapitalCard").addClass("erroCusto"); }
 
-    $("#CustoMonitorDetalhamento").text(`$Cmon = ${formataOutputParametro("COEFICIENTE_UTILIZACAO_MONITOR")} 
-                                          \\times ${formataOutputParametro("SALARIO_MEDIO_MONITORES")}
-                                          \\times ${formataOutputParametro("ENCARGOS_SOCIAIS")}$`)
+    $(".COEFICIENTE_UTILIZACAO_MOTORISTA").replaceWith(formataOutputParametro("COEFICIENTE_UTILIZACAO_MOTORISTA"));
+    $(".SALARIO_MEDIO_MOTORISTA").replaceWith(formataOutputParametro("SALARIO_MEDIO_MOTORISTA"));
+    $(".ENCARGOS_SOCIAIS").replaceWith(formataOutputParametro("ENCARGOS_SOCIAIS"));
+    $(".CUSTO_COM_MOTORISTA").replaceWith(formataOutputParametro("CUSTO_COM_MOTORISTA"));
 
-    $("#CustoMonitorValorFinal").text(`$Cmon = ${formataOutputParametro("CUSTO_COM_MONITOR")}$`)
+    $(".COEFICIENTE_UTILIZACAO_MONITOR").replaceWith(formataOutputParametro("COEFICIENTE_UTILIZACAO_MONITOR"));
+    $(".SALARIO_MEDIO_MONITORES").replaceWith(formataOutputParametro("SALARIO_MEDIO_MONITORES"));
+    $(".CUSTO_COM_MONITOR").replaceWith(formataOutputParametro("CUSTO_COM_MONITOR"));
 
-    $("#CustoManutencaoDetalhamento").text(`$Cpm = ${formataOutputParametro("CUSTO_COM_MOTORISTA")} 
-                                                \\times ${formataOutputParametro("CFT_CUSTO_MANUTENCAO_RODO")}$`)
-    $("#CustoManutencaoValorFinal").text(`$Cpm = ${formataOutputParametro("CUSTO_COM_MANUTENCAO")}$`)
+    $(".CFT_CUSTO_MANUTENCAO_RODO").replaceWith(formataOutputParametro("CFT_CUSTO_MANUTENCAO_RODO"));
+    $(".CUSTO_COM_MANUTENCAO").replaceWith(formataOutputParametro("CUSTO_COM_MANUTENCAO"));
 
-    $("#CustoPessoalDetalhamento").text(`$Cdp = ${formataOutputParametro("CUSTO_COM_MOTORISTA")} 
-                                            + ${formataOutputParametro("CUSTO_COM_MANUTENCAO")}
-                                            + ${formataOutputParametro("CUSTO_COM_MONITOR")}$`)
-    $("#CustoPessoalValorFinal").text(`$Cdp = ${formataOutputParametro("CUSTO_COM_PESSOAL")}$`)
+    $(".CUSTO_COM_PESSOAL").replaceWith(formataOutputParametro("CUSTO_COM_PESSOAL"));
+
+    $(".IPVA_FROTA").replaceWith(formataOutputParametro("IPVA_FROTA"));
+    $(".DPVAT_FROTA").replaceWith(formataOutputParametro("DPVAT_FROTA"));
+    $(".SRC_FROTA").replaceWith(formataOutputParametro("SRC_FROTA"));
+    $(".NUM_VEICULOS").replaceWith(formataOutputParametro("NUM_VEICULOS", 0));
+    $(".CUSTO_ADMINISTRATIVO").replaceWith(formataOutputParametro("CUSTO_ADMINISTRATIVO"));
+
+    $(".VIDA_UTIL_RODO").replaceWith(formataOutputParametro("VIDA_UTIL_RODO", 0));
+    $(".ANO_ATUAL").replaceWith(formataOutputParametro("ANO_ATUAL", 0));
+    $(".ANO_VEICULO").replaceWith(formataOutputParametro("ANO_VEICULO", 0));
+    $(".PERC_RESIDUAL_RODO").replaceWith(formataOutputParametro("PERC_RESIDUAL_RODO", 0));
+    $(".DIFF_VIDAUTIL_IDADE_VEICULO").replaceWith(formataOutputParametro("DIFF_VIDAUTIL_IDADE_VEICULO", 0));
+    $(".SOMATORIO_VIDA_UTIL").replaceWith(formataOutputParametro("SOMATORIO_VIDA_UTIL", 0));
+    $(".VALOR_RESIDUAL").replaceWith(formataOutputParametro("VALOR_RESIDUAL"));
+    $(".COEFICIENTE_DEPRECIACAO_VEICULO").replaceWith(formataOutputParametro("COEFICIENTE_DEPRECIACAO_VEICULO", 6));
+    $(".PRECO_MEDIO_VEICULOS").replaceWith(formataOutputParametro("PRECO_MEDIO_VEICULOS"));
+    $(".NUM_VEICULOS").replaceWith(formataOutputParametro("NUM_VEICULOS", 0));
+    $(".CUSTO_DEPRECIACAO_FROTA").replaceWith(formataOutputParametro("CUSTO_DEPRECIACAO_FROTA"));
+
+    $(".DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO").replaceWith(formataOutputParametro("DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO", 0));
+    $(".SOMATORIO_VIDA_UTIL").replaceWith(formataOutputParametro("SOMATORIO_VIDA_UTIL", 0));
+    $(".PERC_RESIDUAL_RODO").replaceWith(formataOutputParametro("PERC_RESIDUAL_RODO", 0));
+    $(".VALOR_TRC").replaceWith(formataOutputParametro("VALOR_TRC", 4));
+    $(".COEFICIENTE_REMUNERACAO_VEICULO").replaceWith(formataOutputParametro("COEFICIENTE_REMUNERACAO_VEICULO", 6));
+    $(".PRECO_MEDIO_VEICULOS").replaceWith(formataOutputParametro("PRECO_MEDIO_VEICULOS"));
+    $(".CUSTO_REMUNERACAO_FROTA").replaceWith(formataOutputParametro("CUSTO_REMUNERACAO_FROTA"));
+
+    $(".CUSTO_FIXO").replaceWith(formataOutputParametro("CUSTO_FIXO"));
 }
 
-function detalharCustoAdministrativo(custoValido) {
-    if (!custoValido) {
-        $("#CustoAdmCard").addClass("erroCusto");
-    }
+function detalharCustoVariavel(custoCombustivelValido, custoOleoLubrificanteValido,
+                               custoRodagemValido, custoPecasValido) {
+    if (!custoCombustivelValido) { $("#CustoCombustivelCard").addClass("erroCusto"); }
+    if (!custoOleoLubrificanteValido) { $("#CustoOleoLubrificantesCard").addClass("erroCusto"); }
+    if (!custoRodagemValido) { $("#CustoRodagemCard").addClass("erroCusto"); }
+    if (!custoPecasValido) { $("#CustoPecaAcessoriosCard").addClass("erroCusto"); }
+    
+    $(".CFT_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("CFT_CONSUMO_COMBUSTIVEL", 4));
+    $(".PRECO_MEDIO_COMBUSTIVEIS").replaceWith(formataOutputParametro("PRECO_MEDIO_COMBUSTIVEIS"));
+    $(".CUSTO_COM_COMBUSTIVEL").replaceWith(formataOutputParametro("CUSTO_COM_COMBUSTIVEL", 4));
 
-    $("#CustoAdministrativoDetalhamento").text(`$Cad = \\frac{${formataOutputParametro("IPVA_FROTA")} +
-                                                              ${formataOutputParametro("DPVAT_FROTA")} + 
-                                                              ${formataOutputParametro("SRC_FROTA")}}
-                                                {12 \\times ${formataOutputParametro("NUM_VEICULOS")}}$`)
+    $(".CFT_CONSUMO_OLEO_LUBRIFICANTE").replaceWith(formataOutputParametro("CFT_CONSUMO_OLEO_LUBRIFICANTE"));
+    $(".PRECO_MEDIO_LUBRIFICANTE").replaceWith(formataOutputParametro("PRECO_MEDIO_LUBRIFICANTE"));
+    $(".CUSTO_OLEO_LUBRIFICANTES").replaceWith(formataOutputParametro("CUSTO_OLEO_LUBRIFICANTES"));
 
-    $("#CustoAdministrativoValorFinal").text(`$Cad = ${formataOutputParametro("CUSTO_ADMINISTRATIVO")}$`)
+    $(".PRECO_MEDIO_PNEUS").replaceWith(formataOutputParametro("PRECO_MEDIO_PNEUS"));
+    $(".NUMERO_PNEUS").replaceWith(formataOutputParametro("NUMERO_PNEUS"));
+    $(".PRECO_MEDIO_RECAPAGEM").replaceWith(formataOutputParametro("PRECO_MEDIO_RECAPAGEM"));
+    $(".NUM_RECAPAGEM").replaceWith(formataOutputParametro("NUM_RECAPAGEM"));
+    $(".VIDA_UTIL_PNEU").replaceWith(formataOutputParametro("VIDA_UTIL_PNEU"));
+    $(".CUSTO_DE_RODAGEM").replaceWith(formataOutputParametro("CUSTO_DE_RODAGEM"));
+
+    $(".CFT_CONSUMO_PECAS").replaceWith(formataOutputParametro("CFT_CONSUMO_PECAS"));
+    $(".PRECO_MEDIO_VEICULOS").replaceWith(formataOutputParametro("PRECO_MEDIO_VEICULOS"));
+    $(".KM_MENSAL_ROTA").replaceWith(formataOutputParametro("KM_MENSAL_ROTA"));
+    $(".CUSTO_PECAS_ACESSORIOS").replaceWith(formataOutputParametro("CUSTO_PECAS_ACESSORIOS"));
+
+    $(".CUSTO_VARIAVEL").replaceWith(formataOutputParametro("CUSTO_VARIAVEL"));
 }
 
-function detalharDepreciacao(custoValido) {
-    if (!custoValido) {
-        $("#CustoDepreciacaoCard").addClass("erroCusto");
-    }
-
-    $("#CustoDepreciacaoDetalhamentoPassoUm").text(`$Cdf = \\frac{\\max(0, ${formataOutputParametro("VIDA_UTIL_RODO", 0)} - 
-                                                   (${formataOutputParametro("ANO_ATUAL", 0)} - ${formataOutputParametro("ANO_VEICULO", 0)}))}
-                                                {1 + 2 \\cdots + ${formataOutputParametro("VIDA_UTIL_RODO", 0)}} 
-                                                \\times (1 - \\frac{${formataOutputParametro("PERC_RESIDUAL_RODO", 0)}}{100})$`)
-
-    $("#CustoDepreciacaoDetalhamentoPassoDois").text(`$Cdf = \\frac{${formataOutputParametro("DIFF_VIDAUTIL_IDADE_VEICULO", 0)}}
-                                                                   {${formataOutputParametro("SOMATORIO_VIDA_UTIL", 0)}}
-                                                   \\times (1 - ${formataOutputParametro("VALOR_RESIDUAL")}) = 
-                                                   ${formataOutputParametro("COEFICIENTE_DEPRECIACAO_VEICULO", 6)}$`)
-
-
-    $("#CustoDepreciacaoDetalhamentoPassoTres").text(`$Cudf = \\frac{${formataOutputParametro("COEFICIENTE_DEPRECIACAO_VEICULO", 6)} 
-                                                      \\times ${formataOutputParametro("PRECO_MEDIO_VEICULOS")}}
-                                                      {12 \\times ${formataOutputParametro("NUM_VEICULOS", 0)}}$`)
-
-    $("#CustoDepreciacaoValorFinal").text(`$Cudf = ${formataOutputParametro("CUSTO_DEPRECIACAO_FROTA")}$`)
+function detalharCustoFinal(custoFinalValido) {
+    $(".CUSTO_FINAL").replaceWith(formataOutputParametro("CUSTO_FINAL"));
 }
-
-function detalharRemuneracao(custoValido) {
-    if (!custoValido) {
-        $("#CustoRemuneracaoCapitalCard").addClass("erroCusto");
-    }
-
-    $("#CustoRemuneracaoDetalhamentoPassoUm").text(`$Crf = \\left \\{ 1 - \\left (
-        \\frac{${formataOutputParametro("DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO", 0)}}
-        {${formataOutputParametro("SOMATORIO_VIDA_UTIL", 0)}}
-        \\right ) \\times
-        \\left ( 1 - \\frac{${formataOutputParametro("PERC_RESIDUAL_RODO", 0)}}{100} \\right ) \\right
-        \\} \\times ${formataOutputParametro("VALOR_TRC", 4)} $`);
-
-    $("#CustoRemuneracaoDetalhamentoPassoDois").text(`$Crf = ${formataOutputParametro("COEFICIENTE_REMUNERACAO_VEICULO", 6)} $`);
-
-    $("#CustoRemuneracaoDetalhamentoPassoTres").text(`$Cudf = \\frac{${formataOutputParametro("COEFICIENTE_REMUNERACAO_VEICULO", 6)} 
-    \\times ${formataOutputParametro("PRECO_MEDIO_VEICULOS")}}{12}$`);
-
-    $("#CustoRemuneracaoValorFinal").text(`$Cudf = ${formataOutputParametro("CUSTO_REMUNERACAO_FROTA")}$`);
-}
-
-function detalharCustoCombustivel(custoValido) {
-    if (!custoValido) {
-        $("#CustoCombustivelCard").addClass("erroCusto");
-    }
-
-    $("#CustoCombustivelDetalhamento").text(`$Cc = \\frac{1}{${formataOutputParametro("CFT_CONSUMO_COMBUSTIVEL", 4)}} 
-                                            \\times ${formataOutputParametro("PRECO_MEDIO_COMBUSTIVEIS")}$`)
-    $("#CustoCombustivelValorFinal").text(`$Cc = ${formataOutputParametro("CUSTO_COM_COMBUSTIVEL", 4)}$`)
-}
-
-function detalharCustoOleoLubrificantes(custoValido) {
-    if (!custoValido) {
-        $("#CustoOleoLubrificantesCard").addClass("erroCusto");
-    }
-
-    $("#CustoOleoLubrificantesDetalhamento").text(`$Cc = ${formataOutputParametro("CFT_CONSUMO_OLEO_LUBRIFICANTE")} \\times ${formataOutputParametro("PRECO_MEDIO_COMBUSTIVEIS")}$`)
-    $("#CustoOleoLubrificantesValorFinal").text(`$Cc = ${formataOutputParametro("CUSTO_OLEO_LUBRIFICANTES", 4)}$`)
-}
-
-function detalharCustoDeRodagem(custoValido) {
-    if (!custoValido) {
-        $("#CustoRodagemCard").addClass("erroCusto");
-    }
-
-    $("#CustoRodagemDetalhamento").text(`$Cr = \\frac{(${formataOutputParametro("PRECO_MEDIO_PNEUS")} \\times ${formataOutputParametro("NUMERO_PNEUS")}) 
-                                               + (${formataOutputParametro("PRECO_MEDIO_RECAPAGEM")} \\times ${formataOutputParametro("NUMERO_PNEUS")} \\times ${formataOutputParametro("NUM_RECAPAGEM")})}
-                                               {${formataOutputParametro("VIDA_UTIL_PNEU")}}$`)
-    $("#CustoRodagemValorFinal").text(`$Cr = ${formataOutputParametro("CUSTO_DE_RODAGEM")}$`)
-}
-
-function detalharCustoPecasAcessorios(custoValido) {
-    if (!custoValido) {
-        $("#CustoPecaAcessoriosCard").addClass("erroCusto");
-    }
-
-    $("#CustoPecaAcessoriosDetalhamento").text(`$Cpa = \\frac{${formataOutputParametro("CFT_CONSUMO_PECAS", 6)} \\times ${formataOutputParametro("PRECO_MEDIO_VEICULOS")}}
-                                                   {${formataOutputParametro("KM_MENSAL_ROTA")} \\times 20 \\textrm{ (dias)} \\times 2 \\textrm{ (ida e volta)}}$`)
-    $("#CustoPecaAcessoriosValorFinal").text(`$Cpa = ${formataOutputParametro("CUSTO_PECAS_ACESSORIOS")}$`)
-}
-
-function detalharCustoFixo() {
-    $("#CustoFixoDetalhamento").text(`$Cf = ${formataOutputParametro("CUSTO_COM_PESSOAL")} + 
-                                            ${formataOutputParametro("CUSTO_ADMINISTRATIVO")} + 
-                                            ${formataOutputParametro("CUSTO_DEPRECIACAO_FROTA")} +
-                                            ${formataOutputParametro("CUSTO_REMUNERACAO_FROTA")}$`);
-    $("#CustoFixoValorFinal").text(`$Cf = ${formataOutputParametro("CUSTO_FIXO")}$`)
-}
-
-function detalharCustoVariavel() {
-    $("#CustoVariavelDetalhamento").text(`$Cv = ${formataOutputParametro("CUSTO_COM_COMBUSTIVEL")} + 
-                                            ${formataOutputParametro("CUSTO_OLEO_LUBRIFICANTES")} + 
-                                            ${formataOutputParametro("CUSTO_DE_RODAGEM")} + 
-                                            ${formataOutputParametro("CUSTO_PECAS_ACESSORIOS")}$`);
-    $("#CustoVariavelValorFinal").text(`$Cv = ${formataOutputParametro("CUSTO_VARIAVEL")}$`)
-}
-
-function detalharCustoFinal() {
-    $("#CustoRotaDetalhamento").text(`$Custo = (12 \\times ${formataOutputParametro("CUSTO_FIXO")}) + 
-                                            (10 \\times ${formataOutputParametro("CUSTO_VARIAVEL")})
-                                            \\times (${formataOutputParametro("KM_MENSAL_ROTA")} \\textrm{ km}
-                                            \\times 20 \\textrm{ dias})$`);
-    $("#CustoRotaValorFinal").text(`$Custo = ${formataMoeda("CUSTO_FINAL")}$`)
-}
-
 
 function mostraInformacoesCusto() {
     if (rotaValida) {
-        $("#precoCustoGrande").text("R$ " + formataMoeda("CUSTO_FINAL"));
-        $("#custoPorKM").text("R$ " + formataMoeda("CUSTO_KM"));
+        $("#precoCustoGrandePorAno").text(formataModelaComCifrao("CUSTO_FINAL"));
+        $("#precoCustoGrandePorMes").text(formataModelaComCifrao("CUSTO_FINAL_POR_MES"));
+        $("#precoCustoGrandePorDia").text(formataModelaComCifrao("CUSTO_FINAL_POR_DIA"));
+
+        $("#custoPorKMPorAno").text(formataModelaComCifrao("CUSTO_KM"));
+        $("#custoPorKMPorMes").text(formataModelaComCifrao("CUSTO_KM_POR_MES"));
+        $("#custoPorKMPorDia").text(formataModelaComCifrao("CUSTO_KM_POR_DIA"));
 
         if (det["CUSTO_ALUNO"] && det["CUSTO_ALUNO"].result) {
-            $("#custoPorAluno").text("R$ " + formataMoeda("CUSTO_ALUNO"));
+            $("#custoPorAlunoPorAno").text(formataModelaComCifrao("CUSTO_ALUNO"));
+            $("#custoPorAlunoPorMes").text(formataModelaComCifrao("CUSTO_ALUNO_POR_MES"));
+            $("#custoPorAlunoPorDia").text(formataModelaComCifrao("CUSTO_ALUNO_POR_DIA"));
         }
 
         // Grafico custo fixo
@@ -501,52 +441,24 @@ function calcularCustoComPessoal() {
 
     // Coeficiente de utilização do motorista (|motoristas| / |veiculos|)
     if (rotaParams.NUM_MOTORISTAS.result && rotaParams.NUM_VEICULOS.result) {
-        if (DEBUG) { console.debug("COEFICIENTE_UTILIZACAO_MOTORISTA", rotaParams.NUM_MOTORISTAS.valor / rotaParams.NUM_VEICULOS.valor) }
-
         COEFICIENTE_UTILIZACAO_MOTORISTA = Number(rotaParams.NUM_MOTORISTAS.valor / rotaParams.NUM_VEICULOS.valor);
-
-        det.COEFICIENTE_UTILIZACAO_MOTORISTA = {
-            "codigo_parametro": "COEFICIENTE_UTILIZACAO_MOTORISTA",
-            "result": true,
-            "valor": COEFICIENTE_UTILIZACAO_MOTORISTA
-        };
+        guardaParametroDetalhado("COEFICIENTE_UTILIZACAO_MOTORISTA", COEFICIENTE_UTILIZACAO_MOTORISTA)
     }
 
     // Salário médio do motorista
     if (rotaParams.SALARIO_MEDIO_MOTORISTA.result) {
-        if (DEBUG) { console.debug("SALARIO_MEDIO_MOTORISTA", rotaParams.SALARIO_MEDIO_MOTORISTA.valor) }
-
         SALARIO_MEDIO_MOTORISTA = Number(rotaParams.SALARIO_MEDIO_MOTORISTA.valor);
     }
 
     // Encargos sociais
     if (rotaParams.PERC_ENCARGO_SOCIAIS.result) {
-        if (DEBUG) { console.debug("ENCARGOS_SOCIAIS", 1 + (rotaParams.PERC_ENCARGO_SOCIAIS.valor / 100)) }
-
         ENCARGOS_SOCIAIS = Number(1 + (rotaParams.PERC_ENCARGO_SOCIAIS.valor / 100));
-
-        det.ENCARGOS_SOCIAIS = {
-            "codigo_parametro": "ENCARGOS_SOCIAIS",
-            "result": true,
-            "valor": ENCARGOS_SOCIAIS
-        };
+        guardaParametroDetalhado("ENCARGOS_SOCIAIS", ENCARGOS_SOCIAIS)
     }
 
     if (COEFICIENTE_UTILIZACAO_MOTORISTA > 0 && SALARIO_MEDIO_MOTORISTA > 0 && ENCARGOS_SOCIAIS > 0) {
-        if (DEBUG) { console.debug("CUSTO_COM_MOTORISTA", COEFICIENTE_UTILIZACAO_MOTORISTA * SALARIO_MEDIO_MOTORISTA * ENCARGOS_SOCIAIS) }
-
         CUSTO_COM_MOTORISTA = Number(COEFICIENTE_UTILIZACAO_MOTORISTA * SALARIO_MEDIO_MOTORISTA * ENCARGOS_SOCIAIS);
-        det.CUSTO_COM_MOTORISTA = {
-            "codigo_parametro": "CUSTO_COM_MOTORISTA",
-            "result": true,
-            "valor": CUSTO_COM_MOTORISTA
-        };
-    } else {
-        det.CUSTO_COM_MOTORISTA = {
-            "codigo_parametro": "CUSTO_COM_MOTORISTA",
-            "result": false,
-            "valor": "ERRO"
-        };
+        guardaParametroDetalhado("CUSTO_COM_MOTORISTA", CUSTO_COM_MOTORISTA)
     }
 
     // Agora calcularemos o custo com monitores (idêntico ao do motorista)
@@ -556,96 +468,55 @@ function calcularCustoComPessoal() {
 
     // Coeficiente de utilização do motorista (|monitores| / |veiculos|)
     if (rotaParams.NUM_MONITORES.result && rotaParams.NUM_MONITORES.valor > 0) {
-        if (DEBUG) { console.debug("COEFICIENTE_UTILIZACAO_MONITOR", rotaParams.NUM_MONITORES.valor / rotaParams.NUM_VEICULOS.valor) }
-
         COEFICIENTE_UTILIZACAO_MONITOR = Number(rotaParams.NUM_MONITORES.valor / rotaParams.NUM_VEICULOS.valor);
-
-        det.COEFICIENTE_UTILIZACAO_MONITOR = {
-            "codigo_parametro": "COEFICIENTE_UTILIZACAO_MONITOR",
-            "result": true,
-            "valor": COEFICIENTE_UTILIZACAO_MONITOR
-        };
+        guardaParametroDetalhado("COEFICIENTE_UTILIZACAO_MONITOR", COEFICIENTE_UTILIZACAO_MONITOR)
     } else if (rotaParams.NUM_MONITORES.result && rotaParams.NUM_MONITORES.valor == 0) {
-        det.COEFICIENTE_UTILIZACAO_MONITOR = {
-            "codigo_parametro": "COEFICIENTE_UTILIZACAO_MONITOR",
-            "result": true,
-            "valor": 0
-        };
+        guardaParametroDetalhado("COEFICIENTE_UTILIZACAO_MONITOR", 0)
     }
 
     // Salário médio dos monitores
     if (rotaParams.SALARIO_MEDIO_MONITORES.result) {
-        if (DEBUG) { console.debug("SALARIO_MEDIO_MONITORES", rotaParams.SALARIO_MEDIO_MONITORES.valor) }
-
         SALARIO_MEDIO_MONITORES = Number(rotaParams.SALARIO_MEDIO_MONITORES.valor);
     }
 
     if (rotaParams.NUM_MONITORES.valor > 0 && COEFICIENTE_UTILIZACAO_MONITOR > 0 && SALARIO_MEDIO_MONITORES > 0 && ENCARGOS_SOCIAIS > 0) {
-        if (DEBUG) { console.debug("CUSTO_COM_MONITOR", COEFICIENTE_UTILIZACAO_MONITOR * SALARIO_MEDIO_MONITORES * ENCARGOS_SOCIAIS) }
-
         CUSTO_COM_MONITOR = Number(COEFICIENTE_UTILIZACAO_MONITOR * SALARIO_MEDIO_MONITORES * ENCARGOS_SOCIAIS);
-
-        det.CUSTO_COM_MONITOR = {
-            "codigo_parametro": "CUSTO_COM_MONITOR",
-            "result": true,
-            "valor": CUSTO_COM_MONITOR
-        };
+        guardaParametroDetalhado("CUSTO_COM_MONITOR", CUSTO_COM_MONITOR)
     } else {
-        det.CUSTO_COM_MONITOR = {
-            "codigo_parametro": "CUSTO_COM_MONITOR",
-            "result": true,
-            "valor": 0
-        };
+        guardaParametroDetalhado("CUSTO_COM_MONITOR", 0)
     }
 
     // Custo com pessoal de manutenção (depende do custo com motorista)
+    let CFT_CUSTO_MANUTENCAO_RODO = 0;
     if (CUSTO_COM_MOTORISTA > 0 && rotaParams.PERC_CFT_CUSTO_MANUTENCAO_RODO.result) {
         CFT_CUSTO_MANUTENCAO_RODO = Number(rotaParams.PERC_CFT_CUSTO_MANUTENCAO_RODO.valor / 100);
         CUSTO_COM_MANUTENCAO = Number(CUSTO_COM_MOTORISTA * CFT_CUSTO_MANUTENCAO_RODO);
 
-        if (DEBUG) { console.debug("CFT_CUSTO_MANUTENCAO_RODO", CFT_CUSTO_MANUTENCAO_RODO) }
-        if (DEBUG) { console.debug("CUSTO_COM_MANUTENCAO", CUSTO_COM_MANUTENCAO) }
-
-        det.CFT_CUSTO_MANUTENCAO_RODO = {
-            "codigo_parametro": "CFT_CUSTO_MANUTENCAO_RODO",
-            "result": true,
-            "valor": CFT_CUSTO_MANUTENCAO_RODO
-        };
-
-        det.CUSTO_COM_MANUTENCAO = {
-            "codigo_parametro": "CUSTO_COM_MANUTENCAO",
-            "result": true,
-            "valor": CUSTO_COM_MANUTENCAO
-        };
-
-    } else {
-        det.CUSTO_COM_MANUTENCAO = {
-            "codigo_parametro": "CUSTO_COM_MANUTENCAO",
-            "result": false,
-            "valor": "Custo com motorista não especificado"
-        };
+        guardaParametroDetalhado("CFT_CUSTO_MANUTENCAO_RODO", CFT_CUSTO_MANUTENCAO_RODO)
+        guardaParametroDetalhado("CUSTO_COM_MANUTENCAO", CUSTO_COM_MANUTENCAO)
     }
 
     // Valor final
     if ((CUSTO_COM_MOTORISTA > 0 && CUSTO_COM_MANUTENCAO > 0 && CUSTO_COM_MONITOR == 0 && rotaParams.NUM_MONITORES.valor == 0) ||
         (CUSTO_COM_MOTORISTA > 0 && CUSTO_COM_MANUTENCAO > 0 && CUSTO_COM_MONITOR > 0)) {
-        if (DEBUG) { console.debug("CUSTO_COM_PESSOAL", CUSTO_COM_MOTORISTA + CUSTO_COM_MANUTENCAO + CUSTO_COM_MONITOR) }
-
         CUSTO_COM_PESSOAL = Number(CUSTO_COM_MOTORISTA + CUSTO_COM_MANUTENCAO + CUSTO_COM_MONITOR);
 
-        det.CUSTO_COM_PESSOAL = {
-            "codigo_parametro": "CUSTO_COM_PESSOAL",
-            "result": true,
-            "valor": CUSTO_COM_PESSOAL
-        };
+        guardaParametroDetalhado("CUSTO_COM_PESSOAL", CUSTO_COM_PESSOAL)
     } else {
-        det.CUSTO_COM_PESSOAL = {
-            "codigo_parametro": "CUSTO_COM_PESSOAL",
-            "result": false,
-            "valor": "ERRO"
-        };
-
-        custoValido = false;
+        custoValido = false
+    }
+    
+    if (DEBUG) {
+        console.debug("COEFICIENTE_UTILIZACAO_MOTORISTA", COEFICIENTE_UTILIZACAO_MOTORISTA);
+        console.debug("SALARIO_MEDIO_MOTORISTA", SALARIO_MEDIO_MONITORES);
+        console.debug("ENCARGOS_SOCIAIS", ENCARGOS_SOCIAIS);
+        console.debug("CUSTO_COM_MOTORISTA", CUSTO_COM_MOTORISTA);
+        console.debug("COEFICIENTE_UTILIZACAO_MONITOR", COEFICIENTE_UTILIZACAO_MONITOR);
+        console.debug("SALARIO_MEDIO_MONITORES", SALARIO_MEDIO_MONITORES);
+        console.debug("CUSTO_COM_MONITOR", CUSTO_COM_MONITOR);
+        console.debug("CFT_CUSTO_MANUTENCAO_RODO", CFT_CUSTO_MANUTENCAO_RODO);
+        console.debug("CUSTO_COM_MANUTENCAO", CUSTO_COM_MANUTENCAO);
+        console.debug("CUSTO_COM_PESSOAL", CUSTO_COM_MOTORISTA + CUSTO_COM_MANUTENCAO + CUSTO_COM_MONITOR);
     }
 
     return custoValido;
@@ -660,12 +531,7 @@ function calcularCustoAdministrativo() {
         rotaParams.DPVAT_FROTA.result && rotaParams.SRC_FROTA.result) {
 
         CUSTO_ADMINISTRATIVO = Number((rotaParams.IPVA_FROTA.valor + rotaParams.DPVAT_FROTA.valor + rotaParams.SRC_FROTA.valor) / 12)
-
-        det.CUSTO_ADMINISTRATIVO = {
-            "codigo_parametro": "CUSTO_ADMINISTRATIVO",
-            "result": true,
-            "valor": CUSTO_ADMINISTRATIVO
-        };
+        guardaParametroDetalhado("CUSTO_ADMINISTRATIVO", CUSTO_ADMINISTRATIVO);
     } else {
         custoValido = false;
     }
@@ -686,15 +552,7 @@ function calcularCustoDepreciacao() {
 
     if (det.PERC_RESIDUAL_RODO.result) {
         VALOR_RESIDUAL = Number(rotaParams.PERC_RESIDUAL_RODO.valor / 100);
-
-        if (DEBUG) { console.debug("VALOR RESIDUAL", VALOR_RESIDUAL) }
-
-        det.VALOR_RESIDUAL = {
-            "codigo_parametro": "VALOR_RESIDUAL",
-            "result": true,
-            "valor": VALOR_RESIDUAL
-        };
-
+        guardaParametroDetalhado("VALOR_RESIDUAL", VALOR_RESIDUAL);
     }
 
     if (rotaParams.VIDA_UTIL_RODO.result && rotaParams.PERC_RESIDUAL_RODO.result && rotaParams.IDADE_VEICULO.result) {
@@ -702,25 +560,9 @@ function calcularCustoDepreciacao() {
         SOMATORIO_VIDA_UTIL = ((1 + rotaParams.VIDA_UTIL_RODO.valor) * rotaParams.VIDA_UTIL_RODO.valor) / 2;
         COEFICIENTE_DEPRECIACAO_VEICULO = (DIFF_VIDAUTIL_IDADE_VEICULO / SOMATORIO_VIDA_UTIL) * (1 - VALOR_RESIDUAL);
 
-        if (DEBUG) { console.debug("DIFF_VIDAUTIL_IDADE_VEICULO", DIFF_VIDAUTIL_IDADE_VEICULO) }
-        if (DEBUG) { console.debug("SOMATORIO_VIDA_UTIL", SOMATORIO_VIDA_UTIL) }
-        if (DEBUG) { console.debug("COEFICIENTE_DEPRECIACAO_VEICULO", COEFICIENTE_DEPRECIACAO_VEICULO) }
-
-        det.COEFICIENTE_DEPRECIACAO_VEICULO = {
-            "codigo_parametro": "COEFICIENTE_DEPRECIACAO_VEICULO",
-            "result": true,
-            "valor": COEFICIENTE_DEPRECIACAO_VEICULO
-        };
-        det.DIFF_VIDAUTIL_IDADE_VEICULO = {
-            "codigo_parametro": "DIFF_VIDAUTIL_IDADE_VEICULO",
-            "result": true,
-            "valor": DIFF_VIDAUTIL_IDADE_VEICULO
-        };
-        det.SOMATORIO_VIDA_UTIL = {
-            "codigo_parametro": "SOMATORIO_VIDA_UTIL",
-            "result": true,
-            "valor": SOMATORIO_VIDA_UTIL
-        };
+        guardaParametroDetalhado("DIFF_VIDAUTIL_IDADE_VEICULO", DIFF_VIDAUTIL_IDADE_VEICULO);
+        guardaParametroDetalhado("SOMATORIO_VIDA_UTIL", SOMATORIO_VIDA_UTIL);
+        guardaParametroDetalhado("COEFICIENTE_DEPRECIACAO_VEICULO", COEFICIENTE_DEPRECIACAO_VEICULO);
     } else {
         custoValido = false;
     }
@@ -731,14 +573,17 @@ function calcularCustoDepreciacao() {
         det.NUM_VEICULOS.result) {
         CUSTO_DEPRECIACAO_FROTA = (COEFICIENTE_DEPRECIACAO_VEICULO * det.PRECO_MEDIO_VEICULOS.valor) / (12 * det.NUM_VEICULOS.valor);
 
-        if (DEBUG) { console.debug("CUSTO_DEPRECIACAO_FROTA", CUSTO_DEPRECIACAO_FROTA) }
-        det.CUSTO_DEPRECIACAO_FROTA = {
-            "codigo_parametro": "CUSTO_DEPRECIACAO_FROTA",
-            "result": true,
-            "valor": CUSTO_DEPRECIACAO_FROTA
-        };
+        guardaParametroDetalhado("CUSTO_DEPRECIACAO_FROTA", CUSTO_DEPRECIACAO_FROTA);
     } else {
         custoValido = false;
+    }
+
+    if (DEBUG) { 
+        console.debug("VALOR RESIDUAL", VALOR_RESIDUAL)
+        console.debug("CUSTO_DEPRECIACAO_FROTA", CUSTO_DEPRECIACAO_FROTA)
+        console.debug("DIFF_VIDAUTIL_IDADE_VEICULO", DIFF_VIDAUTIL_IDADE_VEICULO)
+        console.debug("SOMATORIO_VIDA_UTIL", SOMATORIO_VIDA_UTIL)
+        console.debug("COEFICIENTE_DEPRECIACAO_VEICULO", COEFICIENTE_DEPRECIACAO_VEICULO)
     }
 
     return custoValido;
@@ -760,20 +605,8 @@ function calcularCustoRemuneracao() {
         VALOR_RESIDUAL = Number(rotaParams.PERC_RESIDUAL_RODO.valor / 100);
         VALOR_TRC = Number(rotaParams.PERC_TRC.valor / 100);
 
-        if (DEBUG) { console.debug("VALOR RESIDUAL", VALOR_RESIDUAL) }
-        if (DEBUG) { console.debug("VALOR_TRC", VALOR_TRC) }
-
-        det.VALOR_RESIDUAL = {
-            "codigo_parametro": "VALOR_RESIDUAL",
-            "result": true,
-            "valor": VALOR_RESIDUAL
-        };
-
-        det.VALOR_TRC = {
-            "codigo_parametro": "VALOR_TRC",
-            "result": true,
-            "valor": VALOR_TRC
-        };
+        guardaParametroDetalhado("VALOR_RESIDUAL", VALOR_RESIDUAL);
+        guardaParametroDetalhado("VALOR_TRC", VALOR_TRC);
     }
 
     if (rotaParams.VIDA_UTIL_RODO.result && rotaParams.PERC_RESIDUAL_RODO.result &&
@@ -789,35 +622,26 @@ function calcularCustoRemuneracao() {
             1 - ((DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO / SOMATORIO_VIDA_UTIL) * (1 - VALOR_RESIDUAL))
         )
 
-        if (DEBUG) { console.debug("DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO", DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO) }
-        if (DEBUG) { console.debug("SOMATORIO_VIDA_UTIL", SOMATORIO_VIDA_UTIL) }
-        if (DEBUG) { console.debug("COEFICIENTE_REMUNERACAO_VEICULO", COEFICIENTE_REMUNERACAO_VEICULO) }
-
-        det.COEFICIENTE_REMUNERACAO_VEICULO = {
-            "codigo_parametro": "COEFICIENTE_REMUNERACAO_VEICULO",
-            "result": true,
-            "valor": COEFICIENTE_REMUNERACAO_VEICULO
-        };
-        det.DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO = {
-            "codigo_parametro": "DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO",
-            "result": true,
-            "valor": DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO
-        };
+        guardaParametroDetalhado("COEFICIENTE_REMUNERACAO_VEICULO", COEFICIENTE_REMUNERACAO_VEICULO);
+        guardaParametroDetalhado("DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO", DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO);
     } else {
         custoValido = false;
     }
 
     if (custoValido) {
         CUSTO_REMUNERACAO_FROTA = (COEFICIENTE_REMUNERACAO_VEICULO * det.PRECO_MEDIO_VEICULOS.valor) / (12 * det.NUM_VEICULOS.valor);
-
-        if (DEBUG) { console.debug("CUSTO_REMUNERACAO_FROTA", CUSTO_REMUNERACAO_FROTA) }
-        det.CUSTO_REMUNERACAO_FROTA = {
-            "codigo_parametro": "CUSTO_REMUNERACAO_FROTA",
-            "result": true,
-            "valor": CUSTO_REMUNERACAO_FROTA
-        };
+        guardaParametroDetalhado("CUSTO_REMUNERACAO_FROTA", CUSTO_REMUNERACAO_FROTA);
     } else {
         custoValido = false;
+    }
+
+    if (DEBUG) {
+        console.debug("VALOR RESIDUAL", VALOR_RESIDUAL)
+        console.debug("VALOR_TRC", VALOR_TRC)
+        console.debug("DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO", DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO)
+        console.debug("SOMATORIO_VIDA_UTIL", SOMATORIO_VIDA_UTIL)
+        console.debug("COEFICIENTE_REMUNERACAO_VEICULO", COEFICIENTE_REMUNERACAO_VEICULO)
+        console.debug("CUSTO_REMUNERACAO_FROTA", CUSTO_REMUNERACAO_FROTA)
     }
 
     return custoValido;
@@ -830,19 +654,12 @@ function calcularCustoComCombustivel() {
 
     if (rotaParams.CFT_CONSUMO_COMBUSTIVEL.result && rotaParams.PRECO_MEDIO_COMBUSTIVEIS.result) {
         CUSTO_COM_COMBUSTIVEL = (1 / rotaParams.CFT_CONSUMO_COMBUSTIVEL.valor) * rotaParams.PRECO_MEDIO_COMBUSTIVEIS.valor;
-
-        if (DEBUG) { console.debug("CUSTO_COM_COMBUSTIVEL", CUSTO_COM_COMBUSTIVEL) }
-
-        det.CUSTO_COM_COMBUSTIVEL = {
-            "codigo_parametro": "CUSTO_COM_COMBUSTIVEL",
-            "result": true,
-            "valor": CUSTO_COM_COMBUSTIVEL
-        };
+        guardaParametroDetalhado("CUSTO_COM_COMBUSTIVEL", CUSTO_COM_COMBUSTIVEL);
     } else {
-        if (DEBUG) { console.debug("CUSTO_COM_COMBUSTIVEL", 0) }
         custoValido = false;
     }
 
+    if (DEBUG) { console.debug("CUSTO_COM_COMBUSTIVEL", CUSTO_COM_COMBUSTIVEL) }
     return custoValido;
 }
 
@@ -851,20 +668,14 @@ function calcularCustoComOleoLubrificantes() {
 
     let CUSTO_OLEO_LUBRIFICANTES = 0;
 
-    if (rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.result && rotaParams.PRECO_MEDIO_COMBUSTIVEIS.result) {
-        CUSTO_OLEO_LUBRIFICANTES = rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.valor * rotaParams.PRECO_MEDIO_COMBUSTIVEIS.valor;
-
-        if (DEBUG) { console.debug("CUSTO_OLEO_LUBRIFICANTES", CUSTO_OLEO_LUBRIFICANTES) }
-
-        det.CUSTO_OLEO_LUBRIFICANTES = {
-            "codigo_parametro": "CUSTO_OLEO_LUBRIFICANTES",
-            "result": true,
-            "valor": CUSTO_OLEO_LUBRIFICANTES
-        };
+    if (rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.result && rotaParams.PRECO_MEDIO_LUBRIFICANTE.result) {
+        CUSTO_OLEO_LUBRIFICANTES = rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.valor * rotaParams.PRECO_MEDIO_LUBRIFICANTE.valor;
+        guardaParametroDetalhado("CUSTO_OLEO_LUBRIFICANTES", CUSTO_OLEO_LUBRIFICANTES);
     } else {
-        if (DEBUG) { console.debug("CUSTO_OLEO_LUBRIFICANTES", 0) }
         custoValido = false;
     }
+
+    if (DEBUG) { console.debug("CUSTO_OLEO_LUBRIFICANTES", CUSTO_OLEO_LUBRIFICANTES) }
 
     return custoValido;
 }
@@ -882,17 +693,12 @@ function calcularCustoDeRodagem() {
             (rotaParams.PRECO_MEDIO_RECAPAGEM.valor * rotaParams.NUMERO_PNEUS.valor * rotaParams.NUM_RECAPAGEM.valor))
             / (rotaParams.VIDA_UTIL_PNEU.valor);
 
-        if (DEBUG) { console.debug("CUSTO_DE_RODAGEM", CUSTO_DE_RODAGEM) }
-
-        det.CUSTO_DE_RODAGEM = {
-            "codigo_parametro": "CUSTO_DE_RODAGEM",
-            "result": true,
-            "valor": CUSTO_DE_RODAGEM
-        };
+        guardaParametroDetalhado("CUSTO_DE_RODAGEM", CUSTO_DE_RODAGEM);
     } else {
-        if (DEBUG) { console.debug("CUSTO_DE_RODAGEM", 0) }
         custoValido = false;
     }
+
+    if (DEBUG) { console.debug("CUSTO_DE_RODAGEM", CUSTO_DE_RODAGEM) }
 
     return custoValido;
 }
@@ -909,21 +715,15 @@ function calcularCustoPecasAcessorios() {
         CUSTO_PECAS_ACESSORIOS = (rotaParams.CFT_CONSUMO_PECAS.valor * rotaParams.PRECO_MEDIO_VEICULOS.valor) /
             (rotaParams.KM_MENSAL_ROTA.valor * 20 * 2); // 20 dias * 2 (ida e volta)
 
-        if (DEBUG) { console.debug("CUSTO_PECAS_ACESSORIOS", CUSTO_PECAS_ACESSORIOS) }
-
-        det.CUSTO_PECAS_ACESSORIOS = {
-            "codigo_parametro": "CUSTO_PECAS_ACESSORIOS",
-            "result": true,
-            "valor": CUSTO_PECAS_ACESSORIOS
-        };
+        guardaParametroDetalhado("CUSTO_PECAS_ACESSORIOS", CUSTO_PECAS_ACESSORIOS);
     } else {
-        if (DEBUG) { console.debug("CUSTO_PECAS_ACESSORIOS", 0) }
         custoValido = false;
     }
 
+    if (DEBUG) { console.debug("CUSTO_PECAS_ACESSORIOS", CUSTO_PECAS_ACESSORIOS) }
+
     return custoValido;
 }
-
 
 async function pegarParametrosMotoristas() {
     let custoValido = true;
@@ -1088,6 +888,7 @@ async function pegarParametrosGerais() {
         "PERC_TRC",
         "PRECO_MEDIO_COMBUSTIVEIS",
         "PRECO_MEDIO_PNEUS",
+        "PRECO_MEDIO_LUBRIFICANTE",
         "PRECO_MEDIO_RECAPAGEM",
         "VIDA_UTIL_RODO"
     ]
@@ -1174,14 +975,16 @@ async function pegarParametrosVeiculos() {
     }
 
     if (!veiculos || veiculos.length == 0) {
-        if (DEBUG) { console.debug("NUM_VEICULOS", 0) }
-        if (DEBUG) { console.debug("IPVA_FROTA", 0) }
-        if (DEBUG) { console.debug("DPVAT_FROTA", 0) }
-        if (DEBUG) { console.debug("SRC_FROTA", 0) }
-        if (DEBUG) { console.debug("PRECO_MEDIO_VEICULOS", 0) }
-        if (DEBUG) { console.debug("CFT_CONSUMO_COMBUSTIVEL", 0) }
-        if (DEBUG) { console.debug("NUMERO_PNEUS", 0) }
-        if (DEBUG) { console.debug("VIDA_UTIL_PNEU", 0) }
+        if (DEBUG) { 
+            console.debug("NUM_VEICULOS", 0)
+            console.debug("IPVA_FROTA", 0) 
+            console.debug("DPVAT_FROTA", 0) 
+            console.debug("SRC_FROTA", 0) 
+            console.debug("PRECO_MEDIO_VEICULOS", 0) 
+            console.debug("CFT_CONSUMO_COMBUSTIVEL", 0) 
+            console.debug("NUMERO_PNEUS", 0) 
+            console.debug("VIDA_UTIL_PNEU", 0) 
+        }
 
         custoValido = false;
     } else {
