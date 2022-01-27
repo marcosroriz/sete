@@ -861,9 +861,9 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-        .then(() => {
-            $("a[name='rota/rota-listar-view']").trigger("click");
-        });
+    .then(() => {
+        $("a[name='rota/rota-listar-view']").trigger("click");
+    });
 }
 
 $("#rota-malha-salvarNovaMalha").on('click', () => {

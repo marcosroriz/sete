@@ -181,9 +181,9 @@ $("#arqGPX").on("change", () => {
 });
 
 var completeForm = () => {
-    swal({
+    Swal2.fire({
         title: "Rota salva com sucesso",
-        text: "A rota " + listaDeRotas.get($("#listarota").val()) + " foi salva com sucesso. " +
+        text: "O percurso da rota " + listaDeRotas.get(Number($("#listarota").val())) + " foi importada com sucesso. " +
             "Clique abaixo para retornar ao painel.",
         type: "success",
         icon: "success",
@@ -196,30 +196,36 @@ var completeForm = () => {
         showConfirmButton: true
     })
     .then(() => {
-        document.location.href = "./dashboard.html";
+        $("a[name='rota/rota-listar-view']").trigger("click");
     });
 }
 
-$('#rota-salvar-rota').click(() => {
-    swal({
-        title: "Importando dados da Rota",
-        text: "Espere um segundinho...",
-        icon: "info",
-        buttons: false,
-        closeOnEsc: false,
-        closeOnClickOutside: false
-    });
+$('#rota-salvar-rota').on('click', () => {
+    loadingFn("Importando o percurso da Rota");
 
-    var idRota = $("#listarota").val();
-    var km = Math.round(ol.sphere.getLength(malhaSource.getFeatures()[0].getGeometry()) / 1000 * 100) / 100;
-    var rotasJSON = {
-        ID_ROTA: idRota,
-        KM: km,
-        SHAPE: new ol.format.GeoJSON().writeFeatures(malhaSource.getFeatures())
+    let idRota = $("#listarota").val();
+    let shape = JSON.parse(new ol.format.GeoJSON().writeFeatures(malhaSource.getFeatures()));
+    let km = Math.round(ol.sphere.getLength(malhaSource.getFeatures()[0].getGeometry()) / 1000 * 100) / 100;
+    
+    // Verifica se a rota refere-se a uma parte do trajeto (0) ou o trajeto completo (1)
+    if (Number($("input[name='tipoTrajeto']:checked").val()) == 0) {
+        km = km * 2;
     }
-    dbAtualizarPromise(DB_TABLE_ROTA, rotasJSON, idRota)
-    .then(_ => completeForm())
-    .catch(err => erroSwalAntigo("Erro ao atualizar o motorista!", err))
+
+    restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}`)
+    .then((dadosDaRota) => {
+        delete dadosDaRota["_links"];
+        delete dadosDaRota["result"];
+        dadosDaRota["km"] = km;
+
+        let promiseArray = [];
+        promiseArray.push(restImpl.dbPUT(DB_TABLE_ROTA, `/${idRota}`, dadosDaRota))
+        promiseArray.push(restImpl.dbPUT(DB_TABLE_ROTA, `/${idRota}/shape`, shape))
+
+        return Promise.all(promiseArray)
+    })
+    .then(() => completeForm())
+    .catch(err => erroSwalAntigo("Erro ao importar a rota!", err))
 });
 
 // Wizard
@@ -280,14 +286,19 @@ window.onresize = function () {
     }, 200);
 }
 
-dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
+restImpl.dbGETColecao(DB_TABLE_ROTA)
 .then(res => {
-    res.sort((a, b) => a["NOME"].localeCompare(b["NOME"]))
+    if (res.length == 0) {
+        throw "Nenhuma rota disponível";
+    } else {
+        res.sort((a, b) => a["nome"].localeCompare(b["nome"]))
 
-    for (let rota of res) {
-        var rID = rota["ID"];
-        var rNome = rota["NOME"];
-        listaDeRotas.set(rID, rNome);
-        $('#listarota').append(`<option value="${rID}">${rNome}</option>`);
+        for (let rotaRaw of res) {
+            let rota = parseRotaDBREST(rotaRaw);
+            let rID = rota["ID"];
+            let rNome = rota["NOME"];
+            listaDeRotas.set(rID, rNome);
+            $("#listarota").append(`<option value="${rID}">${rNome}</option>`);
+        }
     }
 }).catch((err) => erroSwalAntigo("Ops... tivemos um problema ao listar as rotas", err));
