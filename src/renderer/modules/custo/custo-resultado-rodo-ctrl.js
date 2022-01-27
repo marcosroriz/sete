@@ -3,7 +3,7 @@
 // A ferramenta ilustra o resultado da operação de cálculo de custo de uma rota rodoviária do sistema
 
 var idRota = "";
-if (action == "calcularRota") {
+if (action == "calcularRotaRodoviária") {
     idRota = estadoRota["ID"];
 }
 

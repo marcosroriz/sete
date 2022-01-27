@@ -42,16 +42,20 @@ dataTablesRotas.on('click', '.custoCalculadora', function () {
     let $tr = getRowOnClick(this);
 
     estadoRota = dataTablesRotas.row($tr).data();
-    action = "calcularRota";
-    navigateDashboard("./modules/custo/custo-resultado-rodo-view.html");
-});
 
-dataTablesRotas.on('click', '.rotaEdit', function () {
-    let $tr = getRowOnClick(this);
-
-    estadoRota = dataTablesRotas.row($tr).data();
-    action = "editarRota";
-    navigateDashboard("./modules/rota/rota-cadastrar-view.html");
+    switch(Number(estadoRota["tipo"])) {
+        case 1:
+            action = "calcularRotaRodoviária";
+            navigateDashboard("./modules/custo/custo-resultado-rodo-view.html");
+            break;
+        case 2:
+            action = "calcularRotaAquaviária";
+            console.log("CALCULAR ROTA RODOVIARIA");
+            break;
+        case 3:
+            errorFn("Essa funcionalidade ainda não foi implementada", "", "Cálculo indisponível");
+            break;
+    }
 });
 
 
