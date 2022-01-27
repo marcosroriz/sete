@@ -27,7 +27,7 @@
                     <div class="tab-content">
                         <div class="tab-pane tab-wiz fade show active" id="tab-custo-geral" role="tabpanel">
                             <div class="row">
-                                <div class="col-12 text-center">
+                                <div class="col-12 text-center p-0">
                                     <div class="totalText">
                                         Rota
                                         <span id="nomeRota" class="badge badge-success badge-total"></span>
@@ -203,7 +203,7 @@
 
                         <div class="tab-pane tab-wiz fade tab-accordion" id="tab-custo-detalhe" role="tabpanel">
                             <div class="row">
-                                <div class="col-12 text-center">
+                                <div class="col-12 text-center p-0">
                                     <div class="totalText">
                                         Custo da Rota
                                     </div>
@@ -215,12 +215,15 @@
                             <div class="row">
                                 <ul>
                                     <li class="mathEqn">
-                                        $Custo = (12 \times Cf) + (10 \times Cv) \times K_m$
+                                        $Custo = (12 \times Cf) + \big ( (10 \times Cv) \times K_m \big )$
                                     </li>
                                     <li class="mathEqn" id="CustoRotaDetalhamento">
                                         $Custo = (12 \times <span class="CUSTO_FIXO"></span>) + 
-                                                 (10 \times <span class="CUSTO_VARIAVEL"></span>)
-                                                 \times (<span class="KM_MENSAL_ROTA"></span> \textrm{ km} \times 20 \textrm{ dias})$`
+                                                 \big ( 
+                                                     (10 \times <span class="CUSTO_VARIAVEL"></span>)
+                                                    \times 
+                                                    (<span class="KM_MENSAL_ROTA"></span> \textrm{ km} \times 20 \textrm{ dias})
+                                                 \big )$`
                                     </li>
                                     <li class="mathEqn" id="CustoRotaValorFinal">
                                         $Custo = <span class="CUSTO_FINAL"></span>$
@@ -1013,18 +1016,22 @@
         font-weight: bold;
     }
 
+    .tab-accordion ul {
+        padding: 0px 20px;
+    }
+
     .tab-accordion ul li {
-        /* height: auto; */
         list-style: none;
     }
 
     .mathEqn * {
         line-height: 0em !important;
+        font-size: 1.1rem;
     }
 
     .mathEqn {
         padding: 0.5em 0px;
-        line-height: 20px !important
+        line-height: 20px !important;
     }
 
     mjx-line {

@@ -21,9 +21,8 @@ var dataTablesRotas = $("#datatables").DataTable({
             { data: 'NOME', width: "20%" },
             { data: 'TURNOSTR', width: "10%" },
             { data: 'GPS', width: "300px" },
-            { data: 'KMSTR', width: "18%" },
-            { data: 'NUMALUNOS', width: "12%" },
-            { data: 'NUMESCOLAS', width: "12%" },
+            { data: 'KMSTR', width: "20%" },
+            { data: 'TIPOSTR', width: "20%" },
             {
                 data: "ACOES",
                 width: "110px",

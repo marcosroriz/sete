@@ -156,8 +156,8 @@ function calcularCustoFinal(custoFinalValido) {
     let CUSTO_ALUNO = 0;
 
     if (custoFinalValido) {
-        CUSTO_FINAL = (12 * det.CUSTO_FIXO.valor) + ((10 * det.CUSTO_VARIAVEL.valor) * det.KM_MENSAL_ROTA.valor * 20 * 2);
-        CUSTO_KM = CUSTO_FINAL / (det.KM_MENSAL_ROTA.valor * 2);
+        CUSTO_FINAL = (12 * det.CUSTO_FIXO.valor) + ((10 * det.CUSTO_VARIAVEL.valor) * (det.KM_MENSAL_ROTA.valor * 20));
+        CUSTO_KM = CUSTO_FINAL / (det.KM_MENSAL_ROTA.valor * 20);
 
         guardaParametroDetalhado("CUSTO_FINAL", CUSTO_FINAL);
         guardaParametroDetalhado("CUSTO_FINAL_POR_MES", CUSTO_FINAL / 12);
@@ -321,7 +321,7 @@ function mostraInformacoesCusto() {
         let CUSTO_ANUAL_COM_ADM = Number(Number(12 * det.CUSTO_ADMINISTRATIVO.valor).toFixed(2));
         let CUSTO_ANUAL_COM_DEPRECIACAO = Number(Number(12 * det.CUSTO_DEPRECIACAO_FROTA.valor).toFixed(2));
 
-        let KM_ROTA_ANUAL = det.KM_MENSAL_ROTA.valor * 20 * 2;
+        let KM_ROTA_ANUAL = det.KM_MENSAL_ROTA.valor * 20;
         let CUSTO_VARIAVEL_ANUAL_COM_COMBUSTIVEL = Number(Number(10 * det.CUSTO_COM_COMBUSTIVEL.valor * KM_ROTA_ANUAL).toFixed(2));
         let CUSTO_VARIAVEL_ANUAL_COM_OLEOLUBRIFICANTES = Number(Number(10 * det.CUSTO_OLEO_LUBRIFICANTES.valor * KM_ROTA_ANUAL).toFixed(2));
         let CUSTO_VARIAVEL_ANUAL_COM_CUSTORODAGEM = Number(Number(10 * det.CUSTO_DE_RODAGEM.valor * KM_ROTA_ANUAL).toFixed(2));
@@ -724,7 +724,7 @@ function calcularCustoPecasAcessorios() {
         rotaParams.KM_MENSAL_ROTA.result) {
 
         CUSTO_PECAS_ACESSORIOS = (rotaParams.CFT_CONSUMO_PECAS.valor * rotaParams.PRECO_MEDIO_VEICULOS.valor) /
-            (rotaParams.KM_MENSAL_ROTA.valor * 20 * 2); // 20 dias * 2 (ida e volta)
+            (rotaParams.KM_MENSAL_ROTA.valor * 20); // 20 dias * 2 (ida e volta)
 
         guardaParametroDetalhado("CUSTO_PECAS_ACESSORIOS", CUSTO_PECAS_ACESSORIOS);
     } else {

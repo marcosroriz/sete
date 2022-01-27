@@ -73,6 +73,20 @@ var parseRotaDB = function (rotaRaw) {
         rotaJSON["KMSTR"] = rotaRaw["KM"] + " km";
     }
 
+    switch (Number(rotaJSON["tipo"])) {
+        case 1:
+            rotaJSON["TIPOSTR"] = "Rodoviária";
+            break;
+        case 2:
+            rotaJSON["TIPOSTR"] = "Aquaviária";
+            break;
+        case 3:
+            rotaJSON["TIPOSTR"] = "Mista";
+            break;
+        default:
+            rotaJSON["TIPOSTR"] = "Rodoviária";
+    }
+    
     let propParaTransformar = ["turno_matutino", "turno_vespertino", "turno_noturno",
                                 "da_porteira", "da_mataburro", "da_colchete", "da_atoleiro", "da_ponterustica"];
     for (let prop of propParaTransformar) {
