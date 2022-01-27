@@ -30,6 +30,7 @@ restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}`)
     .then((custoFinalValido) => calcularCustoFinal(custoFinalValido))
     .then(() => MathJax.typeset())
     .then(() => mostraInformacoesCusto())
+    .then(() => dataTableDadosRota.draw())
 
 var dataTableDadosRota = $("#dataTableDadosRota").DataTable({
     columns: [
@@ -43,12 +44,17 @@ var dataTableDadosRota = $("#dataTableDadosRota").DataTable({
     dom: 't<"detalheToolBar">'
 });
 function preencheDadosBasicos(rota) {
-    loadingFn("Calculando o custo da rota..." + rota.nome);
+    let rotaJSON = parseRotaDBREST(rota);
 
-    $("#nomeRota").text(rota.nome);
-    dataTableDadosRota.row.add(["Nome da Rota", rota.nome]);
-    dataTableDadosRota.draw();
-    return rota;
+    loadingFn("Calculando o custo da rota..." + rotaJSON.nome);
+
+    $("#nomeRota").text(rotaJSON.nome);
+    dataTableDadosRota.row.add(["Nome da Rota", rotaJSON.nome]);
+    
+    if (rotaJSON.km) { dataTableDadosRota.row.add(["Quilometragem da Rota", rotaJSON.km + " km"]); }
+    if (rotaJSON.TURNOSTR) { dataTableDadosRota.row.add(["Turno de operação", rotaJSON.TURNOSTR]); }
+    
+    return rotaJSON;
 }
 
 async function pegarParametros(rota) {
@@ -70,6 +76,11 @@ async function pegarParametros(rota) {
     rotaValida = motoristaValido && monitorValido && veiculoValido && paramValido && restanteValido;
     rotaParams = { ...paramMotoristas, ...paramMonitor, ...paramVeiculos, ...paramGerais, ...paramRestantes };
     Object.assign(det, rotaParams)
+
+    if (restanteValido) { dataTableDadosRota.row.add(["Número de Alunos", rotaParams.NUM_ALUNOS.valor]); }
+    if (veiculoValido) { dataTableDadosRota.row.add(["Número de Veículos", rotaParams.NUM_VEICULOS.valor]); }
+    if (motoristaValido) { dataTableDadosRota.row.add(["Número de Motoristas", rotaParams.NUM_MOTORISTAS.valor]); }
+    if (monitorValido) { dataTableDadosRota.row.add(["Número de Monitores", rotaParams.NUM_MONITORES.valor]); }
 
     rotaDados = {
         rota,
