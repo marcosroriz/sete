@@ -50,7 +50,7 @@ dataTablesRotas.on('click', '.custoCalculadora', function () {
             break;
         case 2:
             action = "calcularRotaAquaviária";
-            console.log("CALCULAR ROTA RODOVIARIA");
+            navigateDashboard("./modules/custo/custo-resultado-aqua-view.html");
             break;
         case 3:
             errorFn("Essa funcionalidade ainda não foi implementada", "", "Cálculo indisponível");

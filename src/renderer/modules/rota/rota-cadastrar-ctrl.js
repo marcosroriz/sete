@@ -225,6 +225,7 @@ async function posProcessamentoSalvarRota(idRota, alunosAdicionar, escolasAdicio
 
         escolasAdicionar.forEach((eID) => vinculoAlunosEscolas.push({ "id_escola": eID }));
         try {
+            debugger
             let resp = await restImpl.dbPOST(DB_TABLE_ROTA, `/${idRota}/escolas`, {
                 "escolas": vinculoAlunosEscolas
             });
@@ -301,6 +302,7 @@ $("#salvarrota").on("click", async () => {
     var veiculosAdicionar = new Set([...novosVeiculos].filter(x => !antVeiculos.has(x)));
     var veiculosRemover = new Set([...antVeiculos].filter(x => !novosVeiculos.has(x)))
 
+    debugger 
     var $valid = $('#wizardCadastrarRotaForm').valid();
     if (!$valid) {
         return false;
@@ -486,14 +488,17 @@ restImpl.dbGETColecao(DB_TABLE_ESCOLA)
         // Processando alunos
         if (escolas.length != 0) {
             let escolasAtendidas = new Map();
-            // try {
-            //     escolasAtendidas = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}/escolas`);
-            // } catch (error) {
-            //     escolasAtendidas = new Map();
-            // }
+            try {
+                escolasAtendidas = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${idRota}/escolas`);
+                debugger 
+                escolasAtendidas = convertListToMap(escolasAtendidas, "id_escola")
+            } catch (error) {
+                escolasAtendidas = new Map();
+            }
 
             $("#totalNumEscolas").text(escolasAtendidas.size);
 
+            escolas.sort((a, b) => a["nome"].localeCompare(b["nome"]))
             escolas.forEach(escolaRaw => {
                 let escolaJSON = parseEscolaREST(escolaRaw);
                 let escolaID = String(escolaJSON["ID"]);
@@ -508,106 +513,6 @@ restImpl.dbGETColecao(DB_TABLE_ESCOLA)
         }
     })
 
-// var veiculosPromise = dbBuscarTodosDadosPromise(DB_TABLE_VEICULO);
-// var motoristaPromise = dbBuscarTodosDadosPromise(DB_TABLE_MOTORISTA);
-// var escolasPromise = dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA);
-// var alunosPromise = dbBuscarTodosDadosPromise(DB_TABLE_ALUNO);
-
-// if (estaEditando) {
-//     var veiculoEspecificoPromise = dbBuscarDadosEspecificosPromise(DB_TABLE_ROTA_POSSUI_VEICULO,
-//                                     "ID_ROTA", estadoRota["ID"]);
-//     var motoristaEspecificoPromise = dbBuscarDadosEspecificosPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA,
-//                                     "ID_ROTA", estadoRota["ID"]);
-
-//     Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise,
-//                  veiculoEspecificoPromise, motoristaEspecificoPromise])
-//         .then((res) => {
-//             // Processa Veiculos e Motoristas
-//             carregaVeiculoMotorista(res[0], res[1]);
-
-//             // Seleciona veículos da rota
-//             if (res[4].length != 0) {
-//                 $("#tipoVeiculo").val(res[4][0]["ID_VEICULO"]);
-//             }
-
-//             // Seleciona motorista da rota
-//             if (res[5].length != 0) {
-//                 var mlist = new Array();
-//                 res[5].forEach(m => mlist.push(m["CPF_MOTORISTA"]))
-//                 $("#tipoMotorista").selectpicker('val', mlist)
-//             }
-
-//             PopulateRotaFromState(estadoRota);
-//             $('.horamask').trigger('input');
-//             $('.cep').trigger('input');
-//             $(".cpfmask").trigger('input');
-//             $(".telmask").trigger('input');
-//             $(".datanasc").trigger('input');
-//             $('.numbermask').trigger('input');
-//             $(".kmmask").trigger('input');
-//             $('.cnh').trigger('input');
-
-//             let todosAlunos = convertListToMap(res[3])
-//             let todasEscolas = convertListToMap(res[2])
-//             let alunosAtendidos = convertListToMap(estadoRota["ALUNOS"], "ID_ALUNO");
-//             let escolasAtendidas = convertListToMap(estadoRota["ESCOLAS"], "ID_ESCOLA");
-
-//             $("#totalNumAlunos").text(alunosAtendidos.size);
-//             $("#totalNumEscolas").text(escolasAtendidas.size);
-
-//             todosAlunos.forEach(aluno => {
-//                 let alunoSTR = aluno["NOME"] + " (" + aluno["DATA_NASCIMENTO"] + ")";
-//                 let alunoID = aluno["ID"];
-//                 if (alunosAtendidos.has(aluno["ID"])) {
-//                     antAlunos.add(alunoID);
-//                     novosAlunos.add(alunoID);
-//                     $('#alunosAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
-//                 } else {
-//                     $('#alunosNaoAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
-//                 }
-//             })
-
-//             todasEscolas.forEach(escola => {
-//                 let escolaID = escola["ID"];
-//                 if (escolasAtendidas.has(escola["ID"])) {
-//                     antEscolas.add(escolaID);
-//                     novasEscolas.add(escolaID);
-//                     $('#escolasAtentidas').append(`<option value="${escolaID}">${escola["NOME"]}</option>`);
-//                 } else {
-//                     $('#escolasNaoAtendidas').append(`<option value="${escolaID}">${escola["NOME"]}</option>`);
-//                 }
-//             })
-
-//             $("#cancelarAcao").on('click', () => {
-//                 cancelDialog()
-//                 .then((result) => {
-//                     if (result.value) {
-//                         navigateDashboard(lastPage);
-//                     }
-//                 })
-//             });
-//         })
-// } else {
-//     Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise])
-//     .then((res) => {
-//         // Processa Veiculos e Motoristas
-//         carregaVeiculoMotorista(res[0], res[1]);
-
-//         // Processando Escolas
-//         var escolasResult = res[2];
-//         for (let escolaRaw of escolasResult) {
-//             listaDeEscolas.set(escolaRaw["ID"], escolaRaw);
-//             $('#escolasNaoAtendidas').append(`<option value="${escolaRaw["ID"]}">${escolaRaw["NOME"]}</option>`);
-//         }
-
-//         // Processando Alunos
-//         var alunosResult = res[3];
-//         for (let alunoRaw of alunosResult) {
-//             listaDeAlunos.set(alunoRaw["ID"], alunoRaw);
-//             $('#alunosNaoAtendidos').append(`<option value="${alunoRaw["ID"]}">${alunoRaw["NOME"]} (${alunoRaw["DATA_NASCIMENTO"]})</option>`);
-//         }
-//     })
-// }
 
 // Handlers para tirar e colocar alunos e escolas da lista de atendidos
 $("#colocarEscola").on("click", () => {

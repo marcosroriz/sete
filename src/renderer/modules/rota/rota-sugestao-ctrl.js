@@ -31,8 +31,10 @@ window.onresize = function () {
 var rotasGeradas = new Map();
 
 // Variáveis que armazenará todos os usuários e escolas que podem utilizar a ferramenta
-var alunoMap = new Map();
-var escolaMap = new Map();
+var alunoMap = new Map();      // Mapa que associa id aluno -> dados do aluno
+var escolaMap = new Map();     // Mapa que associa id escola -> dados da escola
+let nomeEscolaMap = new Map(); // Mapa que associa nome escola -> dados da escola
+let nomeRotaMap = new Map();    // Mapa que associa nome rota  -> dados da rota
 
 // Variáveis qeu contém apenas os usuários escolhidos para o processo de simulação
 var alunos = new Array();
@@ -56,10 +58,10 @@ function startTool() {
     loadOSMFile()
     .then(dataOSM => convertOSMToGeoJSON(dataOSM))
     .then(osmGeoJSON => plotMalha(osmGeoJSON))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
-    .then(res => $("#numVehicles").val(res.length))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
-    .then(res => preprocessarAlunos(res))
+    .then(() => preprocessarVeiculos())
+    .then(() => preprocessarEscolas())
+    .then(() => preprocessarRotas())
+    .then(() => preprocessarAlunos())
     .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
     .then(res => preprocessarEscolas(res))
     .then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
@@ -205,68 +207,143 @@ function plotMalha(osmGeoJSON) {
     return Promise.resolve(tileIndex)
 }
 
-
-// Preprocessa alunos
-function preprocessarAlunos(res) {
-    let numTemGPS = 0;
-    
-    for (let alunoRaw of res) {
-        let alunoJSON = parseAlunoDB(alunoRaw);
-
-        if (alunoJSON["LOC_LATITUDE"] != "" && alunoJSON["LOC_LONGITUDE"] != "" &&
-            alunoJSON["LOC_LATITUDE"] != undefined && alunoJSON["LOC_LONGITUDE"] != undefined &&
-            alunoJSON["LOC_LATITUDE"] != null && alunoJSON["LOC_LONGITUDE"] != null) {
-
-            alunoJSON["GPS"] = true;
-            numTemGPS++;
-        } else {
-            alunoJSON["GPS"] = false;
-        }
-
-        alunoJSON["TEM_ESCOLA"] = false;
-        alunoJSON["ESCOLA_ID"] = false;
-        alunoJSON["ESCOLA_NOME"] = "Não está vinculado";
-        alunoJSON["ESCOLA_TEM_GPS"] = false;
-
-        alunoJSON["TEM_ROTA"] = false;
-        alunoJSON["ROTA_ID"] = "";
-        alunoJSON["ROTA_NOME"] = "";
-
-        alunoMap.set(String(alunoJSON["ID"]), alunoJSON);
+// Preprocessa veículos
+async function preprocessarVeiculos() {
+    let veiculos = [];
+    try {
+        veiculos = await restImpl.dbBuscarTodosDadosPromise(DB_TABLE_VEICULO);
+    } catch (err) {
+        veiculos = [];
     }
 
-    if (numTemGPS == 0) {
-        return Promise.reject({ code: "erro:aluno" })
+    $("#numVehicles").val(veiculos.length);
+}
+
+// Preprocessa alunos
+async function preprocessarAlunos() {
+    let numAlunosTemGPS = 0;
+    let numEscolasTemGPS = 0;
+
+    let alunos = [];
+    try {
+        alunos = await restImpl.dbGETColecao(DB_TABLE_ALUNO);
+
+        for (let alunoRaw  of alunos) {
+            let alunoJSON = parseAlunoREST(alunoRaw);
+            
+            if (alunoJSON["LOC_LATITUDE"] != "" && alunoJSON["LOC_LONGITUDE"] != "" &&
+                alunoJSON["LOC_LATITUDE"] != undefined && alunoJSON["LOC_LONGITUDE"] != undefined &&
+                alunoJSON["LOC_LATITUDE"] != null && alunoJSON["LOC_LONGITUDE"] != null) {
+
+                alunoJSON["GPS"] = true;
+                numAlunosTemGPS++;
+            } else {
+                alunoJSON["GPS"] = false;
+            }
+
+            // Verifica escola do aluno
+            if (alunoJSON["ESCOLA"] && nomeEscolaMap.has(alunoJSON["ESCOLA"])) {
+                let escolaJSON = nomeEscolaMap.get(alunoJSON["ESCOLA"]);
+                alunoJSON["TEM_ESCOLA"] = true;
+                alunoJSON["ESCOLA_ID"] = escolaJSON["ID"];
+                alunoJSON["ESCOLA_NOME"] = escolaJSON["NOME"];
+                
+                if (escolaJSON["GPS"]) {
+                    alunoJSON["ESCOLA_TEM_GPS"] = true;
+                    numEscolasTemGPS++;
+                } else {
+                    alunoJSON["ESCOLA_TEM_GPS"] = false;
+                }
+
+                if (alunoJSON["GPS"]) {
+                    escolaJSON["TEM_ALUNO_COM_GPS"] = true;
+                }
+
+                escolaMap.set(String(escolaJSON["ID"]), escolaJSON);
+                nomeEscolaMap.set(String(escolaJSON["NOME"]), escolaJSON);
+            } else {
+                alunoJSON["TEM_ESCOLA"] = false;
+                alunoJSON["ESCOLA_ID"] = false;
+                alunoJSON["ESCOLA_NOME"] = "Não está vinculado";
+                alunoJSON["ESCOLA_TEM_GPS"] = false;
+            }
+
+            // Verifica rota do aluno
+            if (alunoJSON["ROTA"] && nomeRotaMap.has(alunoJSON["ROTA"])) {
+                let rotaJSON = nomeRotaMap.get(alunoJSON["ROTA"]);
+                alunoJSON["TEM_ROTA"] = true;
+                alunoJSON["ROTA_ID"] = rotaJSON["ID"];
+                alunoJSON["ROTA_NOME"] = rotaJSON["NOME"];
+            } else {
+                alunoJSON["TEM_ROTA"] = false;
+                alunoJSON["ROTA_ID"] = "";
+                alunoJSON["ROTA_NOME"] = "";
+            }
+
+            alunoMap.set(String(alunoJSON["ID"]), alunoJSON);
+        }
+    } catch (err) {
+        alunos = [];
+    }
+    
+    debugger
+    if (numAlunosTemGPS == 0) {
+        return Promise.reject({ code: "erro:aluno" });
+    } else if (numEscolasTemGPS == 0) {
+        return Promise.reject({ code: "erro:escola" });
     } else {
         return alunoMap;
     }
 }
 
 // Preprocessa escolas
-function preprocessarEscolas(res) {
+async function preprocessarEscolas() {
     let numTemGPS = 0;
 
-    for (let escolaRaw of res) {
-        let escolaJSON = parseEscolaDB(escolaRaw);
+    try {
+        let escolas = await restImpl.dbGETColecao(DB_TABLE_ESCOLA);
 
-        if (escolaJSON["LOC_LATITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != "" &&
-            escolaJSON["LOC_LATITUDE"] != undefined && escolaJSON["LOC_LONGITUDE"] != undefined &&
-            escolaJSON["LOC_LATITUDE"] != null && escolaJSON["LOC_LONGITUDE"] != null) {
-
-            escolaJSON["GPS"] = true;
-            numTemGPS++;
-        } else {
-            escolaJSON["GPS"] = false;
+        for (let escolaRaw of escolas) {
+            let escolaJSON = parseEscolaREST(escolaRaw);
+    
+            if (escolaJSON["LOC_LATITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != "" &&
+                escolaJSON["LOC_LATITUDE"] != undefined && escolaJSON["LOC_LONGITUDE"] != undefined &&
+                escolaJSON["LOC_LATITUDE"] != null && escolaJSON["LOC_LONGITUDE"] != null) {
+    
+                escolaJSON["GPS"] = true;
+                numTemGPS++;
+            } else {
+                escolaJSON["GPS"] = false;
+            }
+            escolaJSON["TEM_ALUNO_COM_GPS"] = false;
+    
+            escolaMap.set(String(escolaJSON["ID"]), escolaJSON);
+            nomeEscolaMap.set(escolaJSON["NOME"], escolaJSON);
         }
-        escolaJSON["TEM_ALUNO_COM_GPS"] = false;
-
-        escolaMap.set(String(escolaJSON["ID"]), escolaJSON);
+    } catch (err) {
+        numTemGPS = 0;
     }
+
+    debugger
 
     if (numTemGPS == 0) {
         return Promise.reject({ code: "erro:escola" })
     } else {
         return escolaMap;
+    }
+}
+
+// Preprocessa rotas
+async function preprocessarRotas() {
+    try {
+        let rotas = await restImpl.dbGETColecao(DB_TABLE_ROTA);
+
+        for (let rotaRaw of rotas) {
+            let rotaJSON = parseRotaDBREST(rotaRaw);
+            nomeRotaMap.set(rotaJSON["NOME"], rotaJSON);
+        }
+    } catch (err) {
+        console.log("Não há nenhuma rota cadastrada");
     }
 }
 
@@ -313,7 +390,7 @@ function processarVinculoAlunoEscolas(res) {
             alunoMap.set(aID, alunoJSON);
 
             escolaAluno["TEM_ALUNO_COM_GPS"] = true;
-            escolaMap.set(eID, escolaAluno);
+            escolaMap.set(String(eID), escolaAluno);
             
             numVinculo++;
             escolasVinculo.push(eNome)
