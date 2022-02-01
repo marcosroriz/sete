@@ -64,6 +64,7 @@ var localizacao;
 // Máscaras
 $('.cep').mask('00000-000');
 $(".telmask").mask(telmaskbehaviour, teloptions);
+$('#inepEscola').mask('00000000');
 
 // Inicia o campo de estados/cidade na aba de localizacao
 localizacao = new dgCidadesEstados({
@@ -116,7 +117,8 @@ var validadorFormulario = $("#wizardCadastrarEscolaForm").validate({
                 minlength: 3
             },
             inepEscola: {
-                required: true
+                required: true,
+                exactlength: 8,
             },
             telContato: {
                 minlength: 10
