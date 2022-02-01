@@ -230,7 +230,7 @@ function detalharCustoFixo(custoComPessoalValido, custoAdmValido,
     $(".SALARIO_MEDIO_MONITORES").replaceWith(formataOutputParametro("SALARIO_MEDIO_MONITORES"));
     $(".CUSTO_COM_MONITOR").replaceWith(formataOutputParametro("CUSTO_COM_MONITOR"));
 
-    $(".CFT_CUSTO_MANUTENCAO_RODO").replaceWith(formataOutputParametro("CFT_CUSTO_MANUTENCAO_RODO"));
+    $(".CFT_CUSTO_MANUTENCAO_RODO").replaceWith(formataOutputParametro("CFT_CUSTO_MANUTENCAO_RODO", 6));
     $(".CUSTO_COM_MANUTENCAO").replaceWith(formataOutputParametro("CUSTO_COM_MANUTENCAO"));
 
     $(".CUSTO_COM_PESSOAL").replaceWith(formataOutputParametro("CUSTO_COM_PESSOAL"));
@@ -247,16 +247,20 @@ function detalharCustoFixo(custoComPessoalValido, custoAdmValido,
     $(".PERC_RESIDUAL_RODO").replaceWith(formataOutputParametro("PERC_RESIDUAL_RODO", 0));
     $(".DIFF_VIDAUTIL_IDADE_VEICULO").replaceWith(formataOutputParametro("DIFF_VIDAUTIL_IDADE_VEICULO", 0));
     $(".SOMATORIO_VIDA_UTIL").replaceWith(formataOutputParametro("SOMATORIO_VIDA_UTIL", 0));
-    $(".VALOR_RESIDUAL").replaceWith(formataOutputParametro("VALOR_RESIDUAL"));
+    $(".VALOR_RESIDUAL").replaceWith(formataOutputParametro("VALOR_RESIDUAL", 6));
     $(".COEFICIENTE_DEPRECIACAO_VEICULO").replaceWith(formataOutputParametro("COEFICIENTE_DEPRECIACAO_VEICULO", 6));
     $(".PRECO_MEDIO_VEICULOS").replaceWith(formataOutputParametro("PRECO_MEDIO_VEICULOS"));
+    $(".PRECO_MEDIO_PNEUS").replaceWith(formataOutputParametro("PRECO_MEDIO_PNEUS"));
+    $(".NUMERO_PNEUS").replaceWith(formataOutputParametro("NUMERO_PNEUS"));
+    $(".PRECO_VEICULO_SEM_RODAGEM").replaceWith(formataOutputParametro("PRECO_VEICULO_SEM_RODAGEM"));
     $(".NUM_VEICULOS").replaceWith(formataOutputParametro("NUM_VEICULOS", 0));
     $(".CUSTO_DEPRECIACAO_FROTA").replaceWith(formataOutputParametro("CUSTO_DEPRECIACAO_FROTA"));
+
 
     $(".DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO").replaceWith(formataOutputParametro("DIFF_RESIDUAL_VIDAUTIL_IDADE_VEICULO", 0));
     $(".SOMATORIO_VIDA_UTIL").replaceWith(formataOutputParametro("SOMATORIO_VIDA_UTIL", 0));
     $(".PERC_RESIDUAL_RODO").replaceWith(formataOutputParametro("PERC_RESIDUAL_RODO", 0));
-    $(".VALOR_TRC").replaceWith(formataOutputParametro("VALOR_TRC", 4));
+    $(".VALOR_TRC").replaceWith(formataOutputParametro("VALOR_TRC", 6));
     $(".COEFICIENTE_REMUNERACAO_VEICULO").replaceWith(formataOutputParametro("COEFICIENTE_REMUNERACAO_VEICULO", 6));
     $(".PRECO_MEDIO_VEICULOS").replaceWith(formataOutputParametro("PRECO_MEDIO_VEICULOS"));
     $(".CUSTO_REMUNERACAO_FROTA").replaceWith(formataOutputParametro("CUSTO_REMUNERACAO_FROTA"));
@@ -271,27 +275,27 @@ function detalharCustoVariavel(custoCombustivelValido, custoOleoLubrificanteVali
     if (!custoRodagemValido) { $("#CustoRodagemCard").addClass("erroCusto"); }
     if (!custoPecasValido) { $("#CustoPecaAcessoriosCard").addClass("erroCusto"); }
     
-    $(".CFT_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("CFT_CONSUMO_COMBUSTIVEL", 4));
+    $(".CFT_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("CFT_CONSUMO_COMBUSTIVEL", 6));
     $(".PRECO_MEDIO_COMBUSTIVEIS").replaceWith(formataOutputParametro("PRECO_MEDIO_COMBUSTIVEIS"));
-    $(".CUSTO_COM_COMBUSTIVEL").replaceWith(formataOutputParametro("CUSTO_COM_COMBUSTIVEL", 4));
+    $(".CUSTO_COM_COMBUSTIVEL").replaceWith(formataOutputParametro("CUSTO_COM_COMBUSTIVEL", 6));
 
-    $(".CFT_CONSUMO_OLEO_LUBRIFICANTE").replaceWith(formataOutputParametro("CFT_CONSUMO_OLEO_LUBRIFICANTE"));
+    $(".CFT_CONSUMO_OLEO_LUBRIFICANTE").replaceWith(formataOutputParametro("CFT_CONSUMO_OLEO_LUBRIFICANTE", 6));
     $(".PRECO_MEDIO_LUBRIFICANTE").replaceWith(formataOutputParametro("PRECO_MEDIO_LUBRIFICANTE"));
-    $(".CUSTO_OLEO_LUBRIFICANTES").replaceWith(formataOutputParametro("CUSTO_OLEO_LUBRIFICANTES"));
+    $(".CUSTO_OLEO_LUBRIFICANTES").replaceWith(formataOutputParametro("CUSTO_OLEO_LUBRIFICANTES", 6));
 
     $(".PRECO_MEDIO_PNEUS").replaceWith(formataOutputParametro("PRECO_MEDIO_PNEUS"));
     $(".NUMERO_PNEUS").replaceWith(formataOutputParametro("NUMERO_PNEUS"));
     $(".PRECO_MEDIO_RECAPAGEM").replaceWith(formataOutputParametro("PRECO_MEDIO_RECAPAGEM"));
     $(".NUM_RECAPAGEM").replaceWith(formataOutputParametro("NUM_RECAPAGEM"));
     $(".VIDA_UTIL_PNEU").replaceWith(formataOutputParametro("VIDA_UTIL_PNEU"));
-    $(".CUSTO_DE_RODAGEM").replaceWith(formataOutputParametro("CUSTO_DE_RODAGEM"));
+    $(".CUSTO_DE_RODAGEM").replaceWith(formataOutputParametro("CUSTO_DE_RODAGEM", 6));
 
-    $(".CFT_CONSUMO_PECAS").replaceWith(formataOutputParametro("CFT_CONSUMO_PECAS"));
+    $(".CFT_CONSUMO_PECAS").replaceWith(formataOutputParametro("CFT_CONSUMO_PECAS", 6));
     $(".PRECO_MEDIO_VEICULOS").replaceWith(formataOutputParametro("PRECO_MEDIO_VEICULOS"));
     $(".KM_MENSAL_ROTA").replaceWith(formataOutputParametro("KM_MENSAL_ROTA"));
-    $(".CUSTO_PECAS_ACESSORIOS").replaceWith(formataOutputParametro("CUSTO_PECAS_ACESSORIOS"));
+    $(".CUSTO_PECAS_ACESSORIOS").replaceWith(formataOutputParametro("CUSTO_PECAS_ACESSORIOS", 6));
 
-    $(".CUSTO_VARIAVEL").replaceWith(formataOutputParametro("CUSTO_VARIAVEL"));
+    $(".CUSTO_VARIAVEL").replaceWith(formataOutputParametro("CUSTO_VARIAVEL", 6));
 }
 
 function detalharCustoFinal(custoFinalValido) {
@@ -561,6 +565,9 @@ function calcularCustoDepreciacao() {
     let SOMATORIO_VIDA_UTIL = 0;
     let VALOR_RESIDUAL = 0;
 
+    // Cálculo do preço do veículo sem rodagem
+    let PRECO_VEICULO_SEM_RODAGEM = 0;
+
     if (det.PERC_RESIDUAL_RODO.result) {
         VALOR_RESIDUAL = Number(rotaParams.PERC_RESIDUAL_RODO.valor / 100);
         guardaParametroDetalhado("VALOR_RESIDUAL", VALOR_RESIDUAL);
@@ -578,8 +585,19 @@ function calcularCustoDepreciacao() {
         custoValido = false;
     }
 
+    if (rotaParams.PRECO_MEDIO_VEICULOS.result && rotaParams.NUMERO_PNEUS.result && rotaParams.PRECO_MEDIO_PNEUS.result) {
+        PRECO_VEICULO_SEM_RODAGEM = 
+        (
+            rotaParams.PRECO_MEDIO_VEICULOS.valor -
+            (rotaParams.NUMERO_PNEUS.valor * rotaParams.PRECO_MEDIO_PNEUS.valor)
+        )
+
+        guardaParametroDetalhado("PRECO_VEICULO_SEM_RODAGEM", PRECO_VEICULO_SEM_RODAGEM);
+    } else {
+        custoValido = false;
+    }
+
     if (custoValido &&
-        det.COEFICIENTE_DEPRECIACAO_VEICULO.result &&
         det.PRECO_MEDIO_VEICULOS.result &&
         det.NUM_VEICULOS.result) {
         CUSTO_DEPRECIACAO_FROTA = (COEFICIENTE_DEPRECIACAO_VEICULO * det.PRECO_MEDIO_VEICULOS.valor) / (12 * det.NUM_VEICULOS.valor);
@@ -604,6 +622,7 @@ function calcularCustoRemuneracao() {
     let custoValido = true;
 
     let CUSTO_REMUNERACAO_FROTA = 0; // (COEFICIENTE_REMUNERACAO_VEICULO * PREÇO_VEICULO_NOVO) / 12
+    let PRECO_VEICULO_SEM_RODAGEM = 0;
 
     // Cálculo do coeficiente de depreciacao
     let COEFICIENTE_REMUNERACAO_VEICULO = 0;
@@ -639,8 +658,14 @@ function calcularCustoRemuneracao() {
         custoValido = false;
     }
 
+    if (det.PRECO_VEICULO_SEM_RODAGEM.result) {
+        PRECO_VEICULO_SEM_RODAGEM = det.PRECO_VEICULO_SEM_RODAGEM.valor;
+    } else {
+        custoValido = false;
+    }
+
     if (custoValido) {
-        CUSTO_REMUNERACAO_FROTA = (COEFICIENTE_REMUNERACAO_VEICULO * det.PRECO_MEDIO_VEICULOS.valor) / (12 * det.NUM_VEICULOS.valor);
+        CUSTO_REMUNERACAO_FROTA = (COEFICIENTE_REMUNERACAO_VEICULO * PRECO_VEICULO_SEM_RODAGEM) / (12 * det.NUM_VEICULOS.valor);
         guardaParametroDetalhado("CUSTO_REMUNERACAO_FROTA", CUSTO_REMUNERACAO_FROTA);
     } else {
         custoValido = false;
@@ -679,8 +704,8 @@ function calcularCustoComOleoLubrificantes() {
 
     let CUSTO_OLEO_LUBRIFICANTES = 0;
 
-    if (rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.result && rotaParams.PRECO_MEDIO_LUBRIFICANTE.result) {
-        CUSTO_OLEO_LUBRIFICANTES = rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.valor * rotaParams.PRECO_MEDIO_LUBRIFICANTE.valor;
+    if (rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.result && rotaParams.PRECO_MEDIO_COMBUSTIVEIS.result) {
+        CUSTO_OLEO_LUBRIFICANTES = rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.valor * rotaParams.PRECO_MEDIO_COMBUSTIVEIS.valor;
         guardaParametroDetalhado("CUSTO_OLEO_LUBRIFICANTES", CUSTO_OLEO_LUBRIFICANTES);
     } else {
         custoValido = false;

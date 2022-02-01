@@ -548,7 +548,13 @@
                                                                             $
                                                                             Cdf = \frac{\max(0, VU - j)}{1 + 2 + \cdots + VU} 
                                                                                   \times (1 - \frac{VR}{100})
-                                                                            $</li>
+                                                                            $
+                                                                        </li>
+                                                                        <li class="mathEqn">
+                                                                            $
+                                                                            Pvsr = PVT - (Ppn \times Np)
+                                                                            $
+                                                                        </li>
                                                                         <li class="mathEqn" id="CustoDepreciacaoDetalhamentoPassoUm">
                                                                             $
                                                                             Cdf = \frac{\max(0, <span class="VIDA_UTIL_RODO"></span> 
@@ -566,10 +572,20 @@
                                                                             = <span class="COEFICIENTE_DEPRECIACAO_VEICULO"></span>
                                                                             $
                                                                         </li>
+                                                                        <li class="mathEqn">
+                                                                            $
+                                                                            Pvsr = <span class="PRECO_MEDIO_VEICULOS"></span>
+                                                                                    - 
+                                                                                    (<span class="PRECO_MEDIO_PNEUS"></span> \times <span class="NUMERO_PNEUS"></span>)
+                                                                            $
+                                                                        </li>
+                                                                        <li class="mathEqn">
+                                                                            $Pvsr = <span class="PRECO_VEICULO_SEM_RODAGEM"></span>$
+                                                                        </li>
                                                                         <li class="mathEqn" id="CustoDepreciacaoDetalhamentoPassoTres">
                                                                             $
                                                                             Cudf = \frac{<span class="COEFICIENTE_DEPRECIACAO_VEICULO"></span>
-                                                                                         \times <span class="PRECO_MEDIO_VEICULOS"></span>}
+                                                                                         \times <span class="PRECO_VEICULO_SEM_RODAGEM"></span>}
                                                                                    {12 \times <span class="NUM_VEICULOS"></span>}
                                                                             $
                                                                         </li>
@@ -582,7 +598,10 @@
                                                                         <ul>
                                                                             <li class="mathEqn">$Cudf$ = Custo de depreciação mensal do capital investido nos veículos da rota (R$/veículo x mês);</li>
                                                                             <li class="mathEqn">$Cdf$ = Coeficiente de depreciação do veículo da rota;</li>
-                                                                            <li class="mathEqn">$Pvsr$ = Preço de um veículo novo desta rota (R$/veículo);</li>
+                                                                            <li class="mathEqn">$Pvsr$ = Preço de um veículo novo desta rota sem a rodagem (R$/veículo);</li>
+                                                                            <li class="mathEqn">$PVT$ = preço de um veículo desta rota (R$);</li>
+                                                                            <li class="mathEqn">$Ppn$ = preço médio do pneu novo (R$/pneu);</li>
+                                                                            <li class="mathEqn">$Np$ = número de pneus do veículo da rota (pneu);</li>
                                                                             <li class="mathEqn">$VU$ = Vida útil adotada para o veículos desta rota (anos);</li>
                                                                             <li class="mathEqn">$j$ = Valor da idade do veículo arredondado para o primeiro valor inteiro inferior (anos);</li>
                                                                             <li class="mathEqn">$VR$ = valor residual adotado para o veículo (anos).</li>
@@ -624,7 +643,13 @@
                                                                                     \left ( 1 - \frac{VR}{100} \right ) 
                                                                             \right \} 
                                                                             \times \textrm{TRC}
-                                                                            $</li>
+                                                                            $
+                                                                        </li>
+                                                                        <li class="mathEqn">
+                                                                            $
+                                                                            Pvsr = PVT - (Ppn \times Np)
+                                                                            $
+                                                                        </li>
                                                                         <li class="mathEqn" id="CustoRemuneracaoDetalhamentoPassoUm">
                                                                             $
                                                                             Crf = 
@@ -642,11 +667,21 @@
                                                                         <li class="mathEqn" id="CustoRemuneracaoDetalhamentoPassoDois">
                                                                             $Crf = <span class="COEFICIENTE_REMUNERACAO_VEICULO"></span>$
                                                                         </li>
+                                                                        <li class="mathEqn">
+                                                                            $
+                                                                            Pvsr = <span class="PRECO_MEDIO_VEICULOS"></span>
+                                                                                    - 
+                                                                                    (<span class="PRECO_MEDIO_PNEUS"></span> \times <span class="NUMERO_PNEUS"></span>)
+                                                                            $
+                                                                        </li>
+                                                                        <li class="mathEqn">
+                                                                            $Pvsr = <span class="PRECO_VEICULO_SEM_RODAGEM"></span>$
+                                                                        </li>
                                                                         <li class="mathEqn" id="CustoRemuneracaoDetalhamentoPassoTres">
                                                                             $
                                                                             Cudf = 
                                                                                 \frac{<span class="COEFICIENTE_REMUNERACAO_VEICULO"></span> 
-                                                                                      \times <span class="PRECO_MEDIO_VEICULOS"></span>}
+                                                                                      \times <span class="PRECO_VEICULO_SEM_RODAGEM"></span>}
                                                                                     {12}
                                                                             $
                                                                         </li>
@@ -659,8 +694,10 @@
                                                                         <ul>
                                                                             <li class="mathEqn">$Cudf$ = Custo de depreciação mensal do capital investido nos veículos da rota (R$/veículo x mês);</li>
                                                                             <li class="mathEqn">$Cdf$ = Coeficiente de depreciação do veículo da rota;</li>
-                                                                            <li class="mathEqn">$Pvsr$ = Preço de um veículo novo desta rota (R$/veículo);</li>
-                                                                            <li class="mathEqn">$VU$ = Vida útil adotada para o veículos desta rota (anos);</li> 
+                                                                            <li class="mathEqn">$Pvsr$ = Preço de um veículo novo desta rota sem a rodagem (R$/veículo);</li>
+                                                                            <li class="mathEqn">$PVT$ = preço de um veículo desta rota (R$);</li>
+                                                                            <li class="mathEqn">$Ppn$ = preço médio do pneu novo (R$/pneu);</li>
+                                                                            <li class="mathEqn">$Np$ = número de pneus do veículo da rota (pneu);</li>                                                                            <li class="mathEqn">$VU$ = Vida útil adotada para o veículos desta rota (anos);</li> 
                                                                             <li class="mathEqn">$j$ = Valor da idade do veículo desta rota arrendodado para o primeiro valor inteiro inferior (anos);</li>
                                                                             <li class="mathEqn">$VR$ = valor residual adotado para o veículo (anos).</li>
                                                                         </ul>
@@ -787,13 +824,13 @@
                                                                     <br>
                                                                     <ul>
                                                                         <li class="mathEqn">
-                                                                            $Col = Ccol \times Pll$
+                                                                            $Col = Ccol \times Plc$
                                                                         </li>
                                                                         <li class="mathEqn" id="CustoOleoLubrificantesDetalhamento">
                                                                             $Cc = 
                                                                             <span class="CFT_CONSUMO_OLEO_LUBRIFICANTE"></span>
                                                                             \times
-                                                                            <span class="PRECO_MEDIO_LUBRIFICANTE"></span>
+                                                                            <span class="PRECO_MEDIO_COMBUSTIVEIS"></span>
                                                                             $
                                                                         </li>
                                                                         <li class="mathEqn" id="CustoOleoLubrificantesValorFinal">
@@ -805,7 +842,7 @@
                                                                         <ul>
                                                                             <li class="mathEqn">$Col$ = custo de óleos e lubrificantes (R$/km);</li>
                                                                             <li class="mathEqn">$Ccol$ = coeficiente de consumo de óleos e lubrificante (litros/km);</li>
-                                                                            <li class="mathEqn">$Pll$ = Preço médio do litro do lubrificante (R$/litro).</li>
+                                                                            <li class="mathEqn">$Plc$ = Preço médio do litro do combustível (R$/litro).</li>
                                                                         </ul>
                                                                     </div>
                                                                 </div>
