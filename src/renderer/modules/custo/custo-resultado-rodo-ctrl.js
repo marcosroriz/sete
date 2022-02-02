@@ -68,7 +68,7 @@ async function pegarParametros(rota) {
     let [veiculoValido, paramVeiculos, veiculos] = await pegarParametrosVeiculos();
 
     // Pegar parâmetros gerais
-    let [paramValido, paramGerais] = await pegarParametrosGerais();
+    let [paramValido, paramGerais] = await pegarParametrosGerais(veiculos);
 
     // Pega parâmetros restantes
     let [restanteValido, paramRestantes, alunos] = await pegarParametrosAlunos(rota);
@@ -631,7 +631,7 @@ function calcularCustoRemuneracao() {
     let VALOR_RESIDUAL = 0;
     let VALOR_TRC = 0;
 
-    if (det.PERC_RESIDUAL_RODO.result && det.PERC_TRC.result) {
+    if (rotaParams.PERC_RESIDUAL_RODO.result && rotaParams.PERC_TRC.result) {
         VALOR_RESIDUAL = Number(rotaParams.PERC_RESIDUAL_RODO.valor / 100);
         VALOR_TRC = Number(rotaParams.PERC_TRC.valor / 100);
 
@@ -658,7 +658,7 @@ function calcularCustoRemuneracao() {
         custoValido = false;
     }
 
-    if (det.PRECO_VEICULO_SEM_RODAGEM.result) {
+    if (det.PRECO_VEICULO_SEM_RODAGEM?.result) {
         PRECO_VEICULO_SEM_RODAGEM = det.PRECO_VEICULO_SEM_RODAGEM.valor;
     } else {
         custoValido = false;
@@ -704,7 +704,8 @@ function calcularCustoComOleoLubrificantes() {
 
     let CUSTO_OLEO_LUBRIFICANTES = 0;
 
-    if (rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.result && rotaParams.PRECO_MEDIO_COMBUSTIVEIS.result) {
+    if (rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE?.result && 
+        rotaParams.PRECO_MEDIO_COMBUSTIVEIS?.result) {
         CUSTO_OLEO_LUBRIFICANTES = rotaParams.CFT_CONSUMO_OLEO_LUBRIFICANTE.valor * rotaParams.PRECO_MEDIO_COMBUSTIVEIS.valor;
         guardaParametroDetalhado("CUSTO_OLEO_LUBRIFICANTES", CUSTO_OLEO_LUBRIFICANTES);
     } else {
@@ -910,10 +911,9 @@ async function pegarParametrosMonitores() {
     return [custoValido, params, monitores];
 }
 
-async function pegarParametrosGerais() {
+async function pegarParametrosGerais(veiculos) {
     let custoValido = true;
     let params = {}
-
     let paramNomes = [
         "CFT_CONSUMO_OLEO_LUBRIFICANTE",
         "CFT_CONSUMO_PECAS",
@@ -922,12 +922,36 @@ async function pegarParametrosGerais() {
         "PERC_CFT_CUSTO_MANUTENCAO_RODO",
         "PERC_RESIDUAL_RODO",
         "PERC_TRC",
-        "PRECO_MEDIO_COMBUSTIVEIS",
         "PRECO_MEDIO_PNEUS",
         "PRECO_MEDIO_LUBRIFICANTE",
         "PRECO_MEDIO_RECAPAGEM",
         "VIDA_UTIL_RODO"
     ]
+
+    let codigoTipoCombustivel = "PRECO_MEDIO_OUTRO_COMBUSTIVEL";
+
+    if (veiculos?.tipo_combustivel) {
+        switch (veiculos.tipo_combustivel) {
+            case "G":
+                codigoTipoCombustivel = "PRECO_MEDIO_GASOLINA";
+                paramNomes.push("PRECO_MEDIO_GASOLINA");
+                break;
+            case "D":
+                codigoTipoCombustivel = "PRECO_MEDIO_DIESEL";
+                paramNomes.push("PRECO_MEDIO_DIESEL");
+                break;
+            case "E":
+                codigoTipoCombustivel = "PRECO_MEDIO_ETANOL";
+                paramNomes.push("PRECO_MEDIO_ETANOL");
+                break;
+            case "N":
+                codigoTipoCombustivel = "PRECO_MEDIO_GAS_NATURAL";
+                paramNomes.push("PRECO_MEDIO_GAS_NATURAL");
+                break;
+            default:
+                paramNomes.push("PRECO_MEDIO_OUTRO_COMBUSTIVEL");
+        }
+    }
 
     for (let p of paramNomes) {
         params[p] = {
@@ -955,8 +979,30 @@ async function pegarParametrosGerais() {
                 }
             }
         }
+
+        if (veiculos?.tipo_combustivel && codigoTipoCombustivel) {
+            params["PRECO_MEDIO_COMBUSTIVEIS"] = {
+                "codigo_parametro": "PRECO_MEDIO_COMBUSTIVEIS",
+                "modulo": "Parâmetros",
+                "result": true,
+                "valor": params[codigoTipoCombustivel].valor
+            }
+        } else {
+            params["PRECO_MEDIO_COMBUSTIVEIS"] = {
+                "codigo_parametro": "PRECO_MEDIO_COMBUSTIVEIS",
+                "modulo": "Parâmetros",
+                "result": false,
+                "valor": 0
+            }
+        }
     } catch (err) {
         custoValido = false;
+        params["PRECO_MEDIO_COMBUSTIVEIS"] = {
+            "codigo_parametro": "PRECO_MEDIO_COMBUSTIVEIS",
+            "modulo": "Parâmetros",
+            "result": false,
+            "valor": 0
+        }
     }
 
     return [custoValido, params];
@@ -1033,8 +1079,8 @@ async function pegarParametrosVeiculos() {
         // for (let veiculo of veiculos) {
         let veiculo = veiculos;
         try {
-            let veiculoDetalhe = await restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${veiculo.id_veiculo}`);
-
+            veiculoDetalhe = await restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${veiculo.id_veiculo}`);
+            veiculos = veiculoDetalhe;
             // TODO: Modularizar e colocar o código repetido em uma função só
 
             if (DEBUG) { console.debug("IPVA_FROTA", veiculoDetalhe?.placa, veiculoDetalhe?.ipva) }

@@ -72,7 +72,7 @@ async function pegarParametros(rota) {
     let [veiculoValido, paramVeiculos, veiculos] = await pegarParametrosVeiculos();
 
     // Pegar parâmetros gerais
-    let [paramValido, paramGerais] = await pegarParametrosGerais();
+    let [paramValido, paramGerais] = await pegarParametrosGerais(veiculos);
 
     // Pega parâmetros restantes
     let [restanteValido, paramRestantes, alunos] = await pegarParametrosAlunos(rota);
@@ -478,7 +478,7 @@ function calcularCustoSeguro() {
     let VALOR_SEGURO = 0;
     if (rotaParams.PRECO_MEDIO_VEICULOS.result && rotaParams.PERC_SEGURO_AQUA.result) {
         VALOR_SEGURO = Number(rotaParams.PERC_SEGURO_AQUA.valor) / 100;
-        CUSTO_SEGURO = rotaParams.PRECO_MEDIO_VEICULOS.valor * VALOR_SEGURO;
+        CUSTO_SEGURO = (rotaParams.PRECO_MEDIO_VEICULOS.valor * VALOR_SEGURO) / 12;
 
         guardaParametroDetalhado("VALOR_SEGURO", VALOR_SEGURO);
         guardaParametroDetalhado("CUSTO_SEGURO", CUSTO_SEGURO);
@@ -496,7 +496,7 @@ function calcularCustoManutencao() {
     let VALOR_MANUTENCAO_EMBARCACAO = 0;
     if (rotaParams.PRECO_MEDIO_VEICULOS.result && rotaParams.PERC_MANUTENCAO_EMBARCACAO.result) {
         VALOR_MANUTENCAO_EMBARCACAO = Number(rotaParams.PERC_MANUTENCAO_EMBARCACAO.valor) / 100;
-        CUSTO_MANUTENCAO_EMBARCACAO = rotaParams.PRECO_MEDIO_VEICULOS.valor * VALOR_MANUTENCAO_EMBARCACAO;
+        CUSTO_MANUTENCAO_EMBARCACAO = (rotaParams.PRECO_MEDIO_VEICULOS.valor * VALOR_MANUTENCAO_EMBARCACAO) / 12;
 
         guardaParametroDetalhado("VALOR_MANUTENCAO_EMBARCACAO", VALOR_MANUTENCAO_EMBARCACAO);
         guardaParametroDetalhado("CUSTO_MANUTENCAO_EMBARCACAO", CUSTO_MANUTENCAO_EMBARCACAO);
@@ -798,7 +798,7 @@ async function pegarParametrosMonitores() {
     return [custoValido, params, monitores];
 }
 
-async function pegarParametrosGerais() {
+async function pegarParametrosGerais(veiculos) {
     let custoValido = true;
     let params = {}
 
@@ -813,10 +813,34 @@ async function pegarParametrosGerais() {
         "PERC_TRC",
         "DENSIDADE_COMBUSTIVEL",
         "DENSIDADE_LUBRIFICANTE",
-        "PRECO_MEDIO_COMBUSTIVEIS",
         "PRECO_MEDIO_LUBRIFICANTE",
         "VIDA_UTIL_AQUA"
     ]
+
+    let codigoTipoCombustivel = "PRECO_MEDIO_OUTRO_COMBUSTIVEL";
+
+    if (veiculos?.tipo_combustivel) {
+        switch (veiculos.tipo_combustivel) {
+            case "G":
+                codigoTipoCombustivel = "PRECO_MEDIO_GASOLINA";
+                paramNomes.push("PRECO_MEDIO_GASOLINA");
+                break;
+            case "D":
+                codigoTipoCombustivel = "PRECO_MEDIO_DIESEL";
+                paramNomes.push("PRECO_MEDIO_DIESEL");
+                break;
+            case "E":
+                codigoTipoCombustivel = "PRECO_MEDIO_ETANOL";
+                paramNomes.push("PRECO_MEDIO_ETANOL");
+                break;
+            case "N":
+                codigoTipoCombustivel = "PRECO_MEDIO_GAS_NATURAL";
+                paramNomes.push("PRECO_MEDIO_GAS_NATURAL");
+                break;
+            default:
+                paramNomes.push("PRECO_MEDIO_OUTRO_COMBUSTIVEL");
+        }
+    }
 
     for (let p of paramNomes) {
         params[p] = {
@@ -845,8 +869,30 @@ async function pegarParametrosGerais() {
                 }
             }
         }
+
+        if (veiculos?.tipo_combustivel && codigoTipoCombustivel) {
+            params["PRECO_MEDIO_COMBUSTIVEIS"] = {
+                "codigo_parametro": "PRECO_MEDIO_COMBUSTIVEIS",
+                "modulo": "Parâmetros",
+                "result": true,
+                "valor": params[codigoTipoCombustivel].valor
+            }
+        } else {
+            params["PRECO_MEDIO_COMBUSTIVEIS"] = {
+                "codigo_parametro": "PRECO_MEDIO_COMBUSTIVEIS",
+                "modulo": "Parâmetros",
+                "result": false,
+                "valor": 0
+            }
+        }
     } catch (err) {
         custoValido = false;
+        params["PRECO_MEDIO_COMBUSTIVEIS"] = {
+            "codigo_parametro": "PRECO_MEDIO_COMBUSTIVEIS",
+            "modulo": "Parâmetros",
+            "result": false,
+            "valor": 0
+        }
     }
 
     return [custoValido, params];
@@ -921,6 +967,9 @@ async function pegarParametrosVeiculos() {
         let veiculo = veiculos;
         try {
             let veiculoDetalhe = await restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${veiculo.id_veiculo}`);
+            
+            // atribui os detalhes ao veiculo retornado
+            veiculos = veiculoDetalhe;
 
             // TODO: Modularizar e colocar o código repetido em uma função só
             if (DEBUG) { console.debug("POTENCIA_DO_MOTOR", veiculoDetalhe?.placa, veiculoDetalhe?.potencia_do_motor) }
