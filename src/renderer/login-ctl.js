@@ -27,6 +27,7 @@ $(document).ready(function () {
     if (userconfig.get("LEMBRAR")) {
         $("#loginemail").val(userconfig.get("EMAIL"));
         $("#loginpassword").val(userconfig.get("PASSWORD"));
+        $("#recoveremail").val(userconfig.get("EMAIL"));
     }
 
     // Popula o campo de proxy se tiver
@@ -333,6 +334,18 @@ $(document).ready(function () {
 
         if ($("#recoveryform").valid()) {
             console.log("email valido")
+            if (userconfig.get("COD_CIDADE")) {
+                axios.post(BASE_URL, "/acesso/" + userconfig.get("COD_CIDADE"), {
+                    "email": email
+                })
+                .then((res) => {
+                    debugger
+                    console.log(res)
+                })
+            } else {
+                // lidar com o erro
+            }
+            
             firebase.auth().sendPasswordResetEmail(email)
                 .then(() => {
                     Swal2.fire({
@@ -352,6 +365,64 @@ $(document).ready(function () {
         } else {
             errorFn(`O e-mail ${email} não foi encontrado`)
         }
+    });
+
+    function abrePopupInsercaoRecuperacaoSenha(email = "") {
+        Swal2.fire({
+            width: '800px',
+            title: 'Recuperação da Senha',
+            html:
+                `<label class="form-check-label col-3 text-right" for="codigo" maxlength=255>E-mail</label>
+                <input type="text" id="recuperarEmail" class="swal2-input" placeholder="E-mail" value="${email}"></input>
+                <br />
+                <label class="form-check-label col-3 text-right" for="codigo" maxlength=255>Código de Recuperação</label>
+                <input type="text" id="recuperarCodigo" class="swal2-input" placeholder="Código"></input>
+                <br />
+                <label class="form-check-label col-3 text-right" for="recuperarSenha">Nova Senha</label>
+                <input type="password" id="recuperarSenha" class="swal2-input" placeholder="Senha"></input>
+                <br />
+                <label class="form-check-label col-3 text-right" for="recuperarSenha">Repetir Nova Senha</label>
+                <input type="password" id="recuperarSenhaRepeticao" class="swal2-input" placeholder="Digite a senha novamente"></input>`,
+            confirmButtonText: 'Recuperar a Senha',
+            focusConfirm: false,
+            preConfirm: () => {
+                const codigo = Swal2.getPopup().querySelector('#recuperarCodigo').value;
+                const recuperarSenha = Swal2.getPopup().querySelector('#recuperarSenha').value;
+                const recuperarSenhaRepetida = Swal2.getPopup().querySelector('#recuperarSenhaRepeticao').value;
+
+                if (codigo == null || codigo == "") {
+                    Swal2.showValidationMessage(`Código vazio`);
+                } else if (recuperarSenha == null || recuperarSenha == undefined && recuperarSenha == "" ||
+                    recuperarSenhaRepetida == null || recuperarSenhaRepetida == undefined || recuperarSenhaRepetida == "") {
+                    Swal2.showValidationMessage(`Pelo menos uma das senhas está vazia`);
+                } else if (recuperarSenha != recuperarSenhaRepetida) {
+                    Swal2.showValidationMessage(`As senhas digitadas são diferentes`);
+                } else if (recuperarSenha.length != 6 && recuperarSenhaRepetida.length != 6) {
+                    Swal2.showValidationMessage(`As senhas devem ter no mínimo seis dígitos`);
+                }
+                return { codigo, recuperarSenha, recuperarSenhaRepetida }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                debugger
+                let senhamd5 = md5(password);
+                axios.put(BASE_URL + "/authenticator/sete", {
+                    "email": "string",
+                    "key": "string",
+                    "senha": "string"                  
+                }).then((seteUser) => {
+
+                })
+                Swal2.fire(`
+                Login: ${result.value.login}
+                Password: ${result.value.password}
+              `.trim())
+            }
+        })
+    }
+
+    $("#inserirCodigoRecuperacaoSenha").on('click', () => {
+        abrePopupInsercaoRecuperacaoSenha($("#recoveremail").val());
     });
 
     // No caso de registro temos que fazer a validação do formulário
@@ -430,7 +501,7 @@ $(document).ready(function () {
 
                         $("#loginemail").val($("#regemail").val());
                         $("#loginpassword").val($("#regpassword").val());
-                        $("#login-tab").click();
+                        $("#login-tab").trigger('click');
                     });
                 })
                 .catch((err) => {
