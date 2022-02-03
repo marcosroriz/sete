@@ -70,7 +70,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="porAno col-11">
-                                                    dia
+                                                    dia de operação (20)
                                                 </div>
                                             </div>
                                         </div>
@@ -90,29 +90,14 @@
                                             </div>
                                             <div class="row">
                                                 <div class="porAno col-11">
-                                                    ano
+                                                    hora
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-6 cardCustoDesc">
                                             <div class="row">
-                                                <div id="custoPorHoraPorMes" class="col-11 cardCustoValor">
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="porAno col-11">
-                                                    mês
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-3">
-                                            <div class="row">
-                                                <div id="custoPorHoraPorDia" class="col-11 cardCustoValor">
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="porAno col-11">
-                                                    dia
+                                                <div class="col-12">
+                                                    O cálculo do custo por hora ponderou o custo variável por 12 meses.
                                                 </div>
                                             </div>
                                         </div>
@@ -155,7 +140,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="porAno col-11">
-                                                    dia
+                                                    dia de operação
                                                 </div>
                                             </div>
                                         </div>
@@ -310,16 +295,28 @@
                                                                     <br>
                                                                     <ul>
                                                                         <li class="mathEqn">
-                                                                            $CDE = CIE \times \frac{1 - K} {VUE \times 12}$
+                                                                            $
+                                                                            CDE = 
+                                                                            \begin{cases}
+                                                                                CIE \times \frac{1 - K} {VUE \times 12}, \quad \textrm{se } j < VUE \\
+                                                                                0, \quad \quad \quad \quad \quad  \quad \, \quad \quad \textrm{caso } j \geq VUE
+                                                                            \end{cases}
+                                                                            $
                                                                         </li>
-                                                                        <li class="mathEqn">
+                                                                        <li class="mathEq">
+                                                                            $j = <span class="IDADE_VEICULO"></span>$
+                                                                        </li>
+                                                                        <li class="mathEq">
+                                                                            $VUE = <span class="VIDA_UTIL_AQUA"></span>$
+                                                                        </li>
+                                                                        <!-- <li class="mathEqn">
                                                                             $
                                                                             CDE = <span class="PRECO_MEDIO_VEICULOS"></span> 
                                                                                   \times 
                                                                                   \frac{1 - <span class="VALOR_RESIDUAL"></span>}
                                                                                   {<span class="VIDA_UTIL_AQUA"></span> \times 12}
                                                                             $
-                                                                        </li>
+                                                                        </li> -->
                                                                         <li class="mathEqn">
                                                                             $
                                                                             CDE = <span class="PRECO_MEDIO_VEICULOS"></span> 
@@ -337,6 +334,7 @@
                                                                             <li class="mathEqn">$CDE$ = custo de depreciação da embarcação mensal (R$/embarcação x mês);</li>
                                                                             <li class="mathEqn">$CIE$ = custo do investimento da embarcação (R$/embarcação);</li>
                                                                             <li class="mathEqn">$K$ = valor residual da embarcação após sua vida útil (%);</li>
+                                                                            <li class="mathEqn">$j$ = Valor da idade do veículo arredondado para o primeiro valor inteiro inferior (anos);</li>
                                                                             <li class="mathEqn">$VUE$ = vida útil da embarcação (anos).</li>
                                                                         </ul>
                                                                     </div>
@@ -756,7 +754,7 @@
                                                             <div id="CustoCombustivel" class="collapse"
                                                                 data-parent="#CustoVariavel"
                                                                 aria-labelledby="heading-1">
-                                                                O custo com o combustível ($Cc) é baseado na seguinte equação:
+                                                                O custo com o combustível ($Cc$) é baseado na seguinte equação:
                                                                 <br>
                                                                 <ul>
                                                                     <li class="mathEqn">

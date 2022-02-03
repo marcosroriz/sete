@@ -159,22 +159,20 @@ function calcularCustoFinal(custoFinalValido) {
 
     if (custoFinalValido) {
         CUSTO_FINAL = (12 * det.CUSTO_FIXO.valor) + (10 * det.CUSTO_VARIAVEL.valor);
-        CUSTO_HORA = CUSTO_FINAL / (det.TEMPO_HORA_MENSAL_ROTA.valor);
 
         guardaParametroDetalhado("CUSTO_FINAL", CUSTO_FINAL);
         guardaParametroDetalhado("CUSTO_FINAL_POR_MES", CUSTO_FINAL / 12);
-        guardaParametroDetalhado("CUSTO_FINAL_POR_DIA", CUSTO_FINAL / 365);
+        guardaParametroDetalhado("CUSTO_FINAL_POR_DIA", (CUSTO_FINAL / 12) / 20);
 
+        CUSTO_HORA = (CUSTO_FINAL / 12) / det.TEMPO_HORA_MENSAL_ROTA.valor;
         guardaParametroDetalhado("CUSTO_HORA", CUSTO_HORA);
-        guardaParametroDetalhado("CUSTO_HORA_POR_MES", CUSTO_HORA / 12);
-        guardaParametroDetalhado("CUSTO_HORA_POR_DIA", CUSTO_HORA / 365);
 
         if (det.NUM_ALUNOS.valor > 0) {
             CUSTO_ALUNO = CUSTO_FINAL / (det.NUM_ALUNOS.valor);
 
             guardaParametroDetalhado("CUSTO_ALUNO", CUSTO_ALUNO);
             guardaParametroDetalhado("CUSTO_ALUNO_POR_MES", CUSTO_ALUNO / 12);
-            guardaParametroDetalhado("CUSTO_ALUNO_POR_DIA", CUSTO_ALUNO / 365);
+            guardaParametroDetalhado("CUSTO_ALUNO_POR_DIA", (CUSTO_ALUNO / 12) / 20);
         }
     }
 
@@ -229,6 +227,7 @@ function detalharCustoFixo(custoDepreciacaoValido, custoRemuneracaoValido,
     if (!custoManutencaoValido)  { $("#CustoManutencaoReparoCard").addClass("erroCusto"); }
 
     // Depreciação
+    $(".IDADE_VEICULO").replaceWith(formataOutputParametro("IDADE_VEICULO", 0));
     $(".VIDA_UTIL_AQUA").replaceWith(formataOutputParametro("VIDA_UTIL_AQUA", 0));
     $(".VALOR_RESIDUAL").replaceWith(formataOutputParametro("VALOR_RESIDUAL"));
     $(".PRECO_MEDIO_VEICULOS").replaceWith(formataOutputParametro("PRECO_MEDIO_VEICULOS"));
@@ -257,7 +256,7 @@ function detalharCustoFixo(custoDepreciacaoValido, custoRemuneracaoValido,
     $(".SALARIO_MEDIO_MONITORES").replaceWith(formataOutputParametro("SALARIO_MEDIO_MONITORES"));
     $(".CUSTO_COM_MONITOR").replaceWith(formataOutputParametro("CUSTO_COM_MONITOR"));
 
-    $(".CFT_CUSTO_MANUTENCAO_AQUA").replaceWith(formataOutputParametro("CFT_CUSTO_MANUTENCAO_AQUA"));
+    $(".CFT_CUSTO_MANUTENCAO_AQUA").replaceWith(formataOutputParametro("CFT_CUSTO_MANUTENCAO_AQUA", 6));
     $(".CUSTO_COM_MANUTENCAO").replaceWith(formataOutputParametro("CUSTO_COM_MANUTENCAO"));
 
     $(".CUSTO_COM_PESSOAL").replaceWith(formataOutputParametro("CUSTO_COM_PESSOAL"));
@@ -276,9 +275,9 @@ function detalharCustoVariavel(custoCombustivelValido, custoOleoLubrificanteVali
     
     // Custo com combustível
     $(".POTENCIA_DO_MOTOR").replaceWith(formataOutputParametro("POTENCIA_DO_MOTOR", 0));
-    $(".VALOR_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("VALOR_CONSUMO_COMBUSTIVEL", 4));
-    $(".CFT_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("CFT_CONSUMO_COMBUSTIVEL", 4));
-    $(".DENSIDADE_COMBUSTIVEL").replaceWith(formataOutputParametro("DENSIDADE_COMBUSTIVEL", 4));
+    $(".VALOR_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("VALOR_CONSUMO_COMBUSTIVEL", 8));
+    $(".CFT_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("CFT_CONSUMO_COMBUSTIVEL", 8));
+    $(".DENSIDADE_COMBUSTIVEL").replaceWith(formataOutputParametro("DENSIDADE_COMBUSTIVEL", 8));
     $(".PRECO_MEDIO_COMBUSTIVEIS").replaceWith(formataOutputParametro("PRECO_MEDIO_COMBUSTIVEIS"));
     $(".TEMPO_HORA_ROTA").replaceWith(formataOutputParametro("TEMPO_HORA_ROTA", 4));
     $(".CUSTO_COM_COMBUSTIVEL").replaceWith(formataOutputParametro("CUSTO_COM_COMBUSTIVEL", 2));
@@ -304,8 +303,6 @@ function mostraInformacoesCusto() {
         $("#precoCustoGrandePorDia").text(formataModelaComCifrao("CUSTO_FINAL_POR_DIA"));
 
         $("#custoPorHoraPorAno").text(formataModelaComCifrao("CUSTO_HORA"));
-        $("#custoPorHoraPorMes").text(formataModelaComCifrao("CUSTO_HORA_POR_MES"));
-        $("#custoPorHoraPorDia").text(formataModelaComCifrao("CUSTO_HORA_POR_DIA"));
 
         if (det["CUSTO_ALUNO"] && det["CUSTO_ALUNO"].result) {
             $("#custoPorAlunoPorAno").text(formataModelaComCifrao("CUSTO_ALUNO"));
@@ -522,8 +519,14 @@ function calcularCustoDepreciacao() {
         rotaParams.PERC_RESIDUAL_AQUA.result && 
         rotaParams.PRECO_MEDIO_VEICULOS.result) {
         
-        COEFICIENTE_DEPRECIACAO_VEICULO = ((1 - VALOR_RESIDUAL) / (rotaParams.VIDA_UTIL_AQUA.valor * 12));
-        CUSTO_DEPRECIACAO_FROTA = rotaParams.PRECO_MEDIO_VEICULOS.valor * COEFICIENTE_DEPRECIACAO_VEICULO;
+        if (rotaParams.IDADE_VEICULO.valor >= rotaParams.VIDA_UTIL_AQUA.valor) {
+            COEFICIENTE_DEPRECIACAO_VEICULO = 0;
+            CUSTO_DEPRECIACAO_FROTA = 0;
+        } else {
+            COEFICIENTE_DEPRECIACAO_VEICULO = ((1 - VALOR_RESIDUAL) / (rotaParams.VIDA_UTIL_AQUA.valor * 12));
+            CUSTO_DEPRECIACAO_FROTA = rotaParams.PRECO_MEDIO_VEICULOS.valor * COEFICIENTE_DEPRECIACAO_VEICULO;
+        }
+        
         
         guardaParametroDetalhado("COEFICIENTE_DEPRECIACAO_VEICULO", COEFICIENTE_DEPRECIACAO_VEICULO);
         guardaParametroDetalhado("CUSTO_DEPRECIACAO_FROTA", CUSTO_DEPRECIACAO_FROTA);

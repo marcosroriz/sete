@@ -157,11 +157,14 @@ function calcularCustoFinal(custoFinalValido) {
 
     if (custoFinalValido) {
         CUSTO_FINAL = (12 * det.CUSTO_FIXO.valor) + ((10 * det.CUSTO_VARIAVEL.valor) * (det.KM_MENSAL_ROTA.valor * 20));
-        CUSTO_KM = CUSTO_FINAL / (det.KM_MENSAL_ROTA.valor);
-
+        
         guardaParametroDetalhado("CUSTO_FINAL", CUSTO_FINAL);
         guardaParametroDetalhado("CUSTO_FINAL_POR_MES", CUSTO_FINAL / 12);
-        guardaParametroDetalhado("CUSTO_FINAL_POR_DIA", CUSTO_FINAL / 365);
+        guardaParametroDetalhado("CUSTO_FINAL_POR_DIA", (CUSTO_FINAL / 12) / 20);
+
+        let km_cf = (det.CUSTO_FIXO.valor / (det.KM_MENSAL_ROTA.valor * 20));
+        let km_cv = (10 * det.CUSTO_VARIAVEL.valor) / 12;
+        CUSTO_KM = km_cf + km_cv;
 
         guardaParametroDetalhado("CUSTO_KM", CUSTO_KM);
         guardaParametroDetalhado("CUSTO_KM_POR_MES", CUSTO_KM / 12);
@@ -172,7 +175,7 @@ function calcularCustoFinal(custoFinalValido) {
 
             guardaParametroDetalhado("CUSTO_ALUNO", CUSTO_ALUNO);
             guardaParametroDetalhado("CUSTO_ALUNO_POR_MES", CUSTO_ALUNO / 12);
-            guardaParametroDetalhado("CUSTO_ALUNO_POR_DIA", CUSTO_ALUNO / 365);
+            guardaParametroDetalhado("CUSTO_ALUNO_POR_DIA", (CUSTO_ALUNO / 12) / 20);
         }
     }
 
@@ -275,7 +278,7 @@ function detalharCustoVariavel(custoCombustivelValido, custoOleoLubrificanteVali
     if (!custoRodagemValido) { $("#CustoRodagemCard").addClass("erroCusto"); }
     if (!custoPecasValido) { $("#CustoPecaAcessoriosCard").addClass("erroCusto"); }
     
-    $(".CFT_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("CFT_CONSUMO_COMBUSTIVEL", 6));
+    $(".CFT_CONSUMO_COMBUSTIVEL").replaceWith(formataOutputParametro("CFT_CONSUMO_COMBUSTIVEL", 2));
     $(".PRECO_MEDIO_COMBUSTIVEIS").replaceWith(formataOutputParametro("PRECO_MEDIO_COMBUSTIVEIS"));
     $(".CUSTO_COM_COMBUSTIVEL").replaceWith(formataOutputParametro("CUSTO_COM_COMBUSTIVEL", 6));
 
@@ -309,9 +312,7 @@ function mostraInformacoesCusto() {
         $("#precoCustoGrandePorDia").text(formataModelaComCifrao("CUSTO_FINAL_POR_DIA"));
 
         $("#custoPorKMPorAno").text(formataModelaComCifrao("CUSTO_KM"));
-        $("#custoPorKMPorMes").text(formataModelaComCifrao("CUSTO_KM_POR_MES"));
-        $("#custoPorKMPorDia").text(formataModelaComCifrao("CUSTO_KM_POR_DIA"));
-
+        
         if (det["CUSTO_ALUNO"] && det["CUSTO_ALUNO"].result) {
             $("#custoPorAlunoPorAno").text(formataModelaComCifrao("CUSTO_ALUNO"));
             $("#custoPorAlunoPorMes").text(formataModelaComCifrao("CUSTO_ALUNO_POR_MES"));

@@ -104,12 +104,17 @@ mjx-line {
     border-bottom-style: solid;
 }
 
-.cardCustoTitulo {
+.cardCustoTitulo, .cardCustoDesc {
     display: flex;
     justify-content: center;
     align-content: center;
     flex-direction: column;
+}
 
+.cardCustoDesc {
+    font-size: 1em;
+    font-style: oblique;
+    font-variant: all-petite-caps;
 }
 
 .porAno {
