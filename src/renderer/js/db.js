@@ -9,16 +9,18 @@ var DB_TABLES = ["alunos", "escolas", "escolatemalunos", "fornecedores",
     "ordemdeservico", "rotas", "rotaatendealuno", "rotadirigidapormotorista",
     "rotapassaporescolas", "rotapossuiveiculo", "veiculos"]
 
-var DB_TABLE_CENSO = "censo";
-var DB_TABLE_ALUNO = "alunos";
-var DB_TABLE_ESCOLA = "escolas";
-var DB_TABLE_ROTA = "rotas";
-var DB_TABLE_MOTORISTA = "motoristas";
-var DB_TABLE_MONITOR = "monitores";
-var DB_TABLE_VEICULO = "veiculos";
-var DB_TABLE_GARAGEM = "garagens";
-var DB_TABLE_FORNECEDOR = "fornecedores";
-var DB_TABLE_ORDEM_DE_SERVICO = "ordemdeservico";
+const DB_TABLE_ALUNO = "alunos";
+const DB_TABLE_ESCOLA = "escolas";
+const DB_TABLE_CENSO = "censo";
+const DB_TABLE_CUSTO = "custo";
+const DB_TABLE_FORNECEDOR = "fornecedores";
+const DB_TABLE_GARAGEM = "garagens";
+const DB_TABLE_MONITOR = "monitores";
+const DB_TABLE_MOTORISTA = "motoristas";
+const DB_TABLE_ORDEM_DE_SERVICO = "ordemdeservico";
+const DB_TABLE_ROTA = "rotas";
+const DB_TABLE_VEICULO = "veiculos";
+const DB_TABLE_USUARIOS = "users/sete";
 
 var DB_TABLE_ESCOLA_TEM_ALUNOS = "escolatemalunos";
 var DB_TABLE_ROTA_ATENDE_ALUNO = "rotaatendealuno";

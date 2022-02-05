@@ -1,10 +1,10 @@
 // Popula usuario na tela de cadastro para alteração
 function popularCamposUsuario(estadoUsuario) {
-    $("#regnome").val(estadoUsuario["NOME"]);
-    $("#regcpf").val(estadoUsuario["CPF"]);
-    $("#regtel").val(estadoUsuario["TELEFONE"]);
-    $("#regemail").val(estadoUsuario["EMAIL"]);
-    $("#regpapel").val(estadoUsuario["PAPELNUM"]);
+    $("#regnome").val(estadoUsuario["nome"]);
+    $("#regcpf").val(estadoUsuario["cpf"]);
+    $("#regtel").val(estadoUsuario["telefone"]);
+    $("#regemail").val(estadoUsuario["email"]);
+    $("#regpapel").val(estadoUsuario["nivel_permissao"]);
 }
 
 // Transformar linha do DB para JSON
