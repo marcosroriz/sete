@@ -53,6 +53,17 @@ module.exports = {
             });
     },
 
+    dbGETColecaoRaiz: (nomeColecao, path = "") => {
+        let caminho = nomeColecao + path;
+        if (DEBUG) { console.debug("GET COLECAO REQUEST ", caminho) }
+
+        return restAPI.get(caminho)
+            .then((res) => {
+                if (DEBUG) { console.debug("GET COLECAO REPLY", caminho, res) }
+                return Promise.resolve(res)
+            });
+    },
+
     dbGETColecao: (nomeColecao, path = "") => {
         let caminho = nomeColecao + "/" + codCidade + path;
         if (DEBUG) { console.debug("GET COLECAO REQUEST ", caminho) }

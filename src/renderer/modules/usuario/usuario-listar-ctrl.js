@@ -46,7 +46,7 @@ dataTablesUsuario.on('click', '.usuarioRemove', function () {
     var $tr = getRowOnClick(this);
 
     estadoUsuario = dataTablesUsuario.row($tr).data();
-    if (estadoUsuario["ID"] == userconfig.get("ID")) {
+    if (String(estadoUsuario["ID"]) == String(userconfig.get("ID"))) {
         Swal2.fire({
             title: "Ops.. operação não suportada",
             text: "Não é possível remover o usuário que se encontra logado.",
@@ -64,12 +64,11 @@ dataTablesUsuario.on('click', '.usuarioRemove', function () {
     ).then((result) => {
         let listaPromisePraRemover = []
         if (result.value) {
-            listaPromisePraRemover.push(RemoverUsuarioLocalPromise(estadoUsuario["ID"]))
-            listaPromisePraRemover.push(dbRemoverUsuarioPromise(estadoUsuario["ID"]))
-            listaPromisePraRemover.push(dbDesabilitaUsuarioConfigPromise(estadoUsuario["ID"], estadoUsuario["PAPELNUM"]))
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_USUARIOS, "/" + estadoUsuario["ID"]))
         }
         return Promise.all(listaPromisePraRemover)
     }).then((res) => {
+        debugger
         if (res.length > 0) {
             dataTablesUsuario.row($tr).remove();
             dataTablesUsuario.draw();
@@ -123,6 +122,7 @@ function processaUsuarios(usuarios) {
             papelAdmin = true;
         }
 
+        usuario["ID"] = String(usuario["id_usuario"]);
         usuario["PAPEL"] = usuario["nivel_permissao"]?.toUpperCase();
 
         listaDeTodosOsUsuarios.set(String(usuario.id_usuario), usuario);

@@ -250,7 +250,7 @@ $(document).ready(function () {
     // No caso de login iremos fazer o login com o Firebase as preferências
     // do usuário no arquivo local (userconfig)
     $("#loginsubmit").click(() => {
-        var email = $("#loginemail").val();
+        var email = $("#loginemail").val().trim();
         var password = $("#loginpassword").val();
         var md5password = md5(password);
         var lembrarlogin = $("#loginlembrar").is(":checked");
@@ -329,42 +329,34 @@ $(document).ready(function () {
 
     // Recuperar senha
     $("#recoversubmit").on('click', () => {
-        var email = $("#recoveremail").val();
+        let email = $("#recoveremail").val().trim();
         $("#recoveryform").validate();
 
         if ($("#recoveryform").valid()) {
-            console.log("email valido")
-            if (userconfig.get("COD_CIDADE")) {
-                axios.post(BASE_URL, "/acesso/" + userconfig.get("COD_CIDADE"), {
-                    "email": email
+            let recoverURL = BASE_URL + "/acesso";
+            axios.post(recoverURL, {
+                "email": email
+            }).then(() => {
+                Swal2.fire({
+                    title: "E-mail enviado!",
+                    text: `Enviamos um e-mail para o endereço ${email} contendo um link para modificar sua senha`,
+                    type: "success",
+                    icon: "success",
+                    confirmButtonClass: "btn-success",
+                    confirmButtonText: "Retornar ao sistema",
                 })
-                .then((res) => {
-                    debugger
-                    console.log(res)
-                })
-            } else {
-                // lidar com o erro
-            }
-            
-            firebase.auth().sendPasswordResetEmail(email)
-                .then(() => {
-                    Swal2.fire({
-                        title: "E-mail enviado!",
-                        text: "Enviamos um e-mail para o endereço " + email + " contendo um link para modificar sua senha",
-                        type: "success",
-                        icon: "success",
-                        confirmButtonClass: "btn-success",
-                        confirmButtonText: "Retornar ao sistema",
-                    })
-                })
-                .catch((err) => {
-                    if (err != null) {
-                        errorFn(`Tivemos um problema ao tentar recupear o e-mail ${email}`)
-                    }
-                });
+            }).then(() => {
+               abrePopupInsercaoRecuperacaoSenha(email); 
+            }).catch((err) => {
+                if (err != null) {
+                    errorFn(`Tivemos um problema ao tentar recupear o e-mail ${email}`, err)
+                }
+            });
         } else {
             errorFn(`O e-mail ${email} não foi encontrado`)
         }
+
+        return false;
     });
 
     function abrePopupInsercaoRecuperacaoSenha(email = "") {
@@ -385,12 +377,19 @@ $(document).ready(function () {
                 <input type="password" id="recuperarSenhaRepeticao" class="swal2-input" placeholder="Digite a senha novamente"></input>`,
             confirmButtonText: 'Recuperar a Senha',
             focusConfirm: false,
+            confirmButtonColor: "#ff9510",
+            showCancelButton: true,
+            cancelButtonColor: "#797979",
+            cancelButtonText: "Cancelar",
             preConfirm: () => {
-                const codigo = Swal2.getPopup().querySelector('#recuperarCodigo').value;
+                const email = String(Swal2.getPopup().querySelector('#recuperarEmail').value).trim();
+                const codigo = String(Swal2.getPopup().querySelector('#recuperarCodigo').value).trim();
                 const recuperarSenha = Swal2.getPopup().querySelector('#recuperarSenha').value;
                 const recuperarSenhaRepetida = Swal2.getPopup().querySelector('#recuperarSenhaRepeticao').value;
 
-                if (codigo == null || codigo == "") {
+                if (email == null || email == "") {
+                    Swal2.showValidationMessage(`E-mail vazio`);
+                } else if (codigo == null || codigo == "") {
                     Swal2.showValidationMessage(`Código vazio`);
                 } else if (recuperarSenha == null || recuperarSenha == undefined && recuperarSenha == "" ||
                     recuperarSenhaRepetida == null || recuperarSenhaRepetida == undefined || recuperarSenhaRepetida == "") {
@@ -400,23 +399,30 @@ $(document).ready(function () {
                 } else if (recuperarSenha.length != 6 && recuperarSenhaRepetida.length != 6) {
                     Swal2.showValidationMessage(`As senhas devem ter no mínimo seis dígitos`);
                 }
-                return { codigo, recuperarSenha, recuperarSenhaRepetida }
+                return { email, codigo, recuperarSenha, recuperarSenhaRepetida }
             }
         }).then((result) => {
             if (result.isConfirmed) {
+                let { email, codigo, recuperarSenha } = result.value;
+                let senhamd5 = md5(recuperarSenha);
                 debugger
-                let senhamd5 = md5(password);
-                axios.put(BASE_URL + "/authenticator/sete", {
-                    "email": "string",
-                    "key": "string",
-                    "senha": "string"                  
-                }).then((seteUser) => {
-
+                console.log(JSON.stringify({
+                    "email": email,
+                    "key": codigo,
+                    "senha": senhamd5                  
+                }))
+                axios.put(BASE_URL + "/acesso", {
+                    "email": email,
+                    "key": codigo,
+                    "senha": senhamd5                  
+                }).then((res) => {
+                    debugger
+                    console.log(res)
+                    Swal2.fire(`
+                    Login: ${result.value.login}
+                    Password: ${result.value.password}
+                  `.trim())
                 })
-                Swal2.fire(`
-                Login: ${result.value.login}
-                Password: ${result.value.password}
-              `.trim())
             }
         })
     }
@@ -444,7 +450,7 @@ $(document).ready(function () {
                 showConfirmButton: false
             });
 
-            var email = $("#regemail").val();
+            var email = $("#regemail").val().trim();
             var password = $("#regpassword").val();
             var nome = $("#regnome").val();
             var cpf = $("#regcpf").val();
@@ -499,7 +505,7 @@ $(document).ready(function () {
                             button: "Fechar"
                         });
 
-                        $("#loginemail").val($("#regemail").val());
+                        $("#loginemail").val($("#regemail").val().trim());
                         $("#loginpassword").val($("#regpassword").val());
                         $("#login-tab").trigger('click');
                     });
