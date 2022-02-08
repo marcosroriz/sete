@@ -25,7 +25,7 @@ $(".placa").mask("ZZZ-ZZZZ", {
 
 $(".renavam").mask("0000000000-0");
 $(".kmmask").mask("#.##0,00", { reverse: true });
-$(".consumomask").mask("00,00", { reverse: true });
+$(".consumomask").mask("00,0", { reverse: true });
 
 // Esconde tipo de veículo
 $(".tipoRodo").hide();
