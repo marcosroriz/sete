@@ -250,7 +250,7 @@ $("#escolaViz").on('change', async (e) => {
 
             if (alunos.length == 0) {
                 listaDeAlunos.clear();
-                
+
                 let listaDeAlunosRaw = await restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${eID}/alunos`);
                 for (let alunoRaw of listaDeAlunosRaw.data) {
                     let alunoJSON = parseAlunoREST(alunoRaw);
@@ -463,50 +463,55 @@ $("#btnVoltar").on('click', () => {
 })
 
 $("#btnExpJPEG").on('click', () => {
-    htmlToImage.toPng(document.getElementById("mapaCanvas"))
-        .then(function (dataUrl) {
-            var link = document.createElement('a');
-            link.download = 'mapa-escola' + escolaVisualizada["NOME"] + ' .jpeg';
-            link.href = dataUrl;
-            link.click();
-        });
-
-    dialog.showSaveDialog(win, {
-        title: "Salvar Mapa",
-        defaultPath: "mapa-escola.png",
-        buttonLabel: "Salvar",
-        filters: [
-            { name: "PNG", extensions: ["png"] }
-        ]
-    }).then((acao) => {
-        if (!acao.canceled) {
-            Swal2.fire({
-                title: "Salvando o mapa",
-                imageUrl: "img/icones/processing.gif",
-                closeOnClickOutside: false,
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                html: `Aguarde um segundinho...
+    // Verifica se estamos ou não rodando no Electron
+    if (window.process) {
+        // Estamos no electron
+        dialog.showSaveDialog(win, {
+            title: "Salvar Mapa",
+            defaultPath: "mapa-escola.png",
+            buttonLabel: "Salvar",
+            filters: [
+                { name: "PNG", extensions: ["png"] }
+            ]
+        }).then((acao) => {
+            if (!acao.canceled) {
+                Swal2.fire({
+                    title: "Salvando o mapa",
+                    imageUrl: "img/icones/processing.gif",
+                    closeOnClickOutside: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    html: `Aguarde um segundinho...
                     `
-            })
-            htmlToImage.toPng(document.getElementById("mapaCanvas"))
-                .then(function (dataUrl) {
-                    var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
-                    fs.writeFile(acao.filePath, base64Data, 'base64', (err) => {
-                        if (err) {
-                            errorFn("Erro ao salvar a imagem")
-                        } else {
-                            Swal2.fire({
-                                title: "Sucesso!",
-                                text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + acao.filePath,
-                                icon: "success",
-                                type: "success",
-                                button: "Fechar"
-                            });
-                        }
+                })
+                htmlToImage.toPng(document.getElementById("mapaCanvas"))
+                    .then(function (dataUrl) {
+                        var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+                        fs.writeFile(acao.filePath, base64Data, 'base64', (err) => {
+                            if (err) {
+                                errorFn("Erro ao salvar a imagem")
+                            } else {
+                                Swal2.fire({
+                                    title: "Sucesso!",
+                                    text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + acao.filePath,
+                                    icon: "success",
+                                    type: "success",
+                                    button: "Fechar"
+                                });
+                            }
+                        });
                     });
-                });
-        }
+            }
 
-    });
+        });
+    } else {
+        // Estamos no browser
+        domtoimage.toBlob(document.getElementById("mapaCanvas"))
+            .then(function (blob) {
+                window.saveAs(blob, 'mapa-escola.png');
+                successDialog();
+            });
+    }
+
+
 })

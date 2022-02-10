@@ -2,9 +2,6 @@
 // Este arquivo contém o script de controle da tela aluno-importar-view. O memso
 // permite importar os dados de alunos a partir de uma planilha.
 
-// Lista de Imports
-var readXlsxFile = require('read-excel-file/node');
-
 // Base de dados
 var alunos = [];
 var ultArquivoAnalisado = "";
@@ -337,9 +334,6 @@ $('#importarAlunos').on('click', () => {
             }
         });
     }
-
-
-
 });
 
 

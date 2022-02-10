@@ -1,4 +1,3 @@
-var Papa = require("papaparse")
 var baseDados = {};
 
 // Dados de Cadastro da Escola

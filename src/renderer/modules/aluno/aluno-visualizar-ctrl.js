@@ -290,46 +290,58 @@ $("#btnVoltar").on('click', () => {
 })
 
 $("#btnExpJPEG").on('click', () => {
-    dialog.showSaveDialog(win, {
-        title: "Salvar Mapa",
-        defaultPath: "mapa-aluno.png",
-        buttonLabel: "Salvar",
-        filters: [
-            { name: "PNG", extensions: ["png"] }
-        ]
-    }).then((acao) => {
-        if (!acao.canceled) {
-            Swal2.fire({
-                title: "Salvando o mapa",
-                imageUrl: "img/icones/processing.gif",
-                closeOnClickOutside: false,
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                html: `Aguarde um segundinho...`
-            })
-            return Promise.all([Promise.resolve(acao.filePath),
-            htmlToImage.toPng(document.getElementById("mapaCanvas"))])
-        }
-    }).then((data) => {
-        var caminhoSalvar = data[0];
-        var dataUrl = data[1];
-        var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
-        fs.writeFile(caminhoSalvar, base64Data, 'base64', (err) => {
-            if (err) {
-                errorFn("Erro ao salvar a imagem")
-            } else {
+    // Verifica se estamos ou não rodando no Electron
+    if (window.process) {
+        // Estamos no electron
+        dialog.showSaveDialog(win, {
+            title: "Salvar Mapa",
+            defaultPath: "mapa-aluno.png",
+            buttonLabel: "Salvar",
+            filters: [
+                { name: "PNG", extensions: ["png"] }
+            ]
+        }).then((acao) => {
+            if (!acao.canceled) {
                 Swal2.fire({
-                    title: "Sucesso!",
-                    text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + caminhoSalvar,
-                    icon: "success",
-                    button: "Fechar"
-                });
+                    title: "Salvando o mapa",
+                    imageUrl: "img/icones/processing.gif",
+                    closeOnClickOutside: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    html: `Aguarde um segundinho...`
+                })
+                return Promise.all([Promise.resolve(acao.filePath),
+                htmlToImage.toPng(document.getElementById("mapaCanvas"))])
             }
+        }).then((data) => {
+            var caminhoSalvar = data[0];
+            var dataUrl = data[1];
+            var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+            fs.writeFile(caminhoSalvar, base64Data, 'base64', (err) => {
+                if (err) {
+                    errorFn("Erro ao salvar a imagem")
+                } else {
+                    Swal2.fire({
+                        title: "Sucesso!",
+                        text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + caminhoSalvar,
+                        icon: "success",
+                        button: "Fechar"
+                    });
+                }
+            });
+        }).catch((err) => {
+            Swal2.close()
+            errorFn("Erro ao salvar a imagem")
         });
-    }).catch((err) => {
-        Swal2.close()
-        errorFn("Erro ao salvar a imagem")
-    });
+    } else {
+        // Estamos no browser
+        domtoimage.toBlob(document.getElementById("mapaCanvas"))
+            .then(function (blob) {
+                window.saveAs(blob, 'mapa-aluno.png');
+                successDialog();
+            });
+    }
+
 })
 
 action = "visualizarAluno";
