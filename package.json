@@ -75,6 +75,7 @@
     "@mapbox/togeojson": "^0.16.0",
     "axios": "^0.21.4",
     "bootstrap": "^4.5.2",
+    "brfs": "^2.0.2",
     "browserify": "^17.0.0",
     "dom-to-image": "^2.6.0",
     "electron-compile": "^6.4.4",
