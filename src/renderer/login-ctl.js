@@ -252,7 +252,7 @@ $(document).ready(function () {
     $("#loginsubmit").click(() => {
         var email = $("#loginemail").val().trim();
         var password = $("#loginpassword").val();
-        var md5password = md5(password);
+        var md5password = MD5(password);
         var lembrarlogin = $("#loginlembrar").is(":checked");
 
         $("#loginform").validate();
@@ -288,6 +288,8 @@ $(document).ready(function () {
                 userconfig.set("ESTADO", seteUser.data.data.estado)
                 userconfig.set("COD_CIDADE", String(seteUser.data.data.codigo_cidade))
                 userconfig.set("COD_ESTADO", (seteUser.data.data.codigo_cidade + "").slice(0, 2))
+                userconfig.set("LATITUDE", Number(seteUser.data.data.latitude))
+                userconfig.set("LONGITUDE", Number(seteUser.data.data.longitude))
                 userconfig.set("ID", String(seteUser.data.data.id_usuario))
                 userconfig.set("TIPO_PERMISSAO", String(seteUser.data.data.tipo_permissao))
                 userconfig.set("NOME", seteUser.data.data.nome)
@@ -305,16 +307,23 @@ $(document).ready(function () {
                     "COD_ESTADO": Number((seteUser.data.data.codigo_cidade + "").slice(0, 2)),
                     "TOKEN": seteUser.data.access_token.access_token
                 }
-                userconfig.set("DADO_USUARIO", dadoUsuario)
+                userconfig.set("DADO_USUARIO", JSON.stringify(dadoUsuario))
 
                 return dadoUsuario;
             }).then(() => {
-                return knex("IBGE_Municipios")
-                    .select()
-                    .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+                if (window.process) { // Electron
+                    return knex("IBGE_Municipios")
+                           .select()
+                           .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+                } else { // Browser
+                    return []
+                }                
             }).then((res) => {
-                userconfig.set("LATITUDE", res[0]["latitude"])
-                userconfig.set("LONGITUDE", res[0]["longitude"])
+                if (res.length > 0) {
+                    userconfig.set("LATITUDE", res[0]["latitude"])
+                    userconfig.set("LONGITUDE", res[0]["longitude"])
+                }
+                
                 document.location.href = "./dashboard.html"
             }).catch((err) => {
                 if (err?.response?.data?.messages) {
@@ -331,13 +340,14 @@ $(document).ready(function () {
     $("#recoversubmit").on('click', () => {
         let email = $("#recoveremail").val().trim();
         $("#recoveryform").validate();
-
+        
         if ($("#recoveryform").valid()) {
-            let recoverURL = BASE_URL + "/acesso";
+            loadingFn("Enviando o e-mail...");
+
+            let recoverURL = BASE_URL + "/acesso/recovery";
             axios.post(recoverURL, {
                 "email": email
-            }).then(() => {
-                Swal2.fire({
+            }).then(() => Swal2.fire({
                     title: "E-mail enviado!",
                     text: `Enviamos um e-mail para o endereço ${email} contendo um link para modificar sua senha`,
                     type: "success",
@@ -345,7 +355,7 @@ $(document).ready(function () {
                     confirmButtonClass: "btn-success",
                     confirmButtonText: "Retornar ao sistema",
                 })
-            }).then(() => {
+            ).then(() => {
                abrePopupInsercaoRecuperacaoSenha(email); 
             }).catch((err) => {
                 if (err != null) {
@@ -396,7 +406,7 @@ $(document).ready(function () {
                     Swal2.showValidationMessage(`Pelo menos uma das senhas está vazia`);
                 } else if (recuperarSenha != recuperarSenhaRepetida) {
                     Swal2.showValidationMessage(`As senhas digitadas são diferentes`);
-                } else if (recuperarSenha.length != 6 && recuperarSenhaRepetida.length != 6) {
+                } else if (recuperarSenha.length <= 6 && recuperarSenhaRepetida.length <= 6) {
                     Swal2.showValidationMessage(`As senhas devem ter no mínimo seis dígitos`);
                 }
                 return { email, codigo, recuperarSenha, recuperarSenhaRepetida }
@@ -404,27 +414,18 @@ $(document).ready(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 let { email, codigo, recuperarSenha } = result.value;
-                let senhamd5 = md5(recuperarSenha);
-                debugger
-                console.log(JSON.stringify({
+                let senhamd5 = MD5(recuperarSenha);
+                
+                return axios.put(BASE_URL + "/acesso/recovery", {
                     "email": email,
                     "key": codigo,
                     "senha": senhamd5                  
-                }))
-                axios.put(BASE_URL + "/acesso", {
-                    "email": email,
-                    "key": codigo,
-                    "senha": senhamd5                  
-                }).then((res) => {
-                    debugger
-                    console.log(res)
-                    Swal2.fire(`
-                    Login: ${result.value.login}
-                    Password: ${result.value.password}
-                  `.trim())
-                })
+                }).then(() => successDialog())
             }
+        }).catch((err) => {
+            errorFn("Erro", err)
         })
+
     }
 
     $("#inserirCodigoRecuperacaoSenha").on('click', () => {
