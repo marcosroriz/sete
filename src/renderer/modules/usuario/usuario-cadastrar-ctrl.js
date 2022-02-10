@@ -105,27 +105,26 @@ $("#regsubmit").on('click', () => {
     if ($("#registerform").valid()) {
         loadingFn("Processando...", "Espere um minutinho...")
 
+        // Dados do usuario
+        let dadosUsuario = {
+            "nome": $("#regnome").val(),
+            "email": $("#regemail").val().trim(),
+            "password": MD5($("#regpassword").val()),
+            "cpf": String($("#regcpf").val()).replace(/\D/g, ''),
+            "telefone": $("#regtel").val(),
+            "tipo_permissao": $("#regpapel").val()
+        };
+
         if (!estaEditando) {
-            cadastraNovoUsuario()
+            cadastraNovoUsuario(dadosUsuario)
         } else {
-            atualizaUsuario()
+            atualizaUsuario(dadosUsuario)
         }
     }
 });
 
-function cadastraNovoUsuario() {
-    // Dados do usuario
-    let dadosUsuario = {
-        "nome": $("#regnome").val(),
-        "email": $("#regemail").val().trim(),
-        "password": md5($("#regpassword").val()),
-        "cpf": String($("#regcpf").val()).replace(/\D/g, ''),
-        "telefone": $("#regtel").val(),
-        "tipo_permissao": $("#regpapel").val()
-    };
-    
+function cadastraNovoUsuario(dadosUsuario) {
     console.log(JSON.stringify(dadosUsuario));
-
     restImpl.dbPOST(DB_TABLE_USUARIOS, "", dadosUsuario)
     .then(() => Swal2.fire({
             title: "Sucesso!",
@@ -151,25 +150,15 @@ function cadastraNovoUsuario() {
     })
 }
 
-function atualizaUsuario() {
-    // Dados do usuario
-    let dadosUsuario = {
-        "nome": $("#regnome").val(),
-        "email": $("#regemail").val(),
-        "password": md5($("#regpassword").val()),
-        "cpf": String($("#regcpf").val()).replace(/\D/g, ''),
-        "telefone": $("#regtel").val(),
-        "tipo_permissao": $("#regpapel").val()
-    };
+function atualizaUsuario(dadosUsuario) {
     console.log(JSON.stringify(dadosUsuario))
     restImpl.dbPUT(DB_TABLE_USUARIOS, "/" + estadoUsuario["ID"], dadosUsuario)
     .then(() => {
-        debugger
-        Swal2.fire({
-        title: "Sucesso!",
-        text: "Usuário alterado com sucesso.",
-        icon: "success",
-        button: "Fechar"
+        return Swal2.fire({
+            title: "Sucesso!",
+            text: "Usuário alterado com sucesso.",
+            icon: "success",
+            button: "Fechar"
         })
     })
     .then(() => navigateDashboard(lastPage))

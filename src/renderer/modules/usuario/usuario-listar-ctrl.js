@@ -35,7 +35,7 @@ var dataTablesUsuario = $("#datatables").DataTable({
 });
 
 dataTablesUsuario.on('click', '.usuarioEdit', function () {
-    var $tr = getRowOnClick(this);
+    const $tr = getRowOnClick(this);
 
     estadoUsuario = dataTablesUsuario.row($tr).data();
     action = "editarUsuario";
@@ -43,7 +43,7 @@ dataTablesUsuario.on('click', '.usuarioEdit', function () {
 });
 
 dataTablesUsuario.on('click', '.usuarioRemove', function () {
-    var $tr = getRowOnClick(this);
+    const $tr = getRowOnClick(this);
 
     estadoUsuario = dataTablesUsuario.row($tr).data();
     if (String(estadoUsuario["ID"]) == String(userconfig.get("ID"))) {
@@ -68,7 +68,6 @@ dataTablesUsuario.on('click', '.usuarioRemove', function () {
         }
         return Promise.all(listaPromisePraRemover)
     }).then((res) => {
-        debugger
         if (res.length > 0) {
             dataTablesUsuario.row($tr).remove();
             dataTablesUsuario.draw();

@@ -3,14 +3,13 @@ $('.cep').mask('00000-000');
 $(".cpfmask").mask('000.000.000-00', { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 
-
 $("#uid").val(estadoUsuario.ID);
 $("#regnome").val(estadoUsuario.NOME);
 $("#regcpf").val(estadoUsuario.CPF);
 $("#regtel").val(estadoUsuario.TELEFONE);
 $("#regemail").val(estadoUsuario.EMAIL);
 
-var completeForm = () => {
+let completeForm = () => {
     Swal2.fire({
         title: "Usuário salvo com sucesso",
         text: "O usuário " + $("#regnome").val() + " foi salvo com sucesso. " +
@@ -21,9 +20,9 @@ var completeForm = () => {
         closeOnConfirm: false,
         allowOutsideClick: false,
     })
-        .then(() => {
-            navigateDashboard("./modules/usuario/usuario-listar-view.html");
-        });
+    .then(() => {
+        navigateDashboard("./modules/usuario/usuario-listar-view.html");
+    });
 }
 
 $("#btCancelarCadastroUsuario").click(() => {
@@ -91,11 +90,10 @@ function SuccessUsuario() {
 }
 
 
-$("#regsubmit").click(() => {
+$("#regsubmit").on('click', () => {
     $("#registerform").validate();
 
     if ($("#registerform").valid()) {
-
         Swal2.fire({
             title: "Cadastrando...",
             text: "Espere um minutinho...",
@@ -108,29 +106,24 @@ $("#regsubmit").click(() => {
             showConfirmButton: false
         });
 
-        var uid = $("#uid").val();
-        var email = $("#regemail").val();
-        var nome = $("#regnome").val();
-        var cpf = $("#regcpf").val();
-        var telefone = $("#regtel").val();
-
-        var arDataUpdate = {
+        let uid = $("#uid").val();
+        let email = $("#regemail").val();
+        let nome = $("#regnome").val();
+        let cpf = $("#regcpf").val();
+        let telefone = $("#regtel").val();
+        l
+        let arDataUpdate = {
             "ID": uid,
             "EMAIL": email,
             "NOME": nome,
             "CPF": cpf,
             "TELEFONE": telefone
         }
-
         AtualizarUsuario(arDataUpdate);
-
-
     }
 });
 
-
-
-$("#cancelarAcao").click(() => {
+$("#cancelarAcao").on('click', () => {
     Swal2.fire({
         title: 'Cancelar Edição?',
         text: "Se você cancelar nenhuma alteração será feita nos dados do usuário.",
