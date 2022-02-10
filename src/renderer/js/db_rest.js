@@ -2,10 +2,9 @@
 // Este arquivo implementa as funções do banco de dados utilizando a API rest
 
 // Inicializa a API
-var BASE_URL = "https://sete.transportesufg.eng.br";
-
+var REST_BASE_URL = "https://sete.transportesufg.eng.br";
 var restAPI = axios.create({
-    baseURL: BASE_URL,
+    baseURL: REST_BASE_URL,
     headers: { 'Authorization': userconfig.get("TOKEN") }
 });
 
@@ -15,10 +14,11 @@ restAPI.interceptors.response.use((response) => {
 }, async function (error) {
     const originalRequest = error.config;
 
-    if (error.response.status === 403 && !originalRequest._retry) {
+    if (error.response.status === 403 && !originalRequest._retry &&
+        userconfig.get("EMAIL") && userconfig.get("PASSWORD")) {
         originalRequest._retry = true;
         const username = userconfig.get("EMAIL");
-        const userpass = md5(userconfig.get("PASSWORD"));
+        const userpass = MD5(userconfig.get("PASSWORD"));
         const resp = await axios.post(BASE_URL + "/authenticator/sete", {
             usuario: username,
             senha: userpass
@@ -30,17 +30,8 @@ restAPI.interceptors.response.use((response) => {
     return Promise.reject(error);
 });
 
-// Função que desempacota os documentos da API em um vetor de dados
-function DesempacotaPromise(snapshotDocumentos) {
-    dados = snapshotDocumentos.data.data;
-    return Promise.resolve(dados);
-}
-
-// Função que desempacota os documentos do firebase em um vetor de dados
-
-module.exports = {
+var restModule = {
     restAPI,
-    dbFonteDoDado: "cache",
 
     dbGETRaiz: (nomeColecao, path = "") => {
         let caminho = nomeColecao + path;
@@ -147,6 +138,8 @@ module.exports = {
                 console.log(err);
             });
     },
-
-
 }
+
+// if (module) {
+//     module.exports = restModule;
+// }

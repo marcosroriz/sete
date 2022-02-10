@@ -4,11 +4,6 @@
 // base de dados: ElectronStore (cache), Firebase (remota) e SQLite (local)
 
 // Tabelas (coleções) do banco de dados
-var DB_TABLES = ["alunos", "escolas", "escolatemalunos", "fornecedores",
-    "faztransporte", "garagem", "garagemtemveiculo", "motoristas", "municipios",
-    "ordemdeservico", "rotas", "rotaatendealuno", "rotadirigidapormotorista",
-    "rotapassaporescolas", "rotapossuiveiculo", "veiculos"]
-
 const DB_TABLE_ALUNO = "alunos";
 const DB_TABLE_ESCOLA = "escolas";
 const DB_TABLE_CENSO = "censo";
@@ -21,56 +16,37 @@ const DB_TABLE_ORDEM_DE_SERVICO = "ordemdeservico";
 const DB_TABLE_ROTA = "rotas";
 const DB_TABLE_VEICULO = "veiculos";
 const DB_TABLE_USUARIOS = "users/sete";
+const DB_TABLE_PARAMETROS = "parametros";
+const DB_TABLE_REALTIME_VIAGENSPERCURSO = "viagenspercurso";
+const DB_TABLE_REALTIME_VIAGENSALERTA = "viagensalertas";
 
-var DB_TABLE_ESCOLA_TEM_ALUNOS = "escolatemalunos";
-var DB_TABLE_ROTA_ATENDE_ALUNO = "rotaatendealuno";
-var DB_TABLE_ROTA_PASSA_POR_ESCOLA = "rotapassaporescolas";
-var DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA = "rotadirigidapormotorista";
-var DB_TABLE_ROTA_POSSUI_VEICULO = "rotapossuiveiculo";
-
-var DB_TABLE_PARAMETROS = "parametros";
-
-var DB_TABLE_REALTIME_VIAGENSPERCURSO = "viagenspercurso";
-var DB_TABLE_REALTIME_VIAGENSALERTA = "viagensalertas";
-
-////////////////////////////////////////////////////////////////////////////////
-// Local Database (cache)
-////////////////////////////////////////////////////////////////////////////////
-var Store = require("electron-store");
-var userconfig = new Store();
+const DB_TABLES = [
+    DB_TABLE_ALUNO, DB_TABLE_ESCOLA, DB_TABLE_CENSO, DB_TABLE_CUSTO,
+    DB_TABLE_FORNECEDOR, DB_TABLE_GARAGEM, DB_TABLE_MONITOR, DB_TABLE_MOTORISTA,
+    DB_TABLE_ORDEM_DE_SERVICO, DB_TABLE_ROTA, DB_TABLE_VEICULO, DB_TABLE_USUARIOS, 
+    DB_TABLE_PARAMETROS, DB_TABLE_REALTIME_VIAGENSPERCURSO, DB_TABLE_REALTIME_VIAGENSALERTA
+]
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// INIT REST 
+// INICIA DB COM BASE NO AMBIENTE DE EXECUÇÃO
 ////////////////////////////////////////////////////////////////////////////////
-// Carrega a implementação do banco no Firebase
-var restImpl = require("./js/db_rest.js");
+var restImpl, sqliteImpl, dbImpl, knex;
 
+// Biblioteca rest é a mesma
+restImpl = restModule;
 
-////////////////////////////////////////////////////////////////////////////////
-// INIT FIREBASE 
-////////////////////////////////////////////////////////////////////////////////
-// Carrega a implementação do banco no Firebase
-var firebaseImpl = require("./js/db_firebase.js");
+// Verifica se estamos ou não rodando no Electron
+if (window.process) {
+    // Estamos no Electron
 
-// Usuário do Firebase (começa como vazio)
-var firebaseUser = null;
+    // Carrega a implementação do banco no SQLite
+    sqliteImpl = require("./js/db_sqlite.js");
+    knex = sqliteImpl.knex;
+}
 
-// Instancia o banco Firebase
-var remotedb = firebase.firestore();
-
-
-////////////////////////////////////////////////////////////////////////////////
-// INIT SQLITE /////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-// Carrega a implementação do banco no SQLite
-var sqliteImpl = require("./js/db_sqlite.js");
-var knex = sqliteImpl.knex;
-
-
-// Variável que controla a implementação a ser utilizada, por padrão é o Firebase
-var dbImpl = firebaseImpl;
-
+// Implementação padrão (REST)
+dbImpl = restImpl;
 
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÕES DE CONSULTA
@@ -211,41 +187,6 @@ function fbSync() {
 // DADOS LOCAIS
 ////////////////////////////////////////////////////////////////////////////////
 
-// Esta função pega o codigo da cidade na base de dado remota
-function getCodigoCidadeUsuario() {
-    let uidFirebase = userconfig.get("ID");
-    console.log(uidFirebase);
-    var data = remotedb.collection("users").doc(uidFirebase);
-    data.get().then(function (doc) {
-        if (doc.exists) {
-            let arData = doc.data();
-            return arData.COD_CIDADE;
-        } else {
-            // doc.data() will be undefined in this case
-            console.log("No such document!");
-        }
-    }).catch(function (error) {
-        console.log("Error getting document:", error);
-    });
-}
-
-var cidadeLatitude = userconfig.get("LATITUDE");
-var cidadeLongitude = userconfig.get("LONGITUDE");
-var codCidade = userconfig.get("COD_CIDADE");
-var codEstado = userconfig.get("COD_ESTADO");
-var minZoom = 15;
-
-if (codCidade != null) {
-    knex("IBGE_Municipios")
-        .select()
-        .where("codigo_ibge", userconfig.get("COD_CIDADE"))
-        .then(res => {
-            cidadeLatitude = res[0]["latitude"];
-            cidadeLongitude = res[0]["longitude"];
-        });
-}
-
-
 function Inserir(table, data, cb) {
     InserirPromise(table, data)
         .then(res => cb(false, res))
@@ -318,41 +259,41 @@ function BuscarDadoEspecifico(table, column, id, cb) {
 ////////////////////////////////////////////////////////////////////////////////
 // Realtime
 ////////////////////////////////////////////////////////////////////////////////
-class SeteRealTime {
-    constructor(colecaoInteressada) {
-        this.colecao = colecaoInteressada;
-        this.dataFiltrar = new Date().toISOString().split("T")[0];
-        this.observer = null;
-    }
+// class SeteRealTime {
+//     constructor(colecaoInteressada) {
+//         this.colecao = colecaoInteressada;
+//         this.dataFiltrar = new Date().toISOString().split("T")[0];
+//         this.observer = null;
+//     }
 
-    subscribe(obs) {
-        this.observer = obs;
-    }
+//     subscribe(obs) {
+//         this.observer = obs;
+//     }
 
-    unsubscribe() {
-        this.observer = null;
-    }
+//     unsubscribe() {
+//         this.observer = null;
+//     }
 
-    notify(dado) {
-        if (this.observer) {
-            this.observer.handle(dado);
-        }
-    }
-}
+//     notify(dado) {
+//         if (this.observer) {
+//             this.observer.handle(dado);
+//         }
+//     }
+// }
 
-var realtimePercurso = new SeteRealTime(DB_TABLE_REALTIME_VIAGENSPERCURSO);
-var realtimeAlerta = new SeteRealTime(DB_TABLE_REALTIME_VIAGENSALERTA);
-var dataDeHoje = new Date().toISOString().split("T")[0];
+// var realtimePercurso = new SeteRealTime(DB_TABLE_REALTIME_VIAGENSPERCURSO);
+// var realtimeAlerta = new SeteRealTime(DB_TABLE_REALTIME_VIAGENSALERTA);
+// var dataDeHoje = new Date().toISOString().split("T")[0];
 
-if (firebaseImpl) {
-    firebaseImpl.dbAcessarDados(DB_TABLE_REALTIME_VIAGENSPERCURSO).where("DATA", "==", dataDeHoje)
-        .onSnapshot((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                console.log("Aqui")
-                console.log(doc.data())
-            });
-        });
-}
+// if (firebaseImpl) {
+//     firebaseImpl.dbAcessarDados(DB_TABLE_REALTIME_VIAGENSPERCURSO).where("DATA", "==", dataDeHoje)
+//         .onSnapshot((querySnapshot) => {
+//             querySnapshot.forEach((doc) => {
+//                 console.log("Aqui")
+//                 console.log(doc.data())
+//             });
+//         });
+// }
 
-// Indica que o script terminou seu carregamento
-window.loadedDBJS = true;
+// // Indica que o script terminou seu carregamento
+// window.loadedDBJS = true;
