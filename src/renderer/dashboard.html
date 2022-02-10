@@ -128,7 +128,17 @@
 <script src="../../node_modules/geojson-vt/geojson-vt.js"></script>
 <script src="../../node_modules/osmtogeojson/osmtogeojson.js"></script>
 <script src="../../node_modules/jsts/dist/jsts.js"></script>
-<script src='../../node_modules/turf/turf.min.js'></script>
+<script src="../../node_modules/turf/turf.min.js"></script>
+<script src="../../node_modules/@mapbox/togeojson/togeojson.js"></script>
+
+<script>
+    // Verifica se estamos ou não no Electron
+    if (isElectron) {
+        require("js/geo_libs.js");
+    } else {
+        document.write('<script src="js/geo_browser.js"><\/script>');
+    }
+</script>
 
 <!-- Plugins -->
 <script src="js/plugins/js-brasil.js"></script>
