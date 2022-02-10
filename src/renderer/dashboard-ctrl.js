@@ -34,12 +34,6 @@ mapa["activateGeocoder"]();
 // Ativa impressão
 // mapa["activatePrinting"]();
 
-// Mapa do dashboard
-$("[name='mostrarAlunos']").bootstrapSwitch();
-$("[name='mostrarEscolas']").bootstrapSwitch();
-$("[name='mostrarRotas']").bootstrapSwitch();
-$("[name='mostrarVeiculos']").bootstrapSwitch();
-
 // Mostra âncora de loading
 $(".content").hide();
 
@@ -55,61 +49,39 @@ $(".link-dash").on('click', function () {
     navigateDashboard("./modules/" + $(this).attr("name") + ".html");
 });
 
-// Seta o usuário do firebase
-firebase.auth().onAuthStateChanged((user) => {
-    if (user && user.uid == userconfig.get("ID")) {
-        firebaseUser = user;
-        var userDocPromise = remotedb.collection("users").doc(firebaseUser.uid).get();
-        userDocPromise.then((queryResult) => {
-            userData = queryResult.data();
-            $("#userName").html(userData["NOME"].split(" ")[0]);
-        })
-    }
-});
-
 if (userconfig.get("NOME")) {
     $("#userName").html(userconfig.get("NOME").split(" ")[0]);
 }
 
-// Verifica se DB está sincronizado antes de colocar dados na tela do dashboard
-dbEstaSincronizado()
-    .then((estaSincronizado) => {
-        if (!estaSincronizado) {
-            console.log("PRECISAMOS SINCRONIZAR")
-            return dbSincronizar();
-        } else {
-            // Está sincronizado
-            console.log("ESTÁ SINCRONIZADO")
-            return true;
-        }
-    })
-    .then(() => preencheDashboardAlunosEscolas())
-    .then(() => preencheDashboardVeiculos())
-    .then(() => preencheDashboardRotas())
-    // .then(() => preencheRelacoes())
-    .then(() => preencheMapa())
-    .then(() => ouveUpdates())
+// Verifica se usuário está logado
+restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
+.then(() => preencheDashboardAlunosEscolas())
+.then(() => preencheDashboardVeiculos())
+.then(() => preencheDashboardRotas())
+// .then(() => preencheRelacoes())
+.then(() => preencheMapa())
+// .then(() => ouveUpdates())
+.then(() => {
+    $(".preload").fadeOut(200, function () {
+        $(".content").fadeIn(200);
+    });
+    Swal2.close()
+
+    setTimeout(function () {
+        if (mapa != null) { mapa["map"].updateSize(); }
+    }, 1500);
+
+    // mostraSeTemUpdate(firstAcess);
+    firstAcess = false;
+
+    return firstAcess
+})
+.catch(() => {
+    errorFn("Acesso inválido")
     .then(() => {
-        $(".preload").fadeOut(200, function () {
-            $(".content").fadeIn(200);
-        });
-        Swal2.close()
-
-        setTimeout(function () {
-            if (mapa != null) { mapa["map"].updateSize(); }
-        }, 1500);
-
-        mostraSeTemUpdate(firstAcess);
-        firstAcess = false;
-
-        return firstAcess
+        document.location.href = "./login-view.html";
     })
-    .catch((err) => {
-        errorFn("Erro ao sincronizar, sem conexão com a Internet")
-        $(".preload").fadeOut(200, function () {
-            $(".content").fadeIn(200);
-        });
-    })
+})
 
 // Mostra se update (ver github version)
 function mostraSeTemUpdate(firstAcess) {
