@@ -134,7 +134,7 @@
 <script>
     // Verifica se estamos ou não no Electron
     if (isElectron) {
-        require("js/geo_libs.js");
+        document.write('<script src="js/geo_libs.js"><\/script>');
     } else {
         document.write('<script src="js/geo_browser.js"><\/script>');
     }
