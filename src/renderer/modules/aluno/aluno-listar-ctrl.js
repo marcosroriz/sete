@@ -118,6 +118,7 @@ var defaultTableConfig = {
                     columns: [1, 4, 5, 6, 7, 8]
                 },
                 customize: function (doc) {
+                    debugger
                     doc.content[1].table.widths = ['30%', '12%', '8%', '20%', '20%', '10%'];
                     doc = docReport(doc);
                     
@@ -226,8 +227,6 @@ restImpl.dbGETColecao(DB_TABLE_ALUNO)
 
 // Preprocessa alunos
 var preprocessarAlunos = (res) => {
-    $("#totalNumAlunos").text(res.length);
-
     numAlunos = Number(res.length);
 
     for (let alunoRaw of res) {

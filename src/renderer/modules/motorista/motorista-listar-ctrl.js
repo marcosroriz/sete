@@ -205,7 +205,6 @@ restImpl.dbGETColecao(DB_TABLE_MOTORISTA)
 
 // Processar motoristas
 var processarMotoristas = (res) => {
-    $("#totalNumMotoristas").text(res.length);
     for (let motoristaRaw of res) {
         let motoristaJSON = parseMotoristaREST(motoristaRaw);
         listaDeMotoristas.set(motoristaJSON["ID"], motoristaJSON);

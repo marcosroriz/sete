@@ -361,3 +361,9 @@ div#hmbmenu {
         right: 260px !important;
     }
 }
+
+
+/* Datatable */
+span.separador {
+    font-size: 1.5em;
+}

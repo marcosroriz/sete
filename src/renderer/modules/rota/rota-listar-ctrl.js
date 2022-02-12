@@ -216,7 +216,6 @@ restImpl.dbGETColecao(DB_TABLE_ROTA)
 
 // Processar rotas
 var processarRotas = (res) => {
-    $("#totalNumRotas").text(res.length);
     for (let rotaRaw of res) {
         let rotaJSON = parseRotaDBREST(rotaRaw);
         rotaJSON["STRESCOLAS"] = "Não cadastrado";

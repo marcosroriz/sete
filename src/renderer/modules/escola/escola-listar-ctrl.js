@@ -219,7 +219,6 @@ restImpl.dbGETColecao(DB_TABLE_ESCOLA)
 
 // Preprocessa alunos
 var preprocessarEscolas = (res) => {
-    $("#totalNumEscolas").text(res.length);
     for (let escolaRaw of res) {
         let escolaJSON = parseEscolaREST(escolaRaw);
         listaDeEscolas.set(escolaJSON["ID"], escolaJSON);

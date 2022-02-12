@@ -209,7 +209,6 @@ restImpl.dbGETColecao(DB_TABLE_MONITOR)
 
 // Processar monitors
 var processarMonitores = (res) => {
-    $("#totalNumMonitores").text(res.length);
     for (let monitorRaw of res) {
         let monitorJSON = parseMonitorREST(monitorRaw);
         listaDeMonitores.set(monitorJSON["ID"], monitorJSON);

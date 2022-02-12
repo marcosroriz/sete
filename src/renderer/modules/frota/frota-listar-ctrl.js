@@ -207,7 +207,6 @@ restImpl.dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
 
 // Processar motoristas
 var processarVeiculos = (res) => {
-    $("#totalNumVeiculos").text(res.length);
     for (let veiculoRaw of res) {
         let veiculoJSON = parseVeiculoREST(veiculoRaw);
         veiculoJSON["ID_VEICULO"] = veiculoJSON["ID"]
