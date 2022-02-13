@@ -259,6 +259,8 @@ async function parsePlanilha(arquivo) {
         } else {
             Swal2.close();
         }
+    }).catch(err => {
+        errorFn("Ocorreu um erro ao processar a planilha", err)
     })
 }
 
@@ -410,11 +412,17 @@ $('.card-wizard').bootstrapWizard({
             var $current = index + 1;
     
             var $wizard = navigation.closest('.card-wizard');
-    
+            
             // If it's the last tab then hide the last button and show the finish instead
             if ($current >= $total) {
                 if ($("#arqPlanilha").length > 0) {
-                    var arquivo = $("#arqPlanilha")[0].files[0].path;
+                    var arquivo;
+
+                    if (isElectron) {
+                        arquivo = $("#arqPlanilha")[0].files[0].path;
+                    } else {
+                        arquivo = $("#arqPlanilha")[0].files[0];
+                    }
                     if (ultArquivoAnalisado != arquivo) {
                         if(preprocess(arquivo)) {
                             $($wizard).find('.btn-next').hide();
