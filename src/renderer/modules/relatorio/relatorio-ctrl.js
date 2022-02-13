@@ -71,6 +71,7 @@ function roundToTwo(num) {
 
 var grafico_template = {
     chart: {
+        height: 400,
         toolbar: {
             show: true,
             offsetX: 0,
@@ -161,7 +162,6 @@ function plotarBarra(target, option) {
 
     grafico_barra_opcoes["chart"]["type"] = "bar";
     grafico_barra_opcoes["chart"]["width"] = "100%";
-    grafico_barra_opcoes["chart"]["height"] = 400;
     grafico_barra_opcoes["title"]["text"] = option.TITULO;
 
     chart = new ApexCharts(document.querySelector(target), grafico_barra_opcoes);
@@ -194,7 +194,7 @@ function plotarTotal(target, option) {
             dataLabels: {
                 enabled: true,
                 style: {
-                    fontSize: '240px',
+                    fontSize: '2em',
                 }
             }
         }

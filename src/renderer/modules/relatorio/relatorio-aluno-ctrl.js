@@ -58,7 +58,7 @@ defaultTableConfig["columnDefs"] = [
 var dataTablesRelatorio = $("#datatables").DataTable(defaultTableConfig)
 
 
-function CalcularEstatisticas() {
+async function CalcularEstatisticas() {
     var totalAlunos = listaDeAlunos.size;
     var statNumAtendidos = 0;
     var statEscolas = {};
@@ -70,7 +70,9 @@ function CalcularEstatisticas() {
     var statGenero = { 1: 0, 2: 0, 3: 0 }
     var statResponsavel = { 0: 0, 1: 0, 2: 0, 4: 0 }
 
-    listaDeAlunos.forEach((aluno) => {
+    for (let alunoRaw of listaDeAlunos.values()) {
+        // let aluno = parseAlunoREST(await restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${alunoRaw.id_aluno}`))
+        let aluno = alunoRaw;
         statTurno[aluno["turno"]] = statTurno[aluno["turno"]] + 1;
         statLocalizacao[aluno["mec_tp_localizacao"]] = statLocalizacao[aluno["mec_tp_localizacao"]] + 1;
         statNivel[aluno["nivel"]] = statNivel[aluno["nivel"]] + 1;
@@ -94,7 +96,7 @@ function CalcularEstatisticas() {
             }
             statEscolas[aluno["escola"]] = statEscolas[aluno["escola"]] + 1;
         }
-    })
+    }
 
     for (let i in statRotas) {
         dataRotaFilter["series"].push(statRotas[i]);
@@ -274,6 +276,7 @@ $("#menuRelatorio a.list-group-item").click((e) => {
             graficoAtual.destroy();
         }
         $("#grafico").empty();
+        debugger
         graficoAtual = plotGraphic("#grafico", opt);
 
         // // Legenda

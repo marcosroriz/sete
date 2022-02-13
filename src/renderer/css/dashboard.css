@@ -367,3 +367,8 @@ div#hmbmenu {
 span.separador {
     font-size: 1.5em;
 }
+
+/* Relatórios */
+.apexcharts-datalabels text[font-size='2em'] {
+    font-size: 2em;
+}
