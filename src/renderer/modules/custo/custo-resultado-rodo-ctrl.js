@@ -22,6 +22,8 @@ var det = {};
 // Wizard
 $('.card-wizard').bootstrapWizard(configWizardBasico("", usarValidador = false))
 
+var chart;
+
 restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}`)
     .then((rota) => preencheDadosBasicos(rota))
     .then((rota) => pegarParametros(rota))
@@ -413,6 +415,39 @@ function mostraInformacoesCusto() {
                 type: 'pie',
                 // offsetX: 100,
                 // offsetX: 100,
+                toolbar: {
+                    show: true,
+                    offsetX: 0,
+                    offsetY: 0,
+                    tools: {
+                      download: true,
+                      selection: true,
+                      zoom: true,
+                      zoomin: true,
+                      zoomout: true,
+                      pan: true,
+                      reset: true | '<img src="/static/icons/reset.png" width="20">',
+                      customIcons: []
+                    },
+                    export: {
+                      csv: {
+                        filename: undefined,
+                        columnDelimiter: ',',
+                        headerCategory: 'category',
+                        headerValue: 'value',
+                        dateFormatter(timestamp) {
+                          return new Date(timestamp).toDateString()
+                        }
+                      },
+                      svg: {
+                        filename: undefined,
+                      },
+                      png: {
+                        filename: undefined,
+                      }
+                    },
+                    autoSelected: 'zoom' 
+                  },
             },
             labels: ['Motoristas', 'Monitores', 'Pessoal de Manutenção', 'Administração',
                 'Depreciação', 'Combustível', 'Óleo/Lubrificantes', 'Rodagem', 'Peças e Acessórios'],
@@ -425,7 +460,7 @@ function mostraInformacoesCusto() {
             }
         };
 
-        var chart = new ApexCharts(document.querySelector("#graficoCusto"), options);
+        chart = new ApexCharts(document.querySelector("#graficoCusto"), options);
         chart.render();
 
         Swal2.fire({
