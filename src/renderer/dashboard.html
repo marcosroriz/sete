@@ -155,8 +155,16 @@
 <script src="js/pdf-utils.js"></script>
 
 <!-- Parsers -->
-<script src="../../node_modules/papaparse/papaparse.min.js"></script>
-<script src="../../node_modules/read-excel-file/bundle/read-excel-file.min.js"></script>
+<script>
+    // Verifica se estamos ou não no Electron
+    if (isElectron) {
+        var Papa = require("papaparse");
+        var readXlsxFile = require('read-excel-file/node');
+    } else {
+        document.write('<script src="../../node_modules/papaparse/papaparse.min.js"><\/script>');
+        document.write('<script src="../../node_modules/read-excel-file/bundle/read-excel-file.min.js"><\/script>');
+    }
+</script>
 
 <!--  Chartist Plugin  -->
 <script src="js/plugins/chartist.min.js"></script>
