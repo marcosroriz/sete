@@ -17,6 +17,7 @@ const DB_TABLE_ROTA = "rotas";
 const DB_TABLE_VEICULO = "veiculos";
 const DB_TABLE_USUARIOS = "users/sete";
 const DB_TABLE_PARAMETROS = "parametros";
+const DB_TABLE_IMPORTACAO = "importacao";
 const DB_TABLE_REALTIME_VIAGENSPERCURSO = "viagenspercurso";
 const DB_TABLE_REALTIME_VIAGENSALERTA = "viagensalertas";
 
