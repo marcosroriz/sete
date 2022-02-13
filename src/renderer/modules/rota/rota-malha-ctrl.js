@@ -2,8 +2,24 @@
 // Este arquivo contém o script de controle da tela rota-malha-view. O memso
 // permite importar os dados de uma rota no formato OSM
 
-// Biblioteca http para baixar a malha do OSM overpass
-var http = require('http');
+var http;
+// Esta ferramenta só funciona no Electron
+if (!isElectron) {
+    Swal2.fire({
+        title: "Funcionalidade indisponível",
+        icon: "warning",
+        html:
+            'Esta funcionalidade está disponível apenas no SETE desktop. ' +
+            'Baixe a versão desktop para acessá-la. <br> ' + 
+            'Clique ' + 
+            '<a target="_blank" href="https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar">aqui</a> ' + 
+            'para baixar a versão desktop.',
+    }).then(() => navigateDashboard(lastPage))
+} else {
+    // Rodando no electron
+    // Biblioteca http para baixar a malha do OSM overpass
+    http = require('http');
+}
 
 function baixarMalhaDoOSM(arqDestino, latitude = cidadeLatitude, longitude = cidadeLongitude) {
     var latmin = latitude - 0.25;
@@ -62,15 +78,16 @@ $('#rota-malha-salvarNovaMalha').on('click', () => {
     ipcRenderer.send('start:malha-update', osmFilePath);
 });
 
-
-ipcRenderer.on("end:malha-update", function (event, status) {
-    if (status) {
-        successDialog("Malha atualizada com sucesso",
-            "Clique em OK para retornar a visão geral do sistema.")
-    } else {
-        errorFn("Erro ao atualizar a malha")
-    }
-});
+if (isElectron) {
+    ipcRenderer.on("end:malha-update", function (event, status) {
+        if (status) {
+            successDialog("Malha atualizada com sucesso",
+                "Clique em OK para retornar a visão geral do sistema.")
+        } else {
+            errorFn("Erro ao atualizar a malha")
+        }
+    });
+}
 
 // Wizard
 $('.card-wizard').bootstrapWizard(configWizardBasico("", usarValidador = false))
