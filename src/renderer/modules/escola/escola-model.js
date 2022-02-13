@@ -42,7 +42,8 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     
     if (estadoEscolaJSON["LOC_LATITUDE"]) $("#reglat").val(estadoEscolaJSON["LOC_LATITUDE"]);
     if (estadoEscolaJSON["LOC_LONGITUDE"]) $("#reglon").val(estadoEscolaJSON["LOC_LONGITUDE"]);
-    
+    if (estadoEscolaJSON["MEC_CO_ENTIDADE"]) $("#inepEscola").val(estadoEscolaJSON["MEC_CO_ENTIDADE"]);
+
     $("#regestado").val(estadoEscolaJSON["MEC_CO_UF"]);
     $("#regestado").trigger("change");
     $("#regcidade").val(estadoEscolaJSON["MEC_CO_MUNICIPIO"]);
