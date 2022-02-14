@@ -953,61 +953,62 @@ function initSimulation() {
     ipcRenderer.send('start:route-generation', routeGenerationInputData);
 };
 
-// Trigger para finalizar simulação
-ipcRenderer.on("end:route-generation", function (evt, routesJSON) {
-    setTimeout(function () {
-        // Aumenta o contador de simulações
-        numSimulacao++;
-        userconfig.set("SIMULATION_COUNT", numSimulacao);
-        $("#numSimulacao").text(numSimulacao);
+if (isElectron) {
+    // Trigger para finalizar simulação
+    ipcRenderer.on("end:route-generation", function (evt, routesJSON) {
+        setTimeout(function () {
+            // Aumenta o contador de simulações
+            numSimulacao++;
+            userconfig.set("SIMULATION_COUNT", numSimulacao);
+            $("#numSimulacao").text(numSimulacao);
 
-        // Apaga rotas anteriores desenhadas
-        mapaRotaGerada["rmGroupLayer"]();
+            // Apaga rotas anteriores desenhadas
+            mapaRotaGerada["rmGroupLayer"]();
 
-        // Desenha novas rotas
-        rotasGeradas = new Map();
-        drawRoutes(routesJSON);
+            // Desenha novas rotas
+            rotasGeradas = new Map();
+            drawRoutes(routesJSON);
 
-        // Ativa grupo
-        let switcher = mapaRotaGerada["activateSidebarLayerSwitcher"](".sidebar-RotasGeradas");
+            // Ativa grupo
+            let switcher = mapaRotaGerada["activateSidebarLayerSwitcher"](".sidebar-RotasGeradas");
 
-        // Atualiza o mapa
-        mapaRotaGerada["map"].updateSize();
-        mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
-            padding: [40, 40, 40, 40]
-        });
+            // Atualiza o mapa
+            mapaRotaGerada["map"].updateSize();
+            mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
+                padding: [40, 40, 40, 40]
+            });
 
-        switcher.on('drawlist', function (e) {
-            $(".ol-layer-vector").each((_, li) => {
-                let temBadge = $(li).find(".badge").length > 0 ? true : false;
+            switcher.on('drawlist', function (e) {
+                $(".ol-layer-vector").each((_, li) => {
+                    let temBadge = $(li).find(".badge").length > 0 ? true : false;
 
-                if (!temBadge) {
-                    let rotaID = Number($($(li).find("label")[0]).text().split(": ")[1]);
-                    $($.parseHTML('<div class="badge badge-pill badge-warning pull-right"><i class="fa fa-map-o"></i></div>')).on('click', function () {
-                        mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
-                            padding: [40, 40, 40, 40]
-                        });
-                        iniciaAnimacao(rotaID);
-                    })
-                    .appendTo($(li));
-                }
-            })
-        });
-        setTimeout(() => {
-            $('.expend-layers').click();
-            $('.ol-layerswitcher-buttons').hide();
-            $('.layerswitcher-opacity').hide();
-        }, 100);
-        Swal2.close();
-    }, 2000);
-});
+                    if (!temBadge) {
+                        let rotaID = Number($($(li).find("label")[0]).text().split(": ")[1]);
+                        $($.parseHTML('<div class="badge badge-pill badge-warning pull-right"><i class="fa fa-map-o"></i></div>')).on('click', function () {
+                            mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
+                                padding: [40, 40, 40, 40]
+                            });
+                            iniciaAnimacao(rotaID);
+                        })
+                        .appendTo($(li));
+                    }
+                })
+            });
+            setTimeout(() => {
+                $('.expend-layers').click();
+                $('.ol-layerswitcher-buttons').hide();
+                $('.layerswitcher-opacity').hide();
+            }, 100);
+            Swal2.close();
+        }, 2000);
+    });
 
 
-// Trigger para erro na simulação
-ipcRenderer.on("error:route-generation", function (event, err) {
-    errorFn("Erro no processo de simulação de rota!", err)
-});
-
+    // Trigger para erro na simulação
+    ipcRenderer.on("error:route-generation", function (event, err) {
+        errorFn("Erro no processo de simulação de rota!", err)
+    });
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Validar Formulário

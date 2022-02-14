@@ -2311,8 +2311,8 @@ exports.XMLReader = XMLReader;
 // usando o comando browserify
 
 // var togeojson = require("@mapbox/togeojson");
-var GPXDOMParser = require("xmldom").DOMParser;
-var simplify = require("simplify-geojson");
+window.GPXDOMParser = require("xmldom").DOMParser;
+window.simplify = require("simplify-geojson");
 // window.togeojson = togeojson;
 // window.GPXDOMParser = GPXDOMParser;
 // window.simplify = simplify;

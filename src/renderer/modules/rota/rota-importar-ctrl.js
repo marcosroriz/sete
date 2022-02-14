@@ -2,11 +2,6 @@
 // Este arquivo contém o script de controle da tela rota-importar-view. O mesmo
 // possibilita importar a rota de um arquivo GPX
 
-// Lista de Imports
-var togeojson = require("@mapbox/togeojson");
-var GPXDOMParser = require("xmldom").DOMParser;
-var simplify = require("simplify-geojson");
-
 // Variáveis de Mapas
 var listaDeRotas = new Map();
 var mapa = novoMapaOpenLayers("mapRota", cidadeLatitude, cidadeLongitude);
@@ -115,68 +110,71 @@ $("#inverter-rota").on("click", () => {
 mapa["activateGeocoder"]();
 mapa["activateImageLayerSwitcher"]();
 
-var erroSwalAntigo = (msgTitle, msgDesc) => {
-    return swal({
-        title: msgTitle,
-        text: msgDesc,
-        icon: "error",
-        button: "Fechar",
-    });
-};
-
 $("#arqGPX").on("change", () => {
     try {
-        let gpxFile = $("#arqGPX")[0].files[0].path;
+        let gpxFile = $("#arqGPX")[0].files[0];
         if (gpxFile != "") {
-            gpxDOM = new GPXDOMParser().parseFromString(fs.readFileSync(gpxFile, "UTF8"));
-            gpx = togeojson.gpx(gpxDOM);
+            let reader = new FileReader();
 
-            var trackFeatures = null;
-            for (let i = 0; i < gpx.features.length; i++) {
-                if (gpx.features[i].geometry.type == "LineString") {
-                    if (trackFeatures) {
-                        trackFeatures.geometry.coordinates.push(...gpx.features[i].geometry.coordinates);
-                    } else {
-                        trackFeatures = gpx.features[i];
+            reader.onload = (evt) => {
+                let conteudoArquivo = evt.target.result;
+                gpxDOM = new GPXDOMParser().parseFromString(conteudoArquivo);
+                gpx = toGeoJSON.gpx(gpxDOM);
+    
+                var trackFeatures = null;
+                for (let i = 0; i < gpx.features.length; i++) {
+                    if (gpx.features[i].geometry.type == "LineString") {
+                        if (trackFeatures) {
+                            trackFeatures.geometry.coordinates.push(...gpx.features[i].geometry.coordinates);
+                        } else {
+                            trackFeatures = gpx.features[i];
+                        }
                     }
-                }
-
-                if (gpx.features[i].geometry.type == "MultiLineString") {
-                    let lineStringCoordinates = [];
-                    for (ls of gpx.features[i].geometry.coordinates) {
-                        lineStringCoordinates.push(...ls)
-                    }
-
-                    if (trackFeatures) {
-                        trackFeatures.geometry.coordinates.push(...lineStringCoordinates);
-                    } else {
-                        let feature = {
-                            type: "Feature",
-                            geometry: {
-                                type: "LineString",
+    
+                    if (gpx.features[i].geometry.type == "MultiLineString") {
+                        let lineStringCoordinates = [];
+                        for (ls of gpx.features[i].geometry.coordinates) {
+                            lineStringCoordinates.push(...ls)
+                        }
+    
+                        if (trackFeatures) {
+                            trackFeatures.geometry.coordinates.push(...lineStringCoordinates);
+                        } else {
+                            let feature = {
+                                type: "Feature",
+                                geometry: {
+                                    type: "LineString",
+                                    properties: {},
+                                    options: {},
+                                },
                                 properties: {},
-                                options: {},
-                            },
-                            properties: {},
-                        };
-                        feature.geometry.coordinates = lineStringCoordinates;
-                        trackFeatures = feature;
+                            };
+                            feature.geometry.coordinates = lineStringCoordinates;
+                            trackFeatures = feature;
+                        }
                     }
                 }
+                gpx["features"] = [trackFeatures];
+                gpxSimplificado = simplify(gpx, 0.0001);
+    
+                malhaSource.clear();
+                malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(gpxSimplificado, {
+                    dataProjection: 'EPSG:4326',
+                    featureProjection: 'EPSG:3857'
+                }))
+    
+                mapa["map"].getView().fit(malhaSource.getExtent());
             }
-            gpx["features"] = [trackFeatures];
-            gpxSimplificado = simplify(gpx, 0.0001);
-
-            malhaSource.clear();
-            malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(gpxSimplificado, {
-                dataProjection: 'EPSG:4326',
-                featureProjection: 'EPSG:3857'
-            }))
-
-            mapa["map"].getView().fit(malhaSource.getExtent());
+            
+            reader.onerror = (err) => {
+                debugger
+                errorFn("Erro na leitura do arquivo GPX", err)
+            }
+            reader.readAsText(gpxFile);
         }
     } catch (error) {
-        erroSwalAntigo("Erro na leitura do arquivo GPX", "...")
+        debugger
+        errorFn("Erro na leitura do arquivo GPX", "...")
     }
 });
 
@@ -225,7 +223,7 @@ $('#rota-salvar-rota').on('click', () => {
         return Promise.all(promiseArray)
     })
     .then(() => completeForm())
-    .catch(err => erroSwalAntigo("Erro ao importar a rota!", err))
+    .catch(err => errorFn("Erro ao importar a rota!", err))
 });
 
 // Wizard
@@ -236,8 +234,7 @@ $('.card-wizard').bootstrapWizard({
 
     onNext: function (tab, navigation, index) {
         if (gpx == "") {
-            erroSwalAntigo("Ops... tivemos um problema", 
-                           "Por favor, selecione o arquivo GPX antes de prosseguir!")
+            errorFn("Por favor, selecione o arquivo GPX antes de prosseguir!")
             return false;
         }
         window.scroll(0, 0);
@@ -246,8 +243,7 @@ $('.card-wizard').bootstrapWizard({
 
     onTabClick: function (tab, navigation, index) {
         if (gpx == "") {
-            erroSwalAntigo("Ops... tivemos um problema", 
-                           "Por favor, selecione o arquivo GPX antes de prosseguir!")
+            errorFn("Por favor, selecione o arquivo GPX antes de prosseguir!")
             return false;
         }
         window.scroll(0, 0);
@@ -301,4 +297,4 @@ restImpl.dbGETColecao(DB_TABLE_ROTA)
             $("#listarota").append(`<option value="${rID}">${rNome}</option>`);
         }
     }
-}).catch((err) => erroSwalAntigo("Ops... tivemos um problema ao listar as rotas", err));
+}).catch((err) => errorFn("Ops... tivemos um problema ao listar as rotas", err));
