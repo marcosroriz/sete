@@ -6,9 +6,6 @@ var listaDeAlunos = new Map();
 var totalNumEscolas = 0;
 var totalNumRotas = 0;
 
-// Grafico atual
-var graficoAtual;
-
 // Dados para serem plotados
 var dataEscola = { series: [], labels: [] };
 var dataEscolaFilter = { series: [], labels: [] };
@@ -276,7 +273,6 @@ $("#menuRelatorio a.list-group-item").click((e) => {
             graficoAtual.destroy();
         }
         $("#grafico").empty();
-        debugger
         graficoAtual = plotGraphic("#grafico", opt);
 
         // // Legenda

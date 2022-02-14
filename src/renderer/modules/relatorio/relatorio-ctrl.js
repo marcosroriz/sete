@@ -1,3 +1,6 @@
+// Grafico atual
+var graficoAtual;
+
 var categories = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"];
 var pickedSeries = [];
 
@@ -308,7 +311,7 @@ function GetTemplateDataTableConfig() {
 }
 
 
-$("#btnExpJPEG").on('click', () => {
+$("#btnExpJPEG").on('click', async () => {
     Swal2.fire({
         title: "Exportando imagem...",
         imageUrl: "img/icones/processing.gif",
@@ -320,14 +323,19 @@ $("#btnExpJPEG").on('click', () => {
         showConfirmButton: false
     });
 
-    domtoimage.toPng(document.getElementsByClassName("card-report")[0])
-        .then(function (dataUrl) {
-            var link = document.createElement('a');
-            link.download = 'imagemRelatorio.jpeg';
-            link.href = dataUrl;
-            link.click();
-            Swal2.close();
-        })
-        .catch((err) => errorFn("Erro ao gerar o gráfico." + err));
+    try {
+        let imgConteudo = await graficoAtual.dataURI({scale: 5})
+        window.saveAs(imgConteudo.imgURI)
+        successDialog();
+
+        // let link = document.createElement('a');
+        // link.download = 'imagemRelatorio.jpeg';
+        // link.href = imgConteudo.imgURI;
+        // link.click();
+        // Swal2.close()
+
+    } catch (err) {
+        errorFn("Erro ao gerar o gráfico." + err)
+    }
 })
 
