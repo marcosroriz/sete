@@ -166,6 +166,18 @@ async function preencheDashboardVeiculos() {
     }
 }
 
+async function pegarShapeRota(rotaID) {
+    return new Promise((resolve, reject) => {
+        restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${rotaID}/shape`)
+        .then(shapeDaRota => {
+            resolve({rotaID, shape: shapeDaRota.shape})
+        })
+        .catch(err => {
+            resolve({rotaID, shape: null})
+        })
+    })
+}
+
 async function preencheDashboardRotas() {
     let rotas = [];
     let totalRotas = 0;
@@ -175,6 +187,8 @@ async function preencheDashboardRotas() {
     try {
         rotas = await restImpl.dbGETColecao(DB_TABLE_ROTA);
         totalRotas = rotas.length;
+        var start = window.performance.now();
+        let promiseArray = [];
 
         for (let rota of rotas) {
             let rotaID = rota["id_rota"];
@@ -182,18 +196,27 @@ async function preencheDashboardRotas() {
 
             let rotaJSON = parseRotaDBREST(rotaDetalheRaw);
             rotaJSON["NUM_ALUNOS_ROTA"] = 0;
+            rotaJSON["SHAPE"] = null;
 
-            try {
-                let shapeDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${rotaID}/shape`);
-                rotaJSON["SHAPE"] = shapeDaRota.shape;
-            } catch (err) {
-                rotaJSON["SHAPE"] = null;
-            }
+            promiseArray.push(pegarShapeRota(rotaID))
             hashMapRotas.set(rotaID, rotaJSON);
 
             let rotakm = strToNumber(rotaJSON.km);
             totalKM = totalKM + rotakm;
         }
+
+        let dadosRotas = await Promise.all(promiseArray);
+        for (let dadoRota of dadosRotas) {
+            if (dadoRota.shape != null) {
+                let rotaJSON = hashMapRotas.get(dadoRota.rotaID);
+                rotaJSON["SHAPE"] = dadoRota.shape;
+                hashMapRotas.set(dadoRota.rotaID, rotaJSON);
+            }
+        }
+        var end = window.performance.now();
+        console.log(`Execution time: ${end - start} ms`);
+        console.log(`Execution time: ${end - start} ms`);
+        console.log(`Execution time: ${end - start} ms`);
     } finally {
         if (totalRotas != 0) {
             totalKMMedio = Math.round(totalKM / totalRotas);

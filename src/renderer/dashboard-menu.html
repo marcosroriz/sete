@@ -436,7 +436,9 @@
         $("#syncBtn").on('click', () => {
             $(".activeLink").removeClass("activeLink");
             $("#syncBtn").parent().addClass("activeLink");
-            fbSync();
+            
+            sessionStorage.clear();
+            $("#content").load("./dashboard-main.html");
         });
 
         // Menu

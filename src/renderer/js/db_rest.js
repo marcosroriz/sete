@@ -8,8 +8,65 @@ var restAPI = axios.create({
     headers: { 'Authorization': userconfig.get("TOKEN") }
 });
 
+// src/utils/cache.js
+function writeToCache(url, data) {
+    sessionStorage.setItem(url, JSON.stringify(data));
+}
+
+function readFromCache(url) {
+    return JSON.parse(sessionStorage.getItem(url)) || null;
+}
+
+function deleteFromCache(url) {
+    sessionStorage.removeItem(url)
+}
+
+function cacheKeys() {
+    return Object.keys(sessionStorage)
+}
+
+// Cache Request
+// https://gist.github.com/javisperez/4bb09e0437994a659bbcd06f90eeebbf
+restAPI.interceptors.request.use((request) => {
+    // debugger
+    if (request.method === "get") {
+        let url = request.url;
+        let dadoCache = readFromCache(url);
+
+        if (dadoCache) {
+            request.adapter = () => {
+                return Promise.resolve({
+                    data: dadoCache,
+                    status: request.status,
+                    statusText: request.statusText,
+                    headers: request.headers,
+                    config: request,
+                    request: request
+                });
+            };
+        }
+    }
+    return request
+})
+
+
 // Refresh do token
 restAPI.interceptors.response.use((response) => {
+    let url = response.config.url;
+
+    if (response.config.method === "get") {
+        writeToCache(url, response.data)
+    } else {
+        let chaves = cacheKeys();
+
+        deleteFromCache(url);
+        chaves.forEach(chave => {
+            if (chave.includes(codCidade) && !chave.includes("shape")) {
+                console.log("APAGANDO", chave)
+                deleteFromCache(chaves);
+            }
+        })
+    }
     return response
 }, async function (error) {
     const originalRequest = error.config;

@@ -65,7 +65,8 @@ if (isElectron) {
     get: (key) => localStorage.getItem(key),
     set: (key, value) => localStorage.setItem(key, value),
     delete: (key) => localStorage.removeItem(key),
-    clear: () => localStorage.clear()
+    clear: () => localStorage.clear(),
+    keys: () => Object.keys(localStorage)
   }
 }
 
