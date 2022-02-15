@@ -83,14 +83,14 @@ var completeForm = () => {
 $("#salvaros").click(() => {
     var $valid = $('#wizardCadastrarOSForm').valid();
     var osJSON = GetOSFromForm();
-    osJSON["TERMINO"] = false;
+    osJSON["termino"] = "N";
 
     if (!$valid) {
         return false;
     } else {
         if (action == "editarOS") {
             // Seta termino para valor atual
-            osJSON["TERMINO"] = estadoOS["TERMINO"]
+            osJSON["termino"] = estadoOS["TERMINO"]
             let osID = estadoOS["ID"]
             
             loadingFn("Atualizando a ordem de serviço ...")
@@ -101,18 +101,17 @@ $("#salvaros").click(() => {
             .catch((err) => errorFn("Erro ao atualizar a ordem de serviço.", err))
         } else {
             loadingFn("Cadastrando a ordem de serviço ...")
-                    
-            dbInserirPromise(DB_TABLE_ORDEM_DE_SERVICO, osJSON)
-            .then(() => dbAtualizaVersao())
+
+            restImpl.dbPOST(DB_TABLE_ORDEM_DE_SERVICO, "", osJSON)
             .then(() => completeForm())
             .catch((err) => errorFn("Erro ao salvar a ordem de serviço.", err))
         }
     }
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_FORNECEDOR)
+restImpl.dbGETColecao(DB_TABLE_FORNECEDOR)
 .then(res => processarFornecedores(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
+.then(() => restImpl.dbGETColecao(DB_TABLE_VEICULO))
 .then(res => processarVeiculos(res))
 .then(() => verificaEdicao())
 .catch(err => errorFn("Erro ao carregar formulário de cadastro de OS", err))
@@ -120,20 +119,27 @@ dbBuscarTodosDadosPromise(DB_TABLE_FORNECEDOR)
 // Processar fornecedores
 var processarFornecedores = (res) => {
     for (let fornecedorRaw of res) {
-        let fSTR = `${fornecedorRaw["NOME"]} (${fornecedorRaw["CNPJ"]})`;
-        $('#tipoFornecedor').append(`<option value="${fornecedorRaw["ID"]}">${fSTR}</option>`);
+        let fornecedorJSON = parseFornecedorREST(fornecedorRaw);
+        let fSTR = `${fornecedorJSON["NOME"]} (${fornecedorJSON["CNPJ"]})`;
+        $('#tipoFornecedor').append(`<option value="${fornecedorJSON["ID"]}">${fSTR}</option>`);
     }
-    return true;
+
+    if (res.length == 0) {
+        throw new Error("erro:fornecedor");
+    }
 }
 
 // Processar veículos
 var processarVeiculos = (res) => {
     for (let veiculoRaw of res) {
-        let veiculoJSON = parseVeiculoDB(veiculoRaw);
-        let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`;
+        let veiculoJSON = parseVeiculoREST(veiculoRaw);
+        let vSTR = `${veiculoJSON["TIPO"]} (${veiculoJSON["MARCA"]} - ${veiculoJSON["PLACA"]})`;
         $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID"]}">${vSTR}</option>`);
     }
-    return true;
+
+    if (res.length == 0) {
+        throw new Error("erro:veiculo");
+    }
 }
 
 // Verifica se estamos editando o dado

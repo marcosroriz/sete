@@ -12,7 +12,13 @@ var listaDeFornecedores = new Map();
 var dataTablesOS = $("#datatables").DataTable({
     ...dtConfigPadraoFem("ordem de serviço"),
     ...{
+        select: {
+            style: 'multi',
+            info: false
+        },
+        "order": [[ 1, "asc" ]],
         columns: [
+            { data: "SELECT", width: "60px" },    
             { data: 'DATA', width: "90px" },
             { data: 'TIPOSTR', width: "14%" },
             { data: 'FORNECEDORSTR', width: "20%" },
@@ -28,8 +34,11 @@ var dataTablesOS = $("#datatables").DataTable({
                     '<a href="#" class="btn btn-link btn-danger osRemove"><i class="fa fa-times"></i></a>'
             }
         ],
-        columnDefs: [{ targets: 0,  render: renderAtMostXCharacters(50) }],
-        dom: 'lf<"addOS">rtipB',
+        columnDefs: [
+            { targets: 0, 'checkboxes': { 'selectRow': true } },
+            { targets: 1,  render: renderAtMostXCharacters(50) }
+        ],
+        dom: 'r<"addOS">tilp<"clearfix m-2">B',
         buttons: [
             {
                 extend: 'pdfHtml5',
@@ -160,11 +169,11 @@ dataTablesOS.on('click', '.osRemove', function () {
     }).catch((err) => errorFn("Erro ao remover a ordem de serviço", err))
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_FORNECEDOR)
+restImpl.dbGETColecao(DB_TABLE_FORNECEDOR)
 .then(res => processarFornecedores(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
+.then(() => restImpl.dbGETColecao(DB_TABLE_VEICULO))
 .then(res => processarVeiculos(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ORDEM_DE_SERVICO))
+.then(() => restImpl.dbGETColecao(DB_TABLE_ORDEM_DE_SERVICO))
 .then(res => processarOS(res))
 .then(res => adicionaDadosTabela(res))
 .catch((err) => errorFn("Erro ao listar os motoristas!", err))
@@ -193,7 +202,7 @@ var informarNaoExistenciaDado = (tipoDado, pagCadastroDado) => {
 var processarFornecedores = (res) => {
     if (res.length > 0) {
         for (let fornecedorRaw of res) {
-            let fornecedorJSON = parseFornecedorDB(fornecedorRaw);
+            let fornecedorJSON = parseFornecedorREST(fornecedorRaw);
             fornecedorJSON["ID_FORNECEDOR"] = fornecedorJSON["ID"];
             listaDeFornecedores.set(fornecedorJSON["ID"], fornecedorJSON);
         }
@@ -207,7 +216,7 @@ var processarFornecedores = (res) => {
 var processarVeiculos = (res) => {
     if (res.length > 0) {
         for (let veiculoRaw of res) {
-            let veiculoJSON = parseVeiculoDB(veiculoRaw);
+            let veiculoJSON = parseVeiculoREST(veiculoRaw);
             veiculoJSON["ID_VEICULO"] = veiculoJSON["ID"]
             veiculoJSON["VEICULOSTR"] = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`;;
             listaDeVeiculos.set(veiculoJSON["ID_VEICULO"], veiculoJSON);
@@ -220,8 +229,7 @@ var processarVeiculos = (res) => {
 
 // Processar ordem de serviço
 var processarOS = (res) => {
-    $("#totalNumOS").text(res.length);
-
+    debugger
     for (let osRaw of res) {
         let osJSON = parseOSDB(osRaw);
         osJSON["VEICULOSTR"] = listaDeVeiculos.get(osJSON["ID_VEICULO"])["VEICULOSTR"];

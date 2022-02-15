@@ -50,11 +50,11 @@ function GetVeiculoFromForm() {
 
 function GetOSFromForm() {
     return {
-        "TIPO_SERVICO": $("#tipoServico").val(), // int
-        "DATA": $("#regdata").val(), // boolean
-        "ID_VEICULO": $("#tipoVeiculo").val(), // int
-        "ID_FORNECEDOR": $("#tipoFornecedor").val(), // int
-        "COMENTARIO": $("#comentario").val(),
+        "tipo_servico": $("#tipoServico").val(), // int
+        "data": $("#regdata").val(), // boolean
+        "id_veiculo": $("#tipoVeiculo").val(), // int
+        "id_fornecedor": $("#tipoFornecedor").val(), // int
+        "comentario": $("#comentario").val(),
     };
 }
 
