@@ -63,7 +63,7 @@ restAPI.interceptors.response.use((response) => {
         chaves.forEach(chave => {
             if (chave.includes(codCidade) && !chave.includes("shape")) {
                 console.log("APAGANDO", chave)
-                deleteFromCache(chaves);
+                deleteFromCache(chave);
             }
         })
     }
