@@ -251,15 +251,19 @@ $("#escolaViz").on('change', async (e) => {
             if (alunos.length == 0) {
                 listaDeAlunos.clear();
 
-                let listaDeAlunosRaw = await restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${eID}/alunos`);
-                for (let alunoRaw of listaDeAlunosRaw.data) {
-                    let alunoJSON = parseAlunoREST(alunoRaw);
-                    escolaJSON["ALUNOS"].push(alunoJSON);
-                    listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
+                try {
+                    let listaDeAlunosRaw = await restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${eID}/alunos`);
+                    for (let alunoRaw of listaDeAlunosRaw.data) {
+                        let alunoJSON = parseAlunoREST(alunoRaw);
+                        escolaJSON["ALUNOS"].push(alunoJSON);
+                        listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
+                    }    
+                } catch (error) {
+                    console.log("SEM ALUNOS")
                 }
+                
                 hashMapEscolas.set(eID, escolaJSON);
             }
-
             plotarBuffer(escolaJSON);
 
             for (let alunoJSON of alunos) {
@@ -269,7 +273,7 @@ $("#escolaViz").on('change', async (e) => {
             plotarEscola(escolaJSON);
 
             mapaViz["map"].getView().fit(vSource.getExtent(), {
-                padding: [40, 40, 40, 40]
+                padding: [100, 100, 100, 100]
             });
             mapaViz["map"].updateSize();
         } else {
