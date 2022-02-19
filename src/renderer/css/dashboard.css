@@ -372,3 +372,14 @@ span.separador {
 .apexcharts-datalabels text[font-size='2em'] {
     font-size: 2em;
 }
+
+/* Licença */
+.row.licenseText {
+    margin: 2em 1em;
+}
+
+.row.licenseText p {
+    text-align: justify;
+    /* font-style: italic; */
+    font-style: oblique;
+}

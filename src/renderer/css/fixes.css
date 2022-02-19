@@ -482,7 +482,7 @@ span.input-group-text {
 
 /* Disable text dragging */
 *, *::after, *::before {
-	-webkit-user-select: none;
+	-webkit-user-select: auto;
 	-webkit-user-drag: none;
 	-webkit-app-region: no-drag;
 }
@@ -1147,6 +1147,12 @@ li.media {
     margin-top: 20px;
 }
 
+
+* {
+    scrollbar-color: #ffbc31ed #6b6b6b;
+    scrollbar-width: thin;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
@@ -1160,6 +1166,7 @@ li.media {
 ::-webkit-scrollbar-thumb {
     background: #ffaa00ed;
 }
+
 
 ul#list-menus-navs {
     display: flex !important;

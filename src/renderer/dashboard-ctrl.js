@@ -60,7 +60,7 @@ restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
 .then(() => preencheDashboardRotas())
 // .then(() => preencheRelacoes())
 .then(() => preencheMapa())
-// .then(() => ouveUpdates())
+.then(() => mostraSeTemUpdate())
 .then(() => {
     $(".preload").fadeOut(200, function () {
         $(".content").fadeIn(200);
@@ -90,6 +90,8 @@ function mostraSeTemUpdate(firstAcess) {
             .then(res => res.json())
             .then(pkg => {
                 let upVersion = pkg.version;
+                appVersion = pkg.version;
+                debugger
                 let currentVersion = app.getVersion();
                 if (upVersion != currentVersion) {
                     $.notify({

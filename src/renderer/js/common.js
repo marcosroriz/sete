@@ -10,6 +10,7 @@
 
 // Variáveis Basicas
 var appTitle = "SETE - Software Eletrônico de Gestão do Transporte Escolar";
+var appVersion = "";
 var BASE_URL = "https://sete.transportesufg.eng.br";
 
 var userData = {};
