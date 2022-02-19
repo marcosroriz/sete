@@ -270,16 +270,28 @@ dataTablesRelatorio.on('click', '.frotaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover o veículo", err))
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
-.then(res => processarVeiculos(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-.then(res => processarAlunosPorRota(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA_POSSUI_VEICULO))
-.then((res) => processarVeiculosPorRota(res))
-.then(() => adicionaDadosTabela())
-.then(() => CalcularEstatisticas())
-.catch((err) => errorFn("Erro ao listar os veículos!", err))
-
+if (!isElectron) {
+    Swal2.fire({
+        title: "Funcionalidade indisponível",
+        icon: "warning",
+        html:
+            'Esta funcionalidade está em fase de migração para o SETE web. Atualmente, está disponível apenas no SETE desktop. ' +
+            'Baixe a versão desktop para acessá-la. <br> ' + 
+            'Clique ' + 
+            '<a target="_blank" href="https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar">aqui</a> ' + 
+            'para baixar a versão desktop.',
+    }).then(() => navigateDashboard(lastPage))
+} else {
+    dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+    .then(res => processarVeiculos(res))
+    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+    .then(res => processarAlunosPorRota(res))
+    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA_POSSUI_VEICULO))
+    .then((res) => processarVeiculosPorRota(res))
+    .then(() => adicionaDadosTabela())
+    .then(() => CalcularEstatisticas())
+    .catch((err) => errorFn("Erro ao listar os veículos!", err))
+}
 // Processar veiculos
 var processarVeiculos = (res) => {
     for (let veiculoRaw of res) {
