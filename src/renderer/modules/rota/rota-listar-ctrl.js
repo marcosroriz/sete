@@ -22,8 +22,8 @@ var dataTablesRotas = $("#datatables").DataTable({
             { data: 'TURNOSTR', width: "10%" },
             { data: 'GPS', width: "300px" },
             { data: 'KMSTR', width: "18%" },
-            { data: 'NUMALUNOS', width: "12%" },
-            { data: 'NUMESCOLAS', width: "12%" },
+            // { data: 'NUMALUNOS', width: "12%" },
+            // { data: 'NUMESCOLAS', width: "12%" },
             {
                 data: "ACOES",
                 width: "110px",
@@ -239,7 +239,8 @@ adicionaDadosTabela = (res) => {
     });
 
     dataTablesRotas.draw();
-    dtInitFiltros(dataTablesRotas, [1, 2, 3, 4, 5, 6]);
+    // dtInitFiltros(dataTablesRotas, [1, 2, 3, 4, 5, 6]);
+    dtInitFiltros(dataTablesRotas, [1, 2, 3, 4]);
 }
 
 
