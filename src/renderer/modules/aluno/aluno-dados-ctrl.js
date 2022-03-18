@@ -61,7 +61,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
         {
             extend: 'pdfHtml5',
             orientation: "landscape",
-            title: "Aluno " + estadoAluno,
+            title: "Aluno " + estadoAluno.NOME,
             extension: ".pdf",
             text: "Exportar para PDF",
             exportOptions: {
@@ -69,7 +69,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
             }
         },
         {
