@@ -473,7 +473,6 @@ function transformaEscolaEmArray(mapaEscolas) {
     return escolasArray;
 }
 
-
 function listaElementos() {
     alunos = transformaAlunosEmArray([...alunoMap])
     escolas = transformaEscolaEmArray([...escolaMap])
@@ -938,16 +937,17 @@ function initSimulation() {
     loadingFn("Simulando...")
 
     // Juntar dados em um objeto
+    // Prof. deixei assim para facilitar sua correção os códigos original estão ao lado.
     let routeGenerationInputData = {
-        "maxTravDist": Number($("#maxDist").val()) * 1000,
-        "maxTravTime": Number($("#maxTime").val()) * 60,
+        "maxTravDist": 9999999*1000,//Number($("#maxDist").val()) * 1000,
+        "maxTravTime": 9999999*60,//Number($("#maxTime").val()) * 60,
         "optTarget": "maxTravDist",
-        "numVehicles": Number($("#numVehicles").val()),
-        "maxCapacity": Number($("#maxCapacity").val()),
+        "numVehicles": 3,//Number($("#numVehicles").val()),
+        "maxCapacity": [5, 1, 1],//Number($("#maxCapacity").val()),
         "busSpeed": Number($("#velMedia").val()) / 3.6, // converte de km/h para m/s
         "garage": garagens,
         "stops": alunos,
-        "schools": escolas,
+        "schools": escolas
     };
 
     ipcRenderer.send('start:route-generation', routeGenerationInputData);
