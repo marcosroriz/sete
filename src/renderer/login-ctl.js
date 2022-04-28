@@ -246,6 +246,13 @@ $(document).ready(function () {
 
     // Ações para cada click
 
+    Swal2.fire({
+        icon: "warning",
+        title: "Aviso de Manutenção",
+        text: "O sistema SETE entrará em modo de manutenção no período de 29/04/2022 até o dia 06/05/2022. " +
+              "Neste período o sistema ficará indisponível."
+    })
+
     // No caso de login iremos fazer o login com o Firebase as preferências
     // do usuário no arquivo local (userconfig)
     $("#loginsubmit").click(() => {
@@ -254,6 +261,18 @@ $(document).ready(function () {
         var lembrarlogin = $("#loginlembrar").is(":checked");
 
         $("#loginform").validate();
+
+        let data = new Date();
+        let manutencaoFim = new Date(2022, 04, 06);
+debugger
+        if (data < manutencaoFim) {
+            return Swal2.fire({
+                icon: "warning",
+                title: "Aviso de Manutenção",
+                text: "O sistema SETE entrará em modo de manutenção no período de 29/04/2022 até o dia 06/05/2022. " +
+                      "Neste período o sistema ficará indisponível."
+            })
+        }
 
         if ($("#loginform").valid()) {
             Swal2.fire({
