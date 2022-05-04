@@ -14,6 +14,15 @@ class RoutingOptimizationWorker {
         this.routingParams = routingParams;
         this.spatialiteDB = spatialiteDB;
         this.reverseMap = new Map();
+        
+        // IDENTIFICANDO O MODO DE SOLUÇÃO
+        if (typeof this.routingParams["maxCapacity"] == typeof []) {
+            this.heterogeneous = true;
+            console.log("\n *** FROTA HETEROGÊNEA ***\n")
+        } else {
+            this.heterogeneous = false;
+            console.log("\n *** FROTA HOMOGÊNEA ***\n")
+        }
 
         routingParams["stops"].forEach((s) => {
             let key = Number(s["lat"]).toFixed(10) + "-" + Number(s["lng"]).toFixed(10);
@@ -92,14 +101,23 @@ class RoutingOptimizationWorker {
                     .then(clusters => {
                         let clusterizedStops = new Array();
                         clusters.forEach((c) => clusterizedStops.push(this.getStops(c.cluster)))
-                        clusterizedStops = this.SortClustersMaxToMin(clusterizedStops);
 
+                        // CASO PARTICULAR PARA FROTA HETEROGÊNEA
+                        if (this.heterogeneous == true) {
+                            clusterizedStops = this.SortClustersMaxToMin(clusterizedStops);
+                        }
+                        
                         let clarkAlgorithmsPromise = new Array();
                         clusterizedStops.forEach((cs) => {
                             let param = Object.assign({}, this.routingParams);
                             param["stops"] = cs;
-                            param["maxCapacity"] = this.routingParams["maxCapacity"][IterCapacity];
 
+                            // CASO PARTICULAR PARA FROTA HETEROGÊNEA
+                            if (this.heterogeneous == true) {
+                                param["maxCapacity"] = this.routingParams["maxCapacity"][IterCapacity];
+                                IterCapacity++;
+                            }
+                            
                             // Deixar apenas as escolas que atendem os alunos no conjunto
                             let clusterSchoolsSet = new Set();
                             cs.forEach(student => clusterSchoolsSet.add(student["school"]));
@@ -110,11 +128,11 @@ class RoutingOptimizationWorker {
                                 }
                             });
                             param["schools"] = clusterSchools;
-
+                            
                             let cwalg = new ClarkeWrightSchoolBusRouting(this.cachedODMatrix, param, this.spatialiteDB);
                             clarkAlgorithmsPromise.push(cwalg.spatialRoute());
                             routers.push(cwalg);
-                            IterCapacity++;
+                            
                         });
                         
                         // let schoolBusRouter = new ClarkeWrightSchoolBusRouting(this.routingParams, this.spatialiteDB);

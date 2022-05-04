@@ -939,11 +939,11 @@ function initSimulation() {
     // Juntar dados em um objeto
     // Prof. deixei assim para facilitar sua correção os códigos original estão ao lado.
     let routeGenerationInputData = {
-        "maxTravDist": 9999999*1000,//Number($("#maxDist").val()) * 1000,
-        "maxTravTime": 9999999*60,//Number($("#maxTime").val()) * 60,
+        "maxTravDist": 999999999,//Number($("#maxDist").val()) * 1000,
+        "maxTravTime": 999999999,//Number($("#maxTime").val()) * 60,
         "optTarget": "maxTravDist",
-        "numVehicles": 3,//Number($("#numVehicles").val()),
-        "maxCapacity": [5, 1, 1],//Number($("#maxCapacity").val()),
+        "numVehicles": 1,//Number($("#numVehicles").val()),
+        "maxCapacity": [4,1,1],//Number($("#maxCapacity").val()),
         "busSpeed": Number($("#velMedia").val()) / 3.6, // converte de km/h para m/s
         "garage": garagens,
         "stops": alunos,
