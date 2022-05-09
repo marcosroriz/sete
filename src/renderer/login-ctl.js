@@ -10,11 +10,7 @@ var localizacao;
 // Serão rodados quando o DOM tiver terminado de carregar
 $(document).ready(function () {
     // Carrega o rodapé
-    $("#footer").load("https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/footer.html", function (response, status) {
-        if (status == "error") {
-            $("#footer").load("footer.html");
-        }
-    });
+    $("#footer").load("footer.html");
 
     // Ativa a aba de login por padrão
     $("#login-tab").trigger('click');
@@ -234,14 +230,14 @@ $(document).ready(function () {
     });
 
     // Ações do teclado para Login (pressionar Enter para logar)
-    $("#loginemail, #loginpassword").keypress((e) => {
-        if (e.which === 13) {
-            $("#loginsubmit").click();
+    $("#loginemail, #loginpassword").on("keyup", (e) => {
+        if (e.code == "Enter") {
+            $("#loginsubmit").trigger("click");
         }
     });
-    $("#recoveremail").keypress((e) => {
-        if (e.which === 13) {
-            $("#recoversubmit").click();
+    $("#recoveremail").on("keyup", (e) => {
+        if (e.code == "Enter") {
+            $("#recoversubmit").trigger("click");
         }
     });
 
@@ -313,17 +309,17 @@ $(document).ready(function () {
             }).then(() => {
                 if (window.process) { // Electron
                     return knex("IBGE_Municipios")
-                           .select()
-                           .where("codigo_ibge", userconfig.get("COD_CIDADE"))
+                        .select()
+                        .where("codigo_ibge", userconfig.get("COD_CIDADE"))
                 } else { // Browser
                     return []
-                }                
+                }
             }).then((res) => {
                 if (res.length > 0) {
                     userconfig.set("LATITUDE", res[0]["latitude"])
                     userconfig.set("LONGITUDE", res[0]["longitude"])
                 }
-                
+
                 document.location.href = "./dashboard.html"
             }).catch((err) => {
                 if (err?.response?.data?.messages) {
@@ -340,7 +336,7 @@ $(document).ready(function () {
     $("#recoversubmit").on('click', () => {
         let email = $("#recoveremail").val().trim();
         $("#recoveryform").validate();
-        
+
         if ($("#recoveryform").valid()) {
             loadingFn("Enviando o e-mail...");
 
@@ -348,15 +344,15 @@ $(document).ready(function () {
             axios.post(recoverURL, {
                 "email": email
             }).then(() => Swal2.fire({
-                    title: "E-mail enviado!",
-                    text: `Enviamos um e-mail para o endereço ${email} contendo um link para modificar sua senha`,
-                    type: "success",
-                    icon: "success",
-                    confirmButtonClass: "btn-success",
-                    confirmButtonText: "Retornar ao sistema",
-                })
+                title: "E-mail enviado!",
+                text: `Enviamos um e-mail para o endereço ${email} contendo um link para modificar sua senha`,
+                type: "success",
+                icon: "success",
+                confirmButtonClass: "btn-success",
+                confirmButtonText: "Retornar ao sistema",
+            })
             ).then(() => {
-               abrePopupInsercaoRecuperacaoSenha(email); 
+                abrePopupInsercaoRecuperacaoSenha(email);
             }).catch((err) => {
                 if (err != null) {
                     errorFn(`Tivemos um problema ao tentar recupear o e-mail ${email}`, err)
@@ -415,11 +411,11 @@ $(document).ready(function () {
             if (result.isConfirmed) {
                 let { email, codigo, recuperarSenha } = result.value;
                 let senhamd5 = MD5(recuperarSenha);
-                
+
                 return axios.put(BASE_URL + "/acesso/recovery", {
                     "email": email,
                     "key": codigo,
-                    "senha": senhamd5                  
+                    "senha": senhamd5
                 }).then(() => successDialog())
             }
         }).catch((err) => {
@@ -451,79 +447,41 @@ $(document).ready(function () {
                 showConfirmButton: false
             });
 
-            var email = $("#regemail").val().trim();
-            var password = $("#regpassword").val();
-            var nome = $("#regnome").val();
-            var cpf = $("#regcpf").val();
-            var telefone = $("#regtel").val();
-            var cidade = $(localizacao.cidade).find("option:selected").text();
-            var estado = $(localizacao.estado).find("option:selected").text();
+            let email = $("#regemail").val().trim();
+            let password = $("#regpassword").val();
+            let md5password = MD5(password);
+            let nome = $("#regnome").val();
+            let cpf = $("#regcpf").val();
+            let telefone = $("#regtel").val();
 
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((fbuser) => {
-                    var userData = {
-                        "ID": fbuser.user.uid,
-                        "NOME": nome,
-                        "EMAIL": email,
-                        "PASSWORD": password,
-                        "CPF": cpf,
-                        "TELEFONE": telefone,
-                        "CIDADE": cidade,
-                        "ESTADO": estado,
-                        "COD_CIDADE": localizacao.cidade.value,
-                        "COD_ESTADO": localizacao.estado.value
-                    };
-
-                    emailjs.send(SERVICE_ID, TEMPLATE_ID, userData)
-                        .then(function (response) {
-                            console.log('SUCCESS!', response.status, response.text);
-                        }, function (error) {
-                            console.log('FAILED...', error);
-                        });
-                    //Alimenta a coleção config com os documentos do municipio
-                    var dataConfig = remotedb.collection("config").doc(localizacao.cidade.value);
-                    dataConfig.get().then(function (doc) {
-                        if (!doc.exists) {
-                            remotedb.collection("config")
-                                .doc(localizacao.cidade.value)
-                                .set({ "admin": [], "users": [], "readers": [] })
-                                .then(() => criarColecaoMunicipio(localizacao.cidade.value))
-                        }
-                    })
-
-
-                    var promiseArray = new Array();
-                    promiseArray.push(remotedb.collection("users").doc(fbuser.user.uid).set(userData));
-                    promiseArray.push(InserirUsuario(userData));
-
-                    Promise.all(promiseArray).then(() => {
-                        Swal2.close();
-                        Swal2.fire({
-                            title: "Parabéns!",
-                            text: "Sua conta foi criada com sucesso. Ela será analisada pela equipe do CECATE e em breve você já poderá realizar o login.",
-                            icon: "success",
-                            type: "success",
-                            button: "Fechar"
-                        });
-
-                        $("#loginemail").val($("#regemail").val().trim());
-                        $("#loginpassword").val($("#regpassword").val());
-                        $("#login-tab").trigger('click');
-                    });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    if (err != null) {
-                        var errmsg = err.message;
-                        if (err.code == "auth/email-already-in-use") {
-                            errmsg = "O e-mail informado já foi cadastrado."
-                        } else if (err.code == "auth/network-request-failed") {
-                            errmsg = "Erro de conexão com a Internet."
-                        }
-                        errorFn(errmsg)
-                        return;
-                    }
+            axios.post(`${BASE_URL}/registro/${localizacao.cidade.value}`, {
+                "nome": nome,
+                "cpf": String(cpf).replace(/\D/g, ''),
+                "telefone": telefone,
+                "email": email,
+                "password": md5password,
+                "tipo_permissao": "admin"
+            }).then(() => {
+                Swal2.close();
+                Swal2.fire({
+                    title: "Parabéns!",
+                    text: "Sua conta foi criada com sucesso. Ela será analisada pela equipe do CECATE e em breve você já poderá realizar o login.",
+                    icon: "success",
+                    type: "success",
+                    button: "Fechar"
                 });
+                userconfig.set("EMAIL", email);
+                userconfig.set("PASSWORD", password);
+                $("#loginemail").val($("#regemail").val().trim());
+                $("#loginpassword").val($("#regpassword").val());
+                $("#login-tab").trigger('click');
+            }).catch((err) => {
+                let errorMSG = "Não foi possível fazer o registro. Entre em contato com a equipe de suporte."
+                if (err?.response?.data?.messages) {
+                    errorMSG = err.response.data.messages.join("\n");
+                }
+                errorFn(errorMSG);
+            })
         }
     });
 
