@@ -394,16 +394,16 @@ $(() => {
                 const recuperarSenhaRepetida = Swal2.getPopup().querySelector('#recuperarSenhaRepeticao').value;
 
                 if (email == null || email == "") {
-                    Swal2.showValidationMessage(`E-mail vazio`);
+                    Swal2.showValidationMessage("E-mail vazio");
                 } else if (codigo == null || codigo == "") {
-                    Swal2.showValidationMessage(`Código vazio`);
+                    Swal2.showValidationMessage("Código vazio");
                 } else if (recuperarSenha == null || recuperarSenha == undefined && recuperarSenha == "" ||
                     recuperarSenhaRepetida == null || recuperarSenhaRepetida == undefined || recuperarSenhaRepetida == "") {
-                    Swal2.showValidationMessage(`Pelo menos uma das senhas está vazia`);
+                    Swal2.showValidationMessage("Pelo menos uma das senhas está vazia");
                 } else if (recuperarSenha != recuperarSenhaRepetida) {
-                    Swal2.showValidationMessage(`As senhas digitadas são diferentes`);
+                    Swal2.showValidationMessage("As senhas digitadas são diferentes");
                 } else if (recuperarSenha.length <= 6 && recuperarSenhaRepetida.length <= 6) {
-                    Swal2.showValidationMessage(`As senhas devem ter no mínimo seis dígitos`);
+                    Swal2.showValidationMessage("As senhas devem ter no mínimo seis dígitos");
                 }
                 return { email, codigo, recuperarSenha, recuperarSenhaRepetida }
             }
@@ -485,31 +485,10 @@ $(() => {
         }
     });
 
-    $("#regpassword").change(() => {
+    $("#regpassword, #regpasswordrepeat").on("keyup", () => {
         $("#regpassword").valid();
-    })
-
-    $("#regpasswordrepeat").change(() => {
         $("#regpasswordrepeat").valid();
     });
-
-    function criarColecaoMunicipio(codMunicipio) {
-        //Cria a coleção dos dados para o municipio caso não tenha sido criado ainda
-        let dataFirebase = remotedb.collection("municipios").doc(codMunicipio);
-        dataFirebase.get().then(function (doc) {
-            if (!doc.exists) {
-                //console.log("Cidade Não existe");
-                remotedb.collection("municipios").doc(codMunicipio).set({
-                    "alunos": [], "escolatemalunos": [], "escolas": [], "faztransporte": [], "fornecedores": [],
-                    "garagem": [], "garagemtemveiculo": [], "motoristas": [], "municipios": [], "ordemdeservico": [],
-                    "rotaatendealuno": [], "rotadirigidapormotorista": [], "rotapassaporescolas": [], "rotapossuiveiculo": [],
-                    "rotas": [], "veiculos": [],
-                    "INIT": false
-                });
-            }
-        })
-
-    }
 
     $("#chk-usarproxy").on('click', function () {
         let checado = false;
@@ -543,26 +522,36 @@ $(() => {
     });
 
     $("#proxy-tab").on('click', function () {
-        Swal2.fire({
-            title: "Cuidado",
-            text: `A utilização de um proxy altera a forma com que o SETE
-                   se conecta à Internet. Antes de fazer alterações, 
-                   consulte a equipe técnica do seu setor. Tem certeza que 
-                   deseja prosseguir?`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            cancelButtonText: "Cancelar",
-            confirmButtonText: 'Sim'
-        }).then((res) => {
-            if (!res.value) {
-                // Usuário não tem certeza, voltamos pra tela de login
+        if (isElectron) {
+            Swal2.fire({
+                title: "Cuidado",
+                text: `A utilização de um proxy altera a forma com que o SETE
+                       se conecta à Internet. Antes de fazer alterações, 
+                       consulte a equipe técnica do seu setor. Tem certeza que 
+                       deseja prosseguir?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                cancelButtonText: "Cancelar",
+                confirmButtonText: 'Sim'
+            }).then((res) => {
+                if (!res.value) {
+                    // Usuário não tem certeza, voltamos pra tela de login
+                    $("#login-tab").trigger('click');
+                } else {
+                    $("#chk-usarproxy").prop('disabled', false);
+                }
+            })
+        } else {
+            Swal2.fire({
+                title: "Indisponível",
+                text: "A funcionalidade de Proxy está somente disponível na versão desktop.",
+                icon: "warning",
+            }).then(() => {
                 $("#login-tab").trigger('click');
-            } else {
-                $("#chk-usarproxy").prop('disabled', false);
-            }
-        })
+            })
+        }
     });
 
     $("#proxysubmit").on('click', function () {
@@ -574,7 +563,6 @@ $(() => {
             successDialog("Parabéns",
                 "Operação executado com sucesso. Por favor, feche e " +
                 " reabra o software para as alterações surtirem efeitos.")
-
         } else {
             let proxyValido = $("#proxyform").valid();
             if (proxyValido) {
