@@ -339,7 +339,7 @@ Swal2.fire({
     icon: "warning",
     html:
         'Esta funcionalidade está em fase de reformulação SETE',
-}).then(() => navigateDashboard(lastPage))
+}).then(() => $("#logosete").trigger("click"))
 
 if (!isElectron) {
     // Swal2.fire({

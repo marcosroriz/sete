@@ -282,7 +282,7 @@ Swal2.fire({
     icon: "warning",
     html:
         'Esta funcionalidade está em fase de reformulação SETE',
-}).then(() => navigateDashboard(lastPage))
+}).then(() => $("#logosete").trigger("click"))
 
 // dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
 // .then(res => processarRotas(res))
