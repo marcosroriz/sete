@@ -1,14 +1,14 @@
 // Instanciação 
 emailjs.init("user_319iA49jzZ51Sa7qehcii");
-var SERVICE_ID = 'service_ij3p8cb';
-var TEMPLATE_ID = 'template_5mqem8f';
+let SERVICE_ID = 'service_ij3p8cb';
+let TEMPLATE_ID = 'template_5mqem8f';
 
 // Localização do Usuário
-var localizacao;
+let localizacao;
 
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
-$(document).ready(function () {
+$(() => {
     // Carrega o rodapé
     $("#footer").load("footer.html");
 
@@ -245,11 +245,11 @@ $(document).ready(function () {
 
     // No caso de login iremos fazer o login com o Firebase as preferências
     // do usuário no arquivo local (userconfig)
-    $("#loginsubmit").click(() => {
-        var email = $("#loginemail").val().trim();
-        var password = $("#loginpassword").val();
-        var md5password = MD5(password);
-        var lembrarlogin = $("#loginlembrar").is(":checked");
+    $("#loginsubmit").on("click", () => {
+        let email = $("#loginemail").val().trim();
+        let password = $("#loginpassword").val();
+        let md5password = MD5(password);
+        let lembrarlogin = $("#loginlembrar").is(":checked");
 
         $("#loginform").validate();
 
@@ -495,7 +495,7 @@ $(document).ready(function () {
 
     function criarColecaoMunicipio(codMunicipio) {
         //Cria a coleção dos dados para o municipio caso não tenha sido criado ainda
-        var dataFirebase = remotedb.collection("municipios").doc(codMunicipio);
+        let dataFirebase = remotedb.collection("municipios").doc(codMunicipio);
         dataFirebase.get().then(function (doc) {
             if (!doc.exists) {
                 //console.log("Cidade Não existe");
@@ -512,7 +512,7 @@ $(document).ready(function () {
     }
 
     $("#chk-usarproxy").on('click', function () {
-        var checado = false;
+        let checado = false;
         if ($(this).is(':checked'))
             checado = true;
 
@@ -566,7 +566,7 @@ $(document).ready(function () {
     });
 
     $("#proxysubmit").on('click', function () {
-        var checado = $("#chk-usarproxy").is(':checked')
+        let checado = $("#chk-usarproxy").is(':checked')
 
         if (!checado) {
             // Remove Proxy
