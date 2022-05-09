@@ -277,28 +277,23 @@ dataTablesRelatorio.on('click', '.rotaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover a rota", err))
 });
 
-if (!isElectron) {
-    Swal2.fire({
-        title: "Funcionalidade indisponível",
-        icon: "warning",
-        html:
-            'Esta funcionalidade está em fase de migração para o SETE web. Atualmente, está disponível apenas no SETE desktop. ' +
-            'Baixe a versão desktop para acessá-la. <br> ' + 
-            'Clique ' + 
-            '<a target="_blank" href="https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar">aqui</a> ' + 
-            'para baixar a versão desktop.',
-    }).then(() => navigateDashboard(lastPage))
-} else {
-    dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
-    .then(res => processarRotas(res))
-    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
-    .then((res) => processarAlunosPorRota(res))
-    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-    .then((res) => processarEscolasPorRota(res))
-    .then((res) => adicionaDadosTabela(res))
-    .then(() => CalcularEstatisticas())
-    .catch((err) => errorFn("Erro ao listar as escolas!", err))
-}
+Swal2.fire({
+    title: "Funcionalidade indisponível",
+    icon: "warning",
+    html:
+        'Esta funcionalidade está em fase de reformulação SETE',
+}).then(() => navigateDashboard(lastPage))
+
+// dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
+// .then(res => processarRotas(res))
+// .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
+// .then((res) => processarAlunosPorRota(res))
+// .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+// .then((res) => processarEscolasPorRota(res))
+// .then((res) => adicionaDadosTabela(res))
+// .then(() => CalcularEstatisticas())
+// .catch((err) => errorFn("Erro ao listar as escolas!", err))
+
 // Processar rotas
 var processarRotas = (res) => {
     totalNumRotas = res.length;

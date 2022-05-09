@@ -334,35 +334,30 @@ dataTablesRelatorio.on('click', '.alunoRemove', function () {
 });
 
 
+Swal2.fire({
+    title: "Funcionalidade indisponível",
+    icon: "warning",
+    html:
+        'Esta funcionalidade está em fase de reformulação SETE',
+}).then(() => navigateDashboard(lastPage))
+
 if (!isElectron) {
-    Swal2.fire({
-        title: "Funcionalidade indisponível",
-        icon: "warning",
-        html:
-            'Esta funcionalidade está em fase de migração para o SETE web. Atualmente, está disponível apenas no SETE desktop. ' +
-            'Baixe a versão desktop para acessá-la. <br> ' + 
-            'Clique ' + 
-            '<a target="_blank" href="https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar">aqui</a> ' + 
-            'para baixar a versão desktop.',
-    }).then(() => navigateDashboard(lastPage))
+    // Swal2.fire({
+    //     title: "Funcionalidade indisponível",
+    //     icon: "warning",
+    //     html:
+    //         'Esta funcionalidade está em fase de reformulação SETE',
+    // }).then(() => navigateDashboard(lastPage))
 } else {
-    restImpl.dbGETColecao(DB_TABLE_ALUNO)
-    .then(res => preprocessarAlunos(res))
-    .then(() => restImpl.dbGETColecao(DB_TABLE_ESCOLA))
-    .then(res => totalNumEscolas = res.length)
-    .then(() => restImpl.dbGETColecao(DB_TABLE_ROTA))
-    .then(res => totalNumRotas = res.length)
-    // .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-    // .then(res => preprocessarEscolasTemAlunos(res))
-    // .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-    // .then(res => preprocessarRotaTemAlunos(res))
-    // .then(res => adicionaDadosTabela(res))
-    .then(() => CalcularEstatisticas())
-    .catch((err) => errorFn(err))
+    // restImpl.dbGETColecao(DB_TABLE_ALUNO)
+    // .then(res => preprocessarAlunos(res))
+    // .then(() => restImpl.dbGETColecao(DB_TABLE_ESCOLA))
+    // .then(res => totalNumEscolas = res.length)
+    // .then(() => restImpl.dbGETColecao(DB_TABLE_ROTA))
+    // .then(res => totalNumRotas = res.length)
+    // .then(() => CalcularEstatisticas())
+    // .catch((err) => errorFn(err))
 }
-
-
-
 
 // Preprocessa alunos
 var preprocessarAlunos = (res) => {
