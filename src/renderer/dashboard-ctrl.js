@@ -58,9 +58,8 @@ restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
 .then(() => preencheDashboardAlunosEscolas())
 .then(() => preencheDashboardVeiculos())
 .then(() => preencheDashboardRotas())
-// .then(() => preencheRelacoes())
 .then(() => preencheMapa())
-.then(() => mostraSeTemUpdate())
+.then(() => mostraSeTemUpdate(mostraSeTemUpdate))
 .then(() => {
     $(".preload").fadeOut(200, function () {
         $(".content").fadeIn(200);
@@ -74,7 +73,7 @@ restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
     // mostraSeTemUpdate(firstAcess);
     firstAcess = false;
 
-    return firstAcess
+    return firstAcess;
 })
 .catch(() => {
     errorFn("Acesso inválido")
@@ -85,28 +84,47 @@ restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
 
 // Mostra se update (ver github version)
 function mostraSeTemUpdate(firstAcess) {
-    if (firstAcess) {
-        fetch("https://raw.githubusercontent.com/marcosroriz/sete/master/package.json")
-            .then(res => res.json())
-            .then(pkg => {
-                let upVersion = pkg.version;
+    fetch("https://raw.githubusercontent.com/marcosroriz/sete/master/package.json")
+    .then((res) => res.json())
+    .then((pkg) => {
+        if (isElectron) {
+            if (firstAcess) {
                 appVersion = pkg.version;
-                debugger
+                let upVersion = pkg.version;
                 let currentVersion = app.getVersion();
                 if (upVersion != currentVersion) {
-                    $.notify({
-                        icon: 'ml-1 fa fa-cloud-download menu-icon',
-                        title: 'Saiu uma nova versão do SETE',
-                        message: 'Clique aqui para entrar na página do SETE',
-                        url: 'https://www.gov.br/fnde/pt-br/assuntos/sistemas/sete-sistema-eletronico-de-gestao-do-transporte-escolar',
-                        target: '_blank'
-                    }, {
-                        type: "warning",
-                        delay: 0
-                    })
+                    $.notify(
+                        {
+                            icon: "ml-1 fa fa-cloud-download menu-icon",
+                            title: "Saiu uma nova versão do SETE",
+                            message: "Clique aqui para entrar na página do SETE",
+                            url: "https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar",
+                            target: "_blank",
+                        },
+                        { 
+                            type: "warning",
+                            delay: 0,
+                        }
+                    );
                 }
-            })
-    }
+            }
+    
+            if (Number(app.getVersion()[0]) < 2) {
+                Swal2.fire({
+                    title: "Saiu uma nova versão do SETE",
+                    text: "Você deve atualizar o SETE ou utilizar a versão web do sistema. " +
+                          "Clique aqui para entrar na página do SETE.",
+                    icon: "warning",
+                }).then(() => {
+                    shell.openExternal("https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar");
+                }).then(() => {
+                    setTimeout(() => {
+                        document.location.href = "./login-view.html";
+                    }, 1000);
+                })
+            }
+        }
+    });
 }
 
 // Funções que Preenchem o Dashboard
@@ -509,7 +527,7 @@ var plotarEscola = (escolaJSON) => {
     pontoEscola.set("TIPO", "ESCOLA");
     pontoEscola.set("DEPENDENCIA", escolaJSON["DEPENDENCIA"]);
     pontoEscola.set("HORARIO", escolaJSON["HORARIO"]);
-    pontoEscola.set("REGIME", escolaJSON["REGIME"]);
+    // pontoEscola.set("REGIME", escolaJSON["REGIME"]);
     pontoEscola.set("ENSINO", escolaJSON["ENSINO"])
     pontoEscola.set("NUM_ALUNOS", escolaJSON["NUM_ALUNOS"]);
     pontoEscola.set("CONTATO_TELEFONE", escolaJSON["CONTATO_TELEFONE"]);
@@ -650,10 +668,6 @@ var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
                 title: "Horário de Funcionamento",
                 visible: (e) => e.getProperties().TIPO == "ESCOLA"
             },
-            'CONTATO_TELEFONE': {
-                title: "Contato",
-                visible: (e) => e.getProperties().TIPO == "ESCOLA"
-            },
             'NUM_ALUNOS': {
                 title: "Número de alunos",
                 visible: (e) => e.getProperties().TIPO == "ESCOLA"
@@ -676,7 +690,6 @@ var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
                 title: "Número de alunos",
                 visible: (e) => e.getProperties().TIPO == "ROTA"
             },
-
             'MENSAGEM': {
                 title: "Mensagem:",
                 visible: (e) => e.getProperties().TIPO == "ALERTA"
@@ -697,7 +710,6 @@ var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
                 title: "Data da ocorrência",
                 visible: (e) => e.getProperties().TIPO == "ALERTA"
             },
-
             'ROTA': {
                 title: "Rota:",
                 visible: (e) => e.getProperties().TIPO == "VEICULO"
