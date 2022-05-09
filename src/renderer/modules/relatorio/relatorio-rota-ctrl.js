@@ -277,15 +277,22 @@ dataTablesRelatorio.on('click', '.rotaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover a rota", err))
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
-.then(res => processarRotas(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
-.then((res) => processarAlunosPorRota(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-.then((res) => processarEscolasPorRota(res))
-.then((res) => adicionaDadosTabela(res))
-.then(() => CalcularEstatisticas())
-.catch((err) => errorFn("Erro ao listar as escolas!", err))
+Swal2.fire({
+    title: "Funcionalidade indisponível",
+    icon: "warning",
+    html:
+        'Esta funcionalidade está em fase de reformulação SETE',
+}).then(() => $("#logosete").trigger("click"))
+
+// dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
+// .then(res => processarRotas(res))
+// .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
+// .then((res) => processarAlunosPorRota(res))
+// .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+// .then((res) => processarEscolasPorRota(res))
+// .then((res) => adicionaDadosTabela(res))
+// .then(() => CalcularEstatisticas())
+// .catch((err) => errorFn("Erro ao listar as escolas!", err))
 
 // Processar rotas
 var processarRotas = (res) => {

@@ -114,8 +114,18 @@ var popularTabelaVeiculo = () => {
     dataTableVeiculo.draw();
 }
 
-popularTabelaVeiculo();
-
+debugger
+restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${estadoVeiculo.ID}`)
+.then((veiculoRaw) => {
+    debugger
+    let detalhesDoVeiculo = parseVeiculoREST(veiculoRaw);
+    Object.assign(estadoVeiculo, detalhesDoVeiculo);
+    return estadoVeiculo;
+}).then(() => popularTabelaVeiculo())
+.catch((err) => {
+    debugger
+    console.log(err)
+})
 $("#detalheInitBtn").click();
 
 action = "detalharVeiculo";

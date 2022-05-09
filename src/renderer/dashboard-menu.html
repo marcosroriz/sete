@@ -10,14 +10,14 @@
         </div>
         <div class="info ">
             <a data-toggle="collapse" href="#collapseExample" class="collapsed">
-                <span><span id="userName">Carregando ...</span>
+                <span><span id="userName">Usuário</span>
                     <b class="caret"></b>
                 </span>
             </a>
             <div class="collapse" id="collapseExample">
                 <ul class="nav">
                     <li>
-                        <a name="config/configuracoes-view" class="mt-2 link-menu profile-dropdown" href="#">
+                        <a name="usuario/usuario-dados-view" class="mt-2 link-menu profile-dropdown" href="#">
                             <i class="ml-1 fa fa-address-book menu-icon" aria-hidden="true"></i>
                             <span class="sidebar-normal">Meu Perfil</span>
                         </a>
@@ -127,11 +127,6 @@
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a name="escola/escola-importar-view" class="link-menu nav-link" href="#">
-                            <span class="sidebar-normal">Importar</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
                         <a name="escola/escola-listar-view" class="link-menu nav-link" href="#">
                             <span class="sidebar-normal">Gerenciar</span>
                         </a>
@@ -162,6 +157,30 @@
                     </li>
                     <li class="nav-item ">
                         <a name="motorista/motorista-listar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Gerenciar</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#monitorMenu">
+                <img src="./img/icones/monitor-icone-branco.png" class="menu-icon">
+                <p>
+                    Monitores
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="monitorMenu">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a name="monitor/monitor-cadastrar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a name="monitor/monitor-listar-view" class="link-menu nav-link" href="#">
                             <span class="sidebar-normal">Gerenciar</span>
                         </a>
                     </li>
@@ -275,6 +294,30 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#custoMenu">
+                <img src="./img/icones/custo-icone-branco.png" class="menu-icon">
+                <p>
+                    Custo
+                    <b class="caret"></b>
+                </p>
+            </a>
+            <div class="collapse " id="custoMenu">
+                <ul class="nav">
+                    <li class="nav-item ">
+                        <a name="custo/custo-parametros-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Parâmetros</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a name="custo/custo-rota-listar-view" class="link-menu nav-link" href="#">
+                            <span class="sidebar-normal">Cálculo</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#relatoriosMenu">
                 <img src="./img/icones/relatorios.svg" class="menu-icon">
                 <p>
@@ -311,14 +354,29 @@
 </div>
 
 <script>
+    // Variáviel que indica se estamos ou não com o menu hamburguer habilitado
+    var menuHamburguerHabilitado = false;
+
+    $("#toggleHamburguerMenu").on('click', () => {
+        menuHamburguerHabilitado = !menuHamburguerHabilitado;
+        
+        if (menuHamburguerHabilitado) {
+            $("#sidebar").addClass("menuHamburguer");
+        } else {
+            $("#sidebar").removeClass("menuHamburguer");
+        }
+
+    })
+
     // Variável que indica se as funções foram ou não desabilitadas
     var linksHabilitado = true;
 
     // Funções para desabilitar/habilitar links quando usuário estiver offline
     var desabilitaLinksMenu = (msg = 'Esta função só está habilitada se você estiver conectado à Internet.') => {
-        $("li.nav-item").has("a[name*='cadastrar'], a[name*='importar']").addClass("disabled");
+        $("li.nav-item").has("a[name*='cadastrar'], a[name*='desenhar'], a[name*='importar']").addClass("disabled");
         $("a[name*='cadastrar'], a[name*='importar']").unbind("click");
         $("a[name*='cadastrar'], a[name*='importar']").bind("click", () => {
+            debugger
             Swal2.fire({
                 icon: 'error',
                 title: 'Oops...',
@@ -346,7 +404,7 @@
     }
 
     var funcMonitorRede = window.setInterval(function () {
-        if (!isOnline() || userRole == "EDITOR") {
+        if (userconfig?.get("TIPO_PERMISSAO") == "leitor") {
             if (linksHabilitado) {
                 desabilitaLinksMenu();
             }
@@ -354,7 +412,7 @@
         } else {
             habilitaLinksMenu();
         }
-    }, 5000);
+    }, 1000);
 
     $('.collapse').on('show.bs.collapse', function () {
         $('.collapse.show').each(function(){
@@ -378,7 +436,9 @@
         $("#syncBtn").on('click', () => {
             $(".activeLink").removeClass("activeLink");
             $("#syncBtn").parent().addClass("activeLink");
-            fbSync();
+            
+            sessionStorage.clear();
+            $("#content").load("./dashboard-main.html");
         });
 
         // Menu
@@ -400,20 +460,9 @@
         });
 
         // Habilita ou desabilita menus com base no perfil do usuário
-        return remotedb.collection("config")
-            .doc(codCidade)
-            .get({ source: "server" })
-            .then((res) => {
-                let config = res.data();
-                config.readers.forEach(idReader => {
-                    if (idReader == userconfig.get("ID")) {
-                        userRole = "EDITOR";
-                    }
-                })
-                habilitaLinksMenu();
-                if (userRole == "EDITOR") {
-                    desabilitaLinksMenu("Você não possui permissão para cadastrar ou alterar os dados deste município");
-                }
-            })
+        habilitaLinksMenu();
+        if (userconfig.get("TIPO_PERMISSAO") == "leitor") {
+            desabilitaLinksMenu("Você não possui permissão para cadastrar ou alterar os dados deste município");
+        }
     });
 </script>

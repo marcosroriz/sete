@@ -12,7 +12,9 @@
                         <div class="col-12 text-center">
                             <div class="totalText">
                                 Total de Motoristas
-                                <span id="totalNumMotoristas" class="badge badge-success badge-total"></span>
+                                <span id="dtFiltro" class="badge badge-success badge-total"></span>
+                                <span class="separador"> / </span>
+                                <span id="dtTotal" class="badge badge-success badge-total"></span>
                                 <div id="datatables_filter" class="dataTables_filter"><label><input type="search"
                                     class="form-control form-control-sm" placeholder="Procurar motorista"
                                     aria-controls="datatables"></label></div>
@@ -58,7 +60,7 @@
                                             Validade da CNH
                                         </span>
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         <span class="colunaComFiltro">
                                             # Número de rotas dirigidas
                                         </span>
@@ -71,7 +73,7 @@
                                                 <option value="^[3-9]|^[0-9][0-9]">Acima de 2</option>
                                             </select>
                                         </span>
-                                    </th>
+                                    </th> -->
                                     <th class="disabled-sorting text-center">Ações</th>
                                 </tr>
                             </thead>

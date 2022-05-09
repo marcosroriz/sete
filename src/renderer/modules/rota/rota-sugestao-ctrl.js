@@ -7,9 +7,6 @@
  * Por fim, deve-se permitir que o usuário salve as rotas geradas.
  */
 
-// Bibliotecas especificas
-var osmtogeojson = require("osmtogeojson");
-
 // Mapas (config = para parametrização, rotagerada = para simulação)
 var mapaConfig = novoMapaOpenLayers("mapaRotaSugestaoConfig", cidadeLatitude, cidadeLongitude);
 var mapaRotaGerada = novoMapaOpenLayers("mapaRotaSugestaoGerada", cidadeLatitude, cidadeLongitude);
@@ -31,8 +28,10 @@ window.onresize = function () {
 var rotasGeradas = new Map();
 
 // Variáveis que armazenará todos os usuários e escolas que podem utilizar a ferramenta
-var alunoMap = new Map();
-var escolaMap = new Map();
+var alunoMap = new Map();      // Mapa que associa id aluno -> dados do aluno
+var escolaMap = new Map();     // Mapa que associa id escola -> dados da escola
+var nomeEscolaMap = new Map(); // Mapa que associa nome escola -> dados da escola
+var nomeRotaMap = new Map();    // Mapa que associa nome rota  -> dados da rota
 
 // Variáveis qeu contém apenas os usuários escolhidos para o processo de simulação
 var alunos = new Array();
@@ -50,58 +49,64 @@ if (numSimulacao == undefined) {
 // Promessas
 ////////////////////////////////////////////////////////////////////////////////
 
-loadingFn("Preparando a ferramenta")
-
 function startTool() {
-    loadOSMFile()
-    .then(dataOSM => convertOSMToGeoJSON(dataOSM))
-    .then(osmGeoJSON => plotMalha(osmGeoJSON))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_VEICULO))
-    .then(res => $("#numVehicles").val(res.length))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ALUNO))
-    .then(res => preprocessarAlunos(res))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA))
-    .then(res => preprocessarEscolas(res))
-    .then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
-    .then(res => preprocessarGaragem(res))
-    .then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-    .then(res => processarVinculoAlunoEscolas(res))
-    .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-    .then(res => processarVinculoAlunoRota(res))
-    .then(() => listaElementos())
-    .catch((err) => {
-        let code = err.code;
-        debugger
-        if (code == "erro:malha") {
-            informarNaoExistenciaDado("Malha não cadastrada", 
-                                      "Cadastrar malha",
-                                      "a[name='rota/rota-malha-view']",
-                                      "#veiculoMenu")
-        } else if (code == "erro:garagem") {
-            informarNaoExistenciaDado("Garagem não cadastrada", 
-                                      "Cadastrar garagem",
-                                      "a[name='frota/garagem-visualizar-view']",
-                                      "#veiculoMenu")
-        } else if (code == "erro:aluno") {
-            informarNaoExistenciaDado("Não há nenhum aluno georeferenciado", 
-                                      "Gerenciar alunos",
-                                      "a[name='aluno/aluno-listar-view']",
-                                      "#alunoMenu")
-        } else if (code == "erro:escola") {
-            informarNaoExistenciaDado("Não há nenhuma escola georeferenciada", 
-                                      "Gerenciar escolas",
-                                      "a[name='escola/escola-listar-view']",
-                                      "#escolaMenu")
-        } else if (code == "erro:vinculo") {
-            informarNaoExistenciaDado("As escolas dos alunos escolhidos não estão georeferenciadas", 
-                                      "Escolas: " + err.data,
-                                      "a[name='escola/escola-listar-view']",
-                                      "#escolaMenu")
-        } else {
-            errorFn(`Erro ao utilizar a ferramenta de sugestão de rotas. 
-                     Entre em contato com a equipe de suporte`);
-        }
-    })
+    // Esta ferramenta só funciona no Electron
+    if (!isElectron) {
+        Swal2.fire({
+            title: "Funcionalidade indisponível",
+            icon: "warning",
+            html:
+                'Esta funcionalidade está disponível apenas no SETE desktop. ' +
+                'Baixe a versão desktop para acessá-la. <br> ' +
+                'Clique ' +
+                '<a target="_blank" href="https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar">aqui</a> ' +
+                'para baixar a versão desktop.',
+        }).then(() => navigateDashboard(lastPage))
+    } else {
+        // Rodando no electron
+        loadingFn("Preparando a ferramenta")
+        loadOSMFile()
+        .then(dataOSM => convertOSMToGeoJSON(dataOSM))
+        .then(osmGeoJSON => plotMalha(osmGeoJSON))
+        .then(() => preprocessarVeiculos())
+        .then(() => preprocessarEscolas())
+        .then(() => preprocessarRotas())
+        .then(() => preprocessarGaragem())
+        .then(() => preprocessarAlunos())
+        .then(() => listaElementos())
+        .catch((err) => {
+            let code = err.code;
+            if (code == "erro:malha") {
+                informarNaoExistenciaDado("Malha não cadastrada", 
+                                          "Cadastrar malha",
+                                          "a[name='rota/rota-malha-view']",
+                                          "#veiculoMenu")
+            } else if (code == "erro:garagem") {
+                informarNaoExistenciaDado("Garagem não cadastrada", 
+                                          "Cadastrar garagem",
+                                          "a[name='frota/garagem-visualizar-view']",
+                                          "#veiculoMenu")
+            } else if (code == "erro:aluno") {
+                informarNaoExistenciaDado("Não há nenhum aluno georeferenciado", 
+                                          "Gerenciar alunos",
+                                          "a[name='aluno/aluno-listar-view']",
+                                          "#alunoMenu")
+            } else if (code == "erro:escola") {
+                informarNaoExistenciaDado("Não há nenhuma escola georeferenciada", 
+                                          "Gerenciar escolas",
+                                          "a[name='escola/escola-listar-view']",
+                                          "#escolaMenu")
+            } else if (code == "erro:vinculo") {
+                informarNaoExistenciaDado("As escolas dos alunos escolhidos não estão georeferenciadas", 
+                                          "Escolas: " + err.data,
+                                          "a[name='escola/escola-listar-view']",
+                                          "#escolaMenu")
+            } else {
+                errorFn(`Erro ao utilizar a ferramenta de sugestão de rotas. 
+                         Entre em contato com a equipe de suporte`);
+            }
+        })    }
+    
 }
 
 // Informar não existência de dado
@@ -206,62 +211,120 @@ function plotMalha(osmGeoJSON) {
     return Promise.resolve(tileIndex)
 }
 
-
-// Preprocessa alunos
-function preprocessarAlunos(res) {
-    let numTemGPS = 0;
-    
-    for (let alunoRaw of res) {
-        let alunoJSON = parseAlunoDB(alunoRaw);
-
-        if (alunoJSON["LOC_LATITUDE"] != "" && alunoJSON["LOC_LONGITUDE"] != "" &&
-            alunoJSON["LOC_LATITUDE"] != undefined && alunoJSON["LOC_LONGITUDE"] != undefined &&
-            alunoJSON["LOC_LATITUDE"] != null && alunoJSON["LOC_LONGITUDE"] != null) {
-
-            alunoJSON["GPS"] = true;
-            numTemGPS++;
-        } else {
-            alunoJSON["GPS"] = false;
-        }
-
-        alunoJSON["TEM_ESCOLA"] = false;
-        alunoJSON["ESCOLA_ID"] = false;
-        alunoJSON["ESCOLA_NOME"] = "Não está vinculado";
-        alunoJSON["ESCOLA_TEM_GPS"] = false;
-
-        alunoJSON["TEM_ROTA"] = false;
-        alunoJSON["ROTA_ID"] = "";
-        alunoJSON["ROTA_NOME"] = "";
-
-        alunoMap.set(String(alunoJSON["ID"]), alunoJSON);
+// Preprocessa veículos
+async function preprocessarVeiculos() {
+    let veiculos = [];
+    try {
+        veiculos = await restImpl.dbBuscarTodosDadosPromise(DB_TABLE_VEICULO);
+    } catch (err) {
+        veiculos = [];
     }
 
-    if (numTemGPS == 0) {
-        return Promise.reject({ code: "erro:aluno" })
+    $("#numVehicles").val(1);
+}
+
+// Preprocessa alunos
+async function preprocessarAlunos() {
+    let numAlunosTemGPS = 0;
+    let numEscolasTemGPS = 0;
+
+    let alunos = [];
+    try {
+        alunos = await restImpl.dbGETColecao(DB_TABLE_ALUNO);
+
+        for (let alunoRaw  of alunos) {
+            let alunoJSON = parseAlunoREST(alunoRaw);
+            
+            if (alunoJSON["LOC_LATITUDE"] != "" && alunoJSON["LOC_LONGITUDE"] != "" &&
+                alunoJSON["LOC_LATITUDE"] != undefined && alunoJSON["LOC_LONGITUDE"] != undefined &&
+                alunoJSON["LOC_LATITUDE"] != null && alunoJSON["LOC_LONGITUDE"] != null) {
+
+                alunoJSON["GPS"] = true;
+                numAlunosTemGPS++;
+            } else {
+                alunoJSON["GPS"] = false;
+            }
+
+            // Verifica escola do aluno
+            if (alunoJSON["ESCOLA"] && nomeEscolaMap.has(alunoJSON["ESCOLA"])) {
+                let escolaJSON = nomeEscolaMap.get(alunoJSON["ESCOLA"]);
+                alunoJSON["TEM_ESCOLA"] = true;
+                alunoJSON["ESCOLA_ID"] = escolaJSON["ID"];
+                alunoJSON["ESCOLA_NOME"] = escolaJSON["NOME"];
+                
+                if (escolaJSON["GPS"]) {
+                    alunoJSON["ESCOLA_TEM_GPS"] = true;
+                    numEscolasTemGPS++;
+                } else {
+                    alunoJSON["ESCOLA_TEM_GPS"] = false;
+                }
+
+                if (alunoJSON["GPS"]) {
+                    escolaJSON["TEM_ALUNO_COM_GPS"] = true;
+                }
+
+                escolaMap.set(String(escolaJSON["ID"]), escolaJSON);
+                nomeEscolaMap.set(String(escolaJSON["NOME"]), escolaJSON);
+            } else {
+                alunoJSON["TEM_ESCOLA"] = false;
+                alunoJSON["ESCOLA_ID"] = false;
+                alunoJSON["ESCOLA_NOME"] = "Não está vinculado";
+                alunoJSON["ESCOLA_TEM_GPS"] = false;
+            }
+
+            // Verifica rota do aluno
+            if (alunoJSON["ROTA"] && nomeRotaMap.has(alunoJSON["ROTA"])) {
+                let rotaJSON = nomeRotaMap.get(alunoJSON["ROTA"]);
+                alunoJSON["TEM_ROTA"] = true;
+                alunoJSON["ROTA_ID"] = rotaJSON["ID"];
+                alunoJSON["ROTA_NOME"] = rotaJSON["NOME"];
+            } else {
+                alunoJSON["TEM_ROTA"] = false;
+                alunoJSON["ROTA_ID"] = "";
+                alunoJSON["ROTA_NOME"] = "";
+            }
+
+            alunoMap.set(String(alunoJSON["ID"]), alunoJSON);
+        }
+    } catch (err) {
+        alunos = [];
+    }
+    
+    if (numAlunosTemGPS == 0) {
+        return Promise.reject({ code: "erro:aluno" });
+    } else if (numEscolasTemGPS == 0) {
+        return Promise.reject({ code: "erro:escola" });
     } else {
         return alunoMap;
     }
 }
 
 // Preprocessa escolas
-function preprocessarEscolas(res) {
+async function preprocessarEscolas() {
     let numTemGPS = 0;
 
-    for (let escolaRaw of res) {
-        let escolaJSON = parseEscolaDB(escolaRaw);
+    try {
+        let escolas = await restImpl.dbGETColecao(DB_TABLE_ESCOLA);
 
-        if (escolaJSON["LOC_LATITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != "" &&
-            escolaJSON["LOC_LATITUDE"] != undefined && escolaJSON["LOC_LONGITUDE"] != undefined &&
-            escolaJSON["LOC_LATITUDE"] != null && escolaJSON["LOC_LONGITUDE"] != null) {
-
-            escolaJSON["GPS"] = true;
-            numTemGPS++;
-        } else {
-            escolaJSON["GPS"] = false;
+        for (let escolaRaw of escolas) {
+            let escolaJSON = parseEscolaREST(escolaRaw);
+    
+            if (escolaJSON["LOC_LATITUDE"] != "" && escolaJSON["LOC_LONGITUDE"] != "" &&
+                escolaJSON["LOC_LATITUDE"] != undefined && escolaJSON["LOC_LONGITUDE"] != undefined &&
+                escolaJSON["LOC_LATITUDE"] != null && escolaJSON["LOC_LONGITUDE"] != null) {
+    
+                escolaJSON["GPS"] = true;
+                numTemGPS++;
+            } else {
+                escolaJSON["GPS"] = false;
+            }
+            escolaJSON["TEM_ALUNO_COM_GPS"] = false;
+    
+            escolaMap.set(String(escolaJSON["ID"]), escolaJSON);
+            nomeEscolaMap.set(escolaJSON["NOME"], escolaJSON);
         }
-        escolaJSON["TEM_ALUNO_COM_GPS"] = false;
-
-        escolaMap.set(String(escolaJSON["ID"]), escolaJSON);
+    } catch (err) {
+        numTemGPS = 0;
     }
 
     if (numTemGPS == 0) {
@@ -271,25 +334,43 @@ function preprocessarEscolas(res) {
     }
 }
 
+// Preprocessa rotas
+async function preprocessarRotas() {
+    try {
+        let rotas = await restImpl.dbGETColecao(DB_TABLE_ROTA);
+
+        for (let rotaRaw of rotas) {
+            let rotaJSON = parseRotaDBREST(rotaRaw);
+            nomeRotaMap.set(rotaJSON["NOME"], rotaJSON);
+        }
+    } catch (err) {
+        console.log("Não há nenhuma rota cadastrada");
+    }
+}
+
 // Preprocessa garagens
-function preprocessarGaragem(res) {
-    if (res.length == 0) {
+async function preprocessarGaragem() {
+    try {
+        let garagensRaw = await restImpl.dbGETColecao(DB_TABLE_GARAGEM);
+        let idGaragem =  garagensRaw[0]?.id_garagem;
+        let garagemJSON = await restImpl.dbGETEntidade(DB_TABLE_GARAGEM, `/${idGaragem}`);
+        
+        if (garagemJSON["loc_latitude"] != "" && garagemJSON["loc_longitude"] != "" &&
+            garagemJSON["loc_latitude"] != undefined && garagemJSON["loc_longitude"] != undefined &&
+            garagemJSON["loc_latitude"] != null && garagemJSON["loc_longitude"] != null) {
+            garagens.push({
+                key: garagemJSON.id_garagem,
+                tipo: "garagem",
+                lat: garagemJSON["loc_latitude"],
+                lng: garagemJSON["loc_longitude"]
+            })
+        } else {
+            throw new Error("erro:garagem");
+        }
+    } catch (err) {
         return Promise.reject({ code: "erro:garagem" });
     }
 
-    for (let g of res) {
-        if (g["LOC_LATITUDE"] != "" && g["LOC_LONGITUDE"] != "" &&
-            g["LOC_LATITUDE"] != undefined && g["LOC_LONGITUDE"] != undefined &&
-            g["LOC_LATITUDE"] != null && g["LOC_LONGITUDE"] != null) {
-
-            garagens.push({
-                key: g["ID"],
-                tipo: "garagem",
-                lat: g["LOC_LATITUDE"],
-                lng: g["LOC_LONGITUDE"]
-            })
-        }
-    }
     return garagens;
 }
 
@@ -303,23 +384,21 @@ function processarVinculoAlunoEscolas(res) {
         let eNome = vinculoRaw["NOME"];
 
         let alunoJSON = alunoMap.get(aID);
-        if (alunoJSON) {
-            alunoJSON["ESCOLA_ID"] = eID;
-            alunoJSON["ESCOLA_NOME"] = eNome;
-    
-            // Verificar se escola do aluno está georeferenciada
-            let escolaAluno = escolaMap.get(String(eID));
-    
-            if (escolaAluno && escolaAluno["GPS"]) {
-                alunoJSON["ESCOLA_TEM_GPS"] = true;
-                alunoMap.set(aID, alunoJSON);
-    
-                escolaAluno["TEM_ALUNO_COM_GPS"] = true;
-                escolaMap.set(eID, escolaAluno);
-                
-                numVinculo++;
-                escolasVinculo.push(eNome)
-            }
+        alunoJSON["ESCOLA_ID"] = eID;
+        alunoJSON["ESCOLA_NOME"] = eNome;
+
+        // Verificar se escola do aluno está georeferenciada
+        let escolaAluno = escolaMap.get(String(eID));
+
+        if (escolaAluno && escolaAluno["GPS"]) {
+            alunoJSON["ESCOLA_TEM_GPS"] = true;
+            alunoMap.set(aID, alunoJSON);
+
+            escolaAluno["TEM_ALUNO_COM_GPS"] = true;
+            escolaMap.set(String(eID), escolaAluno);
+            
+            numVinculo++;
+            escolasVinculo.push(eNome)
         }
     }
 
@@ -362,8 +441,8 @@ function transformaAlunosEmArray(mapaAlunos) {
                 turno: a["TURNOSTR"],
                 nivel: a["NIVELSTR"],
                 temEscola: a["TEM_ESCOLA"],
-                school: a["ESCOLA_ID"],
-                escolaID: a["ESCOLA_ID"],
+                school: String(a["ESCOLA_ID"]),
+                escolaID: String(a["ESCOLA_ID"]),
                 escolaNome: a["ESCOLA_NOME"],
                 escolaTemGPS: a["ESCOLA_TEM_GPS"] ? "Sim" : "Não",
                 passengers: 1
@@ -874,61 +953,62 @@ function initSimulation() {
     ipcRenderer.send('start:route-generation', routeGenerationInputData);
 };
 
-// Trigger para finalizar simulação
-ipcRenderer.on("end:route-generation", function (evt, routesJSON) {
-    setTimeout(function () {
-        // Aumenta o contador de simulações
-        numSimulacao++;
-        userconfig.set("SIMULATION_COUNT", numSimulacao);
-        $("#numSimulacao").text(numSimulacao);
+if (isElectron) {
+    // Trigger para finalizar simulação
+    ipcRenderer.on("end:route-generation", function (evt, routesJSON) {
+        setTimeout(function () {
+            // Aumenta o contador de simulações
+            numSimulacao++;
+            userconfig.set("SIMULATION_COUNT", numSimulacao);
+            $("#numSimulacao").text(numSimulacao);
 
-        // Apaga rotas anteriores desenhadas
-        mapaRotaGerada["rmGroupLayer"]();
+            // Apaga rotas anteriores desenhadas
+            mapaRotaGerada["rmGroupLayer"]();
 
-        // Desenha novas rotas
-        rotasGeradas = new Map();
-        drawRoutes(routesJSON);
+            // Desenha novas rotas
+            rotasGeradas = new Map();
+            drawRoutes(routesJSON);
 
-        // Ativa grupo
-        let switcher = mapaRotaGerada["activateSidebarLayerSwitcher"](".sidebar-RotasGeradas");
+            // Ativa grupo
+            let switcher = mapaRotaGerada["activateSidebarLayerSwitcher"](".sidebar-RotasGeradas");
 
-        // Atualiza o mapa
-        mapaRotaGerada["map"].updateSize();
-        mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
-            padding: [40, 40, 40, 40]
-        });
+            // Atualiza o mapa
+            mapaRotaGerada["map"].updateSize();
+            mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
+                padding: [40, 40, 40, 40]
+            });
 
-        switcher.on('drawlist', function (e) {
-            $(".ol-layer-vector").each((_, li) => {
-                let temBadge = $(li).find(".badge").length > 0 ? true : false;
+            switcher.on('drawlist', function (e) {
+                $(".ol-layer-vector").each((_, li) => {
+                    let temBadge = $(li).find(".badge").length > 0 ? true : false;
 
-                if (!temBadge) {
-                    let rotaID = Number($($(li).find("label")[0]).text().split(": ")[1]);
-                    $($.parseHTML('<div class="badge badge-pill badge-warning pull-right"><i class="fa fa-map-o"></i></div>')).on('click', function () {
-                        mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
-                            padding: [40, 40, 40, 40]
-                        });
-                        iniciaAnimacao(rotaID);
-                    })
-                    .appendTo($(li));
-                }
-            })
-        });
-        setTimeout(() => {
-            $('.expend-layers').click();
-            $('.ol-layerswitcher-buttons').hide();
-            $('.layerswitcher-opacity').hide();
-        }, 100);
-        Swal2.close();
-    }, 2000);
-});
+                    if (!temBadge) {
+                        let rotaID = Number($($(li).find("label")[0]).text().split(": ")[1]);
+                        $($.parseHTML('<div class="badge badge-pill badge-warning pull-right"><i class="fa fa-map-o"></i></div>')).on('click', function () {
+                            mapaRotaGerada["map"].getView().fit(gSource.getExtent(), {
+                                padding: [40, 40, 40, 40]
+                            });
+                            iniciaAnimacao(rotaID);
+                        })
+                        .appendTo($(li));
+                    }
+                })
+            });
+            setTimeout(() => {
+                $('.expend-layers').click();
+                $('.ol-layerswitcher-buttons').hide();
+                $('.layerswitcher-opacity').hide();
+            }, 100);
+            Swal2.close();
+        }, 2000);
+    });
 
 
-// Trigger para erro na simulação
-ipcRenderer.on("error:route-generation", function (event, err) {
-    errorFn("Erro no processo de simulação de rota!", err)
-});
-
+    // Trigger para erro na simulação
+    ipcRenderer.on("error:route-generation", function (event, err) {
+        errorFn("Erro no processo de simulação de rota!", err)
+    });
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Validar Formulário

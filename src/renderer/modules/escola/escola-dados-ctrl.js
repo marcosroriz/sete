@@ -3,6 +3,11 @@
 // O mesmo serve tanto para detalhar os dados de uma escola, especificamente os
 // alunos matriculados nela
 
+// Variáveis que armazena a escola, seus alunos e rotas
+var alunosDaEscola = [];
+var rotasDaEscola = [];
+var hashMapAlunos = new Map();
+
 // Cria mapa na cidade atual
 var mapaDetalhe = novoMapaOpenLayers("mapDetalheEscola", cidadeLatitude, cidadeLongitude);
 var vSource = mapaDetalhe["vectorSource"];
@@ -15,26 +20,6 @@ window.onresize = function () {
     setTimeout(function () {
         if (mapaDetalhe != null) { mapaDetalhe["map"].updateSize(); }
     }, 200);
-}
-
-// Plota a posição da escola se tiver localização GPS
-if (estadoEscola["LOC_LONGITUDE"] != "" && estadoEscola["LOC_LONGITUDE"] != undefined &&
-    estadoEscola["LOC_LATITUDE"] != "" && estadoEscola["LOC_LATITUDE"] != undefined) {
-    // Esconde o campo que diz que a escola não tem localização
-    $("#avisoNaoGeoReferenciada").hide()
-
-    // Desenha marcador da posição atual do aluno
-    var escolaLAT = estadoEscola["LOC_LATITUDE"];
-    var escolaLNG = estadoEscola["LOC_LONGITUDE"]
-
-    var posicaoEscola = gerarMarcador(escolaLAT, escolaLNG, "img/icones/escola-marcador.png");
-
-    vSource.addFeature(posicaoEscola);
-    mapaDetalhe["map"].getView().fit(vSource.getExtent());
-    mapaDetalhe["map"].updateSize();
-} else {
-    // Esconde o mapa da escola e mostra o campo que nao tem localização
-    $("#mapDetalheEscola").hide();
 }
 
 // Tira o btn group do datatable
@@ -100,28 +85,24 @@ var dataTableInstitucional = $("#dataTableInstitucional").DataTable({
             className: "btnApagar",
             action: function (e, dt, node, config) {
                 action = "apagarEscola";
-                confirmDialog('Remover esse aluno?',
-                  "Ao remover esse aluno ele será retirado do sistema das rotas " + 
-                  "e das escolas que possuir vínculo."
+                confirmDialog('Remover essa escola?',
+                  "Ao remover essa escola ela será retirado do sistema das rotas " + 
+                  "e dos alunos que possuí vínculo."
                 ).then((result) => {
                     let listaPromisePraRemover = []
                     if (result.value) {
-                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ESCOLA, "ID_ESCOLA", estadoEscola["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", estadoEscola["ID"]));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", estadoEscola["ID"]));
-                        listaPromisePraRemover.push(dbAtualizaVersao());
+                        listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ESCOLA, `/${estadoEscola.ID}`));
                     }
-
                     return Promise.all(listaPromisePraRemover)
                 }).then((res) => {
                     if (res.length > 0) {
-                        dataTableEscolas.row($tr).remove();
-                        dataTableEscolas.draw();
                         Swal2.fire({
                             title: "Sucesso!",
                             icon: "success",
-                            text: "Aluno(a) removido(a) com sucesso!",
+                            text: "Escola removida com sucesso!",
                             confirmButtonText: 'Retornar a página de administração'
+                        }).then(() => {
+                            navigateDashboard("./modules/escola/escola-listar-view.html");
                         });
                     }
                 }).catch((err) => errorFn("Erro ao remover a escola", err))
@@ -192,9 +173,11 @@ var popularTabelaInstitucional = () => {
     dataTableInstitucional.row.add(["Regime de funcionamento", estadoEscola["REGIME"]]);
 
     dataTableInstitucional.draw();
+
+    return estadoEscola;
 }
 
-popularTabelaInstitucional();
+// popularTabelaInstitucional();
 
 // Tabela Lista de Alunos
 var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable({
@@ -202,8 +185,8 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable({
     ...{
         columns: [
             { data: 'NOME', width: "30%" },
-            { data: 'DATA_NASCIMENTO', width: "600px" },
-            { data: 'NOME_RESPONSAVEL', width: "30%" },
+            // { data: 'DATA_NASCIMENTO', width: "600px" },
+            { data: 'LOCALIZACAO', width: "30%" },
             { data: 'NIVELSTR', width: "200px" },
             { data: 'TURNOSTR', width: "100px" },
         ],
@@ -253,12 +236,53 @@ $("#datatables_filter input").on('keyup', function () {
     dataTableListaDeAlunos.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
 })
 
-dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO")
-.then(res => preprocessarAlunos(res))
-.then(res => plotaAlunosNoMapa(res))
-.then(res => adicionaAlunosTabela(res))
-.catch(err => errorFn("Erro ao detalhar a escola: " + estadoEscola["NOME"], err))
+restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${estadoEscola.ID}`)
+    .then((escolaRaw) => {
+        let detalhesDaEscola = parseEscolaREST(escolaRaw);
+        Object.assign(estadoEscola, detalhesDaEscola);
+        
+        estadoEscola["NUM_ALUNOS"] = estadoEscola["QTD_ALUNOS"];
 
+        return estadoEscola;
+    })
+    .then(async () => {
+        try {
+            let listaDeAlunosRaw = await restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${estadoEscola.ID}/alunos`);
+            for (let alunoRaw of listaDeAlunosRaw.data) {
+                let aluno = parseAlunoREST(alunoRaw);
+                alunosDaEscola.push(aluno);
+                
+                dataTableListaDeAlunos.row.add(aluno);
+            }
+
+            estadoEscola["POSSUI_ALUNOS"] = true;
+            dataTableListaDeAlunos.draw();
+        } catch (err) {
+            estadoEscola["POSSUI_ALUNOS"] = false;
+        }
+
+        // TODO: Adicionar lista de rotas na tela
+
+        // try {
+        //     let listaDeRotasRaw = await restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${estadoEscola.ID}/rotas`);
+        //     for (let rotaRaw of listaDeRotasRaw.data) {
+        //         let rota = parseRotaDBREST(rotaRaw);
+        //         rotasDaEscola.push(rota);
+        //         // dataTableListaDeAlunos.row.add(aluno);
+        //     }
+        //     estadoEscola["POSSUI_ROTAS"] = true;
+        // } catch (error) {
+        //     estadoEscola["POSSUI_ROTAS"] = false;
+        // }
+
+        return estadoEscola;
+    })
+    .then(() => popularTabelaInstitucional())
+    .then(() => plotarDadosNoMapa())
+    .catch((err) => {
+        console.log(err);
+        errorFn("Erro ao listar o aluno", err)
+    })
 // Preprocessa alunos (pegamos apenas aqueles vinculados a esta escola)
 var preprocessarAlunos = (res) => {
     var listaDeAlunos = [];
@@ -271,19 +295,37 @@ var preprocessarAlunos = (res) => {
 };
 
 // Plota alunos no mapa
-var plotaAlunosNoMapa = (res) => {
-    res.forEach((aluno) => {
+var plotarDadosNoMapa = () => {
+    // Plota a posição da escola se tiver localização GPS
+    if (estadoEscola["LOC_LONGITUDE"] != "" && estadoEscola["LOC_LONGITUDE"] != undefined &&
+        estadoEscola["LOC_LATITUDE"] != "" && estadoEscola["LOC_LATITUDE"] != undefined) {
+        // Esconde o campo que diz que a escola não tem localização
+        $("#avisoNaoGeoReferenciada").hide()
+
+        // Desenha marcador da posição atual do aluno
+        let escolaLAT = estadoEscola["LOC_LATITUDE"];
+        let escolaLNG = estadoEscola["LOC_LONGITUDE"]
+
+        let posicaoEscola = gerarMarcador(escolaLAT, escolaLNG, "img/icones/escola-marcador.png");
+
+        vSource.addFeature(posicaoEscola);
+        mapaDetalhe["map"].getView().fit(vSource.getExtent());
+        mapaDetalhe["map"].updateSize();
+    } else {
+        // Esconde o mapa da escola e mostra o campo que nao tem localização
+        $("#mapDetalheEscola").hide();
+    }
+
+    // Plota Alunos
+    alunosDaEscola.forEach((aluno) => {
         if (aluno["LOC_LONGITUDE"] != "" && aluno["LOC_LONGITUDE"] != undefined &&
             aluno["LOC_LATITUDE"] != "" && aluno["LOC_LATITUDE"] != undefined) {
+            hashMapAlunos.set(aluno["ID"], aluno);
             vSource.addFeature(plotarAluno(aluno));
         }
     });
-    if (!vSource.isEmpty()) {
-        mapaDetalhe["map"].getView().fit(vSource.getExtent());
-        mapaDetalhe["map"].updateSize();
-    }
 
-    return res;
+    return estadoEscola;
 }
 
 // Adiciona dados na tabela
@@ -302,8 +344,8 @@ var plotarAluno = (aluno) => {
     let p = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
 
     p.setId(aluno["ID_ALUNO"]);
+    p.set("ID", aluno["ID_ALUNO"]);
     p.set("NOME", aluno["NOME"]);
-    p.set("DATA_NASCIMENTO", aluno["DATA_NASCIMENTO"]);
     p.set("TURNOSTR", aluno["TURNOSTR"]);
     p.set("NIVELSTR", aluno["NIVELSTR"]);
     p.set("TIPO", "ALUNO")
@@ -317,6 +359,42 @@ var plotarAluno = (aluno) => {
     return p;
 }
 
+
+// Rotina para editar aluno (verifica se usuário tem ctz antes)
+function editarAluno(alunoID) {
+    return goaheadDialog('Editar esse aluno?',
+        "Gostaria de editar os dados deste aluno?",
+    ).then((result) => {
+        Swal2.close();
+        if (result.value) {
+            estadoAluno = hashMapAlunos.get(alunoID);
+            action = "editarAluno";
+            navigateDashboard("./modules/aluno/aluno-cadastrar-view.html");
+        }
+    })
+}
+// Rotina para remover aluno (verifica se usuário tem ctz antes)
+function removerAluno(alunoID) {
+    return confirmDialog('Remover esse aluno?',
+        "Ao remover esse aluno, ele será retirado do sistema das rotas e das escolas que possuir vínculo."
+    ).then((result) => {
+        let listaPromisePraRemover = [];
+        if (result.value) {
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${alunoID}`));
+        }
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Aluno(a) removido(a) com sucesso!",
+                confirmButtonText: 'Recarregar os dados da escola'
+            }).then(() => navigateDashboard("./modules/escola/escola-dados-view.html"));
+        }
+    }).catch((err) => errorFn("Erro ao remover o(a) aluno(a)", err))
+}
+
 // Select para lidar com click no aluno
 var selectAluno = selectPonto("ALUNO");
 
@@ -326,6 +404,16 @@ var popupAluno = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectAluno,
     closeBox: true,
+    onshow: () => {
+        let alunoID = selectAluno.features_["array_"][0].get("ID");
+        btnEditar = $('<a href="#" id="btnEditar" class="btn btn-custom-popup btn-warning"><i class="fa fa-edit"></i></a>');
+        btnEditar.on('click', () => editarAluno(alunoID));
+        $(".ol-popupfeature").append(btnEditar)
+
+        btnRemover = $('<a href="#" id="btnRemover" class="btn btn-custom-popup btn-danger"><i class="fa fa-trash"></i></a>');
+        btnRemover.on('click', () => removerAluno(alunoID));
+        $(".ol-popupfeature").append(btnRemover)
+    },    
     template: {
         title: (elem) => {
             return "Aluno " + elem.get("NOME");
@@ -336,9 +424,6 @@ var popupAluno = new ol.Overlay.PopupFeature({
             },
             'SEXO': {
                 title: 'Sexo'
-            },
-            'DATA_NASCIMENTO': {
-                title: 'Data de Nascimento'
             },
             'ESCOLA': {
                 title: 'Escola'

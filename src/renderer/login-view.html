@@ -16,27 +16,13 @@
     <link rel="stylesheet" href="../../node_modules/typeface-patrick-hand/index.css" />
     <link rel="stylesheet" href="css/font-awesome.css" />
 
-    <!-- Template CSS (tenta remoto antes, mas no erro de falha carrega versão local) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/bootstrap.min.css"
-        onerror="this.onerror=null;this.href='css/bootstrap.min.css';" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/light-bootstrap-dashboard.css?v=2.0.1"
-        onerror="this.onerror=null;this.href='css/light-bootstrap-dashboard.css?v=2.0.1';" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/initconfig.css"
-        onerror="this.onerror=null;this.href='css/initconfig.css';" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/login.css"
-        onerror="this.onerror=null;this.href='css/login.css';" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/common.css"
-        onerror="this.onerror=null;this.href='css/common.css';" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css/fixes.css"
-        onerror="this.onerror=null;this.href='css/fixes.css';" />
-
-    <!-- Dev CSS -->
-    <!-- <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/light-bootstrap-dashboard.css?v=2.0.1" />
-    <link rel="stylesheet" href="css/initconfig.css">
+    <link rel="stylesheet" href="css/initconfig.css" />
     <link rel="stylesheet" href="css/login.css" />
     <link rel="stylesheet" href="css/common.css" />
-    <link rel="stylesheet" href="css/fixes.css" /> -->
+    <link rel="stylesheet" href="css/fixes.css" />
 
     <!-- Icons -->
     <link rel="apple-touch-icon" sizes="76x76" href="img/icones/setelogosmall.png">
@@ -162,6 +148,12 @@
                                                             <div class="col-4"></div>
                                                             <button id="recoversubmit" class="btn btn-fill btn-warning" type="button">
                                                                 Recuperar Senha
+                                                            </button>
+                                                        </div>
+                                                        <div class="row mt-3 text-center">
+                                                            <div class="col-4"></div>
+                                                            <button id="inserirCodigoRecuperacaoSenha" class="btn btn-fill" type="button">
+                                                                Inserir Código de Recuperação de Senha
                                                             </button>
                                                         </div>
                                                     </div>
@@ -475,38 +467,64 @@
     </div>
 </body>
 
+<!-- Carregamento das bibliotecas núcleo (diferente no Electron/Web) -->
+<script>
+    // Verifica se estamos ou não no Electron
+    var isElectron = window.process != null;
 
-<!-- Basic Import Scripts -->
-<script type="text/javascript" src="js/plugins/cidades-estados-utf8.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/js/common.js"></script>
-<script>window.loadedCommonJS || document.write('<script src="js/common.js"><\/script>')</script>
-<!-- <script type="text/javascript" src="js/common.js"></script> -->
+    if (isElectron) {
+        // Carregamento via require
+        
+        // Bibliotecas Básicas do JS
+        window.$ = window.jQuery = require("jquery");
+        window.Tether = require("tether");
+        window.Bootstrap = require("bootstrap");
 
-<script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/js/jquery.validate.extra.js"></script>
-<script>window.loadedJQueryExtra || document.write('<script src="js/jquery.validate.extra.js"><\/script>')</script>
-<!-- <script type="text/javascript" src="js/jquery.validate.extra.js"></script> -->
+        require("jquery-validation");
+        require("jquery-mask-plugin");
+    } else {
+        // Carregamento normal
+        document.write('<script src="../../node_modules/jquery/dist/jquery.min.js"><\/script>');
+        document.write('<script src="../../node_modules/tether/dist/js/tether.js"><\/script>');
+        document.write('<script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"><\/script>');
+        document.write('<script src="../../node_modules/jquery-validation/dist/jquery.validate.min.js"><\/script>');
+        document.write('<script src="../../node_modules/jquery-mask-plugin/dist/jquery.mask.min.js"><\/script>');
+    }
 
-<!-- Firebase -->
-<script type="text/javascript" src="js/firebase-app.6.2.0.js"></script>
-<script type="text/javascript" src="js/firebase-auth.6.2.0.js"></script>
-<script type="text/javascript" src="js/firebase-firestore.6.2.0.js"></script>
-<script type="text/javascript" src="js/firebase-database.6.2.0.js"></script>
+    // SweetAlert (Alertas) e Axios (HTTP)
+    document.write('<script src="../../node_modules/sweetalert2/dist/sweetalert2.all.min.js"><\/script>');
+    document.write('<script src="../../node_modules/axios/dist/axios.min.js"><\/script>');
 
-<!-- Database -->
-<!-- <script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/js/db.js"></script> -->
-<!-- <script>window.loadedDBJS || document.write('<script src="js/db.js"><\/script>')</script> -->
-<script type="text/javascript" src="js/db.js"></script>
+    // Bibliotecas adicionais específicas
+    document.write('<script src="js/common.js"><\/script>');
+</script>
+
+<!-- Bibliotecas comuns -->
+
+<!-- Inputs adicionais (Validação, MD5) -->
+<script src="../../node_modules/jquery-validation/dist/additional-methods.js"></script>
+<script src="../../node_modules/md5/dist/md5.min.js"></script>
+<script src="js/jquery.validate.extra.js"></script>
+<script src="js/plugins/cidades-estados-utf8.js"></script>
+
+<!-- Biblioteca para lidar com data -->
+<script src="../../node_modules/moment/min/moment-with-locales.min.js"></script>
+
+<!-- Biblioteca para lidar com imagens -->
+<script src="../../node_modules/dom-to-image/dist/dom-to-image.min.js"></script>
+
+<!-- Scripts para lidar com banco de dados -->
+<script src="js/db_rest.js"></script>
+<script src="js/db.js"></script>
+
+<!-- Scripts para lidar com dados geográficos -->
+<script src="js/geo.js"></script>
 
 <!-- Biblioteca de envio de email -->
 <script type="text/javascript" src="../../node_modules/emailjs-com/dist/email.min.js"></script>
 
-<!-- Custom Scripts -->
-<!-- <script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/login-model.js"></script> -->
-<!-- <script>window.loadedLoginModel || document.write('<script src="login-model.js"><\/script>')</script> -->
+<!-- Login Scripts -->
 <script type="text/javascript" src="login-model.js"></script>
-
-<!-- <script src="https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/login-ctl.js"></script> -->
-<!-- <script>window.loadedLoginControl || document.write('<script src="login-ctl.js"><\/script>')</script> -->
 <script type="text/javascript" src="login-ctl.js"></script>
 
 <style>

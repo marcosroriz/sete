@@ -1,4 +1,3 @@
-var Papa = require("papaparse")
 var baseDados = {};
 
 // Dados de Cadastro da Escola
@@ -261,8 +260,10 @@ function processRegistro60(registro) {
             // adicionar ao campo de aluno da escola
             var codEscola = registro.data[1];
             var codAluno = registro.data[2];
+            let temIdProprio = true;
 
             if (codAluno == "") {
+                temIdProprio = false;
                 codAluno = registro.data[3];
             }
 
@@ -272,6 +273,12 @@ function processRegistro60(registro) {
                 var aluno = baseDados[codEscola]["PESSOAS"][codAluno];
                 var turma = baseDados[codEscola]["TURMAS"][codTurma];
 
+                if (temIdProprio) {
+                    aluno["mec_id_proprio"] = codAluno;
+                } else {
+                    aluno["mec_id_inep"] = codAluno;
+                }
+                
                 if (turma["ENSINO_PRE_ESCOLA"]) {
                     aluno["NIVEL"] = 1;
                 } else if (turma["ENSINO_FUNDAMENTAL"]) {

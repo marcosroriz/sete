@@ -34,12 +34,6 @@ mapa["activateGeocoder"]();
 // Ativa impressão
 // mapa["activatePrinting"]();
 
-// Mapa do dashboard
-$("[name='mostrarAlunos']").bootstrapSwitch();
-$("[name='mostrarEscolas']").bootstrapSwitch();
-$("[name='mostrarRotas']").bootstrapSwitch();
-$("[name='mostrarVeiculos']").bootstrapSwitch();
-
 // Mostra âncora de loading
 $(".content").hide();
 
@@ -55,150 +49,202 @@ $(".link-dash").on('click', function () {
     navigateDashboard("./modules/" + $(this).attr("name") + ".html");
 });
 
-// Seta o usuário do firebase
-firebase.auth().onAuthStateChanged((user) => {
-    if (user && user.uid == userconfig.get("ID")) {
-        firebaseUser = user;
-        var userDocPromise = remotedb.collection("users").doc(firebaseUser.uid).get();
-        userDocPromise.then((queryResult) => {
-            userData = queryResult.data();
-            $("#userName").html(userData["NOME"].split(" ")[0]);
-        })
-    }
-});
+if (userconfig.get("NOME")) {
+    $("#userName").html(userconfig.get("NOME").split(" ")[0]);
+}
 
-// Verifica se DB está sincronizado antes de colocar dados na tela do dashboard
-dbEstaSincronizado()
-    .then((estaSincronizado) => {
-        if (!estaSincronizado) {
-            console.log("PRECISAMOS SINCRONIZAR")
-            return dbSincronizar();
-        } else {
-            // Está sincronizado
-            console.log("ESTÁ SINCRONIZADO")
-            return true;
-        }
-    })
-    .then(() => preencheDashboard())
-    .then(() => preencheRelacoes())
-    .then(() => preencheMapa())
-    .then(() => ouveUpdates())
+// Verifica se usuário está logado
+restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
+.then(() => preencheDashboardAlunosEscolas())
+.then(() => preencheDashboardVeiculos())
+.then(() => preencheDashboardRotas())
+.then(() => preencheMapa())
+.then(() => mostraSeTemUpdate(mostraSeTemUpdate))
+.then(() => {
+    $(".preload").fadeOut(200, function () {
+        $(".content").fadeIn(200);
+    });
+    Swal2.close()
+
+    setTimeout(function () {
+        if (mapa != null) { mapa["map"].updateSize(); }
+    }, 1500);
+
+    // mostraSeTemUpdate(firstAcess);
+    firstAcess = false;
+
+    return firstAcess;
+})
+.catch(() => {
+    errorFn("Acesso inválido")
     .then(() => {
-        $(".preload").fadeOut(200, function () {
-            $(".content").fadeIn(200);
-        });
-        Swal2.close()
-
-        setTimeout(function () {
-            if (mapa != null) { mapa["map"].updateSize(); }
-        }, 1500);
-
-        mostraSeTemUpdate(firstAcess);
-        firstAcess = false;
-
-        return firstAcess
+        document.location.href = "./login-view.html";
     })
-    .catch((err) => {
-        errorFn("Erro ao sincronizar, sem conexão com a Internet")
-        $(".preload").fadeOut(200, function () {
-            $(".content").fadeIn(200);
-        });
-    })
+})
 
 // Mostra se update (ver github version)
 function mostraSeTemUpdate(firstAcess) {
-    if (firstAcess) {
-        fetch("https://raw.githubusercontent.com/marcosroriz/sete/master/package.json")
-            .then(res => res.json())
-            .then(pkg => {
-                let upVersion = pkg.version;
-                let currentVersion = app.getVersion();
-                if (upVersion != currentVersion) {
-                    $.notify({
-                        icon: 'ml-1 fa fa-cloud-download menu-icon',
-                        title: 'Saiu uma nova versão do SETE',
-                        message: 'Clique aqui para entrar na página do SETE',
-                        url: 'https://www.gov.br/fnde/pt-br/assuntos/sistemas/sete-sistema-eletronico-de-gestao-do-transporte-escolar',
-                        target: '_blank'
-                    }, {
+    fetch("https://raw.githubusercontent.com/marcosroriz/sete/master/package.json")
+    .then((res) => res.json())
+    .then((pkg) => {
+        if (isElectron) {
+            appVersion = pkg.version;
+            let upVersion = pkg.version;
+            let currentVersion = app.getVersion();
+            if (upVersion != currentVersion) {
+                $.notifyClose();
+                $.notify(
+                    {
+                        icon: "ml-1 fa fa-cloud-download menu-icon",
+                        title: "Saiu uma nova versão do SETE",
+                        message: "Clique aqui para entrar na página do SETE",
+                        url: "https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar",
+                        target: "_blank",
+                    },
+                    { 
                         type: "warning",
-                        delay: 0
-                    })
+                        delay: 0,
+                    }
+                );
+            }
+    
+            if (Number(app.getVersion()[0]) < 2) {
+                Swal2.fire({
+                    title: "Saiu uma nova versão do SETE",
+                    text: "Você deve atualizar o SETE ou utilizar a versão web do sistema. " +
+                          "Clique aqui para entrar na página do SETE.",
+                    icon: "warning",
+                }).then(() => {
+                    shell.openExternal("https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar");
+                }).then(() => {
+                    setTimeout(() => {
+                        document.location.href = "./login-view.html";
+                    }, 1000);
+                })
+            }
+        }
+    });
+}
+
+// Funções que Preenchem o Dashboard
+async function preencheDashboardAlunosEscolas() {
+    let alunos = [];
+    let escolas = [];
+    let alunosRAW = [];
+    let escolasRAW = [];
+    let escolaSet = new Set();
+    try {
+        alunosRAW = await restImpl.dbGETColecao(DB_TABLE_ALUNO);
+        escolasRAW = await restImpl.dbGETColecao(DB_TABLE_ESCOLA);
+        rotasRAW = await restImpl.dbGETColecao(DB_TABLE_ROTA);
+
+        alunosRAW.forEach(aluno => {
+            let alunoJSON = parseAlunoREST(aluno);
+            // Adiciona no hashmap
+            hashMapAlunos.set(alunoJSON["ID"], alunoJSON);
+
+            if (aluno.rota && aluno.rota != "Não Informada") {
+                if (aluno.escola && aluno.escola != "Não Informada") {
+                    alunos.push(aluno);
+                    escolaSet.add(aluno.escola);
+                } else {
+                    alunos.push(aluno);
                 }
-            })
+            }
+        });
+
+        escolas = [...escolaSet];
+
+        // Salva as escolas
+        escolasRAW.forEach(escola => {
+            let escolaJSON = parseEscolaREST(escola);
+            // Adiciona no hashmap
+            escolaJSON["NUM_ALUNOS"] = escolaJSON["qtd_alunos"];
+            hashMapEscolas.set(escolaJSON["ID"], escolaJSON);
+        })
+    } finally {
+        $("#alunosAtendidos").text(alunos.length + " / "  + alunosRAW.length);
+        $("#escolasAtendidas").text(escolas.length + " / " + escolasRAW.length);
     }
 }
 
-// Preenche Dashboard
-function preencheDashboard() {
-    var dashPromises = new Array();
+async function preencheDashboardVeiculos() {
+    let veiculos = [];
+    let func = naofunc = 0;
+    try {
+        veiculos = await restImpl.dbGETColecao(DB_TABLE_VEICULO);
 
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ALUNO).then((res) => {
-        res.forEach(aluno => hashMapAlunos.set(aluno["ID"], parseAlunoDB(aluno)))
-    }))
-
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA).then((res) => {
-        res.forEach(escola => {
-            let escolaJSON = parseEscolaDB(escola);
-            escolaJSON["NUM_ALUNOS"] = 0;
-            hashMapEscolas.set(escolaJSON["ID"], escolaJSON);
-        })
-    }))
-
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA_TEM_ALUNOS).then((res) => {
-        $("#alunosAtendidos").text(res.length);
-
-        let escolasAtendidas = new Set()
-        res.forEach(relEscolaAluno => escolasAtendidas.add(relEscolaAluno["ID_ESCOLA"]))
-
-        $("#escolasAtendidas").text(escolasAtendidas.size);
-    }))
-
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_VEICULO).then((res) => {
-        let func = naofunc = 0;
-        res.forEach(veiculo => {
-            let veiculoJSON = parseVeiculoDB(veiculo);
+        veiculos.forEach(veiculo => {
+            let veiculoJSON = parseVeiculoREST(veiculo);
             hashMapVeiculos.set(veiculoJSON["ID"], veiculoJSON);
-            veiculo["MANUTENCAO"] ? naofunc++ : func++
+            veiculoJSON["MANUTENCAO"] == "Sim" ? naofunc++ : func++
         })
+    } finally {
         $("#veiculosFuncionamento").text(func);
         $("#veiculosNaoFuncionamento").text(naofunc);
-    }))
+    }
+}
 
-    dashPromises.push(dbBuscarTodosDadosNoServidorPromise(DB_TABLE_REALTIME_VIAGENSALERTA).then((res) => {
-        let dataDeHoje = new Date().toISOString().split("T")[0];
-
-        res.forEach(alerta => {
-            if (alerta.DATA && alerta.DATA == dataDeHoje) {
-                hashMapRealTimeAlerta.set(alerta["ID"], alerta);
-            }
+async function pegarShapeRota(rotaID) {
+    return new Promise((resolve, reject) => {
+        restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${rotaID}/shape`)
+        .then(shapeDaRota => {
+            resolve({rotaID, shape: shapeDaRota.shape})
         })
-    }))
+        .catch(err => {
+            resolve({rotaID, shape: null})
+        })
+    })
+}
 
-    dashPromises.push(dbBuscarTodosDadosPromise(DB_TABLE_ROTA).then((res) => {
-        var totalRotas = res.length;
-        var totalKM = 0;
-        var totalKMMedio = 0;
-        var totalTempo = 0;
-        res.forEach((rota) => {
-            totalKM = totalKM + parseFloat(rota["KM"]);
-            totalTempo = totalTempo + parseFloat(rota["TEMPO"]);
-            rota["NUM_ALUNOS_ROTA"] = 0;
-            hashMapRotas.set(rota["ID"], rota)
-        });
+async function preencheDashboardRotas() {
+    let rotas = [];
+    let totalRotas = 0;
+    let totalKM = 0;
+    let totalKMMedio = 0;
+    let totalTempo = 0;
+    try {
+        rotas = await restImpl.dbGETColecao(DB_TABLE_ROTA);
+        totalRotas = rotas.length;
+        var start = window.performance.now();
+        let promiseArray = [];
 
-        if (totalRotas != 0) {
-            totalKMMedio = Math.round(totalKM / totalRotas);
-            totalTempo = Math.round(totalTempo / totalRotas);
+        for (let rota of rotas) {
+            let rotaID = rota["id_rota"];
+            let rotaDetalheRaw = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${rotaID}`);
+
+            let rotaJSON = parseRotaDBREST(rotaDetalheRaw);
+            rotaJSON["NUM_ALUNOS_ROTA"] = 0;
+            rotaJSON["SHAPE"] = null;
+
+            promiseArray.push(pegarShapeRota(rotaID))
+            hashMapRotas.set(rotaID, rotaJSON);
+
+            let rotakm = strToNumber(rotaJSON.km);
+            totalKM = totalKM + rotakm;
         }
 
+        let dadosRotas = await Promise.all(promiseArray);
+        for (let dadoRota of dadosRotas) {
+            if (dadoRota.shape != null) {
+                let rotaJSON = hashMapRotas.get(dadoRota.rotaID);
+                rotaJSON["SHAPE"] = dadoRota.shape;
+                hashMapRotas.set(dadoRota.rotaID, rotaJSON);
+            }
+        }
+        var end = window.performance.now();
+        console.log(`Execution time: ${end - start} ms`);
+        console.log(`Execution time: ${end - start} ms`);
+        console.log(`Execution time: ${end - start} ms`);
+    } finally {
+        if (totalRotas != 0) {
+            totalKMMedio = Math.round(totalKM / totalRotas);
+        }
         $("#qtdeRotas").text(totalRotas);
         $("#kmTotal").text(Math.round(totalKM) + " km");
         $("#kmMedio").text(totalKMMedio + " km");
         $("#tempoMedio").text(totalTempo + " min");
-    }))
-
-    return Promise.all(dashPromises)
+    }
 }
 
 function preencheRelacoes() {
@@ -347,7 +393,7 @@ function preencheMapa() {
                 rotaGeoJSON.forEach(f => {
                     f.set("NOME", rota["NOME"]);
                     f.set("KM", rota["KM"]);
-                    f.set("TEMPO", rota["TEMPO"]);
+                    f.set("TEMPO", rota["TEMPO"] != "" ? rota["TEMPO"] : "Não");
                     f.set("NUM_ALUNOS_ROTA", rota["NUM_ALUNOS_ROTA"]);
                     f.set("TIPO", "ROTA");
                 });
@@ -402,33 +448,32 @@ function preencheMapa() {
         return nomeA.localeCompare(nomeB);
     }).reverse().forEach(rotaKey => {
         let rota = hashMapRotas.get(rotaKey);
-        // console.log("rota", hashMapRotas[rotaKey])
         if (rota["NOME"] in lyrRotas) {
             grupoLayersRotas.push(lyrRotas[rota["NOME"]].layer)
         }
     });
 
     // Processa dados em tempo real
-    camadaAlertas = mapa["createLayer"]("Alertas", "Alertas", true);
-    camadaAlertas.layer.setZIndex(100);
+    // camadaAlertas = mapa["createLayer"]("Alertas", "Alertas", true);
+    // camadaAlertas.layer.setZIndex(100);
 
-    camadaVeiculos = mapa["createLayer"]("Veículos", "Veículos", true);
-    camadaVeiculos.layer.setZIndex(90);
+    // camadaVeiculos = mapa["createLayer"]("Veículos", "Veículos", true);
+    // camadaVeiculos.layer.setZIndex(90);
 
-    processaDadosAlerta();
-    processaDadosPercurso();
+    // processaDadosAlerta();
+    // processaDadosPercurso();
 
-    camadaVeiculos.layer.setStyle(new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: "white",
-            width: 7
-        })
-    }));
+    // camadaVeiculos.layer.setStyle(new ol.style.Style({
+    //     stroke: new ol.style.Stroke({
+    //         color: "white",
+    //         width: 7
+    //     })
+    // }));
 
     mapa["addGroupLayer"]("Rotas", new ol.Collection(grupoLayersRotas));
     mapa["addGroupLayer"]("Escolas", grupoLayersEscolas);
     mapa["addGroupLayer"]("Alunos", grupoLayersAlunos);
-    mapa["addGroupLayer"]("Tempo Real", [camadaAlertas.layer, camadaVeiculos.layer]);
+    // mapa["addGroupLayer"]("Tempo Real", [camadaAlertas.layer, camadaVeiculos.layer]);
 
     // Popup
     mapa["map"].addInteraction(selectAlunoEscolaConfig);
@@ -441,6 +486,8 @@ function preencheMapa() {
         trash: false,
     });
     mapaOL.addControl(lswitcher);
+
+    // TODO: aplicar extent 
     return mapaOL
 }
 
@@ -479,7 +526,7 @@ var plotarEscola = (escolaJSON) => {
     pontoEscola.set("TIPO", "ESCOLA");
     pontoEscola.set("DEPENDENCIA", escolaJSON["DEPENDENCIA"]);
     pontoEscola.set("HORARIO", escolaJSON["HORARIO"]);
-    pontoEscola.set("REGIME", escolaJSON["REGIME"]);
+    // pontoEscola.set("REGIME", escolaJSON["REGIME"]);
     pontoEscola.set("ENSINO", escolaJSON["ENSINO"])
     pontoEscola.set("NUM_ALUNOS", escolaJSON["NUM_ALUNOS"]);
     pontoEscola.set("CONTATO_TELEFONE", escolaJSON["CONTATO_TELEFONE"]);
@@ -620,10 +667,6 @@ var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
                 title: "Horário de Funcionamento",
                 visible: (e) => e.getProperties().TIPO == "ESCOLA"
             },
-            'CONTATO_TELEFONE': {
-                title: "Contato",
-                visible: (e) => e.getProperties().TIPO == "ESCOLA"
-            },
             'NUM_ALUNOS': {
                 title: "Número de alunos",
                 visible: (e) => e.getProperties().TIPO == "ESCOLA"
@@ -646,7 +689,6 @@ var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
                 title: "Número de alunos",
                 visible: (e) => e.getProperties().TIPO == "ROTA"
             },
-
             'MENSAGEM': {
                 title: "Mensagem:",
                 visible: (e) => e.getProperties().TIPO == "ALERTA"
@@ -667,7 +709,6 @@ var popupAlunoEscolaConfig = new ol.Overlay.PopupFeature({
                 title: "Data da ocorrência",
                 visible: (e) => e.getProperties().TIPO == "ALERTA"
             },
-
             'ROTA': {
                 title: "Rota:",
                 visible: (e) => e.getProperties().TIPO == "VEICULO"

@@ -325,3 +325,61 @@ i.tab-icon {
     padding-left: 20px;
     padding-top: 12px;
 }
+
+.btn-custom-popup {
+    border: 0px;
+    vertical-align: top;
+    margin-left: 1em;
+}
+
+.btn-custom-popup .fa {
+    font-size: 1.5em;
+    vertical-align: middle;
+}
+
+div#hmbmenu {
+    display: none;
+}
+
+@media only screen and (max-width: 600px) {
+    div#hmbmenu {
+        display: block;
+        padding: 10px;
+        background: #ecb24a;
+        /* float: right; */
+        /* width: 30%; */
+    }
+
+    div#hmbmenu a {
+        font-size: 1.5em;
+        color: white;
+    }
+
+    div#sidebar.menuHamburguer {
+        width: 250px !important;
+        min-width: 250px !important;
+        right: 260px !important;
+    }
+}
+
+
+/* Datatable */
+span.separador {
+    font-size: 1.5em;
+}
+
+/* Relatórios */
+.apexcharts-datalabels text[font-size='2em'] {
+    font-size: 2em;
+}
+
+/* Licença */
+.row.licenseText {
+    margin: 2em 1em;
+}
+
+.row.licenseText p {
+    text-align: justify;
+    /* font-style: italic; */
+    font-style: oblique;
+}

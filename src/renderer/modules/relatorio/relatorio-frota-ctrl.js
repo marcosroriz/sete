@@ -270,15 +270,22 @@ dataTablesRelatorio.on('click', '.frotaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover o veículo", err))
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
-.then(res => processarVeiculos(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-.then(res => processarAlunosPorRota(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA_POSSUI_VEICULO))
-.then((res) => processarVeiculosPorRota(res))
-.then(() => adicionaDadosTabela())
-.then(() => CalcularEstatisticas())
-.catch((err) => errorFn("Erro ao listar os veículos!", err))
+Swal2.fire({
+    title: "Funcionalidade indisponível",
+    icon: "warning",
+    html:
+        'Esta funcionalidade está em fase de reformulação SETE',
+}).then(() => $("#logosete").trigger("click"))
+
+// dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+// .then(res => processarVeiculos(res))
+// .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
+// .then(res => processarAlunosPorRota(res))
+// .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA_POSSUI_VEICULO))
+// .then((res) => processarVeiculosPorRota(res))
+// .then(() => adicionaDadosTabela())
+// .then(() => CalcularEstatisticas())
+// .catch((err) => errorFn("Erro ao listar os veículos!", err))
 
 // Processar veiculos
 var processarVeiculos = (res) => {

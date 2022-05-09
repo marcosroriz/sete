@@ -24,7 +24,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
             { data: 'TURNOSTR', width: "300px" },
             { data: 'CNH', width: "15%" },
             { data: 'DATA_VALIDADE_CNH_STR', width: "15%" },
-            { data: 'ROTAS', width: "15%" },
+            // { data: 'ROTAS', width: "15%" },
             {
                 data: "ACOES",
                 width: "110px",
@@ -81,7 +81,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                                 })
 
                                 var progresso = 0;
-                                var max = rawDados.length * 2 + 1;
+                                var max = rawDados.length;
 
                                 function updateProgress() {
                                     progresso++;
@@ -95,17 +95,9 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                                 // Removendo cada motorista
                                 rawDados.forEach(m => {
                                     let idMotorista = m["ID"];
-                                    promiseArray.push(
-                                        dbRemoverDadoPorIDPromise(DB_TABLE_MOTORISTA, "ID_MOTORISTA", idMotorista)
-                                        .then(() => updateProgress())
-                                    );
-                                    promiseArray.push(
-                                        dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_MOTORISTA", idMotorista)
-                                        .then(() => updateProgress())
-                                    );
+                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_MOTORISTA, `/${idMotorista}`).then(() => updateProgress()));
                                 })
 
-                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
                                 Promise.all(promiseArray)
                                 .then(() => {
                                     successDialog(text = msgConclusao);
@@ -188,18 +180,16 @@ dataTablesMotoristas.on('click', '.motoristaRemove', function () {
                   "Ao remover esse motorista ele será retirado do sistema das  " + 
                   "rotas e das escolas que possuir vínculo."
     ).then((res) => {
-        let listaPromisePraRemover = []
+        let listaPromisePraRemover = [];
         if (res.value) {
-            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_MOTORISTA", estadoMotorista["ID"]));
-            listaPromisePraRemover.push(dbAtualizaVersao());
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_MOTORISTA, `/${idMotorista}`));
         }
 
         return Promise.all(listaPromisePraRemover)
     }).then((res) => {
         if (res.length > 0) {
-            dataTableEscolas.row($tr).remove();
-            dataTableEscolas.draw();
+            dataTablesMotoristas.row($tr).remove();
+            dataTablesMotoristas.draw();
             Swal2.fire({
                 title: "Sucesso!",
                 icon: "success",
@@ -210,16 +200,18 @@ dataTablesMotoristas.on('click', '.motoristaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover a escola", err))
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_MOTORISTA)
+restImpl.dbGETColecao(DB_TABLE_MOTORISTA)
 .then(res => processarMotoristas(res))
 .then(res => adicionaDadosTabela(res))
-.catch((err) => errorFn("Erro ao listar os motoristas!", err))
+.catch((err) => {
+    console.log(err)
+    errorFn("Erro ao listar os motoristas!", err)
+})
 
 // Processar motoristas
 var processarMotoristas = (res) => {
-    $("#totalNumMotoristas").text(res.length);
     for (let motoristaRaw of res) {
-        let motoristaJSON = parseMotoristaDB(motoristaRaw);
+        let motoristaJSON = parseMotoristaREST(motoristaRaw);
         listaDeMotoristas.set(motoristaJSON["ID"], motoristaJSON);
     }
     return listaDeMotoristas;
@@ -234,7 +226,7 @@ adicionaDadosTabela = (res) => {
     });
 
     dataTablesMotoristas.draw();
-    dtInitFiltros(dataTablesMotoristas, [1, 2, 3, 4, 5, 6]);
+    dtInitFiltros(dataTablesMotoristas, [3]);
 }
 
 

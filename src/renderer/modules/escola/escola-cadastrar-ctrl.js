@@ -64,6 +64,7 @@ var localizacao;
 // Máscaras
 $('.cep').mask('00000-000');
 $(".telmask").mask(telmaskbehaviour, teloptions);
+$('#inepEscola').mask('00000000');
 
 // Inicia o campo de estados/cidade na aba de localizacao
 localizacao = new dgCidadesEstados({
@@ -115,6 +116,10 @@ var validadorFormulario = $("#wizardCadastrarEscolaForm").validate({
                 required: true,
                 minlength: 3
             },
+            inepEscola: {
+                required: true,
+                exactlength: 8,
+            },
             telContato: {
                 minlength: 10
             },
@@ -149,6 +154,9 @@ var validadorFormulario = $("#wizardCadastrarEscolaForm").validate({
             },
             areaUrbana: {
                 required: "Por favor selecione a localização da escola",
+            },
+            inepEscola: {
+                required: "Por favor digite o código INEP da escola"
             },
             locDif: {
                 required: "Por favor informe se a escola está situada em área diferenciada"
@@ -219,42 +227,49 @@ var completeForm = () => {
 }
 
 if (estaEditando) {
-    PopulateEscolaFromState(estadoEscola); 
+    restImpl.dbGETEntidade(DB_TABLE_ESCOLA, `/${estadoEscola.ID}`)
+    .then((escolaRaw) => {
+        if (escolaRaw) {
+            let detalhesDaEscola = parseEscolaREST(escolaRaw);
+            Object.assign(estadoEscola, detalhesDaEscola);
+            PopulateEscolaFromState(estadoEscola);
 
-    // Revalida e reaplica os campos com as respectivas máscaras
-    $('.cep').trigger('input');
-    $(".telmask").trigger('input');
+            // Revalida e reaplica os campos com as respectivas máscaras
+            $('.cep').trigger('input');
+            $(".telmask").trigger('input');
 
-    // Coloca marcador da escola caso tenha a localização
-    if (estadoEscola["LOC_LONGITUDE"] != null && estadoEscola["LOC_LONGITUDE"] != undefined &&
-        estadoEscola["LOC_LATITUDE"] != null && estadoEscola["LOC_LATITUDE"] != undefined) {
-        posicaoEscola = gerarMarcador(estadoEscola["LOC_LATITUDE"], estadoEscola["LOC_LONGITUDE"],
-                                      "img/icones/escola-marcador.png", 25, 50);
-        vectorSource.addFeature(posicaoEscola);
-        
-        var translate = new ol.interaction.Translate({
-            features: new ol.Collection([posicaoEscola])
-        });
-    
-        translate.on('translateend', function (evt) {
-            var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-            $("#reglat").val(lat.toPrecision(8));
-            $("#reglon").val(lon.toPrecision(8));
-        }, posicaoEscola);
-    
-        mapaOL.addInteraction(translate);
-    }
+            // Coloca marcador da escola caso tenha a localização
+            if (estadoEscola["LOC_LONGITUDE"] != null && estadoEscola["LOC_LONGITUDE"] != undefined &&
+                estadoEscola["LOC_LATITUDE"] != null && estadoEscola["LOC_LATITUDE"] != undefined) {
+                posicaoEscola = gerarMarcador(estadoEscola["LOC_LATITUDE"], estadoEscola["LOC_LONGITUDE"],
+                    "img/icones/escola-marcador.png", 25, 50);
+                vectorSource.addFeature(posicaoEscola);
 
-    // Adiciona ação de cancelamento
-    $("#cancelarAcao").on('click', () => {
-        cancelDialog()
-        .then((result) => {
-            if (result.value) {
-                navigateDashboard(lastPage);
+                var translate = new ol.interaction.Translate({
+                    features: new ol.Collection([posicaoEscola])
+                });
+
+                translate.on('translateend', function (evt) {
+                    var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
+                    $("#reglat").val(lat.toPrecision(8));
+                    $("#reglon").val(lon.toPrecision(8));
+                }, posicaoEscola);
+
+                mapaOL.addInteraction(translate);
             }
-        })
-    });
-    
+
+            // Adiciona ação de cancelamento
+            $("#cancelarAcao").on('click', () => {
+                cancelDialog()
+                    .then((result) => {
+                        if (result.value) {
+                            navigateDashboard(lastPage);
+                        }
+                    })
+            });
+
+        }
+    })
 }
 
 $("#salvarescola").on('click', () => {
@@ -272,15 +287,14 @@ $("#salvarescola").on('click', () => {
             var idEscola = estadoEscola["ID"];
 
             loadingFn("Atualizando os dados da escola...")
-            dbAtualizarPromise(DB_TABLE_ESCOLA, escolaJSON, idEscola)
-            .then(() => dbAtualizaVersao())
+            
+            restImpl.dbPUT(DB_TABLE_ESCOLA, "/" + idEscola, escolaJSON)
             .then(() => completeForm())
             .catch((err) => errorFn("Erro ao atualizar a escola.", err))
         } else {
             loadingFn("Cadastrando a escola ...")
 
-            dbInserirPromise(DB_TABLE_ESCOLA, escolaJSON)
-            .then(() => dbAtualizaVersao())
+            restImpl.dbPOST(DB_TABLE_ESCOLA, "", escolaJSON)
             .then(() => completeForm())
             .catch((err) => errorFn("Erro ao salvar a escola.", err))
         }

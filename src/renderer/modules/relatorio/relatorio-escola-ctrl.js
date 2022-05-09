@@ -264,13 +264,23 @@ dataTablesRelatorio.on('click', '.escolaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover a escola", err))
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
-.then(res => preprocessarEscolas(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA))
-.then(res => preprocessarRelacaoEscolaRota(res))
-.then(res => adicionaDadosTabela(res))
-.then(() => CalcularEstatisticas())
-.catch(err => errorFn("Erro ao listar as escolas!", err))
+Swal2.fire({
+    title: "Funcionalidade indisponível",
+    icon: "warning",
+    html:
+        'Esta funcionalidade está em fase de reformulação SETE',
+}).then(() => $("#logosete").trigger("click"))
+
+// dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
+// .then(res => preprocessarEscolas(res))
+// .then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA))
+// .then(res => preprocessarRelacaoEscolaRota(res))
+// .then(res => adicionaDadosTabela(res))
+// .then(() => CalcularEstatisticas())
+// .catch(err => errorFn("Erro ao listar as escolas!", err))
+
+
+
 
 // Preprocessa alunos
 var preprocessarEscolas = (res) => {

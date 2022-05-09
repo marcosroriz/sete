@@ -6,9 +6,17 @@
 
 // Verifica se é um cadastro novo ou é uma edição
 var estaEditando = false;
+var idAluno = "";
 if (action == "editarAluno") {
+    idAluno = estadoAluno["ID"];
     estaEditando = true;
 }
+
+// Variável armazena o ID da escola do aluno 
+// Importante ter para caso o usuário modifique os dados do aluno/escola e aluno/rota
+// A princípio, assuma nenhuma escola/rota, isto é, id escola/rota = 0
+var idEscolaAnterior = 0;
+var idRotaAnterior = 0;
 
 // Posição do Aluno (Mapa)
 var posicaoAluno;
@@ -43,7 +51,7 @@ mapaOL.on('singleclick', function (evt) {
             console.log(err);
         }
     }
-    
+
     var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
     $("#reglat").val(lat.toPrecision(8));
     $("#reglon").val(lon.toPrecision(8));
@@ -175,7 +183,7 @@ var completeForm = () => {
     Swal2.fire({
         title: "Aluno salvo com sucesso",
         text: "O aluno " + $("#regnome").val() + " foi salvo com sucesso. " +
-              "Clique abaixo para retornar ao painel.",
+            "Clique abaixo para retornar ao painel.",
         type: "info",
         icon: "info",
         showCancelButton: false,
@@ -191,138 +199,120 @@ $("#salvaraluno").on('click', () => {
     $("[name='turnoAluno']").valid();
     $("[name='nivelAluno']").valid();
 
-    var $valid = $('#wizardCadastrarAlunoForm').valid();
+    let $valid = $('#wizardCadastrarAlunoForm').valid();
     if (!$valid) {
         return false;
     } else {
-        var alunoJSON = GetAlunoFromForm();
-        var idEscola = $("#listaescola").val();
-        var idRota = $("#listarota").val();
-    
+        let alunoJSON = GetAlunoFromForm();
+        const idEscola = $("#listaescola").val();
+        const idRota = $("#listarota").val();
+
         if (estaEditando) {
-            var idAluno = estadoAluno["ID"];
+            const idAluno = estadoAluno["ID"];
+            delete alunoJSON["cpf"];
 
-            loadingFn("Atualizando os dados do(a) aluno(a) ...")
-
-            dbAtualizarPromise(DB_TABLE_ALUNO, alunoJSON, idAluno)
-            .then(() => {
-                let promiseArray = new Array();
-                if (idEscola != idEscolaAnterior && idEscola != null) {
-                    promiseArray.push(dbRemoverDadoCompostoPromise(DB_TABLE_ESCOLA_TEM_ALUNOS,
-                                      "ID_ESCOLA", String(idEscolaAnterior), 
-                                      "ID_ALUNO", idAluno))
-                    if (idEscola != 0 && idEscola != null) {
-                        promiseArray.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
-                            "ID_ESCOLA": idEscola, 
-                            "ID_ALUNO": idAluno
-                        }))
-                    }
-                }
-
-                if (idRota != idRotaAnterior && idRota != null) {
-                    promiseArray.push(dbRemoverDadoCompostoPromise(DB_TABLE_ROTA_ATENDE_ALUNO,
-                                      "ID_ROTA", String(idRotaAnterior),
-                                      "ID_ALUNO", idAluno))
-                    if (idRota != 0 && idRota != null) {
-                        promiseArray.push(dbInserirPromise(DB_TABLE_ROTA_ATENDE_ALUNO, {
-                            "ID_ROTA": idRota,
-                            "ID_ALUNO": idAluno
-                        }))
-                    }
-                }
-
-                return Promise.all(promiseArray);
-            })
-            .then(() => dbAtualizaVersao())
-            .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao atualizar o(a) aluno na escola!", err));
+            loadingFn("Atualizando os dados do(a) aluno(a) ...");
+            AtualizarAlunoREST(alunoJSON, idAluno, idEscola, idEscolaAnterior, idRota, idRotaAnterior)
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao atualizar o(a) aluno na escola!", err));
         } else {
             loadingFn("Cadastrando o(a) aluno(a) ...")
-            
-            dbInserirPromise(DB_TABLE_ALUNO, alunoJSON)
-            .then((res) => {
-                let promisses = [];
-
-                if (idEscola != 0) {
-                    promisses.push(dbInserirPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, {
-                                   "ID_ESCOLA": idEscola,
-                                   "ID_ALUNO": res.id
-                    }))
-                } 
-
-                if (idRota != 0) {
-                    promisses.push(dbInserirPromise(DB_TABLE_ROTA_ATENDE_ALUNO, {
-                                  "ID_ROTA": idRota,
-                                  "ID_ALUNO": res.id
-                    }))
-                }
-
-                return Promise.all(promisses)
-            })
-            .then(() => dbAtualizaVersao())
-            .then(() => completeForm())
-            .catch((err) => errorFn("Erro ao salvar o aluno.", err))
+            InserirAlunoREST(alunoJSON, idEscola, idRota)
+                .then(() => completeForm())
+                .catch((err) => errorFn("Erro ao salvar o aluno.", err))
         }
     }
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA)
-.then((res) => {
-    res.sort((e1, e2) => {
-        return ('' + e1["NOME"]).localeCompare(e2["NOME"]);
+restImpl.dbGETColecao(DB_TABLE_ESCOLA)
+    .then((res) => {
+        res.sort((e1, e2) => {
+            return ('' + e1["nome"]).localeCompare(e2["nome"]);
+        })
+
+        res.forEach((escola) => {
+            let eID = escola["id_escola"];
+            let eNome = escola["nome"];
+            $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
+        });
+
+        if (estaEditando) {
+            return restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${idAluno}/escola`);
+        } else {
+            return false;
+        }
+    })
+    .then((escola) => {
+        if (escola && $("#listaescola option[value='" + escola.id_escola + "']").length > 0) {
+            $("#listaescola").val(escola.id_escola);
+
+            // ID da escola anterior
+            idEscolaAnterior = escola.id_escola;
+        }
+    })
+    .catch((err) => {
+        console.log("Aluno sem escola ainda", err);
     })
 
-    res.forEach((escola) => {
-        var eID = escola["ID"];
-        var eNome = escola["NOME"];
-        $('#listaescola').append(`<option value="${eID}">${eNome}</option>`);
-    });
+restImpl.dbGETColecao(DB_TABLE_ROTA)
+    .then((res) => {
+        res.sort((e1, e2) => {
+            return ('' + e1["nome"]).localeCompare(e2["nome"]);
+        })
 
-    return res;
-})
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_ROTA))
-.then((res) => {
-    res.sort((e1, e2) => {
-        return ('' + e1["NOME"]).localeCompare(e2["NOME"]);
+        res.forEach((rota) => {
+            var rID = rota["id_rota"];
+            var rNome = rota["nome"];
+            $('#listarota').append(`<option value="${rID}">${rNome}</option>`);
+        });
+
+        if (estaEditando) {
+            return restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${idAluno}/rota`);
+        } else {
+            return false;
+        }
     })
-    
-    res.forEach((rota) => {
-        var rID = rota["ID"];
-        var rNome = rota["NOME"];
-        $('#listarota').append(`<option value="${rID}">${rNome}</option>`);
-    });
+    .then((rota) => {
+        if (rota && $("#listarota option[value='" + rota.id_rota + "']").length > 0) {
+            $("#listarota").val(rota.id_rota);
 
-    return res;
-})
-.then(() => { if (estaEditando) preencheDadosParaEdicao() })
-.catch((err) => errorFn)
+            // ID da escola anterior
+            idRotaAnterior = rota.id_rota;
+        }
+    })
+    .catch((err) => {
+        console.log("Aluno sem rota ainda", err);
+    })
 
 
-// Variável armazena o ID da escola do aluno 
-// Importante ter para caso o usuário modifique os dados do aluno/escola e aluno/rota
-var idEscolaAnterior;
-var idRotaAnterior;
+if (estaEditando) {
+    restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}`)
+        .then((alunoRaw) => {
+            if (alunoRaw) {
+                estadoAluno = parseAlunoREST(alunoRaw);
+                preencheDadosParaEdicao()
+            }
+        })
+        .catch((err) => errorFn("Erro ao recuperar os dados do aluno", err))
+}
+
 
 function preencheDadosParaEdicao() {
     $(".pageTitle").html("Atualizar Aluno");
     PopulateAlunoFromState(estadoAluno);
-    
-    // ID da escola anterior
-    idEscolaAnterior = estadoAluno["ID_ESCOLA"];
-    idRotaAnterior = estadoAluno["ID_ROTA"];
 
     // Reativa máscaras
     $(".cep").trigger('input')
     $(".datanasc").trigger('input')
     $(".telmask").trigger('input')
     $(".cpfmask").trigger('input')
-    
+
     // Coloca marcador da casa do aluno caso tenha a localização
     if (estadoAluno["LOC_LONGITUDE"] != null && estadoAluno["LOC_LONGITUDE"] != undefined &&
         estadoAluno["LOC_LATITUDE"] != null && estadoAluno["LOC_LATITUDE"] != undefined) {
         posicaoAluno = gerarMarcador(estadoAluno["LOC_LATITUDE"],
-                                        estadoAluno["LOC_LONGITUDE"], 
-                                        "img/icones/casamarker.png", 25, 40);
+            estadoAluno["LOC_LONGITUDE"],
+            "img/icones/aluno-marcador.png", 25, 40);
         vectorSource.addFeature(posicaoAluno);
 
         mapa["map"].getView().fit(vectorSource.getExtent(), {
@@ -333,11 +323,11 @@ function preencheDadosParaEdicao() {
 
     $("#cancelarAcao").on('click', () => {
         cancelDialog()
-        .then((result) => {
-            if (result.value) {
-                navigateDashboard(lastPage);
-            }
-        })
+            .then((result) => {
+                if (result.value) {
+                    navigateDashboard(lastPage);
+                }
+            })
     });
 }
 

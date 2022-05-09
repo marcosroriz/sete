@@ -1,0 +1,141 @@
+.mb-0>a {
+    display: block;
+    position: relative;
+}
+
+.mb-0>a:after {
+    content: "\f078";
+    /* fa-chevron-down */
+    font-family: 'FontAwesome';
+    position: absolute;
+    right: 0;
+}
+
+.mb-0>a[aria-expanded="true"]:after {
+    content: "\f077";
+    /* fa-chevron-up */
+}
+
+.card.cardCustoDetalhe {
+    width: 100%;
+    padding: 1em;
+    margin-right: 1em;
+    box-shadow: none;
+    background: #f9f9f9;
+}
+
+.cardCustoValor {
+    font-size: 2em;
+}
+
+.cardCustoTitulo {
+    font-style: italic;
+}
+
+.tab-accordion .card {
+    box-shadow: none;
+    padding: 10px;
+    border: 1.5px solid #b9b7b7;
+    margin: 0.5em 0em;
+}
+
+.tab-accordion .card .card-header {
+    padding: 0px;
+}
+
+.tab-accordion .card:hover {
+    border: 1.5px solid orange;
+    background-color: #fbfbfb;
+}
+
+.erroCusto,
+.erroCusto:hover,
+.erroCusto .card,
+.erroCusto .card:hover {
+    background: #fff3f3 !important;
+    border: 1.5px solid #e26060 !important;
+}
+
+.tab-accordion .card .card-header a {
+    color: #3c3b3a;
+    /* font-style: italic; */
+    /* font-weight: bold; */
+}
+
+.tab-accordion .card:hover .card-header a {
+    font-weight: bold;
+}
+
+.tab-accordion ul {
+    padding: 0px 20px;
+}
+
+.tab-accordion ul li {
+    list-style: none;
+}
+
+.mathEqn * {
+    line-height: 0em !important;
+    font-size: 1.1rem;
+}
+
+.mathEqn {
+    padding: 0.5em 0px;
+    line-height: 20px !important;
+}
+
+mjx-line {
+    /* height: 0px !important; */
+    /* min-height: 2px !important; */
+    border-top-width: 2px !important;
+    height: 5px !important;
+    margin: 0px -2px !important;
+    min-height: 5px !important;
+}
+
+.card.custoContainer,
+.card.custoContainer:hover {
+    border: none;
+}
+
+.custoContainer .card-header .tituloCusto {
+    font-size: 1em;
+    margin-bottom: 20px;
+    border-bottom-style: solid;
+}
+
+.cardCustoTitulo, .cardCustoDesc {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+}
+
+.cardCustoDesc {
+    font-size: 1em;
+    font-style: oblique;
+    font-variant: all-petite-caps;
+}
+
+.porAno {
+    text-align: center;
+    border-top-style: solid;
+    font-style: oblique;
+    border-color: grey;
+}
+
+.cardCustoValor {
+    font-size: 1.5em;
+    text-align: center;
+    padding: 0px;
+}
+
+.card.cardCustoDetalhe.custoTotal {
+    box-shadow: 0px 0px 14px -4px rgba(46, 45, 46, 1);
+    background: #ffe279;
+}
+
+.custoTotal .cardCustoTitulo {
+    font-size: 1.5em;
+    font-weight: bold;
+}
