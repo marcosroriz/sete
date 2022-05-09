@@ -88,24 +88,6 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group">
-                                            <div class="row">
-                                                <div class="optlabel">
-                                                    Optativo
-                                                </div>
-                                                <label class="col-4 control-label">
-                                                    Telefone
-                                                </label>
-                                                <div class="col-6">
-                                                    <input id="regtelresp" name="regtelresp" type="text"
-                                                        placeholder="Telefone do motorista"
-                                                        class="form-control telmask">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
                                         <div class="form-group obr">
                                             <div class="row">
                                                 <div class="obrlabel">
@@ -146,6 +128,90 @@
 
                                         </div>
                                     </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="col-12 mb-3">
+                                                <label class="control-label">
+                                                    <b>Vínculo Trabalhista:</b>
+                                                </label>
+                                            </div>
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <div class="col-9">
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="vinculo" value="1">
+                                                            <span class="form-check-sign"></span>
+                                                            Servidor Efetivo
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="vinculo" value="2">
+                                                            <span class="form-check-sign"></span>
+                                                            Servidor Comissionado
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="vinculo" value="3">
+                                                            <span class="form-check-sign"></span>
+                                                            Terceirizado
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="vinculo" value="4">
+                                                            <span class="form-check-sign"></span>
+                                                            Outro
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Salário
+                                                </label>
+                                                <div class="input-group col-6 mt-2">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">R$</span>
+                                                    </div>
+                                                    <input id="regsalario" name="regsalario" type="text"
+                                                        placeholder="Valor em Reais" class="form-control money">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-4 control-label">
+                                                    Telefone
+                                                </label>
+                                                <div class="col-6">
+                                                    <input id="regtelresp" name="regtelresp" type="text"
+                                                        placeholder="Telefone do motorista"
+                                                        class="form-control telmask">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-12">
                                         <div class="form-group">
                                             <div class="row">
@@ -175,8 +241,8 @@
                                                 </label>
                                                 <div class="col-6 mt-2">
                                                     <input id="regdocpessoaispdf" name="regdocpessoaispdf" type="file"
-                                                           accept=".pdf" 
-                                                           placeholder="Documento PDF" class="file-input form-control">
+                                                        accept=".pdf" placeholder="Documento PDF"
+                                                        class="file-input form-control">
                                                 </div>
                                             </div>
                                         </div>
@@ -189,6 +255,29 @@
                                 <h6 class="text-center">A respeito dos dados de transporte do motorista, informe:</h6>
                                 <br />
                                 <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        <div class="form-group opt">
+                                            <div class="row">
+                                                <div class="optlabel">
+                                                    Optativo
+                                                </div>
+                                                <label class="col-5 control-label">
+                                                    O motorista atua em quais rotas?
+                                                </label>
+                                                <div class="col-5">
+                                                    <select id="tipoRota" name="tipoRota" class="selectpicker"
+                                                        multiple>
+                                                        <option value="-1">Escolher rota depois</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row marcarTodosLabel">
+                                                <div class="col-6"></div>
+                                                <span class="ml-5 hint">Marque todos que se aplique</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-12">
                                         <div class="form-group obr">
                                             <div class="row">
@@ -209,18 +298,18 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="form-group obr">
                                             <div class="row">
-                                                <div class="optlabel">
-                                                    Optativo
+                                                <div class="obrlabel">
+                                                    Obrigatório
                                                 </div>
                                                 <label class="col-4 control-label">
                                                     Data de vencimento da CNH
                                                 </label>
                                                 <div class="col-6">
                                                     <input id="regcnhvalidade" name="regcnhvalidade" type="text"
-                                                        placeholder="Informe a data de vencimento da CNH"
-                                                        class="form-control datanasc">
+                                                        placeholder="Informe a data de vencimento da CNH" required="false"
+                                                        class="form-control datavalida">
                                                 </div>
                                             </div>
                                         </div>
@@ -243,39 +332,39 @@
                                                 <div class="col-10">
                                                     <div class="form-check form-check-inline">
                                                         <label class="form-check-label">
-                                                            <input id="cnhA" name="habilitado[]" value="1" type="checkbox"
-                                                                class="form-check-input">
+                                                            <input id="cnhA" name="habilitado[]" value="1"
+                                                                type="checkbox" class="form-check-input">
                                                             <span class="form-check-sign"></span>
                                                             A </label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
                                                         <label class="form-check-label from-check-inline">
-                                                            <input id="cnhB" name="habilitado[]" value="1" type="checkbox"
-                                                                class="form-check-input">
+                                                            <input id="cnhB" name="habilitado[]" value="1"
+                                                                type="checkbox" class="form-check-input">
                                                             <span class="form-check-sign"></span>
                                                             B
                                                         </label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
                                                         <label class="form-check-label from-check-inline">
-                                                            <input id="cnhC" name="habilitado[]" value="1" type="checkbox"
-                                                                class="form-check-input">
+                                                            <input id="cnhC" name="habilitado[]" value="1"
+                                                                type="checkbox" class="form-check-input">
                                                             <span class="form-check-sign"></span>
                                                             C
                                                         </label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
                                                         <label class="form-check-label from-check-inline">
-                                                            <input id="cnhD" name="habilitado[]" value="1" type="checkbox"
-                                                                class="form-check-input">
+                                                            <input id="cnhD" name="habilitado[]" value="1"
+                                                                type="checkbox" class="form-check-input">
                                                             <span class="form-check-sign"></span>
                                                             D
                                                         </label>
                                                     </div>
                                                     <div class="form-check form-check-inline">
                                                         <label class="form-check-label from-check-inline">
-                                                            <input id="cnhE" name="habilitado[]" value="1" type="checkbox"
-                                                                class="form-check-input">
+                                                            <input id="cnhE" name="habilitado[]" value="1"
+                                                                type="checkbox" class="form-check-input">
                                                             <span class="form-check-sign"></span>
                                                             E
                                                         </label>

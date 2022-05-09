@@ -80,7 +80,9 @@ function callbackPreprocessCenso(err, arqProcessado, baseDadosProcessada) {
                 NUMERO: Object.keys(escolaValues["ALUNOS"]).length,
                 SELECT: count++
             }
-            dataTableCenso.row.add(escola);
+            if (Object.keys(escolaValues["ALUNOS"]).length > 0) {
+                dataTableCenso.row.add(escola);
+            }
         }
         dataTableCenso.draw();
         $("#datatables thead input[type='checkbox']").trigger('click');
@@ -111,7 +113,64 @@ function preprocess(arquivo) {
     }
 }
 
-function realizaImportacao(rawDados) {
+function ConverteAlunoParaREST(aluno, idEscola) {
+    let alunoJSON ={
+        "id_escola": Number(idEscola),
+
+        "nome": aluno["NOME"], // string
+        "data_nascimento": aluno["DATA_NASCIMENTO"], // string
+        "nome_responsavel": aluno["NOME_RESPONSAVEL"],
+        
+        "sexo": aluno["SEXO"], // int
+        "cor": aluno["COR"], // int
+        
+        "mec_tp_localizacao": aluno["MEC_TP_LOCALIZACAO"],
+        "turno": aluno["TURNO"], // int
+        "nivel": aluno["NIVEL"],
+        
+        "def_caminhar": aluno["DEF_CAMINHAR"] ? "S" : "N", // str
+        "def_ouvir": aluno["DEF_OUVIR"] ? "S" : "N", // str
+        "def_enxergar": aluno["DEF_ENXERGAR"] ? "S" : "N", // str
+        "def_mental": aluno["DEF_MENTAL"] ? "S" : "N", // str
+    }
+
+    if (aluno["mec_id_inep"]) alunoJSON["mec_id_inep"] = aluno["mec_id_inep"];
+    if (aluno["mec_id_proprio"]) alunoJSON["mec_id_proprio"] = aluno["mec_id_proprio"];
+
+    if (aluno["LOC_CEP"]) alunoJSON["loc_cep"] = aluno["LOC_CEP"];
+    if (aluno["CPF"]) alunoJSON["cpf"] = String(aluno["CPF"]).replace(/\D/g, '');
+
+    return alunoJSON;
+}
+
+function ConverteEscolaParaREST(escola) {
+    let escolaJSON = Object.assign({}, escola);
+    // Arrumando campos novos para os que já usamos. 
+    // Atualmente os campos são em caixa alta (e.g. NOME ao invés de nome)
+    // Entretanto, a API está retornando valores em minúsculo
+    for (let attr of Object.keys(escolaJSON)) {
+        escolaJSON[attr.toLowerCase()] = escolaJSON[attr];
+        delete escolaJSON[attr]
+    }
+
+    // Transforma de boolean para "S" / "N"
+    let propParaTransformar = ["MEC_IN_REGULAR", "MEC_IN_EJA", "MEC_IN_PROFISSIONALIZANTE", "MEC_IN_ESPECIAL_EXCLUSIVA",
+        "ENSINO_FUNDAMENTAL", "ENSINO_PRE_ESCOLA", "ENSINO_MEDIO", "ENSINO_SUPERIOR",
+        "HORARIO_MATUTINO", "HORARIO_VESPERTINO", "HORARIO_NOTURNO"];
+
+    for (let prop of propParaTransformar) {
+        if (escolaJSON[prop.toLowerCase()]) {
+            escolaJSON[prop.toLowerCase()] = "S";
+        } else {
+            escolaJSON[prop.toLowerCase()] = "N";
+        }
+    }
+
+    return escolaJSON;
+
+}
+
+async function realizaImportacao(rawDados) {
     Swal2.fire({
         title: "Importando os dados...",
         imageUrl: "img/icones/processing.gif",
@@ -138,13 +197,13 @@ function realizaImportacao(rawDados) {
     dados.forEach((escolaSelecionada) => {
         numAlunos += Object.keys(baseDados[escolaSelecionada["ID"]]["ALUNOS"]).length
     })
-    var totalOperacoes = numEscolas + numAlunos + numAlunos + numAlunos; 
+    var totalOperacoes = numEscolas + numAlunos; 
 
     // Barra de progresso (valor atual)
     var progresso = 0;
 
-    function updateProgresso() {
-        progresso++;
+    function updateProgresso(n = 1) {
+        progresso = progresso + n;
         let progressoPorcentagem = Math.round(100 * (progresso / totalOperacoes))
         $('.progress-bar').css('width', progressoPorcentagem + "%")
         $('.progress-bar').text(progressoPorcentagem + "%")
@@ -154,14 +213,15 @@ function realizaImportacao(rawDados) {
     // posteriormente adicionar na tabela escolatemalunos
     var relEscolaAluno = {};
     
-    // Vamos Inserir os Alunos e as Escolas
-    var promiseArray = new Array();
-    
-    // Promessas de Relações Antigas
-    var promiseArrayRelacoesAntigas = new Array();
-    
+    let censoEscolas = [];
+    let censoAlunos = [];
+
     // Para cada escola
-    dados.forEach((escolaSelecionada) => {
+    for (let escolaSelecionada of dados) {
+        // Zero dado da escola e aluno
+        censoEscolas = [];
+        censoAlunos = [];
+
         // Obtem uma cópia da escola
         let idEscola = escolaSelecionada["ID"];
         var escola = Object.assign({}, baseDados[idEscola])
@@ -182,71 +242,51 @@ function realizaImportacao(rawDados) {
             relEscolaAluno[idEscola].push(idAluno);
 
             // Insere o Aluno no Banco de Dados
-            aluno = tiraUndefined(aluno)
-            promiseArray.push(dbInserirPromise("alunos", aluno, idAluno)
-                                               .then(() => updateProgresso()))
-
-            // Remove da escola atual (se tiver matriculado)
-            remotedb.collection("municipios")
-                    .doc(codCidade)
-                    .collection("escolatemalunos")
-                    .where("ID_ALUNO", "==", idAluno)
-                    .get({ source: "cache" })
-                    .then((snapshotDocumentos) => {
-                        updateProgresso()
-                        snapshotDocumentos.forEach(doc => {
-                            promiseArrayRelacoesAntigas.push(doc.ref.delete())
-                        })
-                    })
-            // // Remove da escola atual (se tiver matriculado)
-            // promiseArray.push(dbRemoverDadoSimplesPromise("escolatemalunos", "ID_ALUNO", idAluno)
-            //                                               .then(() => updateProgresso()))
+            aluno = tiraUndefined(aluno);
+            let alunoREST = ConverteAlunoParaREST(aluno, idEscola);
+            censoAlunos.push(alunoREST);
         }
 
-        // Apaga o atributo aluno da escola
-        delete escola["ALUNOS"];
+        if (Object.keys(escola["ALUNOS"]).length > 0) {
+            // Apaga o atributo aluno da escola
+            delete escola["ALUNOS"];
 
-        // Adiciona esta escola no banco de dados
-        escola = tiraUndefined(escola)
-        promiseArray.push(dbInserirPromise("escolas", escola, String(idEscola))
-                                          .then(() => updateProgresso()))
-    })
-
-    Promise.all(promiseArray)
-    .then(() => {
-        return Promise.all(promiseArrayRelacoesAntigas);
-    })
-    .then(() => {
-        var promiseArrayRelacoes = new Array();
-        for (let [idEscola, alunos] of Object.entries(relEscolaAluno)) {
-            for (let idAluno of Object.values(alunos)) {
-                promiseArrayRelacoes.push(dbInserirPromise("escolatemalunos", {
-                    "ID_ESCOLA": String(idEscola),
-                    "ID_ALUNO": idAluno
-                })
-                .then(() => updateProgresso()))
-            }
+            // Adiciona esta escola no banco de dados
+            escola = tiraUndefined(escola);
+            let escolaREST = ConverteEscolaParaREST(escola);
+            
+            escolaREST["mec_co_municipio"] = codCidade;
+            censoEscolas.push(escolaREST)
+        }
+        
+        let payload = {
+            "alunos": censoAlunos,
+            "escolas": censoEscolas
         }
 
-        return Promise.all(promiseArrayRelacoes)
+        let tam_update = censoAlunos.length + censoEscolas.length;
+        try {
+            await restImpl.dbPOST(DB_TABLE_CENSO, "", payload);
+            updateProgresso(tam_update)
+        } catch (error) {
+            console.log(error);
+            return errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em 0800 616161. " +
+                           "Envie o arquivo da base de dados para verificar o que está acontecendo.", error);
+        }
+    }
+
+    return Swal2.fire({
+        title: "Parabéns!",
+        text: "Os dados foram importados com sucesso.",
+        icon: "success",
+        type: "success",
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+        button: "Fechar"
     })
-    .then(() => dbAtualizaVersao())
-    .then(() => Swal2.fire({
-            title: "Parabéns!",
-            text: "Os dados foram importados com sucesso.",
-            icon: "success",
-            type: "success",
-            closeOnClickOutside: false,
-            allowOutsideClick: false,
-            button: "Fechar"
-        }))
     .then(() => {
         navigateDashboard("./dashboard-main.html");
     })
-    .catch(err => {
-        errorFn("Erro ao importar os dados. Por favor contate a equipe de suporte em 0800 616161")
-    })
-
 }
 
 $('#importarAlunosCenso').on('click', () => {

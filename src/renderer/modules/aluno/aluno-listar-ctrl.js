@@ -7,6 +7,9 @@
 // Variável que armazena os alunos apresentados (será preenchida)
 var listaDeAlunos = new Map();
 
+// Variável que armazena o número de alunos
+var numAlunos = 0;
+
 // Configura o DataTables
 var defaultTableConfig = {
     // A função abaixo inicia nossa pré-configuração do datatable
@@ -57,7 +60,7 @@ var defaultTableConfig = {
                                 })
 
                                 var progresso = 0;
-                                var max = rawDados.length * 3 + 1;
+                                var max = rawDados.length;
 
                                 function updateProgress() {
                                     progresso++;
@@ -69,40 +72,17 @@ var defaultTableConfig = {
                                 var promiseArray = new Array();
 
                                 rawDados.forEach(a => {
-                                    promiseArray.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", a["ID"])
-                                        .then(() => updateProgress())
-                                    );
-
-                                    // Remove da escola atual (se tiver matriculado)
-                                    remotedb.collection("municipios")
-                                    .doc(codCidade)
-                                    .collection(DB_TABLE_ESCOLA_TEM_ALUNOS)
-                                    .where("ID_ALUNO", "==", a["ID"])
-                                    .get({ source: "cache" })
-                                    .then((snapshotDocumentos) => {
-                                        updateProgress()
-                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
-                                    })
-
-                                    // Remove da rota atual (se tiver matriculado)
-                                    remotedb.collection("municipios")
-                                    .doc(codCidade)
-                                    .collection(DB_TABLE_ROTA_ATENDE_ALUNO)
-                                    .where("ID_ALUNO", "==", a["ID"])
-                                    .get({ source: "cache" })
-                                    .then((snapshotDocumentos) => {
-                                        updateProgress()
-                                        snapshotDocumentos.forEach(doc => { promiseArray.push(doc.ref.delete()) })
-                                    })
+                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${a.ID}`).then(() => updateProgress()));
                                 })
 
-                                promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
-
                                 Promise.all(promiseArray)
-                                .then(() => {
+                                .then((res) => {
                                     successDialog(text = msgConclusao);
                                     dataTablesAlunos.rows('.selected').remove();
                                     dataTablesAlunos.draw();
+
+                                    numAlunos = numAlunos - rawDados.length;
+                                    $("#totalNumAlunos").text(String(numAlunos));
                                 })
                             }
                         })
@@ -138,6 +118,7 @@ var defaultTableConfig = {
                     columns: [1, 4, 5, 6, 7, 8]
                 },
                 customize: function (doc) {
+                    debugger
                     doc.content[1].table.widths = ['30%', '12%', '8%', '20%', '20%', '10%'];
                     doc = docReport(doc);
                     
@@ -228,12 +209,9 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
         "Ao remover esse aluno ele será retirado do sistema das rotas " +
         "e das escolas que possuir vínculo."
     ).then((result) => {
-        let listaPromisePraRemover = []
+        let listaPromisePraRemover = [];
         if (result.value) {
-            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ALUNO", estadoAluno["ID"]));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", estadoAluno["ID"]));
-            listaPromisePraRemover.push(dbAtualizaVersao());
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${estadoAluno.ID}`));
         }
 
         return Promise.all(listaPromisePraRemover)
@@ -252,20 +230,17 @@ dataTablesAlunos.on('click', '.alunoRemove', function () {
 });
 
 
-dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
+restImpl.dbGETColecao(DB_TABLE_ALUNO)
 .then(res => preprocessarAlunos(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-.then(res => preprocessarEscolasTemAlunos(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", DB_TABLE_ROTA, "ID_ROTA"))
-.then(res => preprocessarRotaTemAlunos(res))
-.then((res) => adicionaDadosTabela(res))
-.catch((err) => errorFn(err))
+.then(res => adicionaDadosTabela(res))
+.catch(err => errorFn(err))
 
 // Preprocessa alunos
 var preprocessarAlunos = (res) => {
-    $("#totalNumAlunos").text(res.length);
+    numAlunos = Number(res.length);
+
     for (let alunoRaw of res) {
-        let alunoJSON = parseAlunoDB(alunoRaw);
+        let alunoJSON = parseAlunoREST(alunoRaw);
         listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
     }
     return listaDeAlunos;

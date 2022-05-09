@@ -6,6 +6,7 @@ var estadoUsuario;
 var estadoAluno;
 var estadoEscola;
 var estadoMotorista;
+var estadoMonitor;
 var estadoVeiculo;
 var estadoRota;
 var estadoFornecedor;

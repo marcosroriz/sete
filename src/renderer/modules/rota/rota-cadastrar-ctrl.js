@@ -2,11 +2,13 @@
 // Este arquivo contém o script de controle da tela rota-cadastrar-view. 
 // O mesmo serve tanto para cadastrar, quanto para alterar os dados de uma rota.
 // Também é feito consultas nos dados de veículos, alunos e escolas para permitir
-// vinculá-los com a rota
+// vinculá-los com a rota.
 
 // Verifica se é um cadastro novo ou é uma edição
 var estaEditando = false;
+var idRota = "";
 if (action == "editarRota") {
+    idRota = estadoRota["ID"];
     estaEditando = true;
 }
 
@@ -17,13 +19,16 @@ var listaDeFornecedores = new Map();
 var listaDeEscolas = new Map();
 var listaDeAlunos = new Map();
 
-// Lista de escolas e alunos atendidos
+// Conjunto de escolas e alunos atendidos (agora e novo)
 var novasEscolas = new Set();
 var novosAlunos = new Set();
 var antEscolas = new Set();
 var antAlunos = new Set();
 
-// Boolean que indica se o veículo e motoristas foram definidos previamente para esta rota
+// Conjuntos que indicam os motoristas, monitores e veículos utilizados previamente pela rota
+var antMotoristas = new Set();
+var antMonitores = new Set();
+var antVeiculos = new Set();
 var veiculoInformadoPrev = false;
 var motoristaInformadoPrev = false;
 
@@ -40,7 +45,7 @@ $(".cpfmask").mask('000.000.000-00', { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".datanasc").mask('00/00/0000');
 $('.numbermask').mask('00000000');
-$(".kmmask").mask("000000,00", { reverse: true });
+$(".kmmask").mask("000000.00", { reverse: true });
 $('.cnh').mask('000000000-00', { reverse: true });
 
 var validadorFormulario = $("#wizardCadastrarRotaForm").validate({
@@ -75,9 +80,9 @@ $('.card-wizard').bootstrapWizard({
         onTabShow: function (tab, navigation, index) {
             var $total = navigation.find('li').length;
             var $current = index + 1;
-    
+
             var $wizard = navigation.closest('.card-wizard');
-    
+
             // If it's the last tab then hide the last button and show the finish instead
             if ($current >= $total) {
                 $($wizard).find('.btn-next').hide();
@@ -86,9 +91,16 @@ $('.card-wizard').bootstrapWizard({
                 $($wizard).find('.btn-next').show();
                 $($wizard).find('.btn-finish').hide();
             }
-    
+
             if (estadoRota) {
                 $($wizard).find('#cancelarAcao').show();
+                $("#cancelarAcao").on('click', () => {
+                    cancelDialog().then((result) => {
+                        if (result.value) {
+                            navigateDashboard(lastPage);
+                        }
+                    })
+                });
             } else {
                 $($wizard).find('#cancelarAcao').hide();
             }
@@ -96,160 +108,12 @@ $('.card-wizard').bootstrapWizard({
     }
 });
 
-var completeForm = () => {
-    Swal2.fire({
-        title: "Rota salva com sucesso",
-        text: "A rota " + $("#regnome").val() + " foi salva com sucesso. " +
-              "Clique abaixo para retornar ao painel.",
-        icon: "success",
-        showCancelButton: false,
-        confirmButtonClass: "btn-success",
-        confirmButtonText: "Retornar ao painel",
-        closeOnConfirm: false,
-        closeOnClickOutside: false,
-        allowOutsideClick: false,
-        showConfirmButton: true
-    })
-    .then(() => {
-        navigateDashboard("./modules/rota/rota-listar-view.html");
-    });
-}
-
-$("#salvarrota").on("click", () => {
-    var rotasJSON = GetRotaFromForm();
-
-    // Campos restantes
-    var alunosAdicionar = new Set([...novosAlunos].filter(x => !antAlunos.has(x)));
-    var alunosRemover = new Set([...antAlunos].filter(x => !novosAlunos.has(x)));
-    var escolasAdicionar = new Set([...novasEscolas].filter(x => !antEscolas.has(x)));
-    var escolasRemover = new Set([...antEscolas].filter(x => !novasEscolas.has(x)));
-
-    var $valid = $('#wizardCadastrarRotaForm').valid();
-    if (!$valid) {
-        return false;
-    } else {
-        loadingFn("Processando dados da rota ...")
-
-        var prePromessas = new Array();
-        var idRota;
-
-        alunosAdicionar.forEach((aID) => prePromessas.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", aID)));
-        alunosRemover.forEach((aID) => prePromessas.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", aID)));
-
-        if (estaEditando) {
-            idRota = estadoRota["ID"]
-            if (motoristaInformadoPrev) {
-                prePromessas.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_ROTA", idRota));
-            }
-            if (veiculoInformadoPrev) {
-                prePromessas.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_ROTA", idRota));
-            }
-            escolasRemover.forEach((eID) => {
-                prePromessas.push(dbRemoverDadoCompostoPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, 
-                                  "ID_ESCOLA", eID, "ID_ROTA", idRota));
-            });
-        }
-
-        Promise.all(prePromessas)
-        .then(() => {
-            if (estaEditando) {
-                return dbAtualizarPromise(DB_TABLE_ROTA, rotasJSON, estadoRota["ID"])
-            } else {
-                return dbInserirPromise(DB_TABLE_ROTA, rotasJSON);
-            }
-        }).then((res) => {
-            if (idRota == "" || idRota == undefined || idRota == null) {
-                idRota = res.id;
-            }
-            var promessasFinais = new Array();
-            
-            alunosAdicionar.forEach((aID) => promessasFinais.push(dbInserirPromise(DB_TABLE_ROTA_ATENDE_ALUNO, 
-                                     { "ID_ROTA": idRota, "ID_ALUNO": aID })));
-            escolasAdicionar.forEach((eID) => promessasFinais.push(dbInserirPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA,
-                                     { "ID_ROTA": idRota, "ID_ESCOLA": eID })));
-
-            var placaVeiculo = $("#tipoVeiculo").val();
-            if (placaVeiculo != -1) {
-                promessasFinais.push(dbInserirPromise(DB_TABLE_ROTA_POSSUI_VEICULO, 
-                                    { "ID_ROTA": idRota, "ID_VEICULO": placaVeiculo }));
-            }
-
-            if ($("#tipoMotorista").val() != -1) {
-                for (var mCPF of $("#tipoMotorista").val()) {
-                    promessasFinais.push(dbInserirPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA,
-                                        { "ID_ROTA": idRota, "CPF_MOTORISTA": mCPF }));
-                }
-            }
-            return Promise.all(promessasFinais)
-        })
-        .then(() => completeForm())
-        .catch((err) => errorFn("Erro ao processar dados da rota", err));
-    }
-});
-
-function carregaVeiculoMotorista(veiculos, motoristas) {
-    // Processando Veiculos
-    if (veiculos.length != 0) {
-        for (let veiculoRaw of veiculos) {
-            let veiculoJSON = parseVeiculoDB(veiculoRaw);
-            let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`
-            $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID"]}">${vSTR}</option>`);
-        }
-        veiculoInformadoPrev = true;
-    }
-    $("#tipoVeiculo").val($("#tipoVeiculo option:first").val());
-
-    // Processando Motoristas
-    if (motoristas.length != 0) {
-        for (let motoristaRaw of motoristas) {
-            let motoristaJSON = parseMotoristaDB(motoristaRaw);
-            $('#tipoMotorista').append(`<option value="${motoristaJSON["ID"]}">${motoristaJSON["NOME"]}</option>`);
-        }
-        $('#tipoMotorista').selectpicker({
-            noneSelectedText: "Escolha pelo menos um motorista"
-        });
-
-        motoristaInformadoPrev = true;
-    } else {
-        $('#tipoMotorista').removeClass("selectpicker")
-        $('#tipoMotorista').addClass("form-control")
-        $('#tipoMotorista').removeAttr("multiple")
-        $('#tipoMotorista').val(-1)
-        $('#tipoMotorista').change()
-
-        $(".marcarTodosLabel").hide()
-        $("#tipoMotorista").parent().addClass("mt-2")
-    }
-}
-
-var veiculosPromise = dbBuscarTodosDadosPromise(DB_TABLE_VEICULO);
-var motoristaPromise = dbBuscarTodosDadosPromise(DB_TABLE_MOTORISTA);
-var escolasPromise = dbBuscarTodosDadosPromise(DB_TABLE_ESCOLA);
-var alunosPromise = dbBuscarTodosDadosPromise(DB_TABLE_ALUNO);
-
+// Popula dados caso esteja editando
 if (estaEditando) {
-    var veiculoEspecificoPromise = dbBuscarDadosEspecificosPromise(DB_TABLE_ROTA_POSSUI_VEICULO,
-                                    "ID_ROTA", estadoRota["ID"]);
-    var motoristaEspecificoPromise = dbBuscarDadosEspecificosPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA,
-                                    "ID_ROTA", estadoRota["ID"]);
-
-    Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise,
-                 veiculoEspecificoPromise, motoristaEspecificoPromise])
-        .then((res) => {
-            // Processa Veiculos e Motoristas
-            carregaVeiculoMotorista(res[0], res[1]);
-
-            // Seleciona veículos da rota
-            if (res[4].length != 0) {
-                $("#tipoVeiculo").val(res[4][0]["ID_VEICULO"]);
-            }
-
-            // Seleciona motorista da rota
-            if (res[5].length != 0) {
-                var mlist = new Array();
-                res[5].forEach(m => mlist.push(m["CPF_MOTORISTA"]))
-                $("#tipoMotorista").selectpicker('val', mlist)
-            }
+    restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
+        .then((rotaRaw) => {
+            let detalhesDaRota = parseRotaDBREST(rotaRaw);
+            Object.assign(estadoRota, detalhesDaRota);
 
             PopulateRotaFromState(estadoRota);
             $('.horamask').trigger('input');
@@ -260,19 +124,353 @@ if (estaEditando) {
             $('.numbermask').trigger('input');
             $(".kmmask").trigger('input');
             $('.cnh').trigger('input');
+        })
+}
 
-            let todosAlunos = convertListToMap(res[3])
-            let todasEscolas = convertListToMap(res[2])
-            let alunosAtendidos = convertListToMap(estadoRota["ALUNOS"], "ID_ALUNO");
-            let escolasAtendidas = convertListToMap(estadoRota["ESCOLAS"], "ID_ESCOLA");
-            
+var completeForm = () => {
+    Swal2.fire({
+        title: "Rota salva com sucesso",
+        text: "A rota " + $("#regnome").val() + " foi salva com sucesso. " +
+            "Clique abaixo para retornar ao painel.",
+        icon: "success",
+        showCancelButton: false,
+        confirmButtonClass: "btn-success",
+        confirmButtonText: "Retornar ao painel",
+        closeOnConfirm: false,
+        closeOnClickOutside: false,
+        allowOutsideClick: false,
+        showConfirmButton: true
+    })
+        .then(() => {
+            navigateDashboard("./modules/rota/rota-listar-view.html");
+        });
+}
+
+async function preProcessarSalvarRota(alunosAdicionar, alunosRemover, escolasRemover, motoristasRemover, monitoresRemover, veiculosRemover) {
+    // Remover o vínculo da rota dos aluno que iremos adicionar nesta rota
+    for (const aID of alunosAdicionar) {
+        try {
+            await restImpl.dbDELETE(DB_TABLE_ALUNO, `/${aID}/rota`);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    // Remover o vínculo da rota dos aluno que não irão mais utilizar essa rota
+    for (const aID of alunosRemover) {
+        try {
+            await restImpl.dbDELETE(DB_TABLE_ALUNO, `/${aID}/rota`);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    // Remove as escolas vinculadas a rota caso esteja editando
+    if (estaEditando) {
+        for (const eID of escolasRemover) {
+            try {
+                await restImpl.dbDELETEComParam(DB_TABLE_ESCOLA, `/${eID}/rota`, { rotas: [{ "id_rota": estadoRota["ID"] }] });
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        for (const mID of motoristasRemover) {
+            try {
+                await restImpl.dbDELETEComParam(DB_TABLE_ROTA, `/${idRota}/motoristas`, { "cpf_motorista": mID });
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        for (const mID of monitoresRemover) {
+            try {
+                await restImpl.dbDELETEComParam(DB_TABLE_MONITOR, `/${mID}/rota`, { "id_rota": idRota });
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        for (const vID of veiculosRemover) {
+            try {
+                if (vID != "-1" && vID != -1) {
+                    await restImpl.dbDELETEComParam(DB_TABLE_ROTA, `/${idRota}/veiculos`, { "id_veiculo": vID });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }
+}
+
+async function posProcessamentoSalvarRota(idRota, alunosAdicionar, escolasAdicionar, motoristasAdicionar, monitoresAdicionar, veiculosAdicionar) {
+    // Criar vinculo entre alunos e a rota
+
+    if (alunosAdicionar.size > 0) {
+        let vinculoAlunoRotas = [];
+        alunosAdicionar.forEach((aID) => vinculoAlunoRotas.push({ "id_aluno": aID }))
+        try {
+            let resp = await restImpl.dbPOST(DB_TABLE_ROTA, `/${idRota}/alunos`, {
+                "alunos": vinculoAlunoRotas
+            });
+            console.log(resp);
+        } catch (error) {
+            console.error(error);
+        }
+
+    }
+
+    if (escolasAdicionar.size > 0) {
+        let vinculoAlunosEscolas = [];
+
+        escolasAdicionar.forEach((eID) => vinculoAlunosEscolas.push({ "id_escola": eID }));
+        try {
+            debugger
+            let resp = await restImpl.dbPOST(DB_TABLE_ROTA, `/${idRota}/escolas`, {
+                "escolas": vinculoAlunosEscolas
+            });
+            console.log(resp);
+        } catch (error) {
+            console.error(error);
+        }
+
+    }
+
+    if (veiculosAdicionar.size > 0) {
+        for (var vID of veiculosAdicionar) {
+            if (vID != "-1" && vID != "-1") {
+                try {
+                    await restImpl.dbPOST(DB_TABLE_ROTA, `/${idRota}/veiculos`, {
+                        "id_veiculo": vID
+                    })
+
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }
+    }
+
+    if ($("#tipoMotorista").val() != -1) {
+        if (motoristasAdicionar.size > 0) {
+            for (var vID of motoristasAdicionar) {
+                try {
+                    await restImpl.dbPOST(DB_TABLE_ROTA, `/${idRota}/motoristas`, {
+                        "cpf_motorista": vID
+                    })
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }
+    }
+
+    if ($("#tipoMonitor").val() != -1) {
+        if (monitoresAdicionar.size > 0) {
+            for (var vID of monitoresAdicionar) {
+                try {
+                    await restImpl.dbPOST(DB_TABLE_MONITOR, `/${vID}/rota`, {
+                        "id_rota": idRota
+                    })
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }
+    }
+    completeForm()
+}
+
+$("#salvarrota").on("click", async () => {
+    var rotasJSON = GetRotaFromForm();
+
+    // Campos restantes
+    var alunosAdicionar = new Set([...novosAlunos].filter(x => !antAlunos.has(x)));
+    var alunosRemover = new Set([...antAlunos].filter(x => !novosAlunos.has(x)));
+    var escolasAdicionar = new Set([...novasEscolas].filter(x => !antEscolas.has(x)));
+    var escolasRemover = new Set([...antEscolas].filter(x => !novasEscolas.has(x)));
+
+    var novosMotoristas = new Set($("#tipoMotorista").val());
+    var motoristasAdicionar = new Set([...novosMotoristas].filter(x => !antMotoristas.has(x)));
+    var motoristasRemover = new Set([...antMotoristas].filter(x => !novosMotoristas.has(x)))
+
+    var novosMonitores = new Set($("#tipoMonitor").val());
+    var monitoresAdicionar = new Set([...novosMonitores].filter(x => !antMonitores.has(x)));
+    var monitoresRemover = new Set([...antMonitores].filter(x => !novosMonitores.has(x)))
+
+    var novosVeiculos = new Set([$("#tipoVeiculo").val()]);
+    var veiculosAdicionar = new Set([...novosVeiculos].filter(x => !antVeiculos.has(x)));
+    var veiculosRemover = new Set([...antVeiculos].filter(x => !novosVeiculos.has(x)))
+
+    debugger 
+    var $valid = $('#wizardCadastrarRotaForm').valid();
+    if (!$valid) {
+        return false;
+    } else {
+        loadingFn("Processando dados da rota ...")
+
+        try {
+            await preProcessarSalvarRota(alunosAdicionar, alunosRemover, escolasRemover, motoristasRemover, monitoresRemover, veiculosRemover);
+
+            // Faz a alteração nos dados da rota (caso esteja editando = PUT, caso contrário = POST)
+            if (estaEditando) {
+                idRota = estadoRota.ID;
+                console.log("Atualizando Rota com:", rotasJSON)
+                await restImpl.dbPUT(DB_TABLE_ROTA, `/${idRota}`, rotasJSON);
+            } else {
+                console.log("Inserindo Rota com:", rotasJSON);
+                let resp = await restImpl.dbPOST(DB_TABLE_ROTA, "", rotasJSON);
+                idRota = resp?.data?.messages?.id;
+            }
+
+            if (idRota == null || idRota == "") {
+                throw "IDROTA É NULO";
+            } else {
+                posProcessamentoSalvarRota(idRota, alunosAdicionar, escolasAdicionar, motoristasAdicionar, monitoresAdicionar, veiculosAdicionar)
+            }
+        } catch (error) {
+            console.log("Error")
+        } finally {
+            Swal2.close();
+        }
+
+    }
+})
+
+restImpl.dbGETColecao(DB_TABLE_VEICULO)
+    .then((veiculos) => {
+        // Processando Veiculos
+        if (veiculos.length != 0) {
+            for (let veiculoRaw of veiculos) {
+                let veiculoJSON = parseVeiculoREST(veiculoRaw);
+                let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`
+                $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID"]}">${vSTR}</option>`);
+            }
+        }
+        $("#tipoVeiculo").val($("#tipoVeiculo option:first").val());
+
+        if (estaEditando) {
+            return restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}/veiculos`);
+        } else {
+            return false;
+        }
+    }).then((veiculo) => {
+        if (veiculo && $("#tipoVeiculo option[value='" + veiculo?.id_veiculo + "']").length > 0) {
+            $("#tipoVeiculo").val(veiculo.id_veiculo);
+            antVeiculos.add(String(veiculo.id_veiculo));
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+    })
+
+restImpl.dbGETColecao(DB_TABLE_MOTORISTA)
+    .then((motoristas) => {
+        // Processando Motoristas
+        if (motoristas.length != 0) {
+            motoristas.sort((a, b) => a["nome"].localeCompare(b["nome"]))
+            for (let motoristaRaw of motoristas) {
+                let motoristaJSON = parseMotoristaREST(motoristaRaw);
+                $('#tipoMotorista').append(`<option value="${motoristaJSON["ID"]}">${motoristaJSON["NOME"]}</option>`);
+            }
+            $('#tipoMotorista').selectpicker({
+                noneSelectedText: "Escolha pelo menos um motorista"
+            });
+        } else {
+            $('#tipoMotorista').removeClass("selectpicker");
+            $('#tipoMotorista').addClass("form-control");
+            $('#tipoMotorista').removeAttr("multiple");
+            $('#tipoMotorista').val(-1);
+            $('#tipoMotorista').trigger();
+
+            $(".marcarTodosMotoristasLabel").hide();
+            $("#tipoMotorista").parent().addClass("mt-2");
+        }
+
+        if (estaEditando) {
+            return restImpl.dbGETColecao(DB_TABLE_ROTA, `/${idRota}/motoristas`);
+        } else {
+            return false;
+        }
+    }).then((motoristas) => {
+        if (motoristas?.length > 0) {
+            let cpfMotoristas = [];
+            motoristas.forEach(mon => {
+                antMotoristas.add(mon["cpf_motorista"]);
+                cpfMotoristas.push(mon["cpf_motorista"]);
+            });
+            $("#tipoMotorista").selectpicker('val', cpfMotoristas);
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+    })
+
+
+restImpl.dbGETColecao(DB_TABLE_MONITOR)
+    .then((monitores) => {
+        // Processando Monitores
+        if (monitores.length != 0) {
+            monitores.sort((a, b) => a["nome"].localeCompare(b["nome"]))
+
+            for (let monitorRaw of monitores) {
+                $('#tipoMonitor').append(`<option value="${monitorRaw["cpf"]}">${monitorRaw["nome"]}</option>`);
+            }
+            $('#tipoMonitor').selectpicker({
+                noneSelectedText: "Escolha pelo menos um monitor"
+            });
+        } else {
+            $('#tipoMonitor').removeClass("selectpicker");
+            $('#tipoMonitor').addClass("form-control");
+            $('#tipoMonitor').removeAttr("multiple");
+            $('#tipoMonitor').val(-1);
+            $('#tipoMonitor').trigger();
+
+            $(".marcarTodosMonitoresLabel").hide();
+            $("#tipoMonitor").parent().addClass("mt-2");
+        }
+
+        if (estaEditando) {
+            return restImpl.dbGETColecao(DB_TABLE_ROTA, `/${idRota}/monitores`);
+        } else {
+            return false;
+        }
+    }).then((monitores) => {
+        if (monitores?.length > 0) {
+            let cpfMonitores = [];
+            monitores.forEach(mon => {
+                antMonitores.add(mon["cpf_monitor"]);
+                cpfMonitores.push(mon["cpf_monitor"]);
+            });
+            $("#tipoMonitor").selectpicker('val', cpfMonitores)
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+    })
+
+// Adicionando os alunos na tela de rotas
+restImpl.dbGETColecao(DB_TABLE_ALUNO)
+    .then(async (alunos) => {
+        // Processando alunos
+        if (alunos.length != 0) {
+            let alunosAtendidos = new Map();
+            try {
+                alunosAtendidos = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${idRota}/alunos`);
+                alunosAtendidos = convertListToMap(alunosAtendidos, "id_aluno")
+            } catch (error) {
+                alunosAtendidos = new Map();
+            }
+
             $("#totalNumAlunos").text(alunosAtendidos.size);
-            $("#totalNumEscolas").text(escolasAtendidas.size);
 
-            todosAlunos.forEach(aluno => {
-                let alunoSTR = aluno["NOME"] + " (" + aluno["DATA_NASCIMENTO"] + ")";
-                let alunoID = aluno["ID"];
-                if (alunosAtendidos.has(aluno["ID"])) {
+            alunos.sort((a, b) => a["nome"].localeCompare(b["nome"]))
+            alunos.forEach(alunoRaw => {
+                let alunoJSON = parseAlunoREST(alunoRaw);
+                let alunoSTR = alunoJSON["NOME"]; // + " (" + alunoJSON["CPF"] + ")";
+                let alunoID = String(alunoJSON["ID"]);
+
+                if (alunosAtendidos.has(alunoID)) {
                     antAlunos.add(alunoID);
                     novosAlunos.add(alunoID);
                     $('#alunosAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
@@ -280,49 +478,43 @@ if (estaEditando) {
                     $('#alunosNaoAtendidos').append(`<option value="${alunoID}">${alunoSTR}</option>`);
                 }
             })
-
-            todasEscolas.forEach(escola => {
-                let escolaID = escola["ID"];
-                if (escolasAtendidas.has(escola["ID"])) {
-                    antEscolas.add(escolaID);
-                    novasEscolas.add(escolaID);
-                    $('#escolasAtentidas').append(`<option value="${escolaID}">${escola["NOME"]}</option>`);
-                } else {
-                    $('#escolasNaoAtendidas').append(`<option value="${escolaID}">${escola["NOME"]}</option>`);
-                }
-            })
-
-            $("#cancelarAcao").on('click', () => {
-                cancelDialog()
-                .then((result) => {
-                    if (result.value) {
-                        navigateDashboard(lastPage);
-                    }
-                })
-            });
-        })
-} else {
-    Promise.all([veiculosPromise, motoristaPromise, escolasPromise, alunosPromise])
-    .then((res) => {
-        // Processa Veiculos e Motoristas
-        carregaVeiculoMotorista(res[0], res[1]);
-
-        // Processando Escolas
-        var escolasResult = res[2];
-        for (let escolaRaw of escolasResult) {
-            listaDeEscolas.set(escolaRaw["ID"], escolaRaw);
-            $('#escolasNaoAtendidas').append(`<option value="${escolaRaw["ID"]}">${escolaRaw["NOME"]}</option>`);
-        }
-
-        // Processando Alunos
-        var alunosResult = res[3];
-        for (let alunoRaw of alunosResult) {
-            listaDeAlunos.set(alunoRaw["ID"], alunoRaw);
-            $('#alunosNaoAtendidos').append(`<option value="${alunoRaw["ID"]}">${alunoRaw["NOME"]} (${alunoRaw["DATA_NASCIMENTO"]})</option>`);
         }
     })
-}
 
+
+// Adicionando as escolas na tela de rotas
+restImpl.dbGETColecao(DB_TABLE_ESCOLA)
+    .then(async (escolas) => {
+        // Processando alunos
+        if (escolas.length != 0) {
+            let escolasAtendidas = new Map();
+            try {
+                escolasAtendidas = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${idRota}/escolas`);
+                debugger 
+                escolasAtendidas = convertListToMap(escolasAtendidas, "id_escola")
+            } catch (error) {
+                escolasAtendidas = new Map();
+            }
+
+            $("#totalNumEscolas").text(escolasAtendidas.size);
+
+            escolas.sort((a, b) => a["nome"].localeCompare(b["nome"]))
+            escolas.forEach(escolaRaw => {
+                let escolaJSON = parseEscolaREST(escolaRaw);
+                let escolaID = String(escolaJSON["ID"]);
+                if (escolasAtendidas.has(escolaJSON["ID"])) {
+                    antEscolas.add(escolaID);
+                    novasEscolas.add(escolaID);
+                    $('#escolasAtentidas').append(`<option value="${escolaID}">${escolaJSON["NOME"]}</option>`);
+                } else {
+                    $('#escolasNaoAtendidas').append(`<option value="${escolaID}">${escolaJSON["NOME"]}</option>`);
+                }
+            })
+        }
+    })
+
+
+// Handlers para tirar e colocar alunos e escolas da lista de atendidos
 $("#colocarEscola").on("click", () => {
     for (var eID of $("#escolasNaoAtendidas").val()) {
         var eNome = $(`#escolasNaoAtendidas option[value=${eID}]`).text();
@@ -380,17 +572,46 @@ $('#tipoMotorista').on('changed.bs.select', function (e, clickedIndex, isSelecte
             // Remover todas as opções escolhidas
             $('.selectpicker').val('-1');
             $('.selectpicker').selectpicker('render');
-        } 
+        }
     } else {
         // Ver se tinha escolhido a opção de escolher depois
         var opcoes = $('.selectpicker').val();
         if (opcoes.includes("-1")) {
             opcoes = opcoes.filter(item => item != '-1')
         }
-    
+
         $('.selectpicker').val(opcoes);
         $('.selectpicker').selectpicker('render');
     }
 
     $('.selectpicker').selectpicker('toggle');
+});
+
+
+$('#tipoMonitor').on("change", () => {
+    $('#tipoMonitor').valid();
+})
+
+$('#tipoMonitor').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+    // Verificar se quer adicionar depois
+    if (clickedIndex == 0) {
+        // Ver se não tinha escolhido isso antes
+        // previousValue = true se estava ativo antes
+        if (!previousValue) {
+            // Remover todas as opções escolhidas
+            $('.monSelectPicker').val('-1');
+            $('.monSelectPicker').selectpicker('render');
+        }
+    } else {
+        // Ver se tinha escolhido a opção de escolher depois
+        var opcoes = $('.monSelectPicker').val();
+        if (opcoes.includes("-1")) {
+            opcoes = opcoes.filter(item => item != '-1')
+        }
+
+        $('.monSelectPicker').val(opcoes);
+        $('.monSelectPicker').selectpicker('render');
+    }
+
+    $('.monSelectPicker').selectpicker('toggle');
 });

@@ -418,6 +418,21 @@ img#pageIcon {
     height: 40px;
 }
 
+.input-group-prepend {
+    background-color: #E3E3E3;
+    color: #9c9c9c;
+    padding: 8px 12px;
+    height: 40px;
+    box-shadow: none;
+    border-radius: 4px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    transition: all 300ms linear;
+    border-bottom-color: #E3E3E3;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+}
+
 .input-group-append {
     background-color: #E3E3E3;
     color: #9c9c9c;
@@ -467,7 +482,7 @@ span.input-group-text {
 
 /* Disable text dragging */
 *, *::after, *::before {
-	-webkit-user-select: none;
+	-webkit-user-select: auto;
 	-webkit-user-drag: none;
 	-webkit-app-region: no-drag;
 }
@@ -1132,6 +1147,12 @@ li.media {
     margin-top: 20px;
 }
 
+
+* {
+    scrollbar-color: #ffbc31ed #6b6b6b;
+    scrollbar-width: thin;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
@@ -1145,6 +1166,7 @@ li.media {
 ::-webkit-scrollbar-thumb {
     background: #ffaa00ed;
 }
+
 
 ul#list-menus-navs {
     display: flex !important;

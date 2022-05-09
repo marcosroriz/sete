@@ -5,9 +5,15 @@
 // Lista com as rotas
 var listaDeRotas = new Map();
 var idRotaSelecionada = 0;
-var garagem;
+
+// Dados da Rota selecionada
+var dadosDaRota;
+var shapeDaRota;
 // $(".km").hide();
 $(".tempo").hide();
+
+// Garagem
+var garagem;
 
 // Variáveis de Mapas
 var geojson = new ol.format.GeoJSON();
@@ -83,11 +89,11 @@ var getGeomStyle = function (feature) {
                 pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
                 return;
             } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) ||
-                       (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
+                (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
                 plotSeta = true;
             } else {
                 let pontoAtual = ol.proj.transform(end, 'EPSG:3857', 'EPSG:4326');
-                
+
                 let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
 
                 if (distancia > 2000) {
@@ -100,7 +106,7 @@ var getGeomStyle = function (feature) {
                 var dx = end[0] - start[0];
                 var dy = end[1] - start[1];
                 var rotation = Math.atan2(dy, dx);
-    
+
                 // arrows
                 styles.push(new ol.style.Style({
                     geometry: new ol.geom.Point(end),
@@ -278,9 +284,9 @@ drawColchete.on('drawend', function (drawEndEvent) {
     var colcheteFeature = drawEndEvent.feature;
     colcheteFeature.set("estiloIcone", "colchete");
     condition: verificaSeEscolheuRota,
-    colcheteFeature.setStyle(new ol.style.Style({
-        image: gerarMarcadorIcone("img/icones/porteira-marcador.png")
-    }));
+        colcheteFeature.setStyle(new ol.style.Style({
+            image: gerarMarcadorIcone("img/icones/porteira-marcador.png")
+        }));
     numOperacoes++;
 });
 
@@ -390,7 +396,7 @@ $(document).on('keyup', function (event) {
 
 var listener;
 draw.on('drawstart', function (drawStartEvent) {
-   sketch = drawStartEvent.feature;
+    sketch = drawStartEvent.feature;
     var tooltipCoord = drawStartEvent.coordinate;
     $(measureTooltipElement).css("display", "");
 
@@ -400,7 +406,7 @@ draw.on('drawstart', function (drawStartEvent) {
         var geom = evt.target;
         var output = formatLengthLeg(geom);
         tooltipCoord = geom.getLastCoordinate();
-        
+
         measureTooltipElement.innerHTML = output;
         measureTooltip.setPosition(tooltipCoord);
     });
@@ -699,25 +705,26 @@ mainbar.setPosition("top-left");
 mapaOL.addControl(centerbar);
 mapaOL.addControl(mainbar);
 
-// Callback para pegar dados inicia das rotas
-dbBuscarTodosDadosPromise(DB_TABLE_ROTA)
-.then(res => {
-    res.sort((a, b) => a["NOME"].localeCompare(b["NOME"]))
+// Callback para pegar dados iniciais das rotas
+restImpl.dbGETColecao(DB_TABLE_ROTA)
+    .then(res => {
+        res.sort((a, b) => a["nome"].localeCompare(b["nome"]))
 
-    for (let rotaRaw of res) {
-        rotaRaw["ALUNOS"] = [];
-        rotaRaw["ESCOLAS"] = [];
-        listaDeRotas.set(rotaRaw["ID"], rotaRaw);
-        $('#listarotas').append(`<option value="${rotaRaw["ID"]}">${rotaRaw["NOME"]}</option>`);
-    }
-})
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
-.then(res => processarAlunosPorRota(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-.then(res => processarEscolasPorRota(res))
-.then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
-.then(res => processarGaragem(res))
-.catch(err => errorFn("Erro ao listar as rotas", err))
+        for (let rotaRaw of res) {
+            let rotaJSON = parseRotaDBREST(rotaRaw);
+            rotaJSON["ALUNOS"] = [];
+            rotaJSON["ESCOLAS"] = [];
+            listaDeRotas.set(rotaJSON["ID"], rotaJSON);
+            $('#listarotas').append(`<option value="${rotaJSON["ID"]}">${rotaJSON["NOME"]}</option>`);
+        }
+    })
+    // .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ALUNO", DB_TABLE_ALUNO, "ID_ALUNO"))
+    // .then(res => processarAlunosPorRota(res))
+    // .then(() => dbLeftJoinPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
+    // .then(res => processarEscolasPorRota(res))
+    // .then(() => dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM))
+    // .then(res => processarGaragem(res))
+    .catch(err => errorFn("Erro ao listar as rotas", err))
 
 
 // Processa garagem
@@ -755,71 +762,62 @@ var processarEscolasPorRota = (res) => {
     return listaDeRotas;
 }
 
-$("#listarotas").on("change", (evt) => {
+$("#listarotas").on("change", async (evt) => {
     if (evt.currentTarget.value == "") {
         escolheuRota = false;
     } else {
         escolheuRota = true;
         try {
             idRotaSelecionada = evt.currentTarget.value;
-            var rotaSelect = listaDeRotas.get(idRotaSelecionada);
-            var nomeRota = rotaSelect["NOME"];
-            Swal2.fire({
-                title: "Carregando rota",
-                text: "Carregando traçado da rota " + nomeRota,
-                type: "info",
-                icon: "info",
-                showCancelButton: false,
-                closeOnConfirm: false,
-                closeOnClickOutside: false,
-                allowOutsideClick: false,
-                showConfirmButton: false
-            });
+            let temShape = true;
 
             // Limpando dados do mapa
             vectorSource.clear();
             mapaSource.clear();
+
+            try {
+                dadosDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRotaSelecionada}`);
+                delete dadosDaRota["_links"];
+                delete dadosDaRota["result"];
+            } catch (error) {
+                errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, error);
+                return error;
+            }
+
+            try {
+                shapeDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRotaSelecionada}/shape`);
+            } catch (error) {
+                temShape = false;
+            }
+
+            if (temShape) {
+                Swal2.fire({
+                    title: "Carregando rota",
+                    text: "Carregando traçado da rota " + dadosDaRota["nome"],
+                    type: "info",
+                    icon: "info",
+                    showCancelButton: false,
+                    closeOnConfirm: false,
+                    closeOnClickOutside: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: false
+                });
+
+                // Acrescentando rota existente
+                mapaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(shapeDaRota.shape))
+            }
 
             // Acrescenta garagem
             if (garagem != undefined) {
                 plotarGaragem(garagem);
             }
 
-            // Acrescentando rota existente
-            if (rotaSelect["SHAPE"] != "" && rotaSelect["SHAPE"] != undefined) {
-                mapaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(rotaSelect["SHAPE"]))
-            }
-
             // zera o número de operações
             numOperacoes = 0;
 
-            // Tipo de Modal
-            // var tipoModal = parseInt(rotaSelect["TIPO"]);
-            // switch (tipoModal) {
-            //     case 1:
-            //         $(".tempo").hide();
-            //         $("#regkm").val(rotaSelect["KM"]);
-            //         $(".km").show();
-            //         break;
-            //     case 2:
-            //         $("#regtempo").val(rotaSelect["TEMPO"]);
-            //         $(".tempo").show();
-            //         $(".km").hide();
-            //         break;
-            //     case 3:
-            //         $(".tempo").val(rotaSelect["TEMPO"]);
-            //         $("#regkm").val(rotaSelect["KM"]);
-            //         $(".tempo").show();
-            //         $(".km").show();
-            //         break;
-            //     default:
-            //         $(".tempo").hide();
-            //         $("#regkm").val(rotaSelect["KM"]);
-            //         $(".km").show();
-            // }
-            $("#regkm").val(rotaSelect["KM"]);
+            $("#regkm").val(strToNumber(dadosDaRota["km"]));
             $(".km").show();
-            alunosRota = rotaSelect["ALUNOS"]
+            /*alunosRota = rotaSelect["ALUNOS"]
             escolasRota = rotaSelect["ESCOLAS"]
 
             alunosRota.forEach(aluno => {
@@ -834,15 +832,14 @@ $("#listarotas").on("change", (evt) => {
                     escola["LOC_LATITUDE"] != null && escola["LOC_LATITUDE"] != undefined) {
                     plotarEscola(escola);
                 }
-            })
+            })*/
 
             if (!mapaSource.isEmpty()) {
                 mapaOL.getView().fit(mapaSource.getExtent());
                 mapaOL.updateSize();
             }
-  
         } catch (error) {
-           errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, error)
+            errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, error)
         } finally {
             Swal2.close();
         }
@@ -852,8 +849,8 @@ $("#listarotas").on("change", (evt) => {
 var completeForm = () => {
     Swal2.fire({
         title: "Rota salva com sucesso",
-        text: "A rota " + listaDeRotas.get(idRotaSelecionada)["NOME"] + " foi salva com sucesso. " +
-              "Clique abaixo para retornar ao painel.",
+        text: "A rota " + dadosDaRota["nome"] + " foi salva com sucesso. " +
+            "Clique abaixo para retornar ao painel.",
         type: "success",
         icon: "success",
         showCancelButton: false,
@@ -865,7 +862,7 @@ var completeForm = () => {
         showConfirmButton: true
     })
     .then(() => {
-        navigateDashboard("./modules/rota/rota-listar-view.html");
+        $("a[name='rota/rota-listar-view']").trigger("click");
     });
 }
 
@@ -873,24 +870,30 @@ $("#rota-malha-salvarNovaMalha").on('click', () => {
     if (idRotaSelecionada == 0) {
         Swal2.fire("Escolha uma rota primeiro!", "", "error");
     } else {
-        var rotasJSON = { "ID_ROTA": idRotaSelecionada };
-        rotasJSON["KM"] = String(formatLengthAll()).replace(".", ",");
-        // rotasJSON["TEMPO"] = $("#regtempo").val();
-        rotasJSON["SHAPE"] = new ol.format.GeoJSON().writeFeatures(mapaSource.getFeatures());
+        let promiseArray = [];
+        dadosDaRota["km"] = strToNumber(String(formatLengthAll()));
+        console.log(JSON.stringify(dadosDaRota))
+        promiseArray.push(restImpl.dbPUT(DB_TABLE_ROTA, `/${idRotaSelecionada}`, dadosDaRota))
+        promiseArray.push(restImpl.dbPUT(DB_TABLE_ROTA, `/${idRotaSelecionada}/shape`,
+            JSON.parse(new ol.format.GeoJSON().writeFeatures(mapaSource.getFeatures()))))
 
-        dbAtualizarPromise(DB_TABLE_ROTA, rotasJSON, idRotaSelecionada)
-        .then(res => completeForm())
-        .catch(err => errorFn("Erro ao atualizar o motorista!", err))
+        Promise.all(promiseArray)
+            .then((res) => completeForm())
+            .catch(err => {
+                debugger
+                console.log(err)
+                errorFn("Erro ao atualizar o motorista!", err)
+            })
     }
 });
 
 $("#cancelarAcao").on('click', () => {
     cancelDialog()
-    .then((result) => {
-        if (result.value) {
-            navigateDashboard(lastPage);
-        }
-    })
+        .then((result) => {
+            if (result.value) {
+                navigateDashboard(lastPage);
+            }
+        })
 });
 
 action = "desenharRota"

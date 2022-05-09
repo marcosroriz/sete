@@ -33,6 +33,14 @@ function dtConfigPadrao(nomeDado) {
             },
         },
         dom: 'rtilfpB',
+        drawCallback: (settings) => {
+            let api = new $.fn.dataTable.Api( settings );
+            let regFiltrados = api.page.info().recordsDisplay;
+            let regTotal = api.page.info().recordsTotal;
+
+            if ($("#dtFiltro").length > 0) { $("#dtFiltro").text(regFiltrados) };
+            if ($("#dtTotal").length > 0) { $("#dtTotal").text(regTotal) };
+        }
     }
 }
 

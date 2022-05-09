@@ -1,0 +1,149 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/tab-perfil.png">
+        <p class="pageTitle">Meu Perfil</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 ml-auto mr-auto">
+            <form id="wizardConfigForm" method="" action="">
+                <div class="card card-wizard wiz-fixes">
+                    <div class="card-body ">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item col-6 tab-2-fix">
+                                <a class="nav-link active" href="#tab-dados-pessoais" data-toggle="tab" role="tab"
+                                    aria-controls="tab-dados-pessoais" aria-selected="true">
+                                    <i class="fa fa-user-circle tab-icon" aria-hidden="true"></i>
+                                    Dados Básicos
+                                </a>
+                            </li>
+                            <li class="nav-item col-6 tab-2-fix">
+                                <a class="nav-link" href="#tab-dados-acesso" data-toggle="tab" role="tab"
+                                    aria-controls="tab2" aria-selected="true">
+                                    <i class="fa fa-lock tab-icon" aria-hidden="true"></i>
+                                    Dados de Acesso
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <!-- Início da aba dados pessoais -->
+                            <div class="tab-pane fade show active" id="tab-dados-pessoais" role="tabpanel">
+                                <div class="row justify-content-center">
+                                    <h6 class="text-center">Confirme os seus dados pessoais:</h6>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Nome completo:</label>
+                                            <input id="regnome" name="regnome" type="text"
+                                                placeholder="Digite seu nome:" class="form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>CPF:</label>
+                                            <input id="regcpf" name="regcpf" type="text" placeholder="Digite seu CPF:"
+                                                class="form-control cpfmask">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Telefone:</label>
+                                            <input id="regtel" name="regtel" type="text"
+                                                placeholder="Digite seu Telefone:" class="form-control telmask">
+                                        </div>
+                                    </div>
+                                    <hr class="hr-form" />
+                                    <h6 class="text-center mt-2">Município em que você atua:</h6>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Estado:</label>
+                                            <select id="regestado" disabled name="regestado" class="form-control"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Município:</label>
+                                            <select id="regcidade" disabled name="regcidade" class="form-control"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fim aba dados pessoais -->
+
+                            <!-- Início da aba dados acesso -->
+                            <div class="tab-pane fade" id="tab-dados-acesso" role="tabpanel">
+                                <h6 class="mb-3 text-center text-space">Abaixo você encontra os dados de acesso ao sistema</h6>
+                                <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>E-mail:</label>
+                                            <input id="emailAtual" name="emailAtual" type="email"
+                                            disabled class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Senha atual</label>
+                                            <input id="senhaAtual" name="senhaAtual" disabled class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <hr class="hr-form" />
+
+                                <div class="row justify-content-center">
+                                    <h6 class="mt-3 mb-3 text-center text-space">Caso queira modificar o email ou senha, digite os novos dados abaixo e clique em atualizar perfil</h6>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Novo E-mail:</label>
+                                            <input id="regemail" name="regemail" type="email"
+                                                placeholder="Endereço de e-mail:" class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Nova Senha (mínimo de seis caracteres)</label>
+                                            <input id="regpassword" name="regpassword"
+                                            type="password" placeholder="Senha:"
+                                            class="form-control">
+                                            
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Repetir Nova Senha</label>
+                                            <input id="regpasswordrepeat" name="regpasswordrepeat"
+                                            type="password" placeholder="Senha:"
+                                            class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fim aba dados de acesso -->
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button type="button" class="btn btn-default btn-wd btn-back pull-left">
+                            Voltar
+                        </button>
+                        <button type="button" class="btn btn-info btn-wd btn-next pull-right">
+                            Próximo
+                        </button>
+                        <button type="button" class="btn btn-info btn-wd btn-finish pull-right" id="finishconfig">
+                            Concluir
+                        </button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="./modules/usuario/usuario-model.js" type="text/javascript"></script>
+<script src="./modules/usuario/usuario-dados-ctrl.js" type="text/javascript"></script>

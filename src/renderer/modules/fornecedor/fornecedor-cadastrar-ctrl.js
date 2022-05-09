@@ -141,54 +141,62 @@ $("#salvarfornecedor").on('click', () => {
     $("#regcnpj").valid();
     $("[name='temServico[]']").valid();
 
-    var fornecedorJSON = GetFornecedorFromForm();
+    let fornecedorJSON = GetFornecedorFromForm();
 
-    var $valid = $('#wizardCadastrarFornecedorForm').valid();
+    let $valid = $('#wizardCadastrarFornecedorForm').valid();
     if (!$valid) {
         return false;
     } else {
+        let promessaInsercaoDados;
+
         if (estaEditando) {
             loadingFn("Editando o fornecedor ...")
 
-            dbAtualizarPromise(DB_TABLE_FORNECEDOR, fornecedorJSON, estadoFornecedor["ID"])
-                .then(() => dbAtualizaVersao())
-                .then(() => completeForm())
-                .catch((err) => errorFn("Erro ao atualizar o fornecedor.", err))
+            promessaInsercaoDados = restImpl.dbPUT(DB_TABLE_FORNECEDOR, `/${estadoFornecedor.ID}`, fornecedorJSON);
         } else {
             loadingFn("Cadastrando o fornecedor ...")
 
-            dbInserirPromise(DB_TABLE_FORNECEDOR, fornecedorJSON)
-                .then(() => dbAtualizaVersao())
-                .then(() => completeForm())
-                .catch((err) => errorFn("Erro ao salvar o fornecedor.", err))
+            promessaInsercaoDados = restImpl.dbPOST(DB_TABLE_FORNECEDOR, "", fornecedorJSON);
         }
+
+        promessaInsercaoDados.then(() => completeForm("Dados inseridos com sucesso"))
+        .then(() =>  $("a[name='fornecedor/fornecedor-listar-view']").trigger('click'))
+        .catch((err) => errorFn("Erro ao inserir os dados do fornecedor.", err))
+
     }
 });
 
 if (estaEditando) {
-    PopulateFornecedorFromState(estadoFornecedor);
-    if (estadoFornecedor["LOC_LATITUDE"] != null && estadoFornecedor["LOC_LATITUDE"] != undefined &&
-        estadoFornecedor["LOC_LONGITUDE"] != null && estadoFornecedor["LOC_LONGITUDE"] != undefined) {
-        plotaFornecedor(estadoFornecedor["LOC_LATITUDE"], estadoFornecedor["LOC_LONGITUDE"]);
+    restImpl.dbGETEntidade(DB_TABLE_FORNECEDOR, `/${estadoFornecedor.ID}`)
+    .then((fornecedorRaw) => {
+        estadoMotorista = parseFornecedorREST(fornecedorRaw);
 
-        if (!vectorSource.isEmpty()) {
-            mapa["map"].getView().fit(vectorSource.getExtent());
-            mapa["map"].updateSize();
+        PopulateFornecedorFromState(estadoFornecedor);
+        if (estadoFornecedor["LOC_LATITUDE"] != null && estadoFornecedor["LOC_LATITUDE"] != undefined &&
+            estadoFornecedor["LOC_LONGITUDE"] != null && estadoFornecedor["LOC_LONGITUDE"] != undefined) {
+            plotaFornecedor(estadoFornecedor["LOC_LATITUDE"], estadoFornecedor["LOC_LONGITUDE"]);
+    
+            if (!vectorSource.isEmpty()) {
+                mapa["map"].getView().fit(vectorSource.getExtent());
+                mapa["map"].updateSize();
+            }
         }
-    }
-
-    $('.cep').trigger('input');
-    $(".telmask").trigger('input');
-    $(".cnpj").trigger('input');
-
-    $("#cancelarAcao").on('click', () => {
-        cancelDialog()
-            .then((result) => {
-                if (result.value) {
-                    navigateDashboard(lastPage);
-                }
-            })
-    });
+    
+        $('.cep').trigger('input');
+        $(".telmask").trigger('input');
+        $(".cnpj").trigger('input');
+    
+        $("#cancelarAcao").on('click', () => {
+            cancelDialog()
+                .then((result) => {
+                    if (result.value) {
+                        navigateDashboard(lastPage);
+                    }
+                })
+        });
+    }).catch((err) => {
+        errorFn("Erro ao editar o fornecedor", err)
+    })
 }
 
 action = "cadastrarFornecedor"

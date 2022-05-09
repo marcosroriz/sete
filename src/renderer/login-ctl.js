@@ -1,20 +1,16 @@
 // Instanciação 
 emailjs.init("user_319iA49jzZ51Sa7qehcii");
-var SERVICE_ID = 'service_ij3p8cb';
-var TEMPLATE_ID = 'template_5mqem8f';
+let SERVICE_ID = 'service_ij3p8cb';
+let TEMPLATE_ID = 'template_5mqem8f';
 
 // Localização do Usuário
-var localizacao;
+let localizacao;
 
 // Scripts específicos da página
 // Serão rodados quando o DOM tiver terminado de carregar
-$(document).ready(function () {
+$(() => {
     // Carrega o rodapé
-    $("#footer").load("https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/footer.html", function (response, status) {
-        if (status == "error") {
-            $("#footer").load("footer.html");
-        }
-    });
+    $("#footer").load("footer.html");
 
     // Ativa a aba de login por padrão
     $("#login-tab").trigger('click');
@@ -27,6 +23,7 @@ $(document).ready(function () {
     if (userconfig.get("LEMBRAR")) {
         $("#loginemail").val(userconfig.get("EMAIL"));
         $("#loginpassword").val(userconfig.get("PASSWORD"));
+        $("#recoveremail").val(userconfig.get("EMAIL"));
     }
 
     // Popula o campo de proxy se tiver
@@ -233,47 +230,27 @@ $(document).ready(function () {
     });
 
     // Ações do teclado para Login (pressionar Enter para logar)
-    $("#loginemail, #loginpassword").keypress((e) => {
-        if (e.which === 13) {
-            $("#loginsubmit").click();
+    $("#loginemail, #loginpassword").on("keyup", (e) => {
+        if (e.code == "Enter") {
+            $("#loginsubmit").trigger("click");
         }
     });
-    $("#recoveremail").keypress((e) => {
-        if (e.which === 13) {
-            $("#recoversubmit").click();
+    $("#recoveremail").on("keyup", (e) => {
+        if (e.code == "Enter") {
+            $("#recoversubmit").trigger("click");
         }
     });
 
     // Ações para cada click
 
-    Swal2.fire({
-        icon: "warning",
-        title: "Aviso de Manutenção",
-        text: "O sistema SETE entrará em modo de manutenção no período de 29/04/2022 até o dia 06/05/2022. " +
-              "Neste período o sistema ficará indisponível."
-    })
-
-    // No caso de login iremos fazer o login com o Firebase as preferências
-    // do usuário no arquivo local (userconfig)
-    $("#loginsubmit").click(() => {
-        var email = $("#loginemail").val();
-        var password = $("#loginpassword").val();
-        var lembrarlogin = $("#loginlembrar").is(":checked");
+    // No caso de login iremos fazer o login do usuário no arquivo local (userconfig)
+    $("#loginsubmit").on("click", () => {
+        let email = $("#loginemail").val().trim();
+        let password = $("#loginpassword").val();
+        let md5password = MD5(password);
+        let lembrarlogin = $("#loginlembrar").is(":checked");
 
         $("#loginform").validate();
-
-        let data = new Date();
-        let manutencaoFim = new Date(2022, 04, 06);
-debugger
-        if (data < manutencaoFim) {
-            return Swal2.fire({
-                icon: "warning",
-                title: "Aviso de Manutenção",
-                text: "O sistema SETE entrará em modo de manutenção no período de 29/04/2022 até o dia 06/05/2022. " +
-                      "Neste período o sistema ficará indisponível."
-            })
-        }
-
         if ($("#loginform").valid()) {
             Swal2.fire({
                 title: "Carregando...",
@@ -286,129 +263,167 @@ debugger
                 showConfirmButton: false
             });
 
-            firebase.auth()
-                .signInWithEmailAndPassword(email, password)
-                .then((firebaseUser) => {
-                    // Set local config 
-                    if (lembrarlogin) {
-                        userconfig.set("LEMBRAR", true);
-                        userconfig.set("EMAIL", email);
-                        userconfig.set("PASSWORD", password);
-                    } else {
-                        userconfig.delete("LEMBRAR");
-                        userconfig.delete("EMAIL");
-                        userconfig.delete("PASSWORD");
-                    }
-                    userconfig.set("ID", firebaseUser.user.uid);
-                    return firebaseUser.user.uid
-                })
-                .then((uid) => dbObterPerfilUsuario(uid)) // Obtém o perfil remoto do usuário
-                .then((remoteData) => {
-                    userconfig.set("CIDADE", String(remoteData.CIDADE))
-                    userconfig.set("ESTADO", String(remoteData.ESTADO))
-                    userconfig.set("COD_CIDADE", String(remoteData.COD_CIDADE))
-                    userconfig.set("COD_ESTADO", String(remoteData.COD_ESTADO))
-                    userconfig.set("ID", remoteData["ID"])
+            axios.post(BASE_URL + "/authenticator/sete", {
+                usuario: email,
+                senha: md5password
+            }).then((seteUser) => {
+                // Set local config 
+                if (lembrarlogin) {
+                    userconfig.set("LEMBRAR", true);
+                    userconfig.set("EMAIL", email);
+                    userconfig.set("PASSWORD", password);
+                } else {
+                    userconfig.delete("LEMBRAR");
+                    userconfig.delete("EMAIL");
+                    userconfig.delete("PASSWORD");
+                }
 
-                    dadoUsuario = {
-                        "ID": remoteData["ID"],
-                        "NOME": remoteData["NOME"],
-                        "EMAIL": remoteData["EMAIL"],
-                        "CPF": remoteData["CPF"],
-                        "TELEFONE": remoteData["TELEFONE"],
-                        "CIDADE": remoteData["CIDADE"],
-                        "ESTADO": remoteData["ESTADO"],
-                        "PASSWORD": remoteData["PASSWORD"],
-                        "COD_CIDADE": parseInt(remoteData["COD_CIDADE"]),
-                        "COD_ESTADO": parseInt(remoteData["COD_ESTADO"])
-                    }
-                    userconfig.set("DADO_USUARIO", dadoUsuario)
-                    return dadoUsuario;
-                }).then((dadoUsuario) => {
-                    let cod_cidade = String(dadoUsuario["COD_CIDADE"]);
-                    return remotedb.collection("config").doc(cod_cidade).get({ source: "server" });
-                }).then((docConfig) => {
-                    let acessoLiberado = false;
-                    if (docConfig.exists) {
-                        arDataConfig = docConfig.data();
-                        let idUsuario = userconfig.get("ID");
-                        if ((arDataConfig.users.indexOf(idUsuario) > -1) || (arDataConfig.readers.indexOf(idUsuario) > -1)) {
-                            acessoLiberado = true;
-                        }
-                    } else {
-                        throw new Exception("Acesso ainda não foi liberado pela equipe do CECATE-UFG");
-                    }
-                    return acessoLiberado;
-                }).then(() => {
+                userconfig.set("CIDADE", seteUser.data.data.cidade)
+                userconfig.set("ESTADO", seteUser.data.data.estado)
+                userconfig.set("COD_CIDADE", String(seteUser.data.data.codigo_cidade))
+                userconfig.set("COD_ESTADO", (seteUser.data.data.codigo_cidade + "").slice(0, 2))
+                userconfig.set("LATITUDE", Number(seteUser.data.data.latitude))
+                userconfig.set("LONGITUDE", Number(seteUser.data.data.longitude))
+                userconfig.set("ID", String(seteUser.data.data.id_usuario))
+                userconfig.set("TIPO_PERMISSAO", String(seteUser.data.data.tipo_permissao))
+                userconfig.set("NOME", seteUser.data.data.nome)
+                userconfig.set("TOKEN", seteUser.data.access_token.access_token)
+                dadoUsuario = {
+                    "ID": String(seteUser.data.data.id_usuario),
+                    "NOME": seteUser.data.data.nome,
+                    "EMAIL": seteUser.data.data.email,
+                    "CPF": seteUser.data.data.cpf,
+                    "TELEFONE": seteUser.data.data.telefone,
+                    "CIDADE": seteUser.data.data.cidade,
+                    "ESTADO": seteUser.data.data.estado,
+                    "PASSWORD": password,
+                    "COD_CIDADE": Number(seteUser.data.data.codigo_cidade),
+                    "COD_ESTADO": Number((seteUser.data.data.codigo_cidade + "").slice(0, 2)),
+                    "TOKEN": seteUser.data.access_token.access_token
+                }
+                userconfig.set("DADO_USUARIO", JSON.stringify(dadoUsuario))
+
+                return dadoUsuario;
+            }).then(() => {
+                if (window.process) { // Electron
                     return knex("IBGE_Municipios")
                         .select()
                         .where("codigo_ibge", userconfig.get("COD_CIDADE"))
-                }).then((res) => {
-                    userconfig.set("LATITUDE", res[0]["latitude"]);
-                    userconfig.set("LONGITUDE", res[0]["longitude"]);
+                } else { // Browser
+                    return []
+                }
+            }).then((res) => {
+                if (res.length > 0) {
+                    userconfig.set("LATITUDE", res[0]["latitude"])
+                    userconfig.set("LONGITUDE", res[0]["longitude"])
+                }
 
-                    let promissesArray = [];
+                document.location.href = "./dashboard.html"
+            }).catch((err) => {
+                if (err?.response?.data?.messages) {
+                    errorFn(err.response.data.messages);
+                } else {
+                    errorFn("Ocorreu um erro ao tentar fazer o login")
+                }
+            })
 
-                    let codCidade = userconfig.get("COD_CIDADE");
-                    let idUsuario = userconfig.get("ID");
-
-                    promissesArray.push(remotedb.collection("municipios").doc(codCidade).set(
-                        {
-                            LAST_UPDATE: new Date().toLocaleDateString()
-                        }, { merge: true }));
-                    promissesArray.push(remotedb.collection("users")
-                        .doc(idUsuario)
-                        .set({
-                            PASSWORD: userconfig.get("PASSWORD")
-                        }, { merge: true }));
-                    return Promise.all(promissesArray);
-                }).then(() => document.location.href = "./dashboard.html")
-                .catch((err) => {
-                    if (err != null) {
-                        if (err.code == "auth/wrong-password") {
-                            errorFn("Senha incorreta")
-                        } else if (err.code == "auth/user-not-found") {
-                            errorFn("Usuário não encontrado")
-                        } else if (err.code == "auth/network-request-failed") {
-                            errorFn("Internet não está funcionando. Verifique a rede")
-                        } else if (err.code == "permission-denied") {
-                            errorFn(`Usuário ainda não foi ativado pela equipe do CECATE-UFG. 
-                                    Aguarde mais um pouquinho ou entre em contato com a
-                                    equipe de suporte (0800 616161)`)
-                        } else {
-                            errorFn("Erro ao tentar realizar login. Contate a equipe de suporte do CECATE-UFG (0800 616161)")
-                        }
-                    }
-                });
         }
     });
 
     // Recuperar senha
     $("#recoversubmit").on('click', () => {
-        var email = $("#recoveremail").val();
+        let email = $("#recoveremail").val().trim();
         $("#recoveryform").validate();
 
         if ($("#recoveryform").valid()) {
-            console.log("email valido")
-            firebase.auth().sendPasswordResetEmail(email)
-                .then(() => {
-                    Swal2.fire({
-                        title: "E-mail enviado!",
-                        text: "Enviamos um e-mail para o endereço " + email + " contendo um link para modificar sua senha",
-                        type: "success",
-                        icon: "success",
-                        confirmButtonClass: "btn-success",
-                        confirmButtonText: "Retornar ao sistema",
-                    })
-                })
-                .catch((err) => {
-                    if (err != null) {
-                        errorFn(`Tivemos um problema ao tentar recupear o e-mail ${email}`)
-                    }
-                });
+            loadingFn("Enviando o e-mail...");
+
+            let recoverURL = BASE_URL + "/acesso/recovery";
+            axios.post(recoverURL, {
+                "email": email
+            }).then(() => Swal2.fire({
+                title: "E-mail enviado!",
+                text: `Enviamos um e-mail para o endereço ${email} contendo um link para modificar sua senha`,
+                type: "success",
+                icon: "success",
+                confirmButtonClass: "btn-success",
+                confirmButtonText: "Retornar ao sistema",
+            })
+            ).then(() => {
+                abrePopupInsercaoRecuperacaoSenha(email);
+            }).catch((err) => {
+                if (err != null) {
+                    errorFn(`Tivemos um problema ao tentar recupear o e-mail ${email}`, err)
+                }
+            });
         } else {
             errorFn(`O e-mail ${email} não foi encontrado`)
         }
+
+        return false;
+    });
+
+    function abrePopupInsercaoRecuperacaoSenha(email = "") {
+        Swal2.fire({
+            width: '800px',
+            title: 'Recuperação da Senha',
+            html:
+                `<label class="form-check-label col-3 text-right" for="codigo" maxlength=255>E-mail</label>
+                <input type="text" id="recuperarEmail" class="swal2-input" placeholder="E-mail" value="${email}"></input>
+                <br />
+                <label class="form-check-label col-3 text-right" for="codigo" maxlength=255>Código de Recuperação</label>
+                <input type="text" id="recuperarCodigo" class="swal2-input" placeholder="Código"></input>
+                <br />
+                <label class="form-check-label col-3 text-right" for="recuperarSenha">Nova Senha</label>
+                <input type="password" id="recuperarSenha" class="swal2-input" placeholder="Senha"></input>
+                <br />
+                <label class="form-check-label col-3 text-right" for="recuperarSenha">Repetir Nova Senha</label>
+                <input type="password" id="recuperarSenhaRepeticao" class="swal2-input" placeholder="Digite a senha novamente"></input>`,
+            confirmButtonText: 'Recuperar a Senha',
+            focusConfirm: false,
+            confirmButtonColor: "#ff9510",
+            showCancelButton: true,
+            cancelButtonColor: "#797979",
+            cancelButtonText: "Cancelar",
+            preConfirm: () => {
+                const email = String(Swal2.getPopup().querySelector('#recuperarEmail').value).trim();
+                const codigo = String(Swal2.getPopup().querySelector('#recuperarCodigo').value).trim();
+                const recuperarSenha = Swal2.getPopup().querySelector('#recuperarSenha').value;
+                const recuperarSenhaRepetida = Swal2.getPopup().querySelector('#recuperarSenhaRepeticao').value;
+
+                if (email == null || email == "") {
+                    Swal2.showValidationMessage("E-mail vazio");
+                } else if (codigo == null || codigo == "") {
+                    Swal2.showValidationMessage("Código vazio");
+                } else if (recuperarSenha == null || recuperarSenha == undefined && recuperarSenha == "" ||
+                    recuperarSenhaRepetida == null || recuperarSenhaRepetida == undefined || recuperarSenhaRepetida == "") {
+                    Swal2.showValidationMessage("Pelo menos uma das senhas está vazia");
+                } else if (recuperarSenha != recuperarSenhaRepetida) {
+                    Swal2.showValidationMessage("As senhas digitadas são diferentes");
+                } else if (recuperarSenha.length <= 6 && recuperarSenhaRepetida.length <= 6) {
+                    Swal2.showValidationMessage("As senhas devem ter no mínimo seis dígitos");
+                }
+                return { email, codigo, recuperarSenha, recuperarSenhaRepetida }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let { email, codigo, recuperarSenha } = result.value;
+                let senhamd5 = MD5(recuperarSenha);
+
+                return axios.put(BASE_URL + "/acesso/recovery", {
+                    "email": email,
+                    "key": codigo,
+                    "senha": senhamd5
+                }).then(() => successDialog())
+            }
+        }).catch((err) => {
+            errorFn("Erro", err)
+        })
+
+    }
+
+    $("#inserirCodigoRecuperacaoSenha").on('click', () => {
+        abrePopupInsercaoRecuperacaoSenha($("#recoveremail").val());
     });
 
     // No caso de registro temos que fazer a validação do formulário
@@ -430,110 +445,51 @@ debugger
                 showConfirmButton: false
             });
 
-            var email = $("#regemail").val();
-            var password = $("#regpassword").val();
-            var nome = $("#regnome").val();
-            var cpf = $("#regcpf").val();
-            var telefone = $("#regtel").val();
-            var cidade = $(localizacao.cidade).find("option:selected").text();
-            var estado = $(localizacao.estado).find("option:selected").text();
+            let email = $("#regemail").val().trim();
+            let password = $("#regpassword").val();
+            let md5password = MD5(password);
+            let nome = $("#regnome").val();
+            let cpf = $("#regcpf").val();
+            let telefone = $("#regtel").val();
 
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((fbuser) => {
-                    var userData = {
-                        "ID": fbuser.user.uid,
-                        "NOME": nome,
-                        "EMAIL": email,
-                        "PASSWORD": password,
-                        "CPF": cpf,
-                        "TELEFONE": telefone,
-                        "CIDADE": cidade,
-                        "ESTADO": estado,
-                        "COD_CIDADE": localizacao.cidade.value,
-                        "COD_ESTADO": localizacao.estado.value
-                    };
-
-                    emailjs.send(SERVICE_ID, TEMPLATE_ID, userData)
-                        .then(function (response) {
-                            console.log('SUCCESS!', response.status, response.text);
-                        }, function (error) {
-                            console.log('FAILED...', error);
-                        });
-                    //Alimenta a coleção config com os documentos do municipio
-                    var dataConfig = remotedb.collection("config").doc(localizacao.cidade.value);
-                    dataConfig.get().then(function (doc) {
-                        if (!doc.exists) {
-                            remotedb.collection("config")
-                                .doc(localizacao.cidade.value)
-                                .set({ "admin": [], "users": [], "readers": [] })
-                                .then(() => criarColecaoMunicipio(localizacao.cidade.value))
-                        }
-                    })
-
-
-                    var promiseArray = new Array();
-                    promiseArray.push(remotedb.collection("users").doc(fbuser.user.uid).set(userData));
-                    promiseArray.push(InserirUsuario(userData));
-
-                    Promise.all(promiseArray).then(() => {
-                        Swal2.close();
-                        Swal2.fire({
-                            title: "Parabéns!",
-                            text: "Sua conta foi criada com sucesso. Ela será analisada pela equipe do CECATE e em breve você já poderá realizar o login.",
-                            icon: "success",
-                            type: "success",
-                            button: "Fechar"
-                        });
-
-                        $("#loginemail").val($("#regemail").val());
-                        $("#loginpassword").val($("#regpassword").val());
-                        $("#login-tab").click();
-                    });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    if (err != null) {
-                        var errmsg = err.message;
-                        if (err.code == "auth/email-already-in-use") {
-                            errmsg = "O e-mail informado já foi cadastrado."
-                        } else if (err.code == "auth/network-request-failed") {
-                            errmsg = "Erro de conexão com a Internet."
-                        }
-                        errorFn(errmsg)
-                        return;
-                    }
+            axios.post(`${BASE_URL}/registro/${localizacao.cidade.value}`, {
+                "nome": nome,
+                "cpf": String(cpf).replace(/\D/g, ''),
+                "telefone": telefone,
+                "email": email,
+                "password": md5password,
+                "tipo_permissao": "admin"
+            }).then(() => {
+                Swal2.close();
+                Swal2.fire({
+                    title: "Parabéns!",
+                    text: "Sua conta foi criada com sucesso. Ela será analisada pela equipe do CECATE e em breve você já poderá realizar o login.",
+                    icon: "success",
+                    type: "success",
+                    button: "Fechar"
                 });
+                userconfig.set("EMAIL", email);
+                userconfig.set("PASSWORD", password);
+                $("#loginemail").val($("#regemail").val().trim());
+                $("#loginpassword").val($("#regpassword").val());
+                $("#login-tab").trigger('click');
+            }).catch((err) => {
+                let errorMSG = "Não foi possível fazer o registro. Entre em contato com a equipe de suporte."
+                if (err?.response?.data?.messages) {
+                    errorMSG = err.response.data.messages.join("\n");
+                }
+                errorFn(errorMSG);
+            })
         }
     });
 
-    $("#regpassword").change(() => {
+    $("#regpassword, #regpasswordrepeat").on("keyup", () => {
         $("#regpassword").valid();
-    })
-
-    $("#regpasswordrepeat").change(() => {
         $("#regpasswordrepeat").valid();
     });
 
-    function criarColecaoMunicipio(codMunicipio) {
-        //Cria a coleção dos dados para o municipio caso não tenha sido criado ainda
-        var dataFirebase = remotedb.collection("municipios").doc(codMunicipio);
-        dataFirebase.get().then(function (doc) {
-            if (!doc.exists) {
-                //console.log("Cidade Não existe");
-                remotedb.collection("municipios").doc(codMunicipio).set({
-                    "alunos": [], "escolatemalunos": [], "escolas": [], "faztransporte": [], "fornecedores": [],
-                    "garagem": [], "garagemtemveiculo": [], "motoristas": [], "municipios": [], "ordemdeservico": [],
-                    "rotaatendealuno": [], "rotadirigidapormotorista": [], "rotapassaporescolas": [], "rotapossuiveiculo": [],
-                    "rotas": [], "veiculos": [],
-                    "INIT": false
-                });
-            }
-        })
-
-    }
-
     $("#chk-usarproxy").on('click', function () {
-        var checado = false;
+        let checado = false;
         if ($(this).is(':checked'))
             checado = true;
 
@@ -564,30 +520,40 @@ debugger
     });
 
     $("#proxy-tab").on('click', function () {
-        Swal2.fire({
-            title: "Cuidado",
-            text: `A utilização de um proxy altera a forma com que o SETE
-                   se conecta à Internet. Antes de fazer alterações, 
-                   consulte a equipe técnica do seu setor. Tem certeza que 
-                   deseja prosseguir?`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            cancelButtonText: "Cancelar",
-            confirmButtonText: 'Sim'
-        }).then((res) => {
-            if (!res.value) {
-                // Usuário não tem certeza, voltamos pra tela de login
+        if (isElectron) {
+            Swal2.fire({
+                title: "Cuidado",
+                text: `A utilização de um proxy altera a forma com que o SETE
+                       se conecta à Internet. Antes de fazer alterações, 
+                       consulte a equipe técnica do seu setor. Tem certeza que 
+                       deseja prosseguir?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                cancelButtonText: "Cancelar",
+                confirmButtonText: 'Sim'
+            }).then((res) => {
+                if (!res.value) {
+                    // Usuário não tem certeza, voltamos pra tela de login
+                    $("#login-tab").trigger('click');
+                } else {
+                    $("#chk-usarproxy").prop('disabled', false);
+                }
+            })
+        } else {
+            Swal2.fire({
+                title: "Indisponível",
+                text: "A funcionalidade de Proxy está somente disponível na versão desktop.",
+                icon: "warning",
+            }).then(() => {
                 $("#login-tab").trigger('click');
-            } else {
-                $("#chk-usarproxy").prop('disabled', false);
-            }
-        })
+            })
+        }
     });
 
     $("#proxysubmit").on('click', function () {
-        var checado = $("#chk-usarproxy").is(':checked')
+        let checado = $("#chk-usarproxy").is(':checked')
 
         if (!checado) {
             // Remove Proxy
@@ -595,7 +561,6 @@ debugger
             successDialog("Parabéns",
                 "Operação executado com sucesso. Por favor, feche e " +
                 " reabra o software para as alterações surtirem efeitos.")
-
         } else {
             let proxyValido = $("#proxyform").valid();
             if (proxyValido) {
@@ -626,6 +591,16 @@ debugger
         $("#login-tab").trigger('click');
     })
 
+    if (Number(app.getVersion()[0]) < 2) {
+        Swal2.fire({
+            title: "Saiu uma nova versão do SETE",
+            text: "Você deve atualizar o SETE ou utilizar a versão web do sistema. " +
+                  "Clique aqui para entrar na página do SETE.",
+            icon: "warning",
+        }).then(() => {
+            shell.openExternal("https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar");
+        })
+    }
 });
 
 // Indica que o script terminou seu carregamento

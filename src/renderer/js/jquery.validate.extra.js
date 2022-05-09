@@ -81,6 +81,11 @@ window.$.validator.addMethod("mltselect", function (value, element) {
     return value != " " || value != "" || value.length != 0;
 }, "Selecione pelo menos uma opção");
 
+// Valida se campo está com o tamanho exato
+window.$.validator.addMethod("exactlength", function(value, element, param) {
+    return this.optional(element) || value.length == param;
+}, $.validator.format("Por favor digite exatamente {0} caracteres."));
+   
 
 // Validar campo com data de nascimento no formato dd-mm-yyyy
 window.$.validator.addMethod("datanasc", function (value, element) {

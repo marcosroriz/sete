@@ -88,7 +88,7 @@ function docReport(doc) {
     })
 
     doc.content.splice(1, 0, {
-        "text": userData.CIDADE + " (" + userData.ESTADO + ")",
+        "text": userconfig.get("CIDADE") + " (" + userconfig.get("ESTADO") + ")",
         "style": "tituloPrincipal",
     })
 

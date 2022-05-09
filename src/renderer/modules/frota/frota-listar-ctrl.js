@@ -18,8 +18,8 @@ var dataTablesVeiculos = $("#datatables").DataTable({
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'PLACA', width: "12%" },
-            { data: 'TIPOSTR', width: "12%" },
-            { data: 'MARCASTR', width: "12%" },
+            { data: 'TIPO', width: "12%" },
+            { data: 'MARCA', width: "12%" },
             { data: 'MODELOSTR', width: "12%" },
             { data: 'CAPACIDADE', width: "15%" },
             { data: 'CAPACIDADE_ATUAL', width: "15%" },
@@ -82,8 +82,8 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                                 `
                                     })
 
-                                    var progresso = 0;
-                                    var max = rawDados.length * 2 + 1;
+                                var progresso = 0;
+                                var max = rawDados.length;
 
                                     function updateProgress() {
                                         progresso++;
@@ -115,11 +115,28 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                                             dataTablesVeiculos.draw();
                                         })
                                 }
-                            })
-                            .catch((err) => {
-                                Swal2.close()
-                                errorFn("Erro ao remover os veículos", err)
-                            })
+
+                                var promiseArray = new Array();
+                                
+                                // Removendo cada veículo
+                                rawDados.forEach(v => {
+                                    let idVeiculo = v["ID"];
+                                    console.log(DB_TABLE_VEICULO, "/", idVeiculo);
+                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_VEICULO, `/${idVeiculo}`).then(() => updateProgress()));
+                                })
+                                
+                                Promise.all(promiseArray)
+                                .then(() => {
+                                    successDialog(text = msgConclusao);
+                                    dataTablesVeiculos.rows('.selected').remove();
+                                    dataTablesVeiculos.draw();
+                                })
+                            }
+                        })
+                        .catch((err) => {
+                            Swal2.close()
+                            errorFn("Erro ao remover os veículos", err)
+                        })
                     }
                 }
             },
@@ -213,16 +230,16 @@ dataTablesVeiculos.on('click', '.frotaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover o veículo", err))
 });
 
-dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
-    .then(res => processarVeiculos(res))
-    .then(res => adicionaDadosTabela(res))
-    .catch((err) => errorFn("Erro ao listar os veículos!", err))
+// dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+restImpl.dbBuscarTodosDadosPromise(DB_TABLE_VEICULO)
+.then(res => processarVeiculos(res))
+.then(res => adicionaDadosTabela(res))
+.catch((err) => errorFn("Erro ao listar os veículos!", err))
 
 // Processar motoristas
 var processarVeiculos = (res) => {
-    $("#totalNumVeiculos").text(res.length);
     for (let veiculoRaw of res) {
-        let veiculoJSON = parseVeiculoDB(veiculoRaw);
+        let veiculoJSON = parseVeiculoREST(veiculoRaw);
         veiculoJSON["ID_VEICULO"] = veiculoJSON["ID"]
         listaDeVeiculos.set(veiculoJSON["ID_VEICULO"], veiculoJSON);
     }

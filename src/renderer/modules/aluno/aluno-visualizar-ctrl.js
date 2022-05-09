@@ -24,12 +24,65 @@ window.onresize = function () {
 // Select para lidar com click no aluno
 var selectAluno = selectPonto("ALUNO");
 
+// Botão de editar e remover aluno
+var btnEditar;
+var btnRemover;
+
+// Rotina para editar aluno (verifica se usuário tem ctz antes)
+function editarAluno(alunoID) {
+    return goaheadDialog('Editar esse aluno?',
+        "Gostaria de editar os dados deste aluno?",
+    ).then((result) => {
+        Swal2.close();
+        if (result.value) {
+            estadoAluno = listaDeAlunos.get(alunoID);
+            action = "editarAluno";
+            navigateDashboard("./modules/aluno/aluno-cadastrar-view.html");
+        }
+    })
+}
+// Rotina para remover aluno (verifica se usuário tem ctz antes)
+function removerAluno(alunoID) {
+    return confirmDialog('Remover esse aluno?',
+        "Ao remover esse aluno, ele será retirado do sistema das rotas e das escolas que possuir vínculo."
+    ).then((result) => {
+        let listaPromisePraRemover = [];
+        if (result.value) {
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ALUNO, `/${alunoID}`));
+        }
+        return Promise.all(listaPromisePraRemover)
+    }).then((res) => {
+        if (res.length > 0) {
+            Swal2.fire({
+                title: "Sucesso!",
+                icon: "success",
+                text: "Aluno(a) removido(a) com sucesso!",
+                confirmButtonText: 'Recarregar o mapa'
+            }).then(() => navigateDashboard("./modules/aluno/aluno-visualizar-view.html"));
+        }
+    }).catch((err) => errorFn("Erro ao remover o(a) aluno(a)", err))
+}
+
 // Popup aluno
 mapaViz["map"].addInteraction(selectAluno);
 var popupAluno = new ol.Overlay.PopupFeature({
     popupClass: "default anim",
     select: selectAluno,
     closeBox: true,
+    onshow: () => {
+        let alunoID = selectAluno.features_["array_"][0].get("ID");
+        btnEditar = $('<a href="#" id="btnEditar" class="btn btn-custom-popup btn-warning"><i class="fa fa-edit"></i></a>');
+        btnEditar.on('click', () => editarAluno(alunoID));
+        $(".ol-popupfeature").append(btnEditar)
+
+        btnRemover = $('<a href="#" id="btnRemover" class="btn btn-custom-popup btn-danger"><i class="fa fa-trash"></i></a>');
+        btnRemover.on('click', () => removerAluno(alunoID));
+        $(".ol-popupfeature").append(btnRemover)
+    },
+    onclose: () => {
+        $("#btnEditar").remove();
+        $("#btnRemover").remove();
+    },
     template: {
         title: (elem) => {
             return "Aluno " + elem.get("NOME");
@@ -41,8 +94,8 @@ var popupAluno = new ol.Overlay.PopupFeature({
             'SEXO': {
                 title: 'Sexo'
             },
-            'DATA_NASCIMENTO': {
-                title: 'Data de Nascimento'
+            'ROTA': {
+                title: 'Rota'
             },
             'ESCOLA': {
                 title: 'Escola'
@@ -58,17 +111,15 @@ var popupAluno = new ol.Overlay.PopupFeature({
 });
 mapaViz["map"].addOverlay(popupAluno);
 
-dbBuscarTodosDadosPromise(DB_TABLE_ALUNO)
-.then(res => preprocessarAlunos(res))
-.then(() => dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA"))
-.then(res => preprocessarEscolas(res))
-.then(res => plotarListaDeAlunos(res))
-.catch(err => errorFn("Erro ao visualizar os alunos", err))
+restImpl.dbGETColecao(DB_TABLE_ALUNO)
+    .then(res => preprocessarAlunos(res))
+    .then(res => plotarListaDeAlunos(res))
+    .catch(err => errorFn("Erro ao visualizar os alunos", err))
 
 // Preprocessa alunos
 var preprocessarAlunos = (res) => {
     for (let alunoRaw of res) {
-        let alunoJSON = parseAlunoDB(alunoRaw);
+        let alunoJSON = parseAlunoREST(alunoRaw);
         alunoJSON["ID_ALUNO"] = alunoJSON["ID"]
 
         // Só adicionamos (mostraremos) os alunos que tem posição cadastrada!
@@ -80,33 +131,6 @@ var preprocessarAlunos = (res) => {
     return listaDeAlunos;
 }
 
-// Preprocessa escolas
-var preprocessarEscolas = (res) => {
-    for (let escolaRaw of res) {
-        let aID = escolaRaw["ID_ALUNO"];
-        let eID = escolaRaw["ID_ESCOLA"];
-        let eNome = escolaRaw["NOME"];
-
-        // Verifica se este aluno está na lista de alunos com posição
-        if (listaDeAlunos.has(aID)) {
-            let alunoJSON = listaDeAlunos.get(aID);
-            alunoJSON["ID_ESCOLA"] = eID;
-            alunoJSON["ESCOLA"] = eNome;
-            alunoJSON["ESCOLA_LOC_LATITUDE"] = escolaRaw["LOC_LATITUDE"];
-            alunoJSON["ESCOLA_LOC_LONGITUDE"] = escolaRaw["LOC_LONGITUDE"];
-            alunoJSON["ESCOLA_MEC_CO_UF"] = escolaRaw["MEC_CO_UF"];
-            alunoJSON["ESCOLA_MEC_CO_MUNICIPIO"] = escolaRaw["MEC_CO_MUNICIPIO"];
-            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO"] = escolaRaw["MEC_TP_LOCALIZACAO"];
-            alunoJSON["ESCOLA_MEC_TP_LOCALIZACAO_DIFERENCIADA"] = escolaRaw["MEC_TP_LOCALIZACAO_DIFERENCIADA"];
-            alunoJSON["ESCOLA_CONTATO_RESPONSAVEL"] = escolaRaw["CONTATO_RESPONSAVEL"];
-            alunoJSON["ESCOLA_CONTATO_TELEFONE"] = escolaRaw["CONTATO_TELEFONE"];
-    
-            listaDeAlunos.set(aID, alunoJSON);
-        }
-    }
-    return listaDeAlunos;
-};
-
 // Plota os alunos
 var plotarListaDeAlunos = (listaDeAlunos) => {
     // Plotar alunos
@@ -114,7 +138,7 @@ var plotarListaDeAlunos = (listaDeAlunos) => {
         vSource.addFeature(plotarAluno(aluno));
     });
     if (!vSource.isEmpty()) {
-        mapaViz["map"].getView().fit(vSource.getExtent());
+        mapaViz["map"].getView().fit(vSource.getExtent(), { padding: [40, 40, 40, 40] });
         mapaViz["map"].updateSize();
     }
 }
@@ -126,14 +150,15 @@ var plotarAluno = (aluno) => {
     let p = gerarMarcador(alat, alng, "img/icones/aluno-marcador.png");
 
     p.setId(aluno["ID_ALUNO"]);
+    p.set("ID", aluno["ID"]);
     p.set("NOME", aluno["NOME"]);
-    p.set("DATA_NASCIMENTO", aluno["DATA_NASCIMENTO"]);
     p.set("ESCOLA", aluno["ESCOLA"]);
+    p.set("ROTA", aluno["ROTA"]);
     p.set("TURNOSTR", aluno["TURNOSTR"]);
     p.set("NIVELSTR", aluno["NIVELSTR"]);
     p.set("TIPO", "ALUNO");
 
-    if (aluno["SEXO"] == 1) { 
+    if (aluno["SEXO"] == 1) {
         p.set("SEXO", "Masculino");
     } else {
         p.set("SEXO", "Feminino");
@@ -265,46 +290,58 @@ $("#btnVoltar").on('click', () => {
 })
 
 $("#btnExpJPEG").on('click', () => {
-    dialog.showSaveDialog(win, {
-        title: "Salvar Mapa",
-        defaultPath: "mapa-aluno.png",
-        buttonLabel: "Salvar",
-        filters: [
-            { name: "PNG", extensions: ["png"] }
-        ]
-    }).then((acao) => {
-        if (!acao.canceled) {
-            Swal2.fire({
-                title: "Salvando o mapa",
-                imageUrl: "img/icones/processing.gif",
-                closeOnClickOutside: false,
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                html: `Aguarde um segundinho...`
-            })
-            return Promise.all([Promise.resolve(acao.filePath), 
-                                htmlToImage.toPng(document.getElementById("mapaCanvas"))])
-        }
-    }).then((data) => {
-        var caminhoSalvar = data[0];
-        var dataUrl = data[1];
-        var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
-        fs.writeFile(caminhoSalvar, base64Data, 'base64', (err) => {
-            if (err) {
-                errorFn("Erro ao salvar a imagem")
-            } else {
+    // Verifica se estamos ou não rodando no Electron
+    if (window.process) {
+        // Estamos no electron
+        dialog.showSaveDialog(win, {
+            title: "Salvar Mapa",
+            defaultPath: "mapa-aluno.png",
+            buttonLabel: "Salvar",
+            filters: [
+                { name: "PNG", extensions: ["png"] }
+            ]
+        }).then((acao) => {
+            if (!acao.canceled) {
                 Swal2.fire({
-                    title: "Sucesso!",
-                    text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + caminhoSalvar,
-                    icon: "success",
-                    button: "Fechar"
-                });
+                    title: "Salvando o mapa",
+                    imageUrl: "img/icones/processing.gif",
+                    closeOnClickOutside: false,
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    html: `Aguarde um segundinho...`
+                })
+                return Promise.all([Promise.resolve(acao.filePath),
+                htmlToImage.toPng(document.getElementById("mapaCanvas"))])
             }
+        }).then((data) => {
+            var caminhoSalvar = data[0];
+            var dataUrl = data[1];
+            var base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+            fs.writeFile(caminhoSalvar, base64Data, 'base64', (err) => {
+                if (err) {
+                    errorFn("Erro ao salvar a imagem")
+                } else {
+                    Swal2.fire({
+                        title: "Sucesso!",
+                        text: "O mapa foi exportado com sucesso. O arquivo pode ser encontrado em: " + caminhoSalvar,
+                        icon: "success",
+                        button: "Fechar"
+                    });
+                }
+            });
+        }).catch((err) => {
+            Swal2.close()
+            errorFn("Erro ao salvar a imagem")
         });
-    }).catch((err) => {
-        Swal2.close()
-        errorFn("Erro ao salvar a imagem")
-    });
+    } else {
+        // Estamos no browser
+        domtoimage.toBlob(document.getElementById("mapaCanvas"))
+            .then(function (blob) {
+                window.saveAs(blob, 'mapa-aluno.png');
+                successDialog();
+            });
+    }
+
 })
 
 action = "visualizarAluno";

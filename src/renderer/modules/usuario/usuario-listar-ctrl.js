@@ -1,6 +1,9 @@
+// usuario-listar-ctrl.js
+// Este arquivo contém o script de controle da tela usuario-listar-view. 
+// O mesmo apresenta os usuários cadastrados em uma tabela. 
+
 // Preenchimento da Tabela via SQL
 var listaDeTodosOsUsuarios = new Map();
-var listaDeUsuarios = new Map();
 var papelAdmin = false;
 
 // Por padrão não mostra opções de admin, somente se for o caso
@@ -12,9 +15,9 @@ var dataTablesUsuario = $("#datatables").DataTable({
     ...dtConfigPadrao("usuário"),
     ...{
         columns: [
-            { data: 'NOME', width: "30%" },
-            { data: 'CPF', width: "15%" },
-            { data: 'EMAIL', width: "40%" },
+            { data: 'nome', width: "30%" },
+            { data: 'cpf', width: "15%" },
+            { data: 'email', width: "40%" },
             { data: 'PAPEL', width: "15%", defaultContent: "EDITOR" },
             {
                 data: "ACOES",
@@ -27,12 +30,12 @@ var dataTablesUsuario = $("#datatables").DataTable({
         columnDefs: [{ targets: 0,  render: renderAtMostXCharacters(50) },
                      { targets: 2,  render: renderAtMostXCharacters(50) }],
         dom: 'lfrtip',
-        order: [[3, "asc"]],
+        order: [[0, "asc"]],
     }
 });
 
 dataTablesUsuario.on('click', '.usuarioEdit', function () {
-    var $tr = getRowOnClick(this);
+    const $tr = getRowOnClick(this);
 
     estadoUsuario = dataTablesUsuario.row($tr).data();
     action = "editarUsuario";
@@ -40,10 +43,10 @@ dataTablesUsuario.on('click', '.usuarioEdit', function () {
 });
 
 dataTablesUsuario.on('click', '.usuarioRemove', function () {
-    var $tr = getRowOnClick(this);
+    const $tr = getRowOnClick(this);
 
     estadoUsuario = dataTablesUsuario.row($tr).data();
-    if (estadoUsuario["ID"] == userconfig.get("ID")) {
+    if (String(estadoUsuario["ID"]) == String(userconfig.get("ID"))) {
         Swal2.fire({
             title: "Ops.. operação não suportada",
             text: "Não é possível remover o usuário que se encontra logado.",
@@ -78,10 +81,8 @@ dataTablesUsuario.on('click', '.usuarioRemove', function () {
     })
     .then((result) => {
         let listaPromisePraRemover = []
-        if (result) {
-            listaPromisePraRemover.push(RemoverUsuarioLocalPromise(estadoUsuario["ID"]))
-            listaPromisePraRemover.push(dbRemoverUsuarioPromise(estadoUsuario["ID"]))
-            listaPromisePraRemover.push(dbDesabilitaUsuarioConfigPromise(estadoUsuario["ID"], estadoUsuario["PAPELNUM"]))
+        if (result.value) {
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_USUARIOS, "/" + estadoUsuario["ID"]))
         }
         return Promise.all(listaPromisePraRemover)
     }).then((res) => {
@@ -122,14 +123,9 @@ $("#btIncluirUsuario").on('click', () => navigateDashboard("./modules/usuario/us
 
 loadingFn("Buscando os usuários...")
 
-dbBuscarTodosUsuarios()
-.then((resUsuarios) => {
-    resUsuarios.forEach(usuario => listaDeTodosOsUsuarios.set(usuario.id, usuario.data()))
-    return listaDeTodosOsUsuarios
-})
-.then(() => dbBuscarUsuariosDoMunicipioPromise())
-.then((relUsuariosPermitidos) => processaUsuariosPermitidos(relUsuariosPermitidos))
-.then((listaDeUsuarios) => adicionaDadosTabela(listaDeUsuarios))
+restImpl.dbGETColecao(DB_TABLE_USUARIOS)
+.then((usuarios) => processaUsuarios(usuarios))
+.then((listaDeTodosOsUsuarios) => adicionaDadosTabela(listaDeTodosOsUsuarios))
 .then(() => mostraCamposAdmin())
 .then(() => Swal2.close())
 .catch((err) => {
@@ -138,34 +134,27 @@ dbBuscarTodosUsuarios()
 })
 
 // Processa os usuários permitidos
-function processaUsuariosPermitidos(relUsuariosPermitidos) {
-    let usuariosPermitidos = relUsuariosPermitidos.data()   
-    $("#totalNumUsuarios").text(usuariosPermitidos.users.length);
+function processaUsuarios(usuarios) {
+    let numUsuarios = 0;
 
-    insereDadoNaLista(usuariosPermitidos.users, "EDITOR", 1)
-    insereDadoNaLista(usuariosPermitidos.admin, "ADMINISTRADOR", 0)
-    insereDadoNaLista(usuariosPermitidos.readers, "LEITOR", 2)
+    usuarios.forEach(usuario => {
+        if (usuario["is_ativo"] == "S") {
+            numUsuarios++;
+        }
 
-    usuariosPermitidos.admin.forEach(idUsuarioAdmin => {
-        if (idUsuarioAdmin == userconfig.get("ID")) {
+        if (String(usuario["id_usuario"]) == userconfig.get("ID") && 
+            usuario["nivel_permissao"] == "admin") {
             papelAdmin = true;
         }
-    })
 
-    return listaDeUsuarios;
-}
+        usuario["ID"] = String(usuario["id_usuario"]);
+        usuario["PAPEL"] = usuario["nivel_permissao"]?.toUpperCase();
 
-function insereDadoNaLista(listaEspecificaDeUsuarios, papelSTR, papelNUM) {
-    listaEspecificaDeUsuarios.forEach(idUsuario => {
-        let usuarioAlvo = listaDeTodosOsUsuarios.get(idUsuario);
-        if (usuarioAlvo) {
-            usuarioAlvo["PAPEL"] = papelSTR;
-            usuarioAlvo["PAPELNUM"] = papelNUM;
-            
-            listaDeUsuarios.set(idUsuario, usuarioAlvo);
-        }
-        
-    })
+        listaDeTodosOsUsuarios.set(String(usuario.id_usuario), usuario);
+    });
+
+    $("#totalNumUsuarios").text(numUsuarios);
+    return listaDeTodosOsUsuarios;
 }
 
 // Adiciona dados na tabela

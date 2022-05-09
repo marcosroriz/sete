@@ -13,7 +13,9 @@ $('.cep').mask("00000-000");
 $(".cpfmask").mask("000.000.000-00", { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".anoaquisicao").mask("0000");
-$(".placa").mask("SSS-ZZZZ", {
+$('.money').mask('#.##0,00', {reverse: true});
+
+$(".placa").mask("ZZZ-ZZZZ", {
     translation: {
         'Z': {
             pattern: /[A-Za-z0-9]/
@@ -21,9 +23,9 @@ $(".placa").mask("SSS-ZZZZ", {
     }
 });
 
-
 $(".renavam").mask("0000000000-0");
-$(".kmmask").mask("000000,00", { reverse: true });
+$(".kmmask").mask("#.##0,00", { reverse: true });
+$(".consumomask").mask("00,0", { reverse: true });
 
 // Esconde tipo de veículo
 $(".tipoRodo").hide();
@@ -36,12 +38,18 @@ $("input[name='tipoModal']").on("change", (evt) => {
 
         $("#tipoVeiculo").val($('.tipoRodo')[0].value);
         $("#tipoMarca").val($('.tipoRodo')[0].value);
+
+        $("#input-consumo-label").text("Consumo do veículo (KM/L)");
+        $("#input-consumo-unidade").text("KM/L");
     } else {
         $(".tipoRodo").hide();
         $(".tipoAqua").show();
 
         $("#tipoVeiculo").val($('.tipoAqua')[0].value);
         $("#tipoMarca").val(6);
+
+        $("#input-consumo-label").text("Consumo do veículo (L/HORA)");
+        $("#input-consumo-unidade").text("L / HORA");
     }
 });
 
@@ -143,38 +151,90 @@ $("#salvarveiculo").on('click', () => {
         if (estaEditando) {
             loadingFn("Editando o veículo ...")
             let idVeiculo = estadoVeiculo["ID"];
-
-            dbAtualizarPromise(DB_TABLE_VEICULO, veiculoJSON, idVeiculo)
-                .then(() => dbAtualizaVersao())
+            restImpl.dbPUT(DB_TABLE_VEICULO, "/" + idVeiculo, veiculoJSON)
                 .then(() => completeForm())
-                .catch((err) => errorFn("Erro ao atualizar o veículo.", err))
+                .catch((err) => {
+                    debugger
+                    errorFn("Erro ao atualizar o veículo.", err)
+                })
         } else {
             loadingFn("Cadastrando o veículo ...")
 
-            dbInserirPromise(DB_TABLE_VEICULO, veiculoJSON)
-                .then(() => dbAtualizaVersao())
-                .then(() => completeForm())
-                .catch((err) => errorFn("Erro ao salvar o veículo.", err))
+            restImpl.dbPOST(DB_TABLE_VEICULO, "", veiculoJSON)
+            .then(() => completeForm())
+            .catch((err) => {
+                debugger
+                errorFn("Erro ao salvar o veiculo.", err)
+            })
         }
     }
 });
 
-if (estaEditando) {
-    PopulateVeiculoFromState(estadoVeiculo);
-    $('.cep').trigger("input");
-    $(".cpfmask").trigger("input");
-    $(".telmask").trigger("input");
-    $(".anoaquisicao").trigger("input");
-    $(".placa").trigger("input");
-    $(".renavam").trigger("input");
-    $(".kmmask").trigger("input");
+// Preencher as marcas/modelos/tipos com dados do serv
+var promissesMetadados = [];
+promissesMetadados.push(restImpl.dbGETRaiz(DB_TABLE_VEICULO, "/tipo"))
+promissesMetadados.push(restImpl.dbGETRaiz(DB_TABLE_VEICULO, "/marcas"))
+promissesMetadados.push(restImpl.dbGETRaiz(DB_TABLE_VEICULO, "/modelos"))
 
-    $("#cancelarAcao").click(() => {
-        cancelDialog()
-            .then((result) => {
-                if (result.value) {
-                    navigateDashboard(lastPage);
+Promise.all(promissesMetadados)
+.then((res) => {
+    let tipoVeiculos = res[0]?.data?.data;
+    let marcasVeiculos = res[1]?.data?.data;
+    let modelosVeiculos = res[2]?.data?.data;
+
+    if (tipoVeiculos) {
+        tipoVeiculos.sort((a, b) => a["tipo"].localeCompare(b["tipo"]))
+        for (let tipo of tipoVeiculos) {
+            if (tipo.id <= 8) {
+                $('#tipoVeiculo').append(`<option class="tipoRodo" value="${tipo.id}">${tipo.tipo}</option>`);
+            } else {
+                $('#tipoVeiculo').append(`<option class="tipoAqua" value="${tipo.id}">${tipo.tipo}</option>`);
+            }
+        }
+    }
+    
+    if (marcasVeiculos) {
+        marcasVeiculos.sort((a, b) => a["marca"].localeCompare(b["marca"]))
+        for (let marca of marcasVeiculos) {
+                $('#tipoMarca').append(`<option value="${marca.id}">${marca.marca}</option>`);
+        }
+    }
+
+    if (modelosVeiculos) {
+        modelosVeiculos.sort((a, b) => a.id < b.id ? -1 : 1)
+        for (let modelo of modelosVeiculos) {
+                $('#listamodelo').append(`<option value="${modelo.id}">${modelo.modelo}</option>`);
+        }
+    }
+
+    return res;
+}).then(() => verificaEdicao())
+
+function verificaEdicao() {
+    if (estaEditando) {
+        restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${estadoVeiculo.ID}`)
+            .then((veiculoRaw) => {
+                if (veiculoRaw) {
+                    estadoVeiculo = parseVeiculoREST(veiculoRaw);
+
+                    PopulateVeiculoFromState(estadoVeiculo);
+                    $('.cep').trigger("input");
+                    $(".cpfmask").trigger("input");
+                    $(".telmask").trigger("input");
+                    $(".anoaquisicao").trigger("input");
+                    $(".placa").trigger("input");
+                    $(".renavam").trigger("input");
+                    $(".kmmask").trigger("input");
+                    $(".consumomask").trigger("input");
+                    $("#cancelarAcao").on('click', () => {
+                        cancelDialog()
+                            .then((result) => {
+                                if (result.value) {
+                                    navigateDashboard(lastPage);
+                                }
+                            })
+                    });
                 }
             })
-    });
+    }
 }

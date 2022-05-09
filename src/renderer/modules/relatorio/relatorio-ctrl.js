@@ -1,3 +1,6 @@
+// Grafico atual
+var graficoAtual;
+
 var categories = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"];
 var pickedSeries = [];
 
@@ -68,17 +71,157 @@ function roundToTwo(num) {
     return +(Math.round(num + "e+2") + "e-2");
 }
 
-function plotGraphic(target, option) {
-    pickedSeries = option["SERIE"]["series"];
 
+var grafico_template = {
+    chart: {
+        height: 400,
+        toolbar: {
+            show: true,
+            offsetX: 0,
+            offsetY: 0,
+            tools: {
+                download: true,
+                selection: false,
+                zoom: false,
+                zoomin: false,
+                zoomout: false,
+                pan: true,
+            },
+            export: {
+                svg: {
+                    filename: "grafico",
+                },
+                png: {
+                    filename: "grafico",
+                }
+            },
+            autoSelected: 'zoom',
+            events: {
+                mounted: (chart) => {
+                    chart.windowResizeHandler();
+                }
+            }
+        },
+    },
+    legend: {
+        show: true,
+        position: "bottom"
+    },
+    title: {
+        align: "center"
+    },
+    theme: {
+        palette: 'palette6'
+    }
+}
+
+function plotarPizza(target, option) {
+    var grafico_pizza_opcoes =
+    {
+        ...grafico_template,
+        ...{
+            series: option.SERIE.series,
+            labels: option.SERIE.labels,
+        }
+    }
+
+    grafico_pizza_opcoes["chart"]["type"] = "pie";
+    grafico_pizza_opcoes["chart"]["width"] = "100%";
+    grafico_pizza_opcoes["title"]["text"] = option.TITULO;
+
+    chart = new ApexCharts(document.querySelector(target), grafico_pizza_opcoes);
+    setTimeout(() => {
+        chart.render();
+    }, 200)
+
+    return chart;
+}
+
+function plotarBarra(target, option) {
+    var grafico_barra_opcoes =
+    {
+        ...grafico_template,
+        ...{
+            series: [{
+                data: option.SERIE.series
+            }],
+            plotOptions: {
+                bar: {
+                    columnWidth: '45%',
+                    distributed: true,
+                }
+            },
+            xaxis: {
+                categories: option.SERIE.labels
+            },
+            labels: {
+                style: {
+                    fontSize: '5px'
+                }
+            }
+    
+        }
+    }
+
+    grafico_barra_opcoes["chart"]["type"] = "bar";
+    grafico_barra_opcoes["chart"]["width"] = "100%";
+    grafico_barra_opcoes["title"]["text"] = option.TITULO;
+
+    chart = new ApexCharts(document.querySelector(target), grafico_barra_opcoes);
+    setTimeout(() => {
+        chart.render();
+    }, 200)
+
+    return chart;
+}
+
+
+function plotarTotal(target, option) {
+    var grafico_barra_opcoes =
+    {
+        ...grafico_template,
+        ...{
+            series: [{
+                name: option.SERIE.labels[0],
+                data: [{
+                    x: option.SERIE.labels[0],
+                    y: roundToTwo(option.SERIE.series[0])
+                }]
+            }],
+            grid: {
+                show: false,
+            },
+            yaxis: {
+                show: false
+            },
+            dataLabels: {
+                enabled: true,
+                style: {
+                    fontSize: '2em',
+                }
+            }
+        }
+    }
+
+    grafico_barra_opcoes["chart"]["type"] = "bar";
+    grafico_barra_opcoes["chart"]["width"] = "100%";
+    grafico_barra_opcoes["title"]["text"] = option.TITULO;
+
+    chart = new ApexCharts(document.querySelector(target), grafico_barra_opcoes);
+    setTimeout(() => {
+        chart.render();
+    }, 200)
+
+    return chart;
+}
+
+function plotGraphic(target, option) {
     if (option["TIPO"] == "pizza") {
-        return Chartist.Pie(target, option["SERIE"], chart["pizza"]);
+        return plotarPizza(target, option);
     } else if (option["TIPO"] == "barra") {
-        return Chartist.Bar(target, option["SERIE"], chart["barra"]);
+        return plotarBarra(target, option);
     } else if (option["TIPO"] == "total") {
-        return $(target).append(`<div class='totalChart'>
-            <span>${roundToTwo(option["SERIE"]["series"][0])}</sṕan>
-        </div>`)
+        return plotarTotal(target, option);
     } else if (option["TIPO"] == "barraraw") {
         return Chartist.Bar(target, option["SERIE"], chart["barraraw"]);
     }
@@ -168,7 +311,7 @@ function GetTemplateDataTableConfig() {
 }
 
 
-$("#btnExpJPEG").on('click', () => {
+$("#btnExpJPEG").on('click', async () => {
     Swal2.fire({
         title: "Exportando imagem...",
         imageUrl: "img/icones/processing.gif",
@@ -180,14 +323,19 @@ $("#btnExpJPEG").on('click', () => {
         showConfirmButton: false
     });
 
-    domtoimage.toPng(document.getElementsByClassName("card-report")[0])
-        .then(function (dataUrl) {
-            var link = document.createElement('a');
-            link.download = 'imagemRelatorio.jpeg';
-            link.href = dataUrl;
-            link.click();
-            Swal2.close();
-        })
-        .catch((err) => errorFn("Erro ao gerar o gráfico." + err));
+    try {
+        let imgConteudo = await graficoAtual.dataURI({scale: 5})
+        window.saveAs(imgConteudo.imgURI)
+        successDialog();
+
+        // let link = document.createElement('a');
+        // link.download = 'imagemRelatorio.jpeg';
+        // link.href = imgConteudo.imgURI;
+        // link.click();
+        // Swal2.close()
+
+    } catch (err) {
+        errorFn("Erro ao gerar o gráfico." + err)
+    }
 })
 
