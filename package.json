@@ -131,7 +131,7 @@
     "sidebar-v2": "^0.4.0",
     "simplify-geojson": "^1.0.4",
     "spatialite": "^0.1.0",
-    "sqlite3": "^5.0.0",
+    "sqlite3": "^5.0.3",
     "sweetalert": "^2.1.2",
     "sweetalert2": "^11.3.4",
     "tether": "^1.4.7",
