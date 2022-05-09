@@ -88,25 +88,24 @@ function mostraSeTemUpdate(firstAcess) {
     .then((res) => res.json())
     .then((pkg) => {
         if (isElectron) {
-            if (firstAcess) {
-                appVersion = pkg.version;
-                let upVersion = pkg.version;
-                let currentVersion = app.getVersion();
-                if (upVersion != currentVersion) {
-                    $.notify(
-                        {
-                            icon: "ml-1 fa fa-cloud-download menu-icon",
-                            title: "Saiu uma nova versão do SETE",
-                            message: "Clique aqui para entrar na página do SETE",
-                            url: "https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar",
-                            target: "_blank",
-                        },
-                        { 
-                            type: "warning",
-                            delay: 0,
-                        }
-                    );
-                }
+            appVersion = pkg.version;
+            let upVersion = pkg.version;
+            let currentVersion = app.getVersion();
+            if (upVersion != currentVersion) {
+                $.notifyClose();
+                $.notify(
+                    {
+                        icon: "ml-1 fa fa-cloud-download menu-icon",
+                        title: "Saiu uma nova versão do SETE",
+                        message: "Clique aqui para entrar na página do SETE",
+                        url: "https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar",
+                        target: "_blank",
+                    },
+                    { 
+                        type: "warning",
+                        delay: 0,
+                    }
+                );
             }
     
             if (Number(app.getVersion()[0]) < 2) {
