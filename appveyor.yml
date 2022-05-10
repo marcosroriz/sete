@@ -102,7 +102,7 @@ deploy:
   provider: GitHub
   draft: true
   auth_token: 
-    secure: gx5sdTH7NlaxbamcdboCQP+/+ue/zygB78gyfN9f7R0qIb+ZP7Ap1AFjNqYFELfC
+    secure: 7HN67saSTjfsfOL7pPkVAJ+o/QfMFR5I7OFbOYgDBi6liWtPRijfO3O/tXB4ekh5
   artifact: WinBinaries, DebBinaries, RpmBinaries, MacBinaries
   on:
     branch: master
