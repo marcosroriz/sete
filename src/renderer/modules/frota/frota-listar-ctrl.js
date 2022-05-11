@@ -131,8 +131,7 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                                     dataTablesVeiculos.rows('.selected').remove();
                                     dataTablesVeiculos.draw();
                                 })
-                            }
-                        })
+                            })
                         .catch((err) => {
                             Swal2.close()
                             errorFn("Erro ao remover os veículos", err)
