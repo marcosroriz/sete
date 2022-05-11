@@ -112,6 +112,7 @@ class ClarkeWrightSchoolBusRouting {
                 // console.log("PASSENGERS", totalPassengers, "MAX CAPACITY", this.maxCapacity)
                 // console.log("TRAV DISTANCE", totalTravDistance, "MAX DIST", this.maxTravDist)
                 // console.log("TRAV TIME", totalTravTime, "MAX TIME", this.maxTravTime)
+                // console.log("\n")
 
                 // We can merge!
                 let canMerge = false;

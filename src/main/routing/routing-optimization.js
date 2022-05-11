@@ -6,6 +6,7 @@ var ClarkeWrightSchoolBusRouting = require("./clarke-wright-schoolbus-routing.js
 var TwoOpt = require("./twoopt.js");
 var SchoolBusKMeans = require("./kmeans.js");
 var { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
+const { toNumber } = require("lodash");
 
 class RoutingOptimizationWorker {
     constructor(cachedODMatrix, routingParams, spatialiteDB) {
@@ -13,6 +14,15 @@ class RoutingOptimizationWorker {
         this.routingParams = routingParams;
         this.spatialiteDB = spatialiteDB;
         this.reverseMap = new Map();
+        
+        // IDENTIFICANDO O MODO DE SOLUÇÃO
+        if (typeof this.routingParams["maxCapacity"] == typeof []) {
+            this.heterogeneous = true;
+            console.log("\n *** FROTA HETEROGÊNEA ***\n")
+        } else {
+            this.heterogeneous = false;
+            console.log("\n *** FROTA HOMOGÊNEA ***\n")
+        }
 
         routingParams["stops"].forEach((s) => {
             let key = Number(s["lat"]).toFixed(10) + "-" + Number(s["lng"]).toFixed(10);
@@ -45,6 +55,34 @@ class RoutingOptimizationWorker {
         return stops;
     }
 
+    SortClustersMaxToMin(clusterizedStops){
+        let ClustersSorted = {};
+        for (let i = 0; i < clusterizedStops.length; i++) {
+            let clusterStops = clusterizedStops[i];
+            let countPassagers = 0;
+            for (let z = 0; z < clusterStops.length; z++) {
+                countPassagers = countPassagers + clusterStops[z].passengers;
+            }
+            ClustersSorted[countPassagers] = clusterStops;
+        }
+        //console.log("ClustersSorted = ",ClustersSorted);
+        
+        let IndexByCluester = Array();
+        Object.keys(ClustersSorted).forEach((index)=>{
+            IndexByCluester.push(Number(index));
+        });
+        IndexByCluester.sort((a,b)=> b-a);
+        //console.log("IndexByCluester = ",IndexByCluester);
+        
+        let SortClusters = Array();
+        for (let i = 0; i < IndexByCluester.length; i++) {
+            SortClusters.push(ClustersSorted[IndexByCluester[i]]);
+        }
+        
+        //console.log("SortClusters = ",SortClusters);
+        return SortClusters;
+    }
+
     optimize() {
         return new Promise((resolve, reject) => {
             // Activate spatial db
@@ -57,33 +95,46 @@ class RoutingOptimizationWorker {
                 let busRoutes = new Array();
                 let kmeans = new SchoolBusKMeans(this.routingParams);
                 let routingGraph;
+                let IterCapacity = 0;
 
                 kmeans.partition(this.routingParams["numVehicles"])
                     .then(clusters => {
                         let clusterizedStops = new Array();
                         clusters.forEach((c) => clusterizedStops.push(this.getStops(c.cluster)))
 
+                        // CASO PARTICULAR PARA FROTA HETEROGÊNEA
+                        if (this.heterogeneous == true) {
+                            clusterizedStops = this.SortClustersMaxToMin(clusterizedStops);
+                        }
+                        
                         let clarkAlgorithmsPromise = new Array();
                         clusterizedStops.forEach((cs) => {
                             let param = Object.assign({}, this.routingParams);
                             param["stops"] = cs;
 
+                            // CASO PARTICULAR PARA FROTA HETEROGÊNEA
+                            if (this.heterogeneous == true) {
+                                param["maxCapacity"] = this.routingParams["maxCapacity"][IterCapacity];
+                                IterCapacity++;
+                            }
+                            
                             // Deixar apenas as escolas que atendem os alunos no conjunto
-                            let clusterSchoolsSet = new Set()
-                            cs.forEach(student => clusterSchoolsSet.add(student["school"]))
-                            let clusterSchools = new Array()
+                            let clusterSchoolsSet = new Set();
+                            cs.forEach(student => clusterSchoolsSet.add(student["school"]));
+                            let clusterSchools = new Array();
                             this.routingParams.schools.forEach(school => {
                                 if (clusterSchoolsSet.has(school["key"])) {
                                     clusterSchools.push(school);
                                 }
-                            })
+                            });
                             param["schools"] = clusterSchools;
-
+                            
                             let cwalg = new ClarkeWrightSchoolBusRouting(this.cachedODMatrix, param, this.spatialiteDB);
                             clarkAlgorithmsPromise.push(cwalg.spatialRoute());
                             routers.push(cwalg);
-                        })
-
+                            
+                        });
+                        
                         // let schoolBusRouter = new ClarkeWrightSchoolBusRouting(this.routingParams, this.spatialiteDB);
                         // schoolBusRouter.spatialRoute().then((busRoutes) => {
                         return Promise.all(clarkAlgorithmsPromise)
@@ -164,7 +215,6 @@ class RoutingOptimizationWorker {
     };
 }
 
-
 if (isMainThread) {
     module.exports = class RoutingOptimization {
         constructor(app, dbPath) {
@@ -218,12 +268,12 @@ if (isMainThread) {
             .then((res) => {
                 console.log("WORKER FINISHED")
                 parentPort.postMessage({ error: false, result: res })
-                // process.exit(0)
+                //process.exit(0)
             })
             .catch((err) => {
                 console.log("WORKER ERROR")
                 parentPort.postMessage({ error: true, result: err })
-                // process.exit(1)
+                //process.exit(1)
             })
 
     })

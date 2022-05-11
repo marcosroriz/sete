@@ -228,9 +228,14 @@ ipcMain.on("start:route-generation", (event, routingArgs) => {
         nodes: {}, dist: {}, cost: {}
     }
 
-    let minNumVehicles = Math.max(routingArgs.numVehicles, Math.floor(routingArgs.stops.length / routingArgs.maxCapacity));
+    type_Capacity = typeof routingArgs.maxCapacity;
+    if (type_Capacity !== 'object') {
+        routingArgs.maxCapacity = [Number(routingArgs.maxCapacity)];
+    }
+    routingArgs.maxCapacity.sort((a,b)=> b-a);
+    let minNumVehicles = Math.max(routingArgs.numVehicles, Math.floor(routingArgs.stops.length / routingArgs.maxCapacity[0]));
     routingArgs.numVehicles = minNumVehicles;
-    routeOptimizer.optimize(cachedODMatrix, routingArgs)
+    routeOptimizer.optimize(cachedODMatrix, routingArgs);
 })
 
 // Evento chamado pelo nosso worker quando ele terminar de gerar a rota
