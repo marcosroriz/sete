@@ -9,12 +9,12 @@
 
 O Sistema Eletrônico de Gestão do Transporte Escolar (SETE) é um software de _e-governança_ desenvolvido pelo [CECATE UFG](https://transportes.fct.ufg.br/p/31447-apresentacao-do-cecate-ufg) voltado a auxiliar na gestão do transporte escolar dos municípios brasileiros considerados suas singularidades.  O sistema foi projeto com intuito de não depender de nenhum software proprietário, desta forma é possível utilizá-lo sem ter de licenciar programas dependentes.
 
+O SETE possui versões para web, desktop e móvel (em andamento). A versão desktop possibilita que o mesmo seja utilizado para operar em municípios que possuem acesso restrito à Internet sendo resiliente o suficiente para continuar operando mesmo na ausência de acesso à Internet. A versão web e a versão desktop são aproximadamente idênticas. A diferença é que a versão web não inclui as ferramentas de sugestões de rotas.
 
 ## Baixando o Sete
 Para baixar o _software_, basta clicar na versão abaixo do seu sistema operacional.
 
 <a href="https://github.com/marcosroriz/sete/releases/download/v1.7.1/sete_1.7.1_windows64.msi"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarwindows.png" alt="baixar sete para windows" width="200" height="81" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="https://github.com/marcosroriz/sete/releases/download/v1.7.1/sete_1.7.1_mac64.dmg"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarmac.png" alt="baixar sete para mac" width="200" height="81" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="https://github.com/marcosroriz/sete/releases/download/v1.7.1/sete_1.7.1_linux64.deb"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarlinux.png" alt="baixar sete para linux" width="200" height="81" /></a></p>
-
 
 
 ## Construindo (*building*) o SETE
