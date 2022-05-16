@@ -223,6 +223,7 @@ async function posProcessamentoSalvarRota(idRota, alunosAdicionar, escolasAdicio
     if (escolasAdicionar.size > 0) {
         let vinculoAlunosEscolas = [];
 
+        debugger
         escolasAdicionar.forEach((eID) => vinculoAlunosEscolas.push({ "id_escola": eID }));
         try {
             debugger
@@ -490,7 +491,6 @@ restImpl.dbGETColecao(DB_TABLE_ESCOLA)
             let escolasAtendidas = new Map();
             try {
                 escolasAtendidas = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${idRota}/escolas`);
-                debugger 
                 escolasAtendidas = convertListToMap(escolasAtendidas, "id_escola")
             } catch (error) {
                 escolasAtendidas = new Map();
@@ -502,7 +502,7 @@ restImpl.dbGETColecao(DB_TABLE_ESCOLA)
             escolas.forEach(escolaRaw => {
                 let escolaJSON = parseEscolaREST(escolaRaw);
                 let escolaID = String(escolaJSON["ID"]);
-                if (escolasAtendidas.has(escolaJSON["ID"])) {
+                if (escolasAtendidas.has(escolaID)) {
                     antEscolas.add(escolaID);
                     novasEscolas.add(escolaID);
                     $('#escolasAtentidas').append(`<option value="${escolaID}">${escolaJSON["NOME"]}</option>`);
