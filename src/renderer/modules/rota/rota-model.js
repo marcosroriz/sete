@@ -67,10 +67,18 @@ var parseRotaDB = function (rotaRaw) {
     var rotaJSON = Object.assign({}, rotaRaw);
     rotaJSON["ROTAS"] = 0;
 
+    if (Number(rotaRaw["KM"])) {
+        rotaJSON["KM"] = Number(rotaRaw["KM"]);
+    }
+
+    if (Number(rotaRaw["TEMPO"])) {
+        rotaJSON["TEMPO"] = Number(rotaRaw["TEMPO"]);
+    }
+
     if (rotaRaw["KM"] == 0) {
         rotaJSON["KMSTR"] = "Não informado";
     } else {
-        rotaJSON["KMSTR"] = rotaRaw["KM"] + " km";
+        rotaJSON["KMSTR"] = rotaJSON["KM"] + " km";
     }
 
     switch (Number(rotaJSON["tipo"])) {
