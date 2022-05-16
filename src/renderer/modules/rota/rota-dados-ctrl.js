@@ -175,15 +175,6 @@ var plotarGaragem = (garagemRaw) => {
     malhaSource.addFeature(marcador);
 }
 
-// Acrescentando rota existente
-if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
-    $("#avisoNaoGeoReferenciada").hide();
-    malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]))
-} else {
-    $("#mapDetalheRota").hide();
-    $("#dataTableListaDeAlunosNumerada").hide();
-}
-
 // Tira o btn group do datatable
 $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons';
 
@@ -453,12 +444,16 @@ estadoRota["ESCOLAS"].forEach(escola => {
     listaDeEscolas.set(escola["ID_ESCOLA"], escola)
 })
 
-dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA")
-.then(res => preprocessarRelacaoAlunoEscola(res))
-.then(() => adicionarDadosAlunoEscolaTabelaEMapa())
-
-dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM)
-.then(res => processarGaragem(res))
+restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
+    .then((rotaRaw) => {
+        let detalhesDaRota = parseRotaDBREST(rotaRaw);
+        Object.assign(estadoRota, detalhesDaRota);
+        return detalhesDaRota;
+    })
+    .then(() => pegarShapeRota())
+    .then(() => pegarAlunosEscolasRota())
+    .then(() => adicionarDadosRotaTabela())
+    .then(() => adicionarDadosAlunoEscolaTabelaEMapa())
 
 // Processa garagem
 var processarGaragem = (res) => {
@@ -470,22 +465,98 @@ var processarGaragem = (res) => {
     }
 }
 
-
-// Preprocessa relação aluno escola
-var preprocessarRelacaoAlunoEscola = (res) => {
-    for (let escolaRaw of res) {
-        let aID = escolaRaw["ID_ALUNO"];
-        if (listaDeAlunos.has(aID)) {
-            var aluno = listaDeAlunos.get(aID);
-            aluno["ESCOLA"] = escolaRaw["NOME"];
-            listaDeAlunos.set(aID, aluno);
+async function pegarShapeRota() {
+    let temShape = false;
+    let shapeDaRota;
+    try {
+        shapeDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}/shape`);
+        temShape = true;
+    } finally {
+        if (temShape) {
+            estadoRota["SHAPE"] = shapeDaRota.shape;
         }
     }
-    return listaDeAlunos;
-};
+}
+
+async function pegarAlunosEscolasRota() {
+    try {
+        let alunos = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${estadoRota.ID}/alunos`);
+
+        for (let alunoRaw of alunos) {
+            let alunoJSON = parseAlunoREST(alunoRaw);
+            listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
+        }
+    } catch (error) {
+        listaDeAlunos = new Map();
+    }
+
+    try {
+        let escolas = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${estadoRota.ID}/escolas`);
+
+        for (let escolaRaw of escolas) {
+            let escolaJSON = parseEscolaREST(escolaRaw);
+            listaDeEscolas.set(escolaJSON["ID"], escolaJSON);
+        }
+    } catch (error) {
+        listaDeEscolas = new Map();
+    }
+}
+
+function adicionarDadosRotaTabela() {
+    // Popular tabela utilizando rota escolhida
+    $("#detalheNomeRota").html(estadoRota["NOME"]);
+    dataTableRota.row.add(["Nome da rota", estadoRota["NOME"]]);
+
+    var tipoRota = "";
+    switch (estadoRota["TIPO"]) {
+        case 1: tipoRota = "Rodoviária"; break;
+        case 2: tipoRota = "Aquaviária"; break;
+        case 3: tipoRota = "Mista"; break;
+        default: tipoRota = "Rodoviária";
+    }
+    dataTableRota.row.add(["Tipo", tipoRota]);
+
+    var dificuldadesAcesso = new Array();
+    if (estadoRota["DA_PORTEIRA"] != "") { dificuldadesAcesso.push("Porteira"); }
+    if (estadoRota["DA_MATABURRO"] != "") { dificuldadesAcesso.push("Mata-Burro"); }
+    if (estadoRota["DA_COLCHETE"] != "") { dificuldadesAcesso.push("Colchete"); }
+    if (estadoRota["DA_ATOLEIRO"] != "") { dificuldadesAcesso.push("Atoleiro"); }
+    if (estadoRota["DA_PONTERUSTICA"] != "") { dificuldadesAcesso.push("Ponte Rústica"); }
+
+    if (dificuldadesAcesso.length != 0) {
+        dataTableRota.row.add(["Dificuldade de acesso", dificuldadesAcesso.join(", ")]);
+    } else {
+        dataTableRota.row.add(["Dificuldade de acesso", "Não informado"]);
+    }
+
+    dataTableRota.row.add(["Número de <br />alunos atendidos", listaDeAlunos.size]);
+    dataTableRota.row.add(["Número de <br />escolas atendidas", listaDeEscolas.size]);
+
+    if (estadoRota["KM"] != "") {
+        dataTableRota.row.add(["Quilometragem da Rota", estadoRota["KM"] + " km"]);
+    } else {
+        dataTableRota.row.add(["Quilometragem da Rota", "Não informada"]);
+    }
+
+    if (estadoRota["TEMPO"] != "") {
+        dataTableRota.row.add(["Duração da Rota", estadoRota["TEMPO"] + " min"]);
+    } else {
+        dataTableRota.row.add(["Duração da Rota", "Não informada"]);
+    }
+    dataTableRota.draw();
+}
 
 // Adiciona dados de alunos e escola nas respectivas tabelas e mapa
-var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
+function adicionarDadosAlunoEscolaTabelaEMapa() {
+    // Acrescentando rota existente
+    if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
+        $("#avisoNaoGeoReferenciada").hide();
+        malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]));
+    } else {
+        $("#mapDetalheRota").hide();
+        $("#dataTableListaDeAlunosNumerada").hide();
+    }
+
     if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
         try {
             // let rotaGeoJson = (new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]);
@@ -588,126 +659,6 @@ var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
     dataTableListaDeEscolas.draw()
     return true;
 }
-
-// Plota dados de aluno e escola no mapa
-var plotaDadosAlunoEscola = () => {
-    listaDeAlunos.forEach(aluno => {
-        if (aluno["LOC_A"])
-        dataTableListaDeAlunos.row.add(aluno);
-    })
-
-    listaDeEscolas.forEach(escola => {
-        dataTableListaDeEscolas.row.add(escola);
-    })
-
-}
-
-// Popular tabela utilizando rota escolhida
-$("#detalheNomeRota").html(estadoRota["NOME"]);
-dataTableRota.row.add(["Nome da rota", estadoRota["NOME"]]);
-
-var tipoRota = "";
-switch (estadoRota["TIPO"]) {
-    case 1: tipoRota = "Rodoviária"; break;
-    case 2: tipoRota = "Aquaviária"; break;
-    case 3: tipoRota = "Mista"; break;
-    default: tipoRota = "Rodoviária";
-}
-dataTableRota.row.add(["Tipo", tipoRota]);
-
-var dificuldadesAcesso = new Array();
-if (estadoRota["DA_PORTEIRA"] != "") { dificuldadesAcesso.push("Porteira"); }
-if (estadoRota["DA_MATABURRO"] != "") { dificuldadesAcesso.push("Mata-Burro"); }
-if (estadoRota["DA_COLCHETE"] != "") { dificuldadesAcesso.push("Colchete"); }
-if (estadoRota["DA_ATOLEIRO"] != "") { dificuldadesAcesso.push("Atoleiro"); }
-if (estadoRota["DA_PONTERUSTICA"] != "") { dificuldadesAcesso.push("Ponte Rústica"); }
-
-if (dificuldadesAcesso.length != 0) {
-    dataTableRota.row.add(["Dificuldade de acesso", dificuldadesAcesso.join(", ")]);
-} else {
-    dataTableRota.row.add(["Dificuldade de acesso", "Não informado"]);
-}
-
-dataTableRota.row.add(["Número de <br />alunos atendidos", listaDeAlunos.size]);
-dataTableRota.row.add(["Número de <br />escolas atendidas", listaDeEscolas.size]);
-
-if (estadoRota["KM"] != "") {
-    dataTableRota.row.add(["Quilometragem da Rota", estadoRota["KM"] + " km"]);
-} else {
-    dataTableRota.row.add(["Quilometragem da Rota", "Não informada"]);
-}
-
-if (estadoRota["TEMPO"] != "") {
-    dataTableRota.row.add(["Duração da Rota", estadoRota["TEMPO"] + " min"]);
-} else {
-    dataTableRota.row.add(["Duração da Rota", "Não informada"]);
-}
-dataTableRota.draw();
-
-// if (veiculo != "") {
-//     var veiculoSTR = `${veiculo["TIPOSTR"]} (${veiculo["PLACA"]})`;
-//     dataTableRota.row.add(["Veículo", veiculoSTR]);
-//     dataTableRota.row.add(["Marca do Veículo", veiculo["MARCASTR"]]);
-//     dataTableRota.row.add(["Modelo do Veículo", veiculo["MODELOSTR"]]);
-//     dataTableRota.row.add(["Propriedade do Veículo", veiculo["ORIGEMSTR"]]);
-// } else {
-//     dataTableRota.row.add(["Veículo", "Não informado"]);
-// }
-
-// if (motoristas != "") {
-//     dataTableRota.row.add(["Motoristas", motoristas]);
-// } else {
-//     dataTableRota.row.add(["Motoristas", "Não informado"]);
-// }
-
-
-// var veiculosRota = BuscarDadosVeiculoRotaPromise(estadoRota["ID_ROTA"])
-// var motoristasRota = BuscarDadosMotoristaRotaPromise(estadoRota["ID_ROTA"])
-// var escolasAtendidas = ListarTodasAsEscolasAtendidasPorRotaPromise(estadoRota["ID_ROTA"])
-// var alunosAtendidos = ListarTodosOsAlunosAtendidosPorRotaPromise(estadoRota["ID_ROTA"])
-
-// var veiculo = "";
-// var motoristas = "";
-// Promise.all([veiculosRota, motoristasRota, escolasAtendidas, alunosAtendidos])
-//     .then((res) => {
-//         var veiculoResult = res[0];
-//         if (veiculoResult.length != 0) {
-//             veiculo = parseVeiculoDB(veiculoResult[0]);
-//         }
-
-//         var listaDeMotoristas = new Array();
-//         for (let mRaw of res[1]) {
-//             listaDeMotoristas.push(mRaw["NOME"]);
-//         }
-//         motoristas = listaDeMotoristas.join("<br />");
-
-//         res[2].forEach((e) => {
-//             var escolaJSON = parseEscolaDB(e);
-//             listaDeEscolas.set(escolaJSON["ID_ESCOLA"], escolaJSON);
-//             dataTableListaDeEscolas.row.add(escolaJSON);
-//         });
-//         dataTableListaDeEscolas.draw();
-
-//         res[3].forEach((a) => {
-//             var alunoJSON = parseAlunoDB(a);
-//             listaDeAlunos.set(alunoJSON["ID_ALUNO"], alunoJSON);
-//         });
-//         ListarEscolasDeAlunos((err, result) => {
-//             result.forEach((alunoRaw) => {
-//                 let aID = alunoRaw["ID_ALUNO"];
-//                 let eNome = alunoRaw["NOME"];
-
-//                 if (listaDeAlunos.has(aID)) {
-//                     let completAlunoJSON = listaDeAlunos.get(aID);
-//                     completAlunoJSON["ESCOLA"] = eNome;
-//                     dataTableListaDeAlunos.row.add(completAlunoJSON);
-//                 }
-//             })
-//             dataTableListaDeAlunos.draw();
-//         })
-//         
-//     })
-
 
 $("#detalheInitBtn").click();
 
