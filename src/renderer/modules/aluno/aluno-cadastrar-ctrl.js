@@ -44,6 +44,23 @@ mapaOL.on('singleclick', function (evt) {
     //     return;
     // }
 
+    var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
+    $("#reglat").val(lat.toPrecision(6));
+    $("#reglon").val(lon.toPrecision(6));
+    $("#reglat").valid();
+    $("#reglon").valid();
+
+    triggerMudancaLocalizacao(lat, lon);
+});
+
+$("#reglat, #reglon").on("change", () => {
+    if ($("#reglat").val() && $("#reglon").val()) {
+        triggerMudancaLocalizacao($("#reglat").val(), $("#reglon").val());
+        mapaOL.getView().fit(vectorSource.getExtent(), { padding: [40, 40, 40, 40], maxZoom: 14 });
+    }
+});
+
+function triggerMudancaLocalizacao(lat, lon) {
     if (posicaoAluno != null) {
         try {
             vectorSource.removeFeature(posicaoAluno);
@@ -51,12 +68,6 @@ mapaOL.on('singleclick', function (evt) {
             console.log(err);
         }
     }
-
-    var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-    $("#reglat").val(lat.toPrecision(8));
-    $("#reglon").val(lon.toPrecision(8));
-    $("#reglat").valid();
-    $("#reglon").valid();
 
     posicaoAluno = gerarMarcador(lat, lon, "img/icones/aluno-marcador.png", 25, 50);
     vectorSource.addFeature(posicaoAluno);
@@ -72,7 +83,7 @@ mapaOL.on('singleclick', function (evt) {
     }, posicaoAluno);
 
     mapaOL.addInteraction(translate);
-});
+}
 
 // Máscaras
 $(".datanasc").mask('00/00/0000');
