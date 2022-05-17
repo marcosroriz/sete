@@ -413,7 +413,7 @@ $('.card-wizard').bootstrapWizard({
                 if ($("#arqPlanilha").length > 0) {
                     var arquivo;
 
-                    if (isElectron) {
+                    if (isElectron && $("#arqPlanilha")[0].files[0]) {
                         arquivo = $("#arqPlanilha")[0].files[0].path;
                     } else {
                         arquivo = $("#arqPlanilha")[0].files[0];
