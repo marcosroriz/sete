@@ -40,7 +40,19 @@ function PopulateMotoristaFromState(estadoMotoristaJSON) {
     $("#regnome").val(estadoMotoristaJSON["NOME"]);
     $("#regcpf").val(estadoMotoristaJSON["CPF"]);
     $("#regdata").val(estadoMotoristaJSON["DATA_NASCIMENTO"]);
-    $("input[name='modoSexo']").val([estadoMotoristaJSON["SEXO"]]);
+    
+    if (Number.isInteger(estadoMotoristaJSON["SEXO"])) {
+        $("input[name='modoSexo']").val([estadoMotoristaJSON["SEXO"]]);
+    } else {
+        let sexo = 3;
+        if (estadoMotoristaJSON["SEXO"] == "M") {
+            sexo = 1;
+        } else if (estadoMotoristaJSON["SEXO"] == "F") {
+            sexo = 2;
+        }
+        $("input[name='modoSexo']").val([sexo]);
+    }
+    
     $("#regcnh").val(estadoMotoristaJSON["CNH"]);
 
     if (estadoMotoristaJSON["DATA_VALIDADE_CNH"]) {
