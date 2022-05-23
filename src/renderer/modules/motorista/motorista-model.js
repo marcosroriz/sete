@@ -41,8 +41,8 @@ function PopulateMotoristaFromState(estadoMotoristaJSON) {
     $("#regcpf").val(estadoMotoristaJSON["CPF"]);
     $("#regdata").val(estadoMotoristaJSON["DATA_NASCIMENTO"]);
     
-    if (Number.isInteger(estadoMotoristaJSON["SEXO"])) {
-        $("input[name='modoSexo']").val([estadoMotoristaJSON["SEXO"]]);
+    if (!isNaN(estadoMotoristaJSON["SEXO"])) {
+        $("input[name='modoSexo']").val([Number(estadoMotoristaJSON["SEXO"])]);
     } else {
         let sexo = 3;
         if (estadoMotoristaJSON["SEXO"] == "M") {
@@ -110,8 +110,7 @@ var parseMotoristaDB = function (motoristaRaw) {
     if (motoristaRaw["DATA_VALIDADE_CNH"] == "" || motoristaRaw["DATA_VALIDADE_CNH"] == null) {
         motoristaJSON["DATA_VALIDADE_CNH_STR"] = "Não informada";
     } else {
-        motoristaJSON["DATA_VALIDADE_CNH_STR"] = motoristaRaw["DATA_VALIDADE_CNH"];
-
+        motoristaJSON["DATA_VALIDADE_CNH_STR"] = moment(motoristaRaw["DATA_VALIDADE_CNH"], "YYYY-MM-DD").format("DD/MM/YYYY");
     }
 
     let propParaTransformar = ["TEM_CNH_A", "TEM_CNH_B", "TEM_CNH_C", "TEM_CNH_D", "TEM_CNH_E", 
