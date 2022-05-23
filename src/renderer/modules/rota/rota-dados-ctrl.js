@@ -446,6 +446,7 @@ estadoRota["ESCOLAS"].forEach(escola => {
 
 restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
     .then((rotaRaw) => {
+        debugger
         let detalhesDaRota = parseRotaDBREST(rotaRaw);
         Object.assign(estadoRota, detalhesDaRota);
         return detalhesDaRota;
@@ -454,6 +455,10 @@ restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
     .then(() => pegarAlunosEscolasRota())
     .then(() => adicionarDadosRotaTabela())
     .then(() => adicionarDadosAlunoEscolaTabelaEMapa())
+    .catch((err) => {
+        debugger
+        console.log(err)
+    })
 
 // Processa garagem
 var processarGaragem = (res) => {
@@ -471,6 +476,8 @@ async function pegarShapeRota() {
     try {
         shapeDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}/shape`);
         temShape = true;
+    } catch (error) {
+        temShape = false;  
     } finally {
         if (temShape) {
             estadoRota["SHAPE"] = shapeDaRota.shape;
