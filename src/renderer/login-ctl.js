@@ -231,12 +231,13 @@ $(() => {
 
     // Ações do teclado para Login (pressionar Enter para logar)
     $("#loginemail, #loginpassword").on("keyup", (e) => {
-        if (e.code == "Enter") {
+        if (e.code == "Enter" || e.code == "NumpadEnter") {
             $("#loginsubmit").trigger("click");
         }
     });
+    
     $("#recoveremail").on("keyup", (e) => {
-        if (e.code == "Enter") {
+        if (e.code == "Enter" || e.code == "NumpadEnter") {
             $("#recoversubmit").trigger("click");
         }
     });
