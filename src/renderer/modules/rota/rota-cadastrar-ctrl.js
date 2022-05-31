@@ -169,7 +169,7 @@ async function preProcessarSalvarRota(alunosAdicionar, alunosRemover, escolasRem
     if (estaEditando) {
         for (const eID of escolasRemover) {
             try {
-                await restImpl.dbDELETEComParam(DB_TABLE_ESCOLA, `/${eID}/rota`, { rotas: [{ "id_rota": estadoRota["ID"] }] });
+                await restImpl.dbDELETEComParam(DB_TABLE_ESCOLA, `/${eID}/rotas`, { rotas: [{ "id_rota": estadoRota["ID"] }] });
             } catch (error) {
                 console.error(error);
             }
