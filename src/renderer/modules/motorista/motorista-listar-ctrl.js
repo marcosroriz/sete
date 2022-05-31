@@ -51,7 +51,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                     var rawDados = dataTablesMotoristas.rows('.selected').data().toArray();
                     if (rawDados.length == 0) {
                         errorFn("Por favor, selecione pelo menos um motorista a ser removido.", "",
-                                "Nenhuma motorista selecionado")
+                                "Nenhum motorista selecionado")
                     } else {
                         let msg = `Você tem certeza que deseja remover os ${rawDados.length} motoristas selecionados?`;
                         let msgConclusao = "Os motoristas foram removidos com sucesso";
