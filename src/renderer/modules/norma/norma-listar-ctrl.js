@@ -1,15 +1,17 @@
-// motorista-listar-ctrl.js
-// Este arquivo contém o script de controle da tela motorista-listar-view. O mesmo
-// apresenta os motoristas cadastrados em uma tabela.
+// norma-listar-ctrl.js
+// Este arquivo contém o script de controle da tela norma-listar-view. O mesmo
+// apresenta as normas cadastrados em uma tabela.
 
 // Preenchimento da Tabela via SQL
-var listaDeMotoristas = new Map();
+var listaDeNormas = new Map();
+var listaDeTipos = new Map();
+var listaDeAssuntos = new Map();
 
 // DataTables
-var dataTablesMotoristas = $("#datatables").DataTable({
+var dataTablesNormas = $("#datatables").DataTable({
     // A função abaixo inicia nossa pré-configuração do datatable
     // ver detalhe da função em js/datatable.extra.js
-    ...dtConfigPadrao("motorista"),
+    ...dtConfigPadraoFem("norma"),
     ...{
         dom: 'rtilp<"clearfix m-2">B',
         select: {
@@ -19,19 +21,16 @@ var dataTablesMotoristas = $("#datatables").DataTable({
         "order": [[ 1, "asc" ]],
         columns: [
             { data: "SELECT", width: "60px" },
-            { data: 'NOME', width: "15%" },
-            { data: 'TELEFONE', width: "15%" },
-            { data: 'TURNOSTR', width: "300px" },
-            { data: 'CNH', width: "15%" },
-            { data: 'DATA_VALIDADE_CNH_STR', width: "15%" },
-            // { data: 'ROTAS', width: "15%" },
+            { data: 'TITULO', width: "30%" },
+            { data: 'TIPO_STR', width: "20%" },
+            { data: 'ASSUNTO_STR', width: "30%" },
             {
                 data: "ACOES",
                 width: "110px",
                 sortable: false,
-                defaultContent: '<a href="#" class="btn btn-link btn-primary motoristaView"><i class="fa fa-search"></i></a>' +
-                    '<a href="#" class="btn btn-link btn-warning motoristaEdit"><i class="fa fa-edit"></i></a>' +
-                    '<a href="#" class="btn btn-link btn-danger motoristaRemove"><i class="fa fa-times"></i></a>'
+                defaultContent: '<a href="#" class="btn btn-link btn-primary normaView"><i class="fa fa-search"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-warning normaEdit"><i class="fa fa-edit"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-danger normaRemove"><i class="fa fa-times"></i></a>'
             }
         ],
         columnDefs: [
@@ -45,26 +44,26 @@ var dataTablesMotoristas = $("#datatables").DataTable({
         ],
         buttons: [
             {
-                text: 'Remover motoristas',
+                text: 'Remover normas',
                 className: 'btnRemover',
                 action: function (e, dt, node, config) {
-                    var rawDados = dataTablesMotoristas.rows('.selected').data().toArray();
+                    var rawDados = dataTablesNormas.rows('.selected').data().toArray();
                     if (rawDados.length == 0) {
-                        errorFn("Por favor, selecione pelo menos um motorista a ser removido.", "",
-                                "Nenhum motorista selecionado")
+                        errorFn("Por favor, selecione pelo menos uma norma a ser removida.", "",
+                                "Nenhuma norma selecionada")
                     } else {
-                        let msg = `Você tem certeza que deseja remover os ${rawDados.length} motoristas selecionados?`;
-                        let msgConclusao = "Os motoristas foram removidos com sucesso";
+                        let msg = `Você tem certeza que deseja remover as ${rawDados.length} normas selecionadas?`;
+                        let msgConclusao = "As normas foram removidas com sucesso";
                         if (rawDados.length == 1) {
-                            msg = `Você tem certeza que deseja remover o motorista selecionado?`;
-                            msgConclusao = "O motorista foi removido com sucesso";
+                            msg = `Você tem certeza que deseja remover a norma selecionada?`;
+                            msgConclusao = "A norma foi removida com sucesso";
                         }
 
                         goaheadDialog(msg ,"Esta operação é irreversível. Você tem certeza?")
                         .then((res) => {
                             if (res.isConfirmed) {
                                 Swal2.fire({
-                                    title: "Removendo os motoristas da base de dados...",
+                                    title: "Removenda as normas da base de dados...",
                                     imageUrl: "img/icones/processing.gif",
                                     closeOnClickOutside: false,
                                     allowOutsideClick: false,
@@ -101,8 +100,8 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                                 Promise.all(promiseArray)
                                 .then(() => {
                                     successDialog(text = msgConclusao);
-                                    dataTablesMotoristas.rows('.selected').remove();
-                                    dataTablesMotoristas.draw();
+                                    dataTablesNormas.rows('.selected').remove();
+                                    dataTablesNormas.draw();
                                 })
                             }
                         })
@@ -132,7 +131,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
             {
                 extend: 'pdfHtml5',
                 orientation: "landscape",
-                title: "Motoristas cadastrados",
+                title: "Normas cadastradas",
                 text: "Exportar para PDF",
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5, 6]
@@ -146,7 +145,7 @@ var dataTablesMotoristas = $("#datatables").DataTable({
                         col.text = col.text.split("    ")[0];
                     }
 
-                    doc.content[2].text = listaDeMotoristas?.size +  " " + doc.content[2].text;
+                    doc.content[2].text = listaDeNormas?.size +  " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
@@ -154,31 +153,30 @@ var dataTablesMotoristas = $("#datatables").DataTable({
     }
 });
 
-dataTablesMotoristas.on('click', '.motoristaView', function () {
+dataTablesNormas.on('click', '.normaView', function () {
     var $tr = getRowOnClick(this);
 
-    estadoMotorista = dataTablesMotoristas.row($tr).data();
-    action = "visualizarMotorista";
+    estadoNorma = dataTablesNormas.row($tr).data();
+    action = "visualizarNorma";
     navigateDashboard("./modules/motorista/motorista-dados-view.html");
 });
 
-dataTablesMotoristas.on('click', '.motoristaEdit', function () {
+dataTablesNormas.on('click', '.normaEdit', function () {
     var $tr = getRowOnClick(this);
 
-    estadoMotorista = dataTablesMotoristas.row($tr).data();
-    action = "editarMotorista";
+    estadoNorma = dataTablesNormas.row($tr).data();
+    action = "editarNorma";
     navigateDashboard("./modules/motorista/motorista-cadastrar-view.html");
 });
 
-dataTablesMotoristas.on('click', '.motoristaRemove', function () {
+dataTablesNormas.on('click', '.normaRemove', function () {
     var $tr = getRowOnClick(this);
-    estadoMotorista = dataTablesMotoristas.row($tr).data();
-    var idMotorista = estadoMotorista["CPF"];
+    estadoNorma = dataTablesNormas.row($tr).data();
+    var idMotorista = estadoNorma["CPF"];
 
-    action = "apagarMotorista";
-    confirmDialog('Remover esse motorista?',
-                  "Ao remover esse motorista ele será retirado do sistema das  " + 
-                  "rotas e das escolas que possuir vínculo."
+    action = "apagarNorma";
+    confirmDialog('Remover essa norma?',
+                  "Você tem certeza?"
     ).then((res) => {
         let listaPromisePraRemover = [];
         if (res.value) {
@@ -188,8 +186,8 @@ dataTablesMotoristas.on('click', '.motoristaRemove', function () {
         return Promise.all(listaPromisePraRemover)
     }).then((res) => {
         if (res.length > 0) {
-            dataTablesMotoristas.row($tr).remove();
-            dataTablesMotoristas.draw();
+            dataTablesNormas.row($tr).remove();
+            dataTablesNormas.draw();
             Swal2.fire({
                 title: "Sucesso!",
                 icon: "success",
@@ -200,38 +198,89 @@ dataTablesMotoristas.on('click', '.motoristaRemove', function () {
     }).catch((err) => errorFn("Erro ao remover a escola", err))
 });
 
-restImpl.dbGETColecao(DB_TABLE_MOTORISTA)
-.then(res => processarMotoristas(res))
-.then(res => adicionaDadosTabela(res))
-.catch((err) => {
-    console.log(err)
-    errorFn("Erro ao listar os motoristas!", err)
-})
+function preprocessarTipos(resTipos) {
+    let tipos = resTipos.data.data.sort((a, b) => {
+        if (a.nm_tipo == "Outro") {
+            return 1;
+        } else if (b.nm_tipo == "Outro") {
+            return -1;
+        } else {
+            a.nm_tipo.localeCompare(b.nm_tipo)
+        }
+    });
 
-// Processar motoristas
-var processarMotoristas = (res) => {
-    for (let motoristaRaw of res) {
-        let motoristaJSON = parseMotoristaREST(motoristaRaw);
-        listaDeMotoristas.set(motoristaJSON["ID"], motoristaJSON);
+    if (tipos) {
+        for (let t of tipos) {
+            listaDeTipos.set(t.id_tipo, t.nm_tipo);
+            $('#tipoNorma').append(`<option value="${t.nm_tipo}">${t.nm_tipo}</option>`);
+        }
+    } else {
+        throw "Erro ao recuperar os tipos de normas" 
     }
-    return listaDeMotoristas;
+}
+
+function preprocessarAssuntos(resAssuntos) {
+    let assuntos = resAssuntos.data.data.sort((a, b) => {
+        if (a.assunto == "Outros") {
+            return 1;
+        } else if (b.assunto == "Outros") {
+            return -1;
+        } else {
+            a.assunto.localeCompare(b.assunto)
+        }
+    });
+
+    if (assuntos) {
+        for (let a of assuntos) {
+            listaDeAssuntos.set(a.id_assunto, a.assunto);
+            $('#tipoAssunto').append(`<option value="${a.assunto}">${a.assunto}</option>`);
+        }
+    } else {
+        throw "Erro ao recuperar os tipos de assuntos"
+    }
+}
+
+function processarNormas(resNormas) {
+    for (let normaRaw of resNormas) {
+        let normaJSON = parseNormaREST(normaRaw);
+        normaJSON["TIPO_STR"] = listaDeTipos.get(normaJSON["id_tipo"]);
+        normaJSON["ASSUNTO_STR"] = listaDeAssuntos.get(normaJSON["id_assunto"]);
+        listaDeNormas.set(normaJSON["ID"], normaJSON);
+    }
+    return listaDeNormas;
 }
 
 // Adiciona dados na tabela
 adicionaDadosTabela = (res) => {
     let i = 0;
-    res.forEach((motorista) => {
-        motorista["SELECT"] = i++;
-        dataTablesMotoristas.row.add(motorista);
+    res.forEach((norma) => {
+        norma["SELECT"] = i++;
+        dataTablesNormas.row.add(norma);
     });
 
-    dataTablesMotoristas.draw();
-    dtInitFiltros(dataTablesMotoristas, [3]);
+    dataTablesNormas.draw();
+    dtInitFiltros(dataTablesNormas, [2, 3]);
 }
+
+restImpl.dbGETColecaoRaiz(DB_TABLE_NORMAS, "/tipos")
+.then(preprocessarTipos)
+.then(() => restImpl.dbGETColecaoRaiz(DB_TABLE_NORMAS, "/assuntos"))
+.then(preprocessarAssuntos)
+.then(() => restImpl.dbGETColecao(DB_TABLE_NORMAS))
+.then(processarNormas)
+.then(adicionaDadosTabela)
+// .then(res => processarMotoristas(res))
+// .then(res => adicionaDadosTabela(res))
+// .catch((err) => {
+//     console.log(err)
+//     errorFn("Erro ao listar os motoristas!", err)
+// })
 
 
 $("#datatables_filter input").on('keyup', function () {
-    dataTablesMotoristas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
+    dataTablesNormas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
 })
 
-action = "listarMotoristas";
+
+
+action = "listarNormas";
