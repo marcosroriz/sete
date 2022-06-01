@@ -452,6 +452,8 @@ $(() => {
             let nome = $("#regnome").val();
             let cpf = $("#regcpf").val();
             let telefone = $("#regtel").val();
+            let cidade = $(localizacao.cidade).find("option:selected").text();
+            let estado = $(localizacao.estado).find("option:selected").text();
 
             axios.post(`${BASE_URL}/registro/${localizacao.cidade.value}`, {
                 "nome": nome,
@@ -461,6 +463,23 @@ $(() => {
                 "password": md5password,
                 "tipo_permissao": "admin"
             }).then(() => {
+                let userData = {
+                    "NOME": nome,
+                    "EMAIL": email,
+                    "TELEFONE": telefone,
+                    "CIDADE": cidade,
+                    "ESTADO": estado,
+                    "COD_CIDADE": localizacao.cidade.value,
+                    "COD_ESTADO": localizacao.estado.value
+                };
+
+                emailjs.send(SERVICE_ID, TEMPLATE_ID, userData)
+                    .then(function (response) {
+                        console.log('SUCCESS!', response.status, response.text);
+                    }, function (error) {
+                        console.log('FAILED...', error);
+                    });
+
                 Swal2.close();
                 Swal2.fire({
                     title: "Parabéns!",
@@ -469,6 +488,7 @@ $(() => {
                     type: "success",
                     button: "Fechar"
                 });
+                
                 userconfig.set("EMAIL", email);
                 userconfig.set("PASSWORD", password);
                 $("#loginemail").val($("#regemail").val().trim());
