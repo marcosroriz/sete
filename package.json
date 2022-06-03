@@ -109,7 +109,7 @@
     "html-to-image": "^0.1.1",
     "jquery": "^3.5.1",
     "jquery-mask-plugin": "^1.14.16",
-    "jquery-validation": "^1.19.3",
+    "jquery-validation": "^1.19.4",
     "jspdf": "^2.3.1",
     "jsts": "^2.5.1",
     "knex": "^0.21.5",
