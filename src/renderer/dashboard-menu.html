@@ -357,15 +357,21 @@
     // Variáviel que indica se estamos ou não com o menu hamburguer habilitado
     var menuHamburguerHabilitado = false;
 
+    function desabilitaMenu() {
+        $("#sidebar").removeClass("menuHamburguer");
+        $(".main-panel").fadeIn();
+    }
+
     $("#toggleHamburguerMenu").on('click', () => {
         menuHamburguerHabilitado = !menuHamburguerHabilitado;
         
         if (menuHamburguerHabilitado) {
             $("#sidebar").addClass("menuHamburguer");
+            $(".main-panel").fadeOut();
         } else {
             $("#sidebar").removeClass("menuHamburguer");
+            $(".main-panel").fadeIn();
         }
-
     })
 
     // Variável que indica se as funções foram ou não desabilitadas

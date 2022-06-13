@@ -186,12 +186,14 @@ function successDialog(
 function navigateDashboard(target) {
   lastPage = currentPage;
   currentPage = target;
+  desabilitaMenu();
   $("#content").load(target);
   window.scrollTo(0, 0);
 }
 
 // Função de Navegação do Software
 function navigatePage(target) {
+  desabilitaMenu();
   document.location.href = target;
 }
 
