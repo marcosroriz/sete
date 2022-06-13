@@ -15,7 +15,7 @@ var antRotas = new Set();
 // $('.cep').mask('00000-000');
 // $(".cpfmask").mask('000.000.000-00', { reverse: true });
 // $(".telmask").mask(telmaskbehaviour, teloptions);
-// $(".datanasc").mask('00/00/0000');
+// $(".datamask").mask('00/00/0000');
 // $(".datavalidacnh").mask('00/00/0000');
 // $('.cnh').mask('000000000-00', { reverse: true });
 // $('.money').mask('#.##0,00', { reverse: true });
