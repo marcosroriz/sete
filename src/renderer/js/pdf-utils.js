@@ -135,6 +135,14 @@ function docReport(doc) {
         bold: true
     }
     
+    
+    doc.styles["tituloMapa"] = {
+        margin: [10, 8, 0, 0],
+        fontSize: 16,
+        bold: true,
+        alignment: 'center'
+    }
+
     doc.styles["titulo"] = {
         margin: [10, 8, 0, 0],
         fontSize: 16,

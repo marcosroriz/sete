@@ -258,6 +258,8 @@ function novoMapaOpenLayers(target, latitude, longitude) {
                 $($(".ol-ext-buttons button[type='button']")[0]).trigger('click')
             }
         });
+
+        mapa["printer"] = printControl;
     }
 
     mapa["activatePrinting"]();
@@ -287,7 +289,7 @@ var gerarMarcador = (lat, lng, icon, anchorX = 12, anchorY = 37) => {
     return p;
 }
 
-var gerarMarcadorNumerico = (lat, lng, numero, tamanho_fonte=0.8) => {
+var gerarMarcadorNumerico = (lat, lng, numero, tamanho_fonte = 0.8) => {
     let p = new ol.Feature({
         "geometry": new ol.geom.Point(ol.proj.fromLonLat([lng, lat]))
     });
@@ -377,26 +379,91 @@ var osmMapReplacer = function (key, value) {
 };
 
 // Openlayers impressão
-ol.control.PrintDialog.prototype.formats = [{
-    title: 'Copiar para a área de transferência',
-    imageType: 'image/png',
-    clipboard: true
-}, {
-    title: 'Salvar como JPEG (qualité média)',
-    imageType: 'image/jpeg',
-    quality: .8
-}, {
-    title: 'Salvar como JPEG (qualidade máxima)',
-    imageType: 'image/jpeg',
-    quality: 1
-}, {
-    title: 'Salvar como PNG',
-    imageType: 'image/png',
-    quality: .92
-}, {
-    title: 'Salvar como PDF',
-    imageType: 'image/jpeg',
-    quality: 1,
-    pdf: true
-}
+ol.control.PrintDialog.prototype.formats = [
+    {
+        title: 'Copiar para a área de transferência',
+        imageType: 'image/png',
+        clipboard: true
+    }, {
+        title: 'Salvar como JPEG (qualité média)',
+        imageType: 'image/jpeg',
+        quality: .8
+    }, {
+        title: 'Salvar como JPEG (qualidade máxima)',
+        imageType: 'image/jpeg',
+        quality: 1
+    }, {
+        title: 'Salvar como PNG',
+        imageType: 'image/png',
+        quality: .92
+    }, {
+        title: 'Salvar como PDF',
+        imageType: 'image/jpeg',
+        quality: 1,
+        pdf: true
+    }
 ];
+
+
+// Exportar para PNG OpenLayers
+function exportarParaPNG(map) {
+    const mapCanvas = document.createElement('canvas');
+    const size = map.getSize();
+    mapCanvas.width = size[0];
+    mapCanvas.height = size[1];
+    const mapContext = mapCanvas.getContext('2d');
+    Array.prototype.forEach.call(
+        map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer, .ol-fixedoverlay'),
+        function (canvas) {
+            if (canvas.width > 0) {
+                const opacity = canvas.parentNode.style.opacity || canvas.style.opacity;
+                mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+
+                const backgroundColor = canvas.parentNode.style.backgroundColor;
+                if (backgroundColor) {
+                    mapContext.fillStyle = backgroundColor;
+                    mapContext.fillRect(0, 0, canvas.width, canvas.height);
+                }
+
+                let matrix;
+                const transform = canvas.style.transform;
+                if (transform) {
+                    // Get the transform parameters from the style's transform matrix
+                    matrix = transform
+                        .match(/^matrix\(([^\(]*)\)$/)[1]
+                        .split(',')
+                        .map(Number);
+                } else {
+                    matrix = [
+                        parseFloat(canvas.style.width) / canvas.width,
+                        0,
+                        0,
+                        parseFloat(canvas.style.height) / canvas.height,
+                        0,
+                        0,
+                    ];
+                }
+                // Apply the transform to the export map context
+                CanvasRenderingContext2D.prototype.setTransform.apply(
+                    mapContext,
+                    matrix
+                );
+                mapContext.drawImage(canvas, 0, 0);
+            }
+        }
+    );
+    mapContext.globalAlpha = 1;
+    return mapCanvas;
+}
+
+function atualizaMapaOpenLayers(mapa, mapaSource) {
+    setTimeout(function () {
+        if (mapa != null) {
+            mapa["map"].updateSize();
+            if (mapaSource.getFeatures().length != 0) {
+                mapa["map"].getView().fit(malhaSource.getExtent(), { padding: [20, 20, 20, 20] });
+            }
+            mapa["map"].updateSize();
+        }
+    }, 200);
+}

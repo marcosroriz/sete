@@ -22,8 +22,8 @@ var dataTablesRotas = $("#datatables").DataTable({
             { data: 'TURNOSTR', width: "10%" },
             { data: 'GPS', width: "300px" },
             { data: 'KMSTR', width: "18%" },
-            // { data: 'NUMALUNOS', width: "12%" },
-            // { data: 'NUMESCOLAS', width: "12%" },
+            { data: 'NUMALUNOS', width: "12%" },
+            { data: 'NUMESCOLAS', width: "12%" },
             {
                 data: "ACOES",
                 width: "110px",
@@ -140,7 +140,7 @@ var dataTablesRotas = $("#datatables").DataTable({
                     columns: [1, 2, 3, 4, 5, 6]
                 },
                 customize: function (doc) {
-                    doc.content[1].table.widths = ['30%', '12%', '8%', '20%', '20%', '10%'];
+                    doc.content[1].table.widths = ['50%', '10%', '10%', '10%', '10%', '10%'];
                     doc = docReport(doc);
 
                     // O datatable coloca o select dentro do header, vamos tirar isso
@@ -226,8 +226,6 @@ var processarRotas = (res) => {
         let rotaJSON = parseRotaDBREST(rotaRaw);
         rotaJSON["STRESCOLAS"] = "Não cadastrado";
         rotaJSON["STRALUNOS"] = "Não cadastrado";
-        rotaJSON["NUMESCOLAS"] = 0;
-        rotaJSON["NUMALUNOS"] = 0;
         rotaJSON["ALUNOS"] = [];
         rotaJSON["ESCOLAS"] = [];
         rotaJSON["ID_ROTA"] = rotaJSON["ID"];
@@ -245,8 +243,8 @@ adicionaDadosTabela = (res) => {
     });
 
     dataTablesRotas.draw();
-    // dtInitFiltros(dataTablesRotas, [1, 2, 3, 4, 5, 6]);
-    dtInitFiltros(dataTablesRotas, [1, 2, 3, 4]);
+    dtInitFiltros(dataTablesRotas, [1, 2, 3, 4, 5, 6]);
+    // dtInitFiltros(dataTablesRotas, [1, 2, 3, 4]);
 }
 
 
