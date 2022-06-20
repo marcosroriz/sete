@@ -51,7 +51,8 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[2].text = estadoMotorista["NOME"];
             }
         },
         {
@@ -98,7 +99,7 @@ var popularTabelaMotorista = () => {
     $("#detalheNomeMotorista").html(estadoMotorista["NOME"]);
 
     dataTableMotorista.row.add(["Nome do motorista", estadoMotorista["NOME"]]);
-    dataTableMotorista.row.add(["CPF", estadoMotorista["CPF"]]);
+    dataTableMotorista.row.add(["CPF", $(`<div>${estadoMotorista["CPF"]}</div>`).mask("000.000.000-00").text()]);
     dataTableMotorista.row.add(["Data de nascimento", estadoMotorista["DATA_NASCIMENTO"]]);
     
     if (estadoMotorista["TELEFONE"] != "") {

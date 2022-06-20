@@ -222,7 +222,23 @@ var configTable = {
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[2].text = "Dados da Rota: " + estadoRota["NOME"];
+
+                // Adiciona mapa se tiver
+                if (temMapa) {
+                    doc.content.push({
+                        "text": "Mapa",
+                        "style": "tituloMapa",
+                        "pageBreak": "before"
+                    });
+                    doc.content.push({
+                        image: exportarParaPNG(mapa["map"]).toDataURL(),
+                        width: 500,
+                        alignment: "center",
+                        margin: [0, 20],
+                    });
+                }
             }
         },
         {
@@ -313,11 +329,10 @@ var dataTableListaDeEscolas = $("#dataTableListaDeEscolas").DataTable({
 
 var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
     columns: [
-        { data: 'NOME', width: "25%" },
-        { data: 'LOCALIZACAO', width: "15%" },
-        { data: 'NIVELSTR', width: "150px" },
-        { data: 'TURNOSTR', width: "150px" },
-        { data: 'ESCOLA', width: "25%" },
+        { data: 'NOME', width: "50%" },
+        { data: 'LOCALIZACAO', width: "20%" },
+        { data: 'NIVELSTR', width: "20%" },
+        { data: 'TURNOSTR', width: "20%" },
     ],
     columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50) },
     { targets: 4, render: renderAtMostXCharacters(50) }],
@@ -349,7 +364,7 @@ var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
             }
         },
     ],
@@ -428,13 +443,13 @@ var dataTableListaDeAlunosNumerada = $("#dataTableListaDeAlunosNumerada").DataTa
                         "text": "Mapa",
                         "style": "tituloMapa",
                         "pageBreak": "before"
-                    })
+                    });
                     doc.content.push({
                         image: exportarParaPNG(mapa["map"]).toDataURL(),
-                        width: 650,
+                        width: 500,
                         alignment: "center",
                         margin: [0, 20],
-                    })
+                    });
                 }
             }
         },
@@ -470,6 +485,8 @@ estadoRota["ESCOLAS"].forEach(escola => {
 
 restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
     .then((rotaRaw) => {
+        loadingFn("Carregando...")
+
         let detalhesDaRota = parseRotaDBREST(rotaRaw);
         Object.assign(estadoRota, detalhesDaRota);
         return detalhesDaRota;
@@ -478,6 +495,14 @@ restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
     .then(() => pegarAlunosEscolasRota())
     .then(() => adicionarDadosRotaTabela())
     .then(() => adicionarDadosAlunoEscolaTabelaEMapa())
+    .then(async () => {
+        // Carrega mapa para impressão
+        $("#detalheMapa").trigger("click");
+        mapa["map"].updateSize();
+        await new Promise(r => setTimeout(r, 500));
+        $("#detalheInitBtn").trigger("click");
+        Swal2.close()
+    })
     .catch((err) => {
         console.log(err)
     })
