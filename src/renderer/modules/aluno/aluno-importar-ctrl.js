@@ -63,22 +63,26 @@ var schema = {
 }
 
 $("#baixarPlanilha").on('click', () => {
-    let arqDestino = dialog.showSaveDialogSync(win, {
-        title: "Salvar Planilha Exemplo",
-        buttonLabel: "Salvar",
-        filters: [
-            { name: "XLSX", extensions: ["xlsx"] }
-        ]
-    });
-    
-    if (arqDestino != "" && arqDestino != undefined) {
-        let arqOrigem = path.join(__dirname, "templates", "FormatoImportacaoAluno.xlsx");
-        console.log("Copiando de: ", arqOrigem, arqDestino)
-        fs.copySync(arqOrigem, arqDestino)
-        Swal2.fire({
-            icon: "success",
-            title: "Planilha baixada com sucesso"
-        })
+    if (!isElectron) {
+        saveAs("/src/renderer/templates/FormatoImportacaoAluno.xlsx", "FormatoImportacaoAluno.xlsx");
+    } else {
+        let arqDestino = dialog.showSaveDialogSync(win, {
+            title: "Salvar Planilha Exemplo",
+            buttonLabel: "Salvar",
+            filters: [
+                { name: "XLSX", extensions: ["xlsx"] }
+            ]
+        });
+        
+        if (arqDestino != "" && arqDestino != undefined) {
+            let arqOrigem = path.join(__dirname, "templates", "FormatoImportacaoAluno.xlsx");
+            console.log("Copiando de: ", arqOrigem, arqDestino)
+            fs.copySync(arqOrigem, arqDestino)
+            Swal2.fire({
+                icon: "success",
+                title: "Planilha baixada com sucesso"
+            })
+        }
     }
 });
 
