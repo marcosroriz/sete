@@ -51,7 +51,8 @@ var dataTableDadosMonitor = $("#dataTableDadosMonitor").DataTable({
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[2].text = estadoMonitor["NOME"];
             }
         },
         {
@@ -103,7 +104,7 @@ function popularTabelaMonitor() {
     $("#detalheNomeMonitor").html(estadoMonitor["NOME"]);
 
     dataTableDadosMonitor.row.add(["Nome do monitor", estadoMonitor["NOME"]]);
-    dataTableDadosMonitor.row.add(["CPF", estadoMonitor["CPF"]]);
+    dataTableDadosMonitor.row.add(["CPF", $(`<div>${estadoMonitor["CPF"]}</div>`).mask("000.000.000-00").text()]);
     dataTableDadosMonitor.row.add(["Data de nascimento", estadoMonitor["DATA_NASCIMENTO"]]);
     
     if (estadoMonitor["TELEFONE"] != "") {

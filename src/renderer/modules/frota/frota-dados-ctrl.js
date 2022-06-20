@@ -42,14 +42,14 @@ var dataTableVeiculo = $("#dataTableDadosVeiculo").DataTable({
         {
             extend: 'pdfHtml5',
             orientation: "landscape",
-            title: "Motorista",
+            title: "Veículo: " + estadoVeiculo["TIPOSTR"],
             text: "Exportar para PDF",
             exportOptions: {
                 columns: [0, 1]
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
             }
         },
         {

@@ -118,7 +118,6 @@ var defaultTableConfig = {
                     columns: [1, 4, 5, 6, 7, 8]
                 },
                 customize: function (doc) {
-                    debugger
                     doc.content[1].table.widths = ['30%', '12%', '8%', '20%', '20%', '10%'];
                     doc = docReport(doc);
                     
@@ -128,7 +127,8 @@ var defaultTableConfig = {
                     }
 
                     // TODO: Melhorar header
-                    doc.content[2].text = listaDeAlunos?.size + " " + doc.content[2].text;
+                    let selecionados = dataTablesAlunos.rows( { selected: true } ).count();
+                    doc.content[2].text = selecionados + " de " + listaDeAlunos?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }

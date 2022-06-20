@@ -346,8 +346,14 @@ div#hmbmenu {
         display: block;
         padding: 10px;
         background: #ecb24a;
-        /* float: right; */
-        /* width: 30%; */
+        width: 100%;
+        position: fixed;
+        z-index: 2;
+        min-height: 3em;
+    }
+
+    div#sidebar {
+        margin-top: 3em;
     }
 
     div#hmbmenu a {
@@ -355,10 +361,40 @@ div#hmbmenu {
         color: white;
     }
 
+    div#sidebar {
+        width: 0px !important;
+        min-width: 0px !important;
+    }
+    
     div#sidebar.menuHamburguer {
-        width: 250px !important;
-        min-width: 250px !important;
+        display: block;
+        width: 100% !important;
         right: 260px !important;
+    }
+
+    .sidebar.menuHamburguer .sidebar-wrapper {
+        width: 100% !important;
+        position: fixed;
+    }
+    
+    .main-panel {
+        margin-top: 3em;
+    }
+
+    .mapawiz {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+    }
+
+    img.wiz-icon {
+        height: 32px !important;
+        text-align: center;
+        padding: 2px;
+    }
+    
+    .card-wizard .nav-tabs .nav-item .nav-link {
+        font-size: 0.8em !important;
+        font-family: "Roboto Condensed" !important;
     }
 }
 

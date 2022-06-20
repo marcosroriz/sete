@@ -10,6 +10,7 @@ var listaDeEscolas = new Map();
 
 // Variáveis de Mapas
 var geojson = new ol.format.GeoJSON();
+var temMapa = false;
 var mapMalhas = {};
 var mapa = novoMapaOpenLayers("mapDetalheRota", cidadeLatitude, cidadeLongitude);
 
@@ -67,11 +68,11 @@ var getGeomStyle = function (feature) {
                 pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
                 return;
             } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) ||
-                       (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
+                (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
                 plotSeta = true;
             } else {
                 let pontoAtual = ol.proj.transform(end, 'EPSG:3857', 'EPSG:4326');
-                
+
                 let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
 
                 if (distancia > 2000) {
@@ -84,7 +85,7 @@ var getGeomStyle = function (feature) {
                 var dx = end[0] - start[0];
                 var dy = end[1] - start[1];
                 var rotation = Math.atan2(dy, dx);
-    
+
                 // arrows
                 styles.push(new ol.style.Style({
                     geometry: new ol.geom.Point(end),
@@ -119,7 +120,7 @@ var plotarMarcadorNumerico = (alunoRaw, num, nomes) => {
     let lat = alunoRaw["LOC_LATITUDE"];
     let lng = alunoRaw["LOC_LONGITUDE"];
 
-    let p = gerarMarcadorNumerico(lat, lng, num, tamanho_fonte=0.6);
+    let p = gerarMarcadorNumerico(lat, lng, num, tamanho_fonte = 0.6);
 
     p.setId(alunoRaw["ID_ALUNO"]);
     p.set("ID", alunoRaw["ID_ALUNO"]);
@@ -221,7 +222,23 @@ var configTable = {
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[2].text = "Dados da Rota: " + estadoRota["NOME"];
+
+                // Adiciona mapa se tiver
+                if (temMapa) {
+                    doc.content.push({
+                        "text": "Mapa",
+                        "style": "tituloMapa",
+                        "pageBreak": "before"
+                    });
+                    doc.content.push({
+                        image: exportarParaPNG(mapa["map"]).toDataURL(),
+                        width: 500,
+                        alignment: "center",
+                        margin: [0, 20],
+                    });
+                }
             }
         },
         {
@@ -238,8 +255,8 @@ var configTable = {
             action: function (e, dt, node, config) {
                 action = "apagarRota";
                 confirmDialog("Remover essa rota?",
-                              "Ao remover essa rota ela será retirado do sistema e os alunos e "
-                            + "escolas que possuir vínculo deverão ser rearranjadas novamente."
+                    "Ao remover essa rota ela será retirado do sistema e os alunos e "
+                    + "escolas que possuir vínculo deverão ser rearranjadas novamente."
                 ).then((res) => {
                     let listaPromisePraRemover = []
                     if (res.value) {
@@ -312,14 +329,13 @@ var dataTableListaDeEscolas = $("#dataTableListaDeEscolas").DataTable({
 
 var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
     columns: [
-        { data: 'NOME', width: "25%" },
-        { data: 'LOCALIZACAO', width: "15%" },
-        { data: 'NIVELSTR', width: "150px" },
-        { data: 'TURNOSTR', width: "150px" },
-        { data: 'ESCOLA', width: "25%" },
+        { data: 'NOME', width: "50%" },
+        { data: 'LOCALIZACAO', width: "20%" },
+        { data: 'NIVELSTR', width: "20%" },
+        { data: 'TURNOSTR', width: "20%" },
     ],
     columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50) },
-                 { targets: 4, render: renderAtMostXCharacters(50) }],
+    { targets: 4, render: renderAtMostXCharacters(50) }],
     autoWidth: false,
     bAutoWidth: false,
     buttons: [
@@ -348,7 +364,7 @@ var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
             }
         },
     ],
@@ -381,8 +397,8 @@ var dataTableListaDeAlunosNumerada = $("#dataTableListaDeAlunosNumerada").DataTa
         { data: 'NIVELSTR', width: "150px" },
         { data: 'TURNOSTR', width: "150px" },
     ],
-    columnDefs: [ { targets: 0, type: "num" },
-                  { targets: 1, render: renderAtMostXCharacters(50) }],
+    columnDefs: [{ targets: 0, type: "num" },
+    { targets: 1, render: renderAtMostXCharacters(50) }],
     autoWidth: false,
     bAutoWidth: false,
     buttons: [
@@ -407,11 +423,34 @@ var dataTableListaDeAlunosNumerada = $("#dataTableListaDeAlunosNumerada").DataTa
             title: "Rota",
             text: "Exportar para PDF",
             exportOptions: {
-                columns: [0, 1]
+                columns: [0, 1, 2, 3, 4]
             },
             customize: function (doc) {
+                doc.content[1].table.widths = ['10%', '45%', '20%', '15%', '10%'];
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+
+                // O datatable coloca o select dentro do header, vamos tirar isso
+                for (col of doc.content[3].table.body[0]) {
+                    col.text = col.text.split("    ")[0];
+                }
+
+                doc.content[2].text = listaDeRotas?.size + " " + doc.content[2].text;
+                doc.styles.tableHeader.fontSize = 12;
+
+                // Adiciona mapa se tiver
+                if (temMapa) {
+                    doc.content.push({
+                        "text": "Mapa",
+                        "style": "tituloMapa",
+                        "pageBreak": "before"
+                    });
+                    doc.content.push({
+                        image: exportarParaPNG(mapa["map"]).toDataURL(),
+                        width: 500,
+                        alignment: "center",
+                        margin: [0, 20],
+                    });
+                }
             }
         },
     ],
@@ -446,7 +485,8 @@ estadoRota["ESCOLAS"].forEach(escola => {
 
 restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
     .then((rotaRaw) => {
-        debugger
+        loadingFn("Carregando...")
+
         let detalhesDaRota = parseRotaDBREST(rotaRaw);
         Object.assign(estadoRota, detalhesDaRota);
         return detalhesDaRota;
@@ -455,8 +495,15 @@ restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
     .then(() => pegarAlunosEscolasRota())
     .then(() => adicionarDadosRotaTabela())
     .then(() => adicionarDadosAlunoEscolaTabelaEMapa())
+    .then(async () => {
+        // Carrega mapa para impressão
+        $("#detalheMapa").trigger("click");
+        mapa["map"].updateSize();
+        await new Promise(r => setTimeout(r, 500));
+        $("#detalheInitBtn").trigger("click");
+        Swal2.close()
+    })
     .catch((err) => {
-        debugger
         console.log(err)
     })
 
@@ -477,7 +524,7 @@ async function pegarShapeRota() {
         shapeDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}/shape`);
         temShape = true;
     } catch (error) {
-        temShape = false;  
+        temShape = false;
     } finally {
         if (temShape) {
             estadoRota["SHAPE"] = shapeDaRota.shape;
@@ -559,6 +606,7 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
     if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
         $("#avisoNaoGeoReferenciada").hide();
         malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]));
+        temMapa = true;
     } else {
         $("#mapDetalheRota").hide();
         $("#dataTableListaDeAlunosNumerada").hide();
@@ -569,12 +617,13 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
             // let rotaGeoJson = (new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]);
             // rotaGeoJson[0].getGeometry().flatCoordinates[1]
             let primeiro_ponto = JSON.parse(estadoRota["SHAPE"]).features[0].geometry.coordinates[0];
-            
+
             let novaListaDeAlunos = [...listaDeAlunos.values()];
             let alunosComGPS = novaListaDeAlunos.filter(aluno => (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
                                                                   aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
                                                                   aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
-            alunosComGPS.forEach(aluno => {
+
+            alunosComGPS.forEach(aluno => { 
                 aluno["COORD"] = [aluno.LOC_LONGITUDE, aluno.LOC_LATITUDE]
             })
 
@@ -596,7 +645,7 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
                 // Salva o número/ID do aluno
                 let num_original = num;
                 aluno_original["NUM"] = num;
-                
+
                 // Adiciona na tabela
                 dataTableListaDeAlunos.row.add(aluno_original);
                 dataTableListaDeAlunosNumerada.row.add(aluno_original);
@@ -621,7 +670,7 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
 
                         dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
                     }
-                } 
+                }
 
                 if (num > num_original + 1) {
                     plotarMarcadorNumerico(aluno_original, String(num_original) + "-" + String(num - 1), nome_alunos);
@@ -631,8 +680,8 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
             }
 
             let alunosSemGPS = novaListaDeAlunos.filter(aluno => !(aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
-                                                                   aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
-                                                                   aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
+                aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
+                aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
             alunosSemGPS.forEach(aluno => {
                 aluno["NUM"] = "---";
                 dataTableListaDeAlunos.row.add(aluno);
@@ -641,10 +690,12 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
         } catch (error) {
             dataTableListaDeAlunos.clear();
             dataTableListaDeAlunosNumerada.clear();
-        
+
             listaDeAlunos.forEach(aluno => {
                 dataTableListaDeAlunos.row.add(aluno);
             })
+        } finally {
+            atualizaMapaOpenLayers(mapa, malhaSource);
         }
     } else {
         listaDeAlunos.forEach(aluno => {
@@ -670,14 +721,7 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
 $("#detalheInitBtn").click();
 
 $("#detalheMapa").on('click', () => {
-    setTimeout(function () {
-        if (mapa != null) {
-            if (malhaSource.getFeatures().length != 0) {
-                mapa["map"].getView().fit(malhaSource.getExtent());
-            }
-            mapa["map"].updateSize();
-        }
-    }, 200);
+    atualizaMapaOpenLayers(mapa, malhaSource);
 })
 action = "detalharRota";
 
