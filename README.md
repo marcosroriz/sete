@@ -14,7 +14,7 @@ O SETE possui versões para web, desktop e móvel (em andamento). A versão desk
 ## Baixando o Sete
 Para baixar o _software_, basta clicar na versão abaixo do seu sistema operacional.
 
-<a href="https://github.com/marcosroriz/sete/releases/download/v1.7.1/sete_1.7.1_windows64.msi"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarwindows.png" alt="baixar sete para windows" width="200" height="81" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="https://github.com/marcosroriz/sete/releases/download/v1.7.1/sete_1.7.1_mac64.dmg"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarmac.png" alt="baixar sete para mac" width="200" height="81" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="https://github.com/marcosroriz/sete/releases/download/v1.7.1/sete_1.7.1_linux64.deb"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarlinux.png" alt="baixar sete para linux" width="200" height="81" /></a></p>
+<a href="https://github.com/marcosroriz/sete/releases/download/v2.1.0/sete-2.1.0.msi">  <img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarwindows.png" alt="baixar sete para windows" width="200" height="81" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="https://github.com/marcosroriz/sete/releases/download/v2.1.0/sete_2.1.0_amd64.deb"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarmac.png" alt="baixar sete para mac" width="200" height="81" /></a>&nbsp; &nbsp; &nbsp;&nbsp;<a href="https://github.com/marcosroriz/sete/releases/download/v2.1.0/sete_2.1.0_amd64.deb"><img src="https://files.cercomp.ufg.br/weby/up/767/o/baixarlinux.png" alt="baixar sete para linux" width="200" height="81" /></a></p>
 
 
 ## Construindo (*building*) o SETE
