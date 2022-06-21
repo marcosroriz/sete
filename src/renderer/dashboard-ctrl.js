@@ -59,7 +59,7 @@ restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
 .then(() => preencheDashboardVeiculos())
 .then(() => preencheDashboardRotas())
 .then(() => preencheMapa())
-.then(() => mostraSeTemUpdate(mostraSeTemUpdate))
+.then(() => firstAcess ? mostraSeTemUpdate(modal = false) : null)
 .then(() => {
     $(".preload").fadeOut(200, function () {
         $(".content").fadeIn(200);
@@ -81,50 +81,6 @@ restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
         document.location.href = "./login-view.html";
     })
 })
-
-// Mostra se update (ver github version)
-function mostraSeTemUpdate(firstAcess) {
-    fetch("https://raw.githubusercontent.com/marcosroriz/sete/master/package.json")
-    .then((res) => res.json())
-    .then((pkg) => {
-        if (isElectron) {
-            appVersion = pkg.version;
-            let upVersion = pkg.version;
-            let currentVersion = app.getVersion();
-            if (upVersion != currentVersion) {
-                $.notifyClose();
-                $.notify(
-                    {
-                        icon: "ml-1 fa fa-cloud-download menu-icon",
-                        title: "Saiu uma nova versão do SETE",
-                        message: "Clique aqui para entrar na página do SETE",
-                        url: "https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar",
-                        target: "_blank",
-                    },
-                    { 
-                        type: "warning",
-                        delay: 0,
-                    }
-                );
-            }
-    
-            if (Number(app.getVersion()[0]) < 2) {
-                Swal2.fire({
-                    title: "Saiu uma nova versão do SETE",
-                    text: "Você deve atualizar o SETE ou utilizar a versão web do sistema. " +
-                          "Clique aqui para entrar na página do SETE.",
-                    icon: "warning",
-                }).then(() => {
-                    shell.openExternal("https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar");
-                }).then(() => {
-                    setTimeout(() => {
-                        document.location.href = "./login-view.html";
-                    }, 1000);
-                })
-            }
-        }
-    });
-}
 
 // Funções que Preenchem o Dashboard
 async function preencheDashboardAlunosEscolas() {

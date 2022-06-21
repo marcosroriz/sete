@@ -612,15 +612,8 @@ $(() => {
         $("#login-tab").trigger('click');
     })
 
-    if (Number(app.getVersion()[0]) < 2) {
-        Swal2.fire({
-            title: "Saiu uma nova versão do SETE",
-            text: "Você deve atualizar o SETE ou utilizar a versão web do sistema. " +
-                  "Clique aqui para entrar na página do SETE.",
-            icon: "warning",
-        }).then(() => {
-            shell.openExternal("https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar");
-        })
+    if (isElectron) {
+        mostraSeTemUpdate();
     }
 });
 
