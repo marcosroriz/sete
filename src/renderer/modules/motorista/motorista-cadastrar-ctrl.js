@@ -194,12 +194,16 @@ restImpl.dbGETColecao(DB_TABLE_ROTA)
 function preprocessarRotas(rotas) {
     // Processando Motoristas
     if (rotas.length != 0) {
-        for (let rota of rotas) {
-            $('#tipoRota').append(`<option value="${rota.id_rota}">${rota.nome}</option>`);
+        try {
+            rotas.sort((a, b) => a.nome.localeCompare(b.nome))
+        } finally {
+            for (let rota of rotas) {
+                $('#tipoRota').append(`<option value="${rota.id_rota}">${truncateText(rota.nome, 30)}</option>`);
+            }
+            $('#tipoRota').selectpicker({
+                noneSelectedText: "Escolha pelo menos uma rota"
+            });
         }
-        $('#tipoRota').selectpicker({
-            noneSelectedText: "Escolha pelo menos uma rota"
-        });
     } else {
         $('#tipoRota').removeClass("selectpicker")
         $('#tipoRota').addClass("form-control")
@@ -217,7 +221,7 @@ function preprocessarRotas(rotas) {
 function verificaEdicao() {
     if (estaEditando) {
         restImpl.dbGETEntidade(DB_TABLE_MOTORISTA, `/${estadoMotorista.ID}`)
-            .then((motoristaRaw) => {
+            .then(async (motoristaRaw) => {
                 if (motoristaRaw) {
                     estadoMotorista = parseMotoristaREST(motoristaRaw);
                     PopulateMotoristaFromState(estadoMotorista);
@@ -238,6 +242,23 @@ function verificaEdicao() {
                                 }
                             })
                     });
+
+                    // Ativa rota do motorista se for o caso
+
+                    try {
+                        let rotasMotorista = [];
+                        let opcoes = [];
+
+                        rotasMotorista = await restImpl.dbGETColecao(DB_TABLE_MOTORISTA, `/${estadoMotorista.cpf}/rota`);
+                        rotasMotorista.forEach(r => {
+                            antRotas.add(String(r.id_rota))
+                            opcoes.push(String(r.id_rota))
+                        })
+
+                        $('.selectpicker').selectpicker('val', opcoes);
+                    } catch (err) {
+                        console.log(err);
+                    }
                 }
             }).catch((err) => {
                 errorFn("Erro ao editar o motorista", err)
