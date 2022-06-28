@@ -325,7 +325,7 @@ function numberToMoney(num) {
   return Number(Number(num).toFixed(2)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function mostraSeTemUpdate(modal=true) {
+function mostraSeTemUpdate(modal = true) {
   fetch("https://raw.githubusercontent.com/marcosroriz/sete/master/package.json")
     .then((res) => res.json())
     .then((pkg) => {
@@ -365,3 +365,7 @@ function mostraSeTemUpdate(modal=true) {
       }
     });
 }
+
+function truncateText(str, n = 50) {
+  return str.substr(0, n - 1) + (str.length > n ? '&hellip;' : '');
+};

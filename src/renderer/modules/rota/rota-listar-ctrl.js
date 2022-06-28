@@ -49,7 +49,6 @@ var dataTablesRotas = $("#datatables").DataTable({
                 className: 'btnRemover',
                 action: function (e, dt, node, config) {
                     var rawDados = dataTablesRotas.rows('.selected').data().toArray();
-                    debugger
                     if (rawDados.length == 0) {
                         errorFn("Por favor, selecione pelo menos uma rota a ser removida.", "",
                             "Nenhuma rota selecionada")
@@ -110,6 +109,7 @@ var dataTablesRotas = $("#datatables").DataTable({
                             })
                             .catch((err) => {
                                 Swal2.close()
+                                console.log(err)
                                 errorFn("Erro ao remover as rotas", err)
                             })
                     }
@@ -181,7 +181,7 @@ dataTablesRotas.on('click', '.rotaRemove', function () {
         + "escolas que possuir vínculo deverão ser rearranjadas novamente."
     ).then((res) => {
         let listaPromisePraRemover = [];
-        if (result.value) {
+        if (res?.value) {
             listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ROTA, `/${estadoRota.ID}`));
         }
 
@@ -205,7 +205,7 @@ restImpl.dbGETColecao(DB_TABLE_ROTA)
 .then(res => processarRotas(res))
 .then((res) => adicionaDadosTabela(res))
 .catch((err) => {
-    debugger
+    console.log(err)
     errorFn("Erro ao listar as rotas!", err)
 })
 
