@@ -244,7 +244,6 @@ function verificaEdicao() {
                     });
 
                     // Ativa rota do motorista se for o caso
-
                     try {
                         let rotasMotorista = [];
                         let opcoes = [];
