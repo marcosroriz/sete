@@ -25,7 +25,16 @@ var currentPage = "./dashboard-main.html";
 var DEBUG = true;
 
 // Variáveis do electron
-var electron, app, ipcRenderer, remote, shell, dialog, win, versao, path, userDataDir;
+var electron,
+  app,
+  ipcRenderer,
+  remote,
+  shell,
+  dialog,
+  win,
+  versao,
+  path,
+  userDataDir;
 var htmlToImage;
 
 // Var que indica se estamos ou não no Electron (desktop)
@@ -35,20 +44,20 @@ var isElectron = window.process != null;
 if (isElectron) {
   // Rodando via Electron
   // Imports Principais do Electron
-  electron    = require("electron");
+  electron = require("electron");
   ipcRenderer = electron.ipcRenderer;
-  remote      = electron.remote;
-  shell       = electron.shell;
-  
-  app    = remote.app;
+  remote = electron.remote;
+  shell = electron.shell;
+
+  app = remote.app;
   dialog = remote.dialog;
-  win    = remote.getCurrentWindow();
+  win = remote.getCurrentWindow();
   versao = app.getVersion();
 
   // Imports de I/O do NodeJS
   fs = require("fs-extra");
 
-  // Imports de Armazenamento 
+  // Imports de Armazenamento
   var Store = require("electron-store");
   userconfig = new Store();
 
@@ -59,7 +68,6 @@ if (isElectron) {
 
   // HTML To Image
   htmlToImage = require("html-to-image");
-
 } else {
   // Rodando via browser
   userconfig = {
@@ -67,8 +75,8 @@ if (isElectron) {
     set: (key, value) => localStorage.setItem(key, value),
     delete: (key) => localStorage.removeItem(key),
     clear: () => localStorage.clear(),
-    keys: () => Object.keys(localStorage)
-  }
+    keys: () => Object.keys(localStorage),
+  };
 }
 
 // Previne click do meio no desktop
@@ -90,11 +98,10 @@ if (isElectron) {
   };
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÕES DE ALERTA
 ////////////////////////////////////////////////////////////////////////////////
-let Swal2 = Swal; 
+let Swal2 = Swal;
 
 // Função genérica para relatar erros
 function errorFn(msg, err = "", title = "Ops... tivemos um problema!") {
@@ -136,7 +143,7 @@ function confirmDialog(msgTitle, msgDesc, buttonDesc = "Sim, remover") {
     cancelButtonText: "Cancelar",
     confirmButtonText: buttonDesc,
   });
-};
+}
 
 // Função genérica para crair um dialogo que questiona se o usuário tem certeza
 function goaheadDialog(msgTitle, msgDesc) {
@@ -150,7 +157,7 @@ function goaheadDialog(msgTitle, msgDesc) {
     cancelButtonText: "Cancelar",
     confirmButtonText: "Sim",
   });
-};
+}
 
 // Função genérica para criar um diálogo de cancelamento de edição
 function cancelDialog(
@@ -167,7 +174,7 @@ function cancelDialog(
     cancelButtonText: "Voltar a editar",
     confirmButtonText: "Sim, cancelar",
   });
-};
+}
 
 // Função genérica para criar um diálogo de sucesso
 function successDialog(
@@ -180,7 +187,7 @@ function successDialog(
     icon: "success",
     button: "Fechar",
   });
-};
+}
 
 // Função de Navegação Dash
 function navigateDashboard(target) {
@@ -312,7 +319,7 @@ function isNumeric(str) {
 function strToNumber(str) {
   if (String(str).includes(".") && String(str).includes(",")) {
     return Number(String(str).replace(".", "").replace(",", "."));
-  } else if (String(str).includes(".") && !(String(str).includes(","))) {
+  } else if (String(str).includes(".") && !String(str).includes(",")) {
     return Number(String(str));
   } else {
     return Number(String(str).replace(".", "").replace(",", "."));
@@ -320,5 +327,8 @@ function strToNumber(str) {
 }
 
 function numberToMoney(num) {
-  return Number(Number(num).toFixed(2)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return Number(Number(num).toFixed(2)).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }

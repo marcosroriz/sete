@@ -16,7 +16,7 @@ class RoutingOptimizationWorker {
         this.reverseMap = new Map();
         
         // IDENTIFICANDO O MODO DE SOLUÇÃO
-        if (typeof this.routingParams["maxCapacity"] == typeof []) {
+        if (typeof this.routingParams["maxCapacity"] == 'object') {
             this.heterogeneous = true;
             console.log("\n *** FROTA HETEROGÊNEA ***\n")
         } else {
