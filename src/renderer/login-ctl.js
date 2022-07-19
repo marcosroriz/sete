@@ -264,7 +264,7 @@ $(() => {
                 showConfirmButton: false
             });
 
-            axios.post(BASE_URL + "/authenticator/sete", {
+            axios.post(REST_BASE_URL + "/authenticator/sete", {
                 usuario: email,
                 senha: md5password
             }).then((seteUser) => {
@@ -339,7 +339,7 @@ $(() => {
         if ($("#recoveryform").valid()) {
             loadingFn("Enviando o e-mail...");
 
-            let recoverURL = BASE_URL + "/acesso/recovery";
+            let recoverURL = REST_BASE_URL + "/acesso/recovery";
             axios.post(recoverURL, {
                 "email": email
             }).then(() => Swal2.fire({
@@ -411,7 +411,7 @@ $(() => {
                 let { email, codigo, recuperarSenha } = result.value;
                 let senhamd5 = MD5(recuperarSenha);
 
-                return axios.put(BASE_URL + "/acesso/recovery", {
+                return axios.put(REST_BASE_URL + "/acesso/recovery", {
                     "email": email,
                     "key": codigo,
                     "senha": senhamd5
@@ -455,7 +455,7 @@ $(() => {
             let cidade = $(localizacao.cidade).find("option:selected").text();
             let estado = $(localizacao.estado).find("option:selected").text();
 
-            axios.post(`${BASE_URL}/registro/${localizacao.cidade.value}`, {
+            axios.post(`${REST_BASE_URL}/registro/${localizacao.cidade.value}`, {
                 "nome": nome,
                 "cpf": String(cpf).replace(/\D/g, ''),
                 "telefone": telefone,
