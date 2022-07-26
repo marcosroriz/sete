@@ -14,7 +14,7 @@ var schema = {
     },
     'OBRIGATORIO_DATA_NASCIMENTO': {
         prop: 'OBRIGATORIO_DATA_NASCIMENTO',
-        type: Date
+        type: String
     },
     'OBRIGATORIO_SEXO': {
         prop: 'OBRIGATORIO_SEXO',
@@ -127,7 +127,7 @@ async function parsePlanilha(arquivo) {
                     // TRATAMENTO DOS CAMPOS OBRIGATÓRIOS
                     ////////////////////////////////////////////////////////////
                     alunoJSON["nome"] = linha["OBRIGATORIO_NOME"].toUpperCase().trim();
-                    alunoJSON["data_nascimento"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"]).format("DD/MM/YYYY");
+                    alunoJSON["data_nascimento"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"].trim(), "DD-MM-YYYY").format("DD/MM/YYYY");
 
                     var alunoSexo = linha["OBRIGATORIO_SEXO"].toLowerCase().trim();
                     var alunoCor = linha["OBRIGATORIO_COR"].toLowerCase().trim();
@@ -367,6 +367,7 @@ function realizaImportacao(rawDados) {
     }
 
     let promiseAlunos = new Array();
+    debugger
 
     for (let aluno of rawDados) {
         delete aluno["SELECT"];
