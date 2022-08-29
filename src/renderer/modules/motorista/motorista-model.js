@@ -21,8 +21,6 @@ function GetMotoristaFromForm() {
 
     if ($("#regsalario").val() != "") {
         data["salario"] = strToNumber($("#regsalario").val());
-    } else {
-        data["salario"] = null;   
     }
 
     if ($("#regtelresp").val() != "") {

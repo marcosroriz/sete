@@ -82,8 +82,8 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                                 `
                                     })
 
-                                var progresso = 0;
-                                var max = rawDados.length;
+                                    var progresso = 0;
+                                    var max = rawDados.length;
 
                                     function updateProgress() {
                                         progresso++;
@@ -92,45 +92,23 @@ var dataTablesVeiculos = $("#datatables").DataTable({
                                         $('.progress-bar').css('width', progressPorcentagem + "%")
                                     }
 
+
                                     var promiseArray = new Array();
 
-                                    // Removendo cada motorista
+                                    // Removendo cada veículo
                                     rawDados.forEach(v => {
                                         let idVeiculo = v["ID"];
-                                        promiseArray.push(
-                                            dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", idVeiculo)
-                                                .then(() => updateProgress())
-                                        );
-                                        promiseArray.push(
-                                            dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", idVeiculo)
-                                                .then(() => updateProgress())
-                                        );
+                                        console.log(DB_TABLE_VEICULO, "/", idVeiculo);
+                                        promiseArray.push(restImpl.dbDELETE(DB_TABLE_VEICULO, `/${idVeiculo}`).then(() => updateProgress()));
                                     })
 
-                                    promiseArray.push(dbAtualizaVersao().then(() => updateProgress()));
-                                    Promise.all(promiseArray)
+                                    return Promise.all(promiseArray)
                                         .then(() => {
                                             successDialog(text = msgConclusao);
                                             dataTablesVeiculos.rows('.selected').remove();
                                             dataTablesVeiculos.draw();
-                                        })
+                                    })
                                 }
-
-                                var promiseArray = new Array();
-                                
-                                // Removendo cada veículo
-                                rawDados.forEach(v => {
-                                    let idVeiculo = v["ID"];
-                                    console.log(DB_TABLE_VEICULO, "/", idVeiculo);
-                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_VEICULO, `/${idVeiculo}`).then(() => updateProgress()));
-                                })
-                                
-                                Promise.all(promiseArray)
-                                .then(() => {
-                                    successDialog(text = msgConclusao);
-                                    dataTablesVeiculos.rows('.selected').remove();
-                                    dataTablesVeiculos.draw();
-                                })
                             })
                         .catch((err) => {
                             Swal2.close()
@@ -209,9 +187,7 @@ dataTablesVeiculos.on('click', '.frotaRemove', function () {
     ).then((res) => {
         let listaPromisePraRemover = []
         if (res.value) {
-            listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_VEICULO, "ID_VEICULO", idVeiculo));
-            listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_VEICULO", idVeiculo));
-            listaPromisePraRemover.push(dbAtualizaVersao());
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_VEICULO, `/${idVeiculo}`));
         }
 
         return Promise.all(listaPromisePraRemover)
