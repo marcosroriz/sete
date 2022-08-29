@@ -98,18 +98,36 @@ let Swal2 = Swal;
 
 // Função genérica para relatar erros
 function errorFn(msg, err = "", title = "Ops... tivemos um problema!") {
-  if (err != "") {
-    msg =
-      msg +
-      "\n Caso o erro persista, contate a equipe de suporte (0800 616161): \n";
-  }
+  msg = `Caso o erro persista, contate a equipe de suporte (0800 616161) ou 
+        utilize o sistema de chamado de suporte da equipe CECATE-UFG (<a>https://suporte.transportesufg.eng.br/</a>)`;
+  let msgErro = "<ul>";
+  if (typeof err == "string" && err != "") {
+    msg = err + msg;
+  } else if (err && err?.response?.data?.messages) {
+    for (const [key, value] of Object.entries(err.response.data.messages)) {
+      msgErro += `<li>${value}</li>`;
+    }
+    msg = msgErro + "</ul>";
+  } 
+  
   return Swal2.fire({
     title: title,
-    text: msg,
+    html: msg,
     icon: "error",
     type: "error",
     confirmButtonText: "Fechar",
-  });
+    confirmButtonColor: "orange",
+    showCancelButton: true,
+    cancelButtonText: '<i class="fa fa-envelope"></i> Abrir chamado',
+    cancelButtonColor: "gray",
+    showDenyButton: true,
+    denyButtonText: '<i class="fa fa-phone"></i> 0800 616161',
+    denyButtonColor: "green"
+  }).then((result) => {
+    if (result.isDismissed) {
+      shell.openExternal("https://suporte.transportesufg.eng.br/");
+    }
+  })
 }
 
 // Função genérica para relatar carregamento

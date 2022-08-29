@@ -1200,3 +1200,13 @@ select.swal2-select {
     font-size: 0.8em;
     width: 100%;
 }
+
+.swal2-html-container ul {
+    text-align: left;
+    list-style: none;
+    text-transform: uppercase;
+}
+
+.swal2-html-container ul li:before {
+  content: '❌ ';
+}
