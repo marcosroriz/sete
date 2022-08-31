@@ -387,3 +387,8 @@ function mostraSeTemUpdate(modal = true) {
 function truncateText(str, n = 50) {
   return str.substr(0, n - 1) + (str.length > n ? '&hellip;' : '');
 };
+
+// Pega o Tipo do Objeto
+function typeOf(obj) {
+  return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
+}
