@@ -127,7 +127,11 @@ async function parsePlanilha(arquivo) {
                     // TRATAMENTO DOS CAMPOS OBRIGATÓRIOS
                     ////////////////////////////////////////////////////////////
                     alunoJSON["nome"] = linha["OBRIGATORIO_NOME"].toUpperCase().trim();
-                    alunoJSON["data_nascimento"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"].trim(), "DD-MM-YYYY").format("DD/MM/YYYY");
+                    if (typeOf(linha["OBRIGATORIO_DATA_NASCIMENTO"]) == 'date') {
+                        alunoJSON["data_nascimento"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"]).format("DD/MM/YYYY");
+                    } else {
+                        alunoJSON["data_nascimento"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"].trim(), "DD-MM-YYYY").format("DD/MM/YYYY");
+                    }
 
                     var alunoSexo = linha["OBRIGATORIO_SEXO"].toLowerCase().trim();
                     var alunoCor = linha["OBRIGATORIO_COR"].toLowerCase().trim();
