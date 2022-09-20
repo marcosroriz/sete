@@ -245,6 +245,8 @@ function popularTabelaAluno() {
     } else {
         dataTableAluno.row.add(["CPF", "CPF não informado"]);
     }
+    dataTableAluno.row.add(["Localização do Aluno", aluno["LOCALIZACAO"]]);
+
 
     var listaDeficiencia = new Array();
     if (aluno["DEF_CAMINHAR"] != 0) { listaDeficiencia.push("Locomotora"); }
