@@ -220,7 +220,7 @@ $("#salvaraluno").on('click', () => {
 
         if (estaEditando) {
             const idAluno = estadoAluno["ID"];
-            delete alunoJSON["cpf"];
+            // delete alunoJSON["cpf"];
 
             loadingFn("Atualizando os dados do(a) aluno(a) ...");
             AtualizarAlunoREST(alunoJSON, idAluno, idEscola, idEscolaAnterior, idRota, idRotaAnterior)
