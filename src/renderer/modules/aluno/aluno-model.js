@@ -138,7 +138,7 @@ var parseAlunoDB = function (alunoRaw) {
         alunoJSON["GEOREF"] = "Não";
     }
 
-    switch (alunoRaw["MEC_TP_LOCALIZACAO"]) {
+    switch (Number(alunoRaw["MEC_TP_LOCALIZACAO"])) {
         case 1:
             alunoJSON["LOCALIZACAO"] = "Urbana";
             break;
@@ -149,7 +149,7 @@ var parseAlunoDB = function (alunoRaw) {
             alunoJSON["LOCALIZACAO"] = "Urbana";
     }
 
-    switch (alunoRaw["SEXO"]) {
+    switch (Number(alunoRaw["SEXO"])) {
         case 1:
             alunoJSON["SEXOSTR"] = "Masculino";
             break;
@@ -160,7 +160,7 @@ var parseAlunoDB = function (alunoRaw) {
             alunoJSON["SEXOSTR"] = "Não Informado";
     }
 
-    switch (alunoRaw["COR"]) {
+    switch (Number(alunoRaw["COR"])) {
         case 1:
             alunoJSON["CORSTR"] = "Branco";
             break;
@@ -181,7 +181,7 @@ var parseAlunoDB = function (alunoRaw) {
             break;
     }
 
-    switch (alunoRaw["GRAU_RESPONSAVEL"]) {
+    switch (Number(alunoRaw["GRAU_RESPONSAVEL"])) {
         case 0:
             alunoJSON["GRAUSTR"] = "Pai, Mãe, Padrasto ou Madrasta";
             break;
@@ -202,7 +202,7 @@ var parseAlunoDB = function (alunoRaw) {
             break;
     }
 
-    switch (alunoRaw["TURNO"]) {
+    switch (Number(alunoRaw["TURNO"])) {
         case 1:
             alunoJSON["TURNOSTR"] = "Manhã";
             break;
@@ -219,7 +219,7 @@ var parseAlunoDB = function (alunoRaw) {
             alunoJSON["TURNOSTR"] = "Manhã";
     }
 
-    switch (alunoRaw["NIVEL"]) {
+    switch (Number(alunoRaw["NIVEL"])) {
         case 1:
             alunoJSON["NIVELSTR"] = "Infantil";
             break;
