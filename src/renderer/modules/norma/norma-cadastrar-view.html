@@ -54,9 +54,7 @@
                                                 <star>*</star>
                                             </label>
                                             <div class="col-5">
-                                                <input id="regdata" name="regdata" type="text"
-                                                    placeholder="DD/MM/YYYY"
-                                                    class="form-control datamask">
+                                                <input id="regdata" name="regdata" type="date" placeholder="DD/MM/YYYY" class="form-control datamask">
                                             </div>
                                         </div>
                                     </div>
@@ -77,7 +75,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="row p-2">
+                                        <div class="row p-2 outroTipoNormaDiv">
                                             <div class="obrlabel">
                                                 &nbsp;
                                                 &nbsp;
@@ -93,11 +91,11 @@
                                                 &nbsp;
                                             </div>
                                             <label class="col-5 control-label">
-                                                Título da Norma:
+                                                Especifique o outro tipo:
                                                 <star>*</star>
                                             </label>
                                             <div class="col-5">
-                                                <input id="titulo" name="titulo" type="text"
+                                                <input id="outroTipoText" name="outroTipoText" type="text"
                                                     placeholder="Exemplo: RESOLUÇÃO ABC de 20XX" class="form-control">
                                             </div>
                                         </div>
@@ -115,8 +113,37 @@
                                                 <star>*</star>
                                             </label>
                                             <div class="col-5">
-                                                <select id="tipoAssunto" name="tipoAssunto" class="form-control">
+                                                <select id="tipoAssunto" name="tipoAssunto" class="selectpicker"
+                                                        multiple data-selected-text-format="count" data-size="10">
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <div class="row marcarTodosLabel">
+                                            <div class="col-6"></div>
+                                            <span class="ml-5 hint">Marque todos que se aplique</span>
+                                        </div>
+                                        <div class="row p-2 outroAssuntoNormaDiv">
+                                            <div class="obrlabel">
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                            </div>
+                                            <label class="col-5 control-label">
+                                                Especifique o outro assunto:
+                                                <star>*</star>
+                                            </label>
+                                            <div class="col-5">
+                                                <input id="outroAssuntoText" name="outroAssuntoText" type="text"
+                                                    placeholder="Exemplo: RESOLUÇÃO ABC de 20XX" class="form-control">
                                             </div>
                                         </div>
                                     </div>
@@ -129,13 +156,13 @@
                                                 Obrigatório
                                             </div>
                                             <label class="col-5 control-label">
-                                                A norma se aplica a qual modo de transporte?
+                                                A norma se aplica a algum modo de transporte específico?
                                             </label>
                                             <div class="col-5">
                                                 <select id="tipoModo" name="tipoModo" class="form-control">
                                                     <option value="1">Ônibus</option>
                                                     <option value="2">Bicicleta</option>
-                                                    <option value="3">Veículo</option>
+                                                    <option value="3">Lancha</option>
                                                     <option value="4">Todos</option>
                                                     <option value="5">Não se aplica</option>
                                                 </select>
@@ -145,17 +172,16 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <div class="form-group obr">
+                                    <div id="arqDivObr" class="form-group obr">
                                         <div class="row p-2">
-                                            <div class="obrlabel">
+                                            <div id="arqDivObrText" class="obrlabel">
                                                 Obrigatório
                                             </div>
                                             <label class="col-5 control-label">
                                                 Arquivo da norma (PDF)
                                             </label>
                                             <div class="col-5 mt-2">
-                                                <input type="file" accept="application/pdf" class="file-input"
-                                                    id="arqNorma">
+                                                <input type="file" accept="application/pdf" class="file-input" name="arqNorma" id="arqNorma">
                                             </div>
                                         </div>
                                     </div>
@@ -178,5 +204,5 @@
     </div>
 </div>
 
-<!-- <script src="./modules/frota/frota-model.js" type="text/javascript"></script> -->
+<script src="./modules/norma/norma-model.js" type="text/javascript"></script>
 <script src="./modules/norma/norma-cadastrar-ctrl.js" type="text/javascript"></script>

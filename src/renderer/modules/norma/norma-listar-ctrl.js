@@ -18,17 +18,18 @@ var dataTablesNormas = $("#datatables").DataTable({
             style: 'multi',
             info: false
         },
-        "order": [[ 1, "asc" ]],
+        "order": [[1, "asc"]],
         columns: [
             { data: "SELECT", width: "60px" },
-            { data: 'TITULO', width: "30%" },
+            { data: 'DATA_STR', width: "20%" },
             { data: 'TIPO_STR', width: "20%" },
-            { data: 'ASSUNTO_STR', width: "30%" },
+            { data: 'TITULO', width: "40%" },
             {
                 data: "ACOES",
                 width: "110px",
                 sortable: false,
-                defaultContent: '<a href="#" class="btn btn-link btn-primary normaView"><i class="fa fa-search"></i></a>' +
+                defaultContent: '<a href="#" class="btn btn-link btn-secondary normaViewPDF"><i class="fa fa-file-text"></i></a>' +
+                    '<a href="#" class="btn btn-link btn-primary normaView"><i class="fa fa-search"></i></a>' +
                     '<a href="#" class="btn btn-link btn-warning normaEdit"><i class="fa fa-edit"></i></a>' +
                     '<a href="#" class="btn btn-link btn-danger normaRemove"><i class="fa fa-times"></i></a>'
             }
@@ -50,7 +51,7 @@ var dataTablesNormas = $("#datatables").DataTable({
                     var rawDados = dataTablesNormas.rows('.selected').data().toArray();
                     if (rawDados.length == 0) {
                         errorFn("Por favor, selecione pelo menos uma norma a ser removida.", "",
-                                "Nenhuma norma selecionada")
+                            "Nenhuma norma selecionada")
                     } else {
                         let msg = `Você tem certeza que deseja remover as ${rawDados.length} normas selecionadas?`;
                         let msgConclusao = "As normas foram removidas com sucesso";
@@ -59,16 +60,16 @@ var dataTablesNormas = $("#datatables").DataTable({
                             msgConclusao = "A norma foi removida com sucesso";
                         }
 
-                        goaheadDialog(msg ,"Esta operação é irreversível. Você tem certeza?")
-                        .then((res) => {
-                            if (res.isConfirmed) {
-                                Swal2.fire({
-                                    title: "Removenda as normas da base de dados...",
-                                    imageUrl: "img/icones/processing.gif",
-                                    closeOnClickOutside: false,
-                                    allowOutsideClick: false,
-                                    showConfirmButton: false,
-                                    html: `
+                        goaheadDialog(msg, "Esta operação é irreversível. Você tem certeza?")
+                            .then((res) => {
+                                if (res.isConfirmed) {
+                                    Swal2.fire({
+                                        title: "Removenda as normas da base de dados...",
+                                        imageUrl: "img/icones/processing.gif",
+                                        closeOnClickOutside: false,
+                                        allowOutsideClick: false,
+                                        showConfirmButton: false,
+                                        html: `
                                 <br />
                                 <div class="progress" style="height: 20px;">
                                     <div id="pbar" class="progress-bar" role="progressbar" 
@@ -77,38 +78,38 @@ var dataTablesNormas = $("#datatables").DataTable({
                                     </div>
                                 </div>
                                 `
-                                })
+                                    })
 
-                                var progresso = 0;
-                                var max = rawDados.length;
+                                    var progresso = 0;
+                                    var max = rawDados.length;
 
-                                function updateProgress() {
-                                    progresso++;
-                                    var progressPorcentagem = Math.round(100 * (progresso / max))
+                                    function updateProgress() {
+                                        progresso++;
+                                        var progressPorcentagem = Math.round(100 * (progresso / max))
 
-                                    $('.progress-bar').css('width', progressPorcentagem + "%")
+                                        $('.progress-bar').css('width', progressPorcentagem + "%")
+                                    }
+
+                                    var promiseArray = new Array();
+
+                                    // Removendo cada norma
+                                    rawDados.forEach(m => {
+                                        let idNorma = m["ID"];
+                                        promiseArray.push(restImpl.dbDELETE(DB_TABLE_NORMAS, `/${idNorma}`).then(() => updateProgress()));
+                                    })
+
+                                    Promise.all(promiseArray)
+                                        .then(() => {
+                                            successDialog(text = msgConclusao);
+                                            dataTablesNormas.rows('.selected').remove();
+                                            dataTablesNormas.draw();
+                                        })
                                 }
-
-                                var promiseArray = new Array();
-                                
-                                // Removendo cada motorista
-                                rawDados.forEach(m => {
-                                    let idMotorista = m["ID"];
-                                    promiseArray.push(restImpl.dbDELETE(DB_TABLE_MOTORISTA, `/${idMotorista}`).then(() => updateProgress()));
-                                })
-
-                                Promise.all(promiseArray)
-                                .then(() => {
-                                    successDialog(text = msgConclusao);
-                                    dataTablesNormas.rows('.selected').remove();
-                                    dataTablesNormas.draw();
-                                })
-                            }
-                        })
-                        .catch((err) => {
-                            Swal2.close()
-                            errorFn("Erro ao remover os motoristas", err)
-                        })
+                            })
+                            .catch((err) => {
+                                Swal2.close()
+                                errorFn("Erro ao remover as normas", err)
+                            })
                     }
                 }
             },
@@ -119,7 +120,7 @@ var dataTablesNormas = $("#datatables").DataTable({
                 title: appTitle,
                 text: 'Exportar para Planilha',
                 exportOptions: {
-                    columns: [ 1, 2, 3, 4, 5, 6]
+                    columns: [1, 2, 3, 4, 5, 6]
                 },
                 customize: function (xlsx) {
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -139,13 +140,13 @@ var dataTablesNormas = $("#datatables").DataTable({
                 customize: function (doc) {
                     doc.content[1].table.widths = ['25%', '15%', '10%', '20%', '15%', '15%'];
                     doc = docReport(doc);
-                    
+
                     // O datatable coloca o select dentro do header, vamos tirar isso
                     for (col of doc.content[3].table.body[0]) {
                         col.text = col.text.split("    ")[0];
                     }
 
-                    doc.content[2].text = listaDeNormas?.size +  " " + doc.content[2].text;
+                    doc.content[2].text = listaDeNormas?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
@@ -153,12 +154,44 @@ var dataTablesNormas = $("#datatables").DataTable({
     }
 });
 
+dataTablesNormas.on('click', '.normaViewPDF', function () {
+    var $tr = getRowOnClick(this);
+
+    estadoNorma = dataTablesNormas.row($tr).data();
+    action = "normaViewPDF";
+
+    // if (arqDestino != "" && arqDestino != undefined) {
+    loadingFn("Baixando o arquivo")
+
+    let pdfRestAPI = axios.create({
+        baseURL: REST_BASE_URL,
+        headers: {
+            'Authorization': userconfig.get("TOKEN"),
+        },
+        responseType: "arraybuffer",
+
+    });
+    pdfRestAPI.get(`${REST_BASE_URL}/normas/${codCidade}/${estadoNorma.ID}/visualizar`)
+        .then((res) => {
+            const url = window.URL.createObjectURL(new Blob([res.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('type', 'application/pdf')
+            link.setAttribute('download', `Norma ${estadoNorma.ID}.pdf`)
+            document.body.appendChild(link)
+            link.click();
+            successDialog("Parabéns", "Seu arquivo está pronto.");
+        })
+        .catch((err) => errorFn(err))
+});
+
+
 dataTablesNormas.on('click', '.normaView', function () {
     var $tr = getRowOnClick(this);
 
     estadoNorma = dataTablesNormas.row($tr).data();
     action = "visualizarNorma";
-    navigateDashboard("./modules/motorista/motorista-dados-view.html");
+    navigateDashboard("./modules/norma/norma-dados-view.html");
 });
 
 dataTablesNormas.on('click', '.normaEdit', function () {
@@ -166,21 +199,19 @@ dataTablesNormas.on('click', '.normaEdit', function () {
 
     estadoNorma = dataTablesNormas.row($tr).data();
     action = "editarNorma";
-    navigateDashboard("./modules/motorista/motorista-cadastrar-view.html");
+    navigateDashboard("./modules/norma/norma-cadastrar-view.html");
 });
 
 dataTablesNormas.on('click', '.normaRemove', function () {
     var $tr = getRowOnClick(this);
     estadoNorma = dataTablesNormas.row($tr).data();
-    var idMotorista = estadoNorma["CPF"];
+    var idNorma = estadoNorma["CPF"];
 
     action = "apagarNorma";
-    confirmDialog('Remover essa norma?',
-                  "Você tem certeza?"
-    ).then((res) => {
+    confirmDialog('Remover essa norma?', "Você tem certeza?").then((res) => {
         let listaPromisePraRemover = [];
         if (res.value) {
-            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_MOTORISTA, `/${idMotorista}`));
+            listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_NORMAS, `/${idNorma}`));
         }
 
         return Promise.all(listaPromisePraRemover)
@@ -191,7 +222,7 @@ dataTablesNormas.on('click', '.normaRemove', function () {
             Swal2.fire({
                 title: "Sucesso!",
                 icon: "success",
-                text: "Motorista removido com sucesso!",
+                text: "Norma removida com sucesso!",
                 confirmButtonText: 'Retornar a página de administração'
             });
         }
@@ -215,7 +246,7 @@ function preprocessarTipos(resTipos) {
             $('#tipoNorma').append(`<option value="${t.nm_tipo}">${t.nm_tipo}</option>`);
         }
     } else {
-        throw "Erro ao recuperar os tipos de normas" 
+        throw "Erro ao recuperar os tipos de normas"
     }
 }
 
@@ -244,7 +275,7 @@ function processarNormas(resNormas) {
     for (let normaRaw of resNormas) {
         let normaJSON = parseNormaREST(normaRaw);
         normaJSON["TIPO_STR"] = listaDeTipos.get(normaJSON["id_tipo"]);
-        normaJSON["ASSUNTO_STR"] = listaDeAssuntos.get(normaJSON["id_assunto"]);
+        normaJSON["DATA_STR"] = moment(normaRaw["dt_criacao"]).format("DD/MM/yyyy")
         listaDeNormas.set(normaJSON["ID"], normaJSON);
     }
     return listaDeNormas;
@@ -269,18 +300,10 @@ restImpl.dbGETColecaoRaiz(DB_TABLE_NORMAS, "/tipos")
 .then(() => restImpl.dbGETColecao(DB_TABLE_NORMAS))
 .then(processarNormas)
 .then(adicionaDadosTabela)
-// .then(res => processarMotoristas(res))
-// .then(res => adicionaDadosTabela(res))
-// .catch((err) => {
-//     console.log(err)
-//     errorFn("Erro ao listar os motoristas!", err)
-// })
 
 
 $("#datatables_filter input").on('keyup', function () {
     dataTablesNormas.search(jQuery.fn.dataTable.ext.type.search["locale-compare"](this.value)).draw()
 })
-
-
 
 action = "listarNormas";
