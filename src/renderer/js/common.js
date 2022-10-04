@@ -118,13 +118,13 @@ function errorFn(msg, err = "", title = "Ops... tivemos um problema!") {
     confirmButtonText: "Fechar",
     confirmButtonColor: "orange",
     showCancelButton: true,
-    cancelButtonText: '<i class="fa fa-envelope"></i> Abrir chamado',
-    cancelButtonColor: "gray",
+    cancelButtonText: '<i class="fa fa-phone"></i> 0800 616161',
+    cancelButtonColor: "green",
     showDenyButton: true,
-    denyButtonText: '<i class="fa fa-phone"></i> 0800 616161',
-    denyButtonColor: "green"
+    denyButtonText: '<i class="fa fa-envelope"></i> Abrir chamado',
+    denyButtonColor: "gray",
   }).then((result) => {
-    if (result.isDismissed) {
+    if (result.isDenied) {
       shell.openExternal("https://suporte.transportesufg.eng.br/");
     }
   })
