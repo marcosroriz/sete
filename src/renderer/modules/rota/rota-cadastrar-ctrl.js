@@ -342,9 +342,10 @@ restImpl.dbGETColecao(DB_TABLE_VEICULO)
     .then((veiculos) => {
         // Processando Veiculos
         if (veiculos.length != 0) {
+            veiculos.sort((a, b) => (a["tipo"] + a["placa"]).localeCompare((b["tipo"] + b["placa"])))
             for (let veiculoRaw of veiculos) {
                 let veiculoJSON = parseVeiculoREST(veiculoRaw);
-                let vSTR = `${veiculoJSON["TIPOSTR"]} (${veiculoJSON["PLACA"]})`
+                let vSTR = `${veiculoJSON["TIPO"]} (${veiculoJSON["PLACA"]})`
                 $('#tipoVeiculo').append(`<option value="${veiculoJSON["ID"]}">${vSTR}</option>`);
             }
         }

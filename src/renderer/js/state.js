@@ -11,3 +11,4 @@ var estadoVeiculo;
 var estadoRota;
 var estadoFornecedor;
 var estadoOS;
+var estadoNorma;
