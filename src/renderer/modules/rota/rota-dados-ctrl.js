@@ -657,7 +657,7 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
                 // Veja se tem outros alunos próximos, se sim, coloque todos juntos nesse local
                 if (alunosComGPS.length > 0) {
                     let dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
-                    while (dist < 500) {
+                    while (dist < 500 && alunosComGPS.length > 0) {
                         let prox_aluno = alunosComGPS.shift();
                         prox_aluno["NUM"] = num++;
 
@@ -668,7 +668,9 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
                         dataTableListaDeAlunos.row.add(prox_aluno);
                         dataTableListaDeAlunosNumerada.row.add(prox_aluno);
 
-                        dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
+                        if (alunosComGPS.length > 0) {
+                            dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
+                        }
                     }
                 }
 
