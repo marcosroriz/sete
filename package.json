@@ -80,6 +80,7 @@
     "dom-to-image": "^2.6.0",
     "electron-compile": "^6.4.4",
     "electron-config": "^2.0.0",
+    "electron-context-menu": "^3.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^6.0.0",
     "electron-wix-msi": "^3.0.3",
