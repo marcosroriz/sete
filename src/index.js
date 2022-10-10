@@ -14,8 +14,11 @@ const { app, BrowserWindow, ipcMain, shell } = electron;
 const path = require("path");
 const fs = require("fs-extra");
 
+// Menu Direito
+const contextMenu = require('electron-context-menu');
+
 // Desabilita cache do http
-app.commandLine.appendSwitch ("disable-http-cache");
+app.commandLine.appendSwitch("disable-http-cache");
 
 // Arquivo de configuração (variáveis básicas)
 const Store = require("electron-store");
@@ -74,6 +77,21 @@ const spatialiteDB = new spatialite.Database(dbPath);
 ////////////////////////////////////////////////////////////////////////////////
 // Criação do navegador e processo renderer
 ////////////////////////////////////////////////////////////////////////////////
+
+// Menu
+contextMenu({
+    showSaveImageAs: true,
+    showInspectElement: false,
+    labels: {
+        cut: 'Recortar',
+        copy: 'Copiar',
+        paste: 'Colar',
+        saveImageAs: 'Salvar imagen como…',
+        lookUpSelection: 'Buscar "{selection}"',
+        selectAll: 'Selecionar todo o texto',
+        searchWithGoogle: 'Buscar no Google'
+    }
+});
 
 // Ref global para a janela, senão o garbage colector apaga a janela
 let appWindow;
@@ -197,10 +215,10 @@ app.on('window-all-closed', () => {
     }
 });
 
- // Evento gerado quando app vai terminar
- app.on("will-quit", () => {
+// Evento gerado quando app vai terminar
+app.on("will-quit", () => {
     routeOptimizer.quit();
- })
+})
 
 // Evento chamado quando clicamos no ícone do app
 app.on('activate', () => {
@@ -253,11 +271,11 @@ app.on("error:route-generation", (err) => {
 ipcMain.on("start:malha-update", (event, newOSMFile) => {
     let malha = new MalhaUpdate(newOSMFile, dbPath);
     malha.update()
-    .then((updateData) => {
-        appconfig.delete("OD");
-        appWindow.webContents.send("end:malha-update", true);
-    })
-    .catch((err) => {
-        appWindow.webContents.send("end:malha-update", false);
-    })
+        .then((updateData) => {
+            appconfig.delete("OD");
+            appWindow.webContents.send("end:malha-update", true);
+        })
+        .catch((err) => {
+            appWindow.webContents.send("end:malha-update", false);
+        })
 });
