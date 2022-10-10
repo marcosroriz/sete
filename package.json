@@ -155,7 +155,7 @@
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "devtron": "^1.4.0",
-    "electron": "^8.5.2",
+    "electron": "^15.5.5",
     "electron-winstaller": "^4.0.1",
     "eslint": "^7.9.0",
     "eslint-config-airbnb": "^18.2.0",
