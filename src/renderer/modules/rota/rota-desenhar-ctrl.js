@@ -512,8 +512,8 @@ var popupAluno = new ol.Overlay.PopupFeature({
             return "Aluno " + elem.get("nome");
         },
         attributes: {
-            TURNOSTR: { title: "Turno"}, 
-            NIVELSTR: { title: "Nível"}
+            TURNOSTR: { title: "Turno" },
+            NIVELSTR: { title: "Nível" }
         }
     }
 });
@@ -846,7 +846,7 @@ $("#listarotas").on("change", async (evt) => {
         try {
             idRotaSelecionada = evt.currentTarget.value;
             let temShape = true;
-            
+
             // Limpando dados do mapa
             vectorSource.clear();
             mapaSource.clear();
@@ -882,7 +882,28 @@ $("#listarotas").on("change", async (evt) => {
                 });
 
                 // Acrescentando rota existente
-                mapaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(shapeDaRota.shape))
+                var rawGeoJSON = JSON.parse(shapeDaRota.shape)
+                var novoShape = turf.toWgs84(rawGeoJSON).features.map((a) => {
+                    console.log(a)
+                    if (a?.geometry?.type != "LineString") {
+                        return a
+                    } else {
+                        let tam = turf.length(a);
+                        console.log(turf.length(a))
+                        if (tam < 2) {
+                            return a;
+                        } else {
+                            let subLinhas = turf.lineChunk(a, 2, { units: 'kilometers' }).features;
+                            subLinhas.forEach(sl => sl.properties = a.properties)
+                            return subLinhas;
+                        }
+                    }
+                })
+                var novoShapeFlat = novoShape.flatMap(k => k)
+                rawGeoJSON.features = novoShapeFlat;
+
+                // let trfGeoJSON = turf.lineChunk(turf.toWgs84(rawGeoJSON), 1, { units: 'kilometers' })
+                mapaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(turf.toMercator(rawGeoJSON)));
             }
 
             // Acrescenta garagem
@@ -957,9 +978,9 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-    .then(() => {
-        $("a[name='rota/rota-listar-view']").trigger("click");
-    });
+        .then(() => {
+            $("a[name='rota/rota-listar-view']").trigger("click");
+        });
 }
 
 $("#rota-malha-salvarNovaMalha").on('click', () => {
