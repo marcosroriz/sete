@@ -51,7 +51,7 @@ function GetVeiculoFromForm() {
 function GetOSFromForm() {
     return {
         "tipo_servico": $("#tipoServico").val(), // int
-        "data": $("#regdata").val(), // boolean
+        "data": moment($("#regdata").val()).format("DD/MM/YYYY"),
         "id_veiculo": $("#tipoVeiculo").val(), // int
         "id_fornecedor": $("#tipoFornecedor").val(), // int
         "comentario": $("#comentario").val(),
@@ -61,7 +61,7 @@ function GetOSFromForm() {
 function PopulateOSFromState(estadoOSJSON) {
     $(".pageTitle").html("Atualizar Ordem de Serviço");
     $("#tipoServico").val(estadoOSJSON["TIPO_SERVICO"]);
-    $("#regdata").val(estadoOSJSON["DATA"]);
+    $("#regdata").val(moment(estadoOSJSON["DATASTR"]).format("yyyy-MM-DD"));
     $("#tipoVeiculo").val(estadoOSJSON["ID_VEICULO"]);
     $("#tipoFornecedor").val(estadoOSJSON["ID_FORNECEDOR"]);
     $("#comentario").val(estadoOSJSON["COMENTARIO"]);
@@ -118,22 +118,43 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
     }
 }
 
+// Transformar linha da API REST para JSON
+var parseOSRest = function (osRaw) {
+    let osJSON = Object.assign({}, osRaw);
+    // Arrumando campos novos para os que já usamos. 
+    // Atualmente os campos são em caixa alta (e.g. NOME ao invés de nome)
+    // Entretanto, a API está retornando valores em minúsculo
+    for (let attr of Object.keys(osJSON)) {
+        osJSON[attr.toUpperCase()] = osJSON[attr];
+    }
+
+    // Fixa o ID
+    osJSON["ID"] = osJSON["id_ordem"];
+
+    return parseOSDB(osJSON);
+};
+
 // Transformar linha do DB para JSON
+
 var parseOSDB = function (osRaw) {
     var osJSON = Object.assign({}, osRaw);
-    if (osJSON["TERMINO"]) {
+    if (osJSON["TERMINO"] == "S") {
         osJSON["TERMINOSTR"] = "Sim";
     } else {
         osJSON["TERMINOSTR"] = "Não";
     }
 
-    switch (osRaw["TIPO_SERVICO"]) {
+    switch (Number(osRaw["TIPO_SERVICO"])) {
         case 1: osJSON["TIPOSTR"] = "Combustível"; break;
         case 2: osJSON["TIPOSTR"] = "Óleo e lubrificantes"; break;
         case 3: osJSON["TIPOSTR"] = "Seguro"; break;
         case 4: osJSON["TIPOSTR"] = "Manutenção Preventiva"; break;
         case 5: osJSON["TIPOSTR"] = "Manutenção"; break;
         default: osJSON["TIPOSTR"] = "Combustível";
+    }
+
+    if (osRaw.data) {
+        osJSON["DATASTR"] = moment(osRaw.data).format("DD/MM/yyyy")
     }
 
     return osJSON;
@@ -172,6 +193,7 @@ var parseVeiculoDB = function (veiculoRaw) {
         veiculoJSON["ORIGEMSTR"] = "Frota terceirizada";
     }
 
+    // TODO: Olhar esse parse dos dados
     switch (Number(veiculoRaw["TIPO"])) {
         case 1: veiculoJSON["TIPOSTR"] = "Ônibus"; break;
         case 2: veiculoJSON["TIPOSTR"] = "Micro-ônibus"; break;

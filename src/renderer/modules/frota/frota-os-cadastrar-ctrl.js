@@ -2,12 +2,15 @@
 // Este arquivo contém o script de controle da tela frota-os-cadastrar-view. 
 // O mesmo serve tanto para cadastrar e alterar uma OS
 
+// Verifica se é um cadastro novo ou é uma edição
+var estaEditando = false;
+if (action == "editarOS") {
+    estaEditando = true;
+}
+
 // Lista de veiculo e fornecedor anterior
 var antVeiculo;
 var antFornecedor;
-
-// Máscaras
-$(".datamask").mask('00/00/0000');
 
 var validadorFormulario = $("#wizardCadastrarOSForm").validate({
     // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
@@ -19,7 +22,7 @@ var validadorFormulario = $("#wizardCadastrarOSForm").validate({
             },
             regdata: {
                 required: true,
-                datavalida: true
+                date: true
             },
             tipoVeiculo: {
                 required: true,
@@ -120,7 +123,7 @@ restImpl.dbGETColecao(DB_TABLE_FORNECEDOR)
 var processarFornecedores = (res) => {
     for (let fornecedorRaw of res) {
         let fornecedorJSON = parseFornecedorREST(fornecedorRaw);
-        let fSTR = `${fornecedorJSON["NOME"]} (${fornecedorJSON["CNPJ"]})`;
+        let fSTR = `${fornecedorJSON["NOME"]} (CNPJ/CPF: ${fornecedorJSON["CNPJ"]})`;
         $('#tipoFornecedor').append(`<option value="${fornecedorJSON["ID"]}">${fSTR}</option>`);
     }
 
