@@ -73,7 +73,7 @@ $("#baixarPlanilha").on('click', () => {
                 { name: "XLSX", extensions: ["xlsx"] }
             ]
         });
-        
+
         if (arqDestino != "" && arqDestino != undefined) {
             let arqOrigem = path.join(__dirname, "templates", "FormatoImportacaoAluno.xlsx");
             console.log("Copiando de: ", arqOrigem, arqDestino)
@@ -111,14 +111,26 @@ function preprocess(arquivo) {
 }
 
 async function parsePlanilha(arquivo) {
-    readXlsxFile(arquivo, { schema }).then(({ rows, errors }) => {
+    readXlsxFile(arquivo).then((rows) => {
+        let dadosLinhas = [];
+        let cabecalho = rows[0];
+        for (let i = 1; i < rows.length; i++) {
+            let dado = {}
+            for (let j = 0; j < cabecalho.length; j++) {
+                if (rows[i][j] && cabecalho[j]) {
+                    dado[cabecalho[j]] = rows[i][j];
+                }
+            }
+            dadosLinhas.push(dado);
+        }
+        
         // Alunos a serem importados
         let erroDeProcessamento = false;
         let alunosErrosOpt = {};
         let numErros = 0;
 
         alunos = [];
-        for (let linha of rows) {
+        for (let linha of dadosLinhas) {
             let alunoJSON = {};
 
             try {
@@ -127,6 +139,7 @@ async function parsePlanilha(arquivo) {
                     // TRATAMENTO DOS CAMPOS OBRIGATÓRIOS
                     ////////////////////////////////////////////////////////////
                     alunoJSON["nome"] = linha["OBRIGATORIO_NOME"].toUpperCase().trim();
+
                     if (typeOf(linha["OBRIGATORIO_DATA_NASCIMENTO"]) == 'date') {
                         alunoJSON["data_nascimento"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"]).format("DD/MM/YYYY");
                     } else {
@@ -203,7 +216,7 @@ async function parsePlanilha(arquivo) {
 
                     if (linha["OPTATIVO_GRAU_PARENTESCO"]) {
                         let alunoGrauResp = linha["OPTATIVO_GRAU_PARENTESCO"].toLowerCase();
-                        
+
                         if (alunoGrauResp.includes("pai") || alunoGrauResp.includes("mãe") ||
                             alunoGrauResp.includes("padrasto") || alunoGrauResp.includes("madrasta")) {
                             alunoJSON["grau_responsavel"] = 0;
@@ -234,6 +247,7 @@ async function parsePlanilha(arquivo) {
                     // promiseAlunos.push(dbInserirPromise("alunos", alunoJSON, idAluno));
                 }
             } catch (err) {
+                debugger
                 erroDeProcessamento = true;
                 numErros++;
 
@@ -358,7 +372,7 @@ function realizaImportacao(rawDados) {
     })
 
     // Numero de operações a serem realizadas
-    var totalOperacoes = rawDados.length; 
+    var totalOperacoes = rawDados.length;
 
     // Barra de progresso (valor atual)
     var progresso = 0;
@@ -371,39 +385,38 @@ function realizaImportacao(rawDados) {
     }
 
     let promiseAlunos = new Array();
-    debugger
 
     for (let aluno of rawDados) {
         delete aluno["SELECT"];
         delete aluno["georef"];
         aluno["cpf"] = String(aluno["cpf"]).replace(/\D/g, '');
         promiseAlunos.push(restImpl.dbPOST(DB_TABLE_IMPORTACAO, "/planilha/aluno", aluno)
-                           .then(() => updateProgresso()));
+            .then(() => updateProgresso()));
     }
 
     Promise.all(promiseAlunos)
-    .then(() => {
-        return Swal2.fire({
-            title: "Sucesso",
-            text: "Os alunos foram importados com sucesso no sistema. " +
-                "Clique abaixo para retornar ao painel.",
-            icon: "success",
-            showCancelButton: false,
-            confirmButtonClass: "btn-success",
-            confirmButtonText: "Retornar ao painel",
-            closeOnConfirm: false,
-            closeOnClickOutside: false,
-            allowOutsideClick: false,
-            showConfirmButton: true
+        .then(() => {
+            return Swal2.fire({
+                title: "Sucesso",
+                text: "Os alunos foram importados com sucesso no sistema. " +
+                    "Clique abaixo para retornar ao painel.",
+                icon: "success",
+                showCancelButton: false,
+                confirmButtonClass: "btn-success",
+                confirmButtonText: "Retornar ao painel",
+                closeOnConfirm: false,
+                closeOnClickOutside: false,
+                allowOutsideClick: false,
+                showConfirmButton: true
+            })
         })
-    })
-    .then(() => {
-        $("a[name='aluno/aluno-listar-view']").trigger('click')
-    })
-    .catch((err) => {
-        Swal2.close()
-        errorFn("Erro ao importar os alunos", err);
-    });
+        .then(() => {
+            $("a[name='aluno/aluno-listar-view']").trigger('click')
+        })
+        .catch((err) => {
+            Swal2.close()
+            errorFn("Erro ao importar os alunos", err);
+        });
 }
 
 
@@ -414,9 +427,9 @@ $('.card-wizard').bootstrapWizard({
         onTabShow: function (tab, navigation, index) {
             var $total = navigation.find('li').length;
             var $current = index + 1;
-    
+
             var $wizard = navigation.closest('.card-wizard');
-            
+
             // If it's the last tab then hide the last button and show the finish instead
             if ($current >= $total) {
                 if ($("#arqPlanilha").length > 0) {
@@ -428,7 +441,7 @@ $('.card-wizard').bootstrapWizard({
                         arquivo = $("#arqPlanilha")[0].files[0];
                     }
                     if (ultArquivoAnalisado != arquivo) {
-                        if(preprocess(arquivo)) {
+                        if (preprocess(arquivo)) {
                             $($wizard).find('.btn-next').hide();
                             $($wizard).find('.btn-finish').show();
                         } else {
