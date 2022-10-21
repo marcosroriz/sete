@@ -109,12 +109,12 @@ jQuery.fn.textFilter = function (textbox) {
         var select = this;
         $(textbox).bind('change keyup', function () {
             var options = $(select).find('option');
-            var search = $.trim($(this).val());
+            var search = replaceSpecialChars($.trim($(this).val()));
             var regex = new RegExp(search, "gi");
 
             $.each(options, function (i) {
                 var option = options[i];
-                if (option.text.match(regex) !== null) {
+                if (replaceSpecialChars(option.text).match(regex) !== null) {
                     $(option).show();
                 } else {
                     $(option).hide();
@@ -123,6 +123,15 @@ jQuery.fn.textFilter = function (textbox) {
         });
     });
 };
+
+function replaceSpecialChars(str) {
+    str = str.replace(/[ÀÁÂÃÄÅàáâãäå]/, "a");
+    str = str.replace(/[ÈÉÊËèéê]/, "e");
+    str = str.replace(/[íÍìÌÎî]/, "i");
+    str = str.replace(/[óÓòÒôÔ]/, "o");
+    str = str.replace(/[Çç]/, "C");
+    return str.replace(/[^a-z0-9]/gi, '');
+}
 
 
 jQuery.fn.filterByText = function (textbox) {
@@ -139,12 +148,12 @@ jQuery.fn.filterByText = function (textbox) {
 
         $(textbox).bind('change keyup', function () {
             var options = $(select).empty().data('options');
-            var search = $.trim($(this).val());
+            var search = replaceSpecialChars($.trim($(this).val()));
             var regex = new RegExp(search, "gi");
 
             $.each(options, function (i) {
                 var option = options[i];
-                if (option.text.match(regex) !== null) {
+                if (replaceSpecialChars(option.text).match(regex) !== null) {
                     $(select).append(
                         $('<option>').text(option.text).val(option.value)
                     );
