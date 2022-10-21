@@ -163,15 +163,7 @@ dataTablesNormas.on('click', '.normaViewPDF', function () {
     // if (arqDestino != "" && arqDestino != undefined) {
     loadingFn("Baixando o arquivo")
 
-    let pdfRestAPI = axios.create({
-        baseURL: REST_BASE_URL,
-        headers: {
-            'Authorization': userconfig.get("TOKEN"),
-        },
-        responseType: "arraybuffer",
-
-    });
-    pdfRestAPI.get(`${REST_BASE_URL}/normas/${codCidade}/${estadoNorma.ID}/visualizar`)
+    restAPI.get(`${REST_BASE_URL}/normas/${codCidade}/${estadoNorma.ID}/visualizar`, { responseType: "arraybuffer" })
         .then((res) => {
             const url = window.URL.createObjectURL(new Blob([res.data]))
             const link = document.createElement('a')
