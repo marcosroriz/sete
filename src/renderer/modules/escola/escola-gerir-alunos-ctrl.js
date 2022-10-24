@@ -6,10 +6,11 @@
 var listaDeAlunos = new Map();
 
 // Conjunto (Set) de Alunos (Anterior e Novo) atendidos
-var antAlunosAtendidos  = new Set();
+var antAlunosAtendidos = new Set();
 var novoAlunosAtendidos = new Set();
 var atendidoPorOutraEscola = new Set();
-// var naoAtendidosPorNenhuma = new Set();
+var naoAtendidosPorNenhuma = new Set();
+var mostrarNaoAtendidosPorNenhuma = false;
 
 // Filtros
 $('#alunosOutros').textFilter($('#filtroOutrosAlunos'));
@@ -17,6 +18,26 @@ $('#alunosAtendidos').textFilter($('#filtroTxtAtendidos'));
 
 // Título da escola sendo gerida
 $(".tituloSecao span").text(estadoEscola["NOME"]);
+
+// Funções que lidam com alunos não atendidos por nenhuma escola
+$("#mostrarApenasSem").on("click", () => {
+    mostrarNaoAtendidosPorNenhuma = !mostrarNaoAtendidosPorNenhuma;
+    if (mostrarNaoAtendidosPorNenhuma) {
+        let outrosOptions = $("#alunosOutros").find("option");
+        $.each(outrosOptions, function (i) {
+            let opt = outrosOptions[i];
+            if (naoAtendidosPorNenhuma.has(opt.value)) {
+                $(opt).hide();
+            }
+        });
+    } else {
+        let outrosOptions = $("#alunosOutros").find("option");
+        $.each(outrosOptions, function (i) {
+            let opt = outrosOptions[i];
+            $(opt).show();
+        });
+    }
+})
 
 async function carregarDados() {
     try {
@@ -40,7 +61,6 @@ async function carregarDados() {
     try {
         // Pegar todos os alunos
         let todosAlunosRaw = await restImpl.dbGETColecao(DB_TABLE_ALUNO);
-
         todosAlunosRaw.forEach((alunoRaw) => {
             let alunoJSON = parseAlunoREST(alunoRaw);
             let aID = String(alunoJSON["id_aluno"]);
@@ -49,6 +69,10 @@ async function carregarDados() {
             if (!antAlunosAtendidos.has(aID)) {
                 listaDeAlunos.set(aID, alunoJSON);
                 atendidoPorOutraEscola.add(aID);
+
+                if (alunoJSON.escola == "Não Informada") {
+                    naoAtendidosPorNenhuma.add(aID);
+                }
             }
         });
     } catch (err) {
@@ -60,8 +84,8 @@ async function carregarDados() {
 }
 
 carregarDados()
-.then(() => adicionaDadosNaTela())
-.catch(err => errorFn("Erro ao detalhar alunos atendidos pela escola: " + estadoEscola["NOME"], err))
+    .then(() => adicionaDadosNaTela())
+    .catch(err => errorFn("Erro ao detalhar alunos atendidos pela escola: " + estadoEscola["NOME"], err))
 
 // Adiciona dados na tela
 var adicionaDadosNaTela = () => {
@@ -137,7 +161,7 @@ $("#btnSalvar").on('click', async () => {
     let alunosRemover = new Set([...antAlunosAtendidos].filter(x => !novoAlunosAtendidos.has(x)));
 
     // Número de operações a serem realizadas (barra de progresso)
-    var totalOperacoes = alunosAdicionar.size + alunosAdicionar.size + alunosRemover.size; 
+    var totalOperacoes = alunosAdicionar.size + alunosAdicionar.size + alunosRemover.size;
     var progresso = 0;
 
     function updateProgresso() {
@@ -189,21 +213,21 @@ $("#btnSalvar").on('click', async () => {
         allowOutsideClick: false,
         showConfirmButton: true
     }))
-    .then(() => navigateDashboard("./modules/escola/escola-listar-view.html"))
-    .catch((err) => {
-        debugger
-        Swal2.close();
-        errorFn("Erro ao associar os alunos a escola!", err)
-    })
+        .then(() => navigateDashboard("./modules/escola/escola-listar-view.html"))
+        .catch((err) => {
+            debugger
+            Swal2.close();
+            errorFn("Erro ao associar os alunos a escola!", err)
+        })
 });
 
 $("#btnCancelar").on('click', () => {
     cancelDialog()
-    .then((result) => {
-        if (result.value) {
-            navigateDashboard(lastPage);
-        }
-    })
+        .then((result) => {
+            if (result.value) {
+                navigateDashboard(lastPage);
+            }
+        })
 });
 
 action = "gerirEscola"

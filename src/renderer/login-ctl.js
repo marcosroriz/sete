@@ -1,8 +1,3 @@
-// Instanciação 
-emailjs.init("user_319iA49jzZ51Sa7qehcii");
-let SERVICE_ID = 'service_ij3p8cb';
-let TEMPLATE_ID = 'template_5mqem8f';
-
 // Localização do Usuário
 let localizacao;
 
@@ -321,6 +316,7 @@ $(() => {
 
                 document.location.href = "./dashboard.html"
             }).catch((err) => {
+                debugger
                 if (err?.response?.data?.messages) {
                     errorFn(err.response.data.messages);
                 } else {
@@ -472,13 +468,6 @@ $(() => {
                     "COD_CIDADE": localizacao.cidade.value,
                     "COD_ESTADO": localizacao.estado.value
                 };
-
-                emailjs.send(SERVICE_ID, TEMPLATE_ID, userData)
-                    .then(function (response) {
-                        console.log('SUCCESS!', response.status, response.text);
-                    }, function (error) {
-                        console.log('FAILED...', error);
-                    });
 
                 Swal2.close();
                 Swal2.fire({

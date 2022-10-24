@@ -15,13 +15,18 @@
                                 <span id="dtFiltro" class="badge badge-success badge-total"></span>
                                 <span class="separador"> / </span>
                                 <span id="dtTotal" class="badge badge-success badge-total"></span>
+                                <div class="col-12 text-center">
+                                    <button id="addOS" type="button" class="btn btn-success">
+                                        <i class="fa fa-plus"></i> Cadastrar nova OS
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="fresh-datatables single-page-table">
-                        <table id="datatables" class="table table-striped table-no-bordered table-hover" cellspacing="0"
-                            width="100%" style="width:100%">
+                        <table id="datatables" class="table table-striped table-no-bordered table-hover filterTable"
+                            cellspacing="0" width="100%" style="width:100%">
                             <thead>
                                 <tr>
                                     <th></th>
@@ -30,10 +35,48 @@
                                             Data
                                         </span>
                                     </th>
-                                    <th>Tipo</th>
-                                    <th>Fornecedor</th>
-                                    <th>Veículo</th>
-                                    <th>Concluída?</th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Tipo
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Fornecedor
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Veículo
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro">
+                                                <option value="">Sem filtro</option>
+                                            </select>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="colunaComFiltro">
+                                            Concluída
+                                        </span>
+                                        <span class="filtroHeader">
+                                            <select class="form-control form-filtro form-includes">
+                                                <option value="">Sem filtro</option>
+                                                <option value="Sim">Sim</option>
+                                                <option value="Não">Não</option>
+                                            </select>
+                                        </span>
+                                    </th>
                                     <th class="disabled-sorting text-center">Ações</th>
                                 </tr>
                             </thead>

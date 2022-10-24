@@ -16,7 +16,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#tab-planilha-preprocessamento" id="tab-pre" data-toggle="tab" role="tab">
+                            <a class="nav-link" href="#tab-planilha-preprocessamento" id="tab-pre" data-toggle="tab"
+                                role="tab">
                                 <img src="./img/icones/tab-xls.png" class="wiz-icon">
                                 Base de Dados
                             </a>
@@ -34,15 +35,17 @@
                         <div class="tab-pane tab-wiz fade show active" id="tab-planilha-exemplo" role="tabpanel">
                             <div class="row justify-content-center">
                                 <h6 class="mb-4 mt-1 text-center text-space">
-                                    Essa ferramenta possibilita importar vários alunos para o sistema de uma vez a partir de dados existentes.
+                                    Essa ferramenta possibilita importar vários alunos para o sistema de uma vez a
+                                    partir de dados existentes.
                                     <br>
-                                    Para tal, por favor baixe a planilha exemplo que deverá ser preenchida com as seguintes colunas:
+                                    Para tal, por favor baixe a planilha exemplo que deverá ser preenchida com as
+                                    seguintes colunas:
                                 </h6>
                                 <div class="text-space col-12 mb-2 text-center">
                                     <h6 class="text-space">
                                         Campos obrigatórios:
                                     </h6>
-                                    <img src="./img/icones/exemplo-importar.png" class="col-12"/> 
+                                    <img src="./img/icones/exemplo-importar.png" class="col-12" />
                                 </div>
                                 <br />
                                 <br />
@@ -50,9 +53,9 @@
                                     <h6 class="text-space">
                                         Campos opcionais:
                                     </h6>
-                                    <img src="./img/icones/exemplo-importar2.png" class="col-9"/> 
+                                    <img src="./img/icones/exemplo-importar2.png" class="col-9" />
                                 </div>
-                                  
+
                                 <div class="mt-3 col-12">
                                     <div class="form-group">
                                         <label>
@@ -70,7 +73,8 @@
 
                         <div class="tab-pane tab-wiz fade" id="tab-planilha-preprocessamento" role="tabpanel">
                             <h6 class="mb-4 text-center text-space">
-                                Por favor envie a planilha XLXS contendo a descrição dos alunos que serão importados para o sistema.
+                                Por favor envie a planilha XLXS contendo a descrição dos alunos que serão importados
+                                para o sistema.
                             </h6>
                             <div class="row justify-content-center">
                                 <div class="col-12">
@@ -88,20 +92,24 @@
                         <div class="tab-pane tab-wiz fade" id="tab-planilha-processamento" role="tabpanel">
                             <div class="row justify-content-center">
                                 <h6 class="mb-4 mt-1 text-center text-space">
-                                    Essa ferramenta possibilita importar os <strong>alunos</strong> da planilha fornecida.
+                                    Essa ferramenta possibilita importar os <strong>alunos</strong> da planilha
+                                    fornecida.
                                 </h6>
                             </div>
                             <div class="row mt-2">
                                 <ul class="fa-ul ul-dica">
                                     <li><span class="fa-li">
                                             <i class="fa fa-info-circle"></i></span>
-                                        Para selecionar um ou mais alunos, basta clicar no ícone <i class="fa fa-square-o"></i>
+                                        Para selecionar um ou mais alunos, basta clicar no ícone <i
+                                            class="fa fa-square-o"></i>
                                     </li>
                                     <li><span class="fa-li"><i class="fa fa-info-circle"></i></span>
-                                        Para selecionar todos os alunos, clique no ícone <i class="fa fa-square-o"></i> no cabeçalho da tabela.
+                                        Para selecionar todos os alunos, clique no ícone <i class="fa fa-square-o"></i>
+                                        no cabeçalho da tabela.
                                     </li>
                                     <li><span class="fa-li"><i class="fa fa-info-circle"></i></span>
-                                        Por fim, clique no botão <div class="badge badge-info badge-total badge-censo">Importar</div> 
+                                        Por fim, clique no botão <div class="badge badge-info badge-total badge-censo">
+                                            Importar</div>
                                         para concluir o processo.
                                     </li>
                                 </ul>
@@ -147,5 +155,10 @@
 </div>
 </div>
 
+<script>
+    if (isElectron) {
+        document.write('<script src="https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js"><\/script>');
+    }
+</script>
 <script src="./modules/aluno/aluno-model.js" type="text/javascript"></script>
 <script src="./modules/aluno/aluno-importar-ctrl.js" type="text/javascript"></script>
