@@ -296,14 +296,7 @@ var dataTableListaDeEscolas = $("#dataTableListaDeEscolas").DataTable({
         { data: 'ENSINO', width: "15%" },
         { data: 'HORARIO', width: "30%" }
     ],
-    columnDefs: [{
-        targets: 0,
-        render: function (data, type, row) {
-            return data.length > 50 ?
-                data.substr(0, 50) + '…' :
-                data;
-        }
-    }],
+    columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50) }],
     autoWidth: false,
     bAutoWidth: false,
     lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
@@ -329,13 +322,12 @@ var dataTableListaDeEscolas = $("#dataTableListaDeEscolas").DataTable({
 
 var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
     columns: [
-        { data: 'NOME', width: "50%" },
-        { data: 'LOCALIZACAO', width: "20%" },
+        { data: 'NOME', width: "45%" },
+        { data: 'LOCALIZACAO', width: "25%" },
         { data: 'NIVELSTR', width: "20%" },
         { data: 'TURNOSTR', width: "20%" },
     ],
-    columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50) },
-    { targets: 4, render: renderAtMostXCharacters(50) }],
+    columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50) }],
     autoWidth: false,
     bAutoWidth: false,
     buttons: [
@@ -360,11 +352,11 @@ var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
             title: "Rota",
             text: "Exportar para PDF",
             exportOptions: {
-                columns: [0, 1]
+                columns: [0, 1, 2, 3]
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['45%', '25%', '20%', '20%'];
             }
         },
     ],
@@ -535,9 +527,16 @@ async function pegarShapeRota() {
 async function pegarAlunosEscolasRota() {
     try {
         let alunos = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${estadoRota.ID}/alunos`);
-
+        // TODO: Deveria retornar todos os dados dos alunos
         for (let alunoRaw of alunos) {
-            let alunoJSON = parseAlunoREST(alunoRaw);
+            let idAluno = alunoRaw.id_aluno;
+            let alunoJSON;
+            try {
+                let alunosDados = await restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${idAluno}`);
+                alunoJSON = parseAlunoREST(alunosDados);
+            } catch (err) {
+                alunoJSON = parseAlunoREST(alunoRaw);
+            }
             listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
         }
     } catch (error) {
@@ -620,10 +619,10 @@ function adicionarDadosAlunoEscolaTabelaEMapa() {
 
             let novaListaDeAlunos = [...listaDeAlunos.values()];
             let alunosComGPS = novaListaDeAlunos.filter(aluno => (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
-                                                                  aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
-                                                                  aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
+                aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
+                aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
 
-            alunosComGPS.forEach(aluno => { 
+            alunosComGPS.forEach(aluno => {
                 aluno["COORD"] = [aluno.LOC_LONGITUDE, aluno.LOC_LATITUDE]
             })
 
