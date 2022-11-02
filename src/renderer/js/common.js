@@ -12,6 +12,7 @@
 var appTitle = "SETE - Software Eletrônico de Gestão do Transporte Escolar";
 var appVersion = "";
 var BASE_URL = "https://sete.transportesufg.eng.br";
+// var BASE_URL = "https://api-qa.transportesufg.eng.br";
 
 var userData = {};
 var userRole = "";
@@ -103,13 +104,15 @@ function errorFn(msg, err = "", title = "Ops... tivemos um problema!") {
   let msgErro = "<ul>";
   if (typeof err == "string" && err != "") {
     msg = err + msg;
+  } else if (err && err?.response?.data?.messages && typeof err?.response?.data?.messages == "string") {
+    msg = err?.response?.data?.messages + msg;
   } else if (err && err?.response?.data?.messages) {
     for (const [key, value] of Object.entries(err.response.data.messages)) {
       msgErro += `<li>${value}</li>`;
     }
     msg = msgErro + "</ul>";
-  } 
-  
+  }
+
   return Swal2.fire({
     title: title,
     html: msg,
