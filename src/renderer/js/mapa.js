@@ -56,9 +56,27 @@ function novoMapaOpenLayers(target, latitude, longitude) {
                 displayInLayerSwitcher: true,
                 source: new ol.source.BingMaps({
                     key: "ciN5QAQYiHzOFNabIODf~b61cOBWqj2nmKSuoyjuyKA~AiShqLNGsToztBeSE2Tk8Pb1cUdr4nikxL24hlMRaHCJkIpKaYtdBXoxaDEgFhQv",
-                    imagerySet: "AerialWithLabels"
+                    imagerySet: "AerialWithLabelsOnDemand"
                 })
             }),
+            // new ol.layer.Tile({
+            //     title: "Road",
+            //     baseLayer: true,
+            //     displayInLayerSwitcher: true,
+            //     source: new ol.source.BingMaps({
+            //         key: "ciN5QAQYiHzOFNabIODf~b61cOBWqj2nmKSuoyjuyKA~AiShqLNGsToztBeSE2Tk8Pb1cUdr4nikxL24hlMRaHCJkIpKaYtdBXoxaDEgFhQv",
+            //         imagerySet: "RoadOnDemand"
+            //     }),
+            //     visible: false
+            // }),
+            // new ol.layer.Tile({
+            //     title: "Nìvel",
+            //     baseLayer: true,
+            //     displayInLayerSwitcher: true,
+            //     source: new ol.source.Stamen({
+            //         layer: "terrain"
+            //     })
+            // }),
             new ol.layer.Tile({
                 title: "Vias",
                 baseLayer: true,
