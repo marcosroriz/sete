@@ -156,9 +156,13 @@
 </div>
 
 <script>
-    if (isElectron) {
-        document.write('<script src="https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js"><\/script>');
+    if (!isElectron) {
+        let jsLoadScript = document.createElement('script');
+        jsLoadScript.src = "https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js";
+        document.head.appendChild(jsLoadScript);
+        // document.write('<script src="https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js" async><\/script>');
     }
 </script>
+<!-- <script src="https://unpkg.com/read-excel-file@5.5.1/bundle/read-excel-file.min.js"></script> -->
 <script src="./modules/aluno/aluno-model.js" type="text/javascript"></script>
 <script src="./modules/aluno/aluno-importar-ctrl.js" type="text/javascript"></script>
