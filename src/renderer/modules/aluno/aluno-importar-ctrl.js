@@ -110,6 +110,11 @@ function preprocess(arquivo) {
     }
 }
 
+function ExcelDateToJSDate(date) {
+    return new Date(Math.round((date - 25569) * 86400 * 1000));
+}
+
+
 async function parsePlanilha(arquivo) {
     readXlsxFile(arquivo).then((rows) => {
         let dadosLinhas = [];
@@ -123,7 +128,7 @@ async function parsePlanilha(arquivo) {
             }
             dadosLinhas.push(dado);
         }
-        
+
         // Alunos a serem importados
         let erroDeProcessamento = false;
         let alunosErrosOpt = {};
@@ -142,6 +147,8 @@ async function parsePlanilha(arquivo) {
 
                     if (typeOf(linha["OBRIGATORIO_DATA_NASCIMENTO"]) == 'date') {
                         alunoJSON["data_nascimento"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"]).format("DD/MM/YYYY");
+                    } else if (typeOf(linha["OBRIGATORIO_DATA_NASCIMENTO"]) == 'number') {
+                        alunoJSON["data_nascimento"] = moment(ExcelDateToJSDate(linha["OBRIGATORIO_DATA_NASCIMENTO"])).format("DD/MM/YYYY");
                     } else {
                         alunoJSON["data_nascimento"] = moment(linha["OBRIGATORIO_DATA_NASCIMENTO"].trim(), "DD-MM-YYYY").format("DD/MM/YYYY");
                     }
