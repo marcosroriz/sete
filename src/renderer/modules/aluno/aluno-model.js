@@ -403,7 +403,7 @@ function AtualizarAlunoREST(alunoJSON, idAluno, idEscola, idEscolaAnterior, idRo
     }
 
     // Mesma lógica da entidade escola para rota
-    if (idRota != idRotaAnterior && idRotaAnterior != 0) {
+    if (idRota != idRotaAnterior && idRotaAnterior != []) {
         promessasBasicas.push(restImpl.dbDELETE(DB_TABLE_ALUNO, "/" + idAluno + "/rota"));
     }
 
@@ -420,10 +420,12 @@ function AtualizarAlunoREST(alunoJSON, idAluno, idEscola, idEscolaAnterior, idRo
             }
 
             // Mesma lógica da entidade escola para rota
-            if (idRota != idRotaAnterior && idRota != 0) {
-                promessasNovasRelacoes.push(restImpl.dbPOST(DB_TABLE_ALUNO, "/" + idAluno + "/rota", {
-                    id_rota: Number(idRota)
-                }))
+            if (idRota != idRotaAnterior && idRota != []) {
+                for (let r of idRota) {
+                    promessasNovasRelacoes.push(restImpl.dbPOST(DB_TABLE_ALUNO, "/" + idAluno + "/rota", {
+                        id_rota: Number(r)
+                    }))
+                }
             }
             return Promise.all(promessasNovasRelacoes)
         })
