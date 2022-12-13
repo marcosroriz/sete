@@ -9,17 +9,11 @@
         <div class="col-md-10 ml-auto mr-auto">
             <div class="card card-wizard wiz-fixes">
                 <div class="card-body ">
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item col-6 tab-2-fix">
+                    <ul class="nav nav-tabs singletab">
+                        <li class="nav-item col-12 tab-2-fix">
                             <a class="nav-link active" href="#tab-resumo" data-toggle="tab" role="tab">
                                 <img src="./img/icones/tab-resumo.png" class="wiz-icon">
                                 Resumo
-                            </a>
-                        </li>
-                        <li class="nav-item col-6 tab-2-fix">
-                            <a class="nav-link" href="#tab-detalhe" data-toggle="tab" role="tab">
-                                <img src="./img/icones/tab-detalhe.png" class="wiz-icon">
-                                Detalhes
                             </a>
                         </li>
                     </ul>
@@ -58,57 +52,6 @@
                                         Exportar Imagem (JPEG)
                                     </button>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane tab-wiz fade" id="tab-detalhe" role="tabpanel">
-                            <div class="row">
-                                <div class="col-12 text-center">
-                                    <div class="totalText">
-                                        Veículos correspondentes
-                                        <span id="totalNumAlunos" class="badge badge-success badge-total"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-4">
-                                    <label class="relLabel" id="relLabel">Filtrar frota por:</label>
-                                </div>
-                                <div class="ml-1 col-4">
-                                    <label class="filtroLabel" id="filtroLabel">Opções</label>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-4">
-                                    <select id="listaTipoRelatorio" class="form-control"></select>
-                                </div>
-                                <div class="ml-1 col-4">
-                                    <select id="listaFiltroRelatorio" class="form-control"></select>
-                                </div>
-                            </div>
-
-                            <div class="filterDiv"></div>
-
-                            <div class="fresh-datatables datatable-relatorio">
-                                <table id="datatables" class="table table-striped table-no-bordered table-hover"
-                                    cellspacing="0" width="100%" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Placa</th>
-                                            <th>Tipo</th>
-                                            <th>Marca</th>
-                                            <th>Modelo</th>
-                                            <th>Capacidade Máxima</th>
-                                            <th>Capacidade Atual</th>
-                                            <th>Estado</th>
-                                            <th class="disabled-sorting text-center">Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>

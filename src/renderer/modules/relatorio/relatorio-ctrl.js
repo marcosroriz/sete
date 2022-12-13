@@ -1,77 +1,13 @@
 // Grafico atual
 var graficoAtual;
+var chart;
 
-var categories = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"];
-var pickedSeries = [];
-
-var sum = function (a, b) { return a + b };
-var chart = {
-    "pizza": {
-        labelInterpolationFnc: function (value, idx) {
-            if (pickedSeries[idx] == 0) {
-                return "";
-            } else {
-                return Math.round(pickedSeries[idx] / pickedSeries.reduce(sum) * 100) + '%';
-            }
-        },
-        height: 300,
-        showLabel: true,
-    },
-    "barra": {
-        distributeSeries: true,
-        showLabel: true,
-        height: 350,
-        axisY: {
-            onlyInteger: true
-        },
-        axisX: {
-            showGrid: false
-        },
-        plugins: [
-            Chartist.plugins.ctBarLabels({
-                labelOffset: {
-                    x: 0,
-                    y: -10
-                },
-                labelInterpolationFnc: function (value) {
-                    if (pickedSeries.reduce(sum) == 0) {
-                        return 0 + "%";
-                    } else {
-                        return Math.round(value / pickedSeries.reduce(sum) * 100) + '%';
-                    }
-                }
-            })
-        ],
-    },
-    "barraraw": {
-        distributeSeries: true,
-        showLabel: true,
-        height: 350,
-        axisY: {
-            onlyInteger: true
-        },
-        axisX: {
-            showGrid: false
-        },
-        plugins: [
-            Chartist.plugins.ctBarLabels({
-                labelOffset: {
-                    x: 0,
-                    y: -10
-                },
-                labelInterpolationFnc: function (value) {
-                    return roundToTwo(value);
-                }
-            })
-        ],
-    }
-}
-
+// Helper (arrendondamento)
 function roundToTwo(num) {
     return +(Math.round(num + "e+2") + "e-2");
 }
 
-
+// Template para os gráficos
 var grafico_template = {
     chart: {
         height: 400,
@@ -120,14 +56,14 @@ function plotarPizza(target, option) {
     {
         ...grafico_template,
         ...{
-            series: option.SERIE.series,
-            labels: option.SERIE.labels,
+            series: option.values,
+            labels: option.labels,
         }
     }
 
     grafico_pizza_opcoes["chart"]["type"] = "pie";
     grafico_pizza_opcoes["chart"]["width"] = "100%";
-    grafico_pizza_opcoes["title"]["text"] = option.TITULO;
+    grafico_pizza_opcoes["title"]["text"] = option.titulo;
 
     chart = new ApexCharts(document.querySelector(target), grafico_pizza_opcoes);
     setTimeout(() => {
@@ -143,7 +79,7 @@ function plotarBarra(target, option) {
         ...grafico_template,
         ...{
             series: [{
-                data: option.SERIE.series
+                data: option.values
             }],
             plotOptions: {
                 bar: {
@@ -152,20 +88,20 @@ function plotarBarra(target, option) {
                 }
             },
             xaxis: {
-                categories: option.SERIE.labels
+                categories: option.labels
             },
             labels: {
                 style: {
                     fontSize: '5px'
                 }
             }
-    
+
         }
     }
 
     grafico_barra_opcoes["chart"]["type"] = "bar";
     grafico_barra_opcoes["chart"]["width"] = "100%";
-    grafico_barra_opcoes["title"]["text"] = option.TITULO;
+    grafico_barra_opcoes["title"]["text"] = option.titulo;
 
     chart = new ApexCharts(document.querySelector(target), grafico_barra_opcoes);
     setTimeout(() => {
@@ -182,10 +118,10 @@ function plotarTotal(target, option) {
         ...grafico_template,
         ...{
             series: [{
-                name: option.SERIE.labels[0],
+                name: option.labels[0],
                 data: [{
-                    x: option.SERIE.labels[0],
-                    y: roundToTwo(option.SERIE.series[0])
+                    x: option.labels[0],
+                    y: roundToTwo(option.values[0])
                 }]
             }],
             grid: {
@@ -205,7 +141,7 @@ function plotarTotal(target, option) {
 
     grafico_barra_opcoes["chart"]["type"] = "bar";
     grafico_barra_opcoes["chart"]["width"] = "100%";
-    grafico_barra_opcoes["title"]["text"] = option.TITULO;
+    grafico_barra_opcoes["title"]["text"] = option.titulo;
 
     chart = new ApexCharts(document.querySelector(target), grafico_barra_opcoes);
     setTimeout(() => {
@@ -216,100 +152,16 @@ function plotarTotal(target, option) {
 }
 
 function plotGraphic(target, option) {
-    if (option["TIPO"] == "pizza") {
+    if (option["tipo"] == "pizza") {
         return plotarPizza(target, option);
-    } else if (option["TIPO"] == "barra") {
+    } else if (option["tipo"] == "barra") {
         return plotarBarra(target, option);
-    } else if (option["TIPO"] == "total") {
+    } else if (option["tipo"] == "total") {
         return plotarTotal(target, option);
-    } else if (option["TIPO"] == "barraraw") {
-        return Chartist.Bar(target, option["SERIE"], chart["barraraw"]);
+    } else if (option["tipo"] == "barraraw") {
+        return Chartist.Bar(target, option["values"], chart["barraraw"]);
     }
 }
-
-function plotLegend(target, labels, isLong) {
-    for (let i = 0; i < labels.length; i++) {
-        $(target).append(`<i class="fa fa-circle ct-color-${categories[i % categories.length]}"></i> <span>${labels[i]}</span>`);
-        if (isLong && i != 0 && i % 2 == 0) $(target).append("<br>");
-    }
-}
-
-function SetMainFilterMenu(selectID, items) {
-    for (let i in items) {
-        if (items[i]["FILTRO"] != "") {
-            $(selectID).append(`<option value="${i}">${items[i]["TXTMENU"]}</option>`);
-        }
-    }
-}
-
-function GetTemplateMenu(listID, items) {
-    for (let i in items) {
-        $(listID).append(`<a href="#" name="${i}" class="list-group-item list-group-item-action">
-                            ${items[i]["TXTMENU"]}
-                           </a>`);
-    }
-}
-
-function GetTemplateDataTableConfig() {
-    return {
-        autoWidth: false,
-        bAutoWidth: false,
-        lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
-        pagingType: "full_numbers",
-        order: [[0, "asc"]],
-        language: {
-            "search": "_INPUT_",
-            "searchPlaceholder": "Procurar ",
-            "lengthMenu": "Mostrar _MENU_ itens por página",
-            "zeroRecords": "Não encontrei nenhum dado cadastrado",
-            "info": "Mostrando página _PAGE_ de _PAGES_",
-            "infoEmpty": "Sem registros disponíveis",
-            "infoFiltered": "(Dados filtrados a partir do total de _MAX_ dados)",
-            "paginate": {
-                "first": "Primeira",
-                "last": "Última",
-                "next": "Próxima",
-                "previous": "Anterior"
-            },
-        },
-        dom: 'rtlpB',
-        buttons: [
-            {
-                extend: 'excel',
-                className: 'btnExcel',
-                filename: "Relatorio",
-                title: appTitle,
-                text: 'Exportar para Planilha',
-                customize: function (xlsx) {
-                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                    $('row c[r^="A"]', sheet).attr('s', '2');
-                    $('row[r="1"] c[r^="A"]', sheet).attr('s', '27');
-                    $('row[r="2"] c[r^="A"]', sheet).attr('s', '3');
-                }
-            },
-            {
-                extend: 'pdfHtml5',
-                orientation: "landscape",
-                text: "Exportar para PDF",
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4]
-                },
-                customize: function (doc) {
-                    doc.content[1].table.widths = ['30%', '15%', '20%', '20%', '15%'];
-                    doc.images = doc.images || {};
-                    doc.images["logo"] = baseImages.get("logo");
-                    doc.content.splice(1, 0, {
-                        alignment: 'center',
-                        margin: [0, 0, 0, 12],
-                        image: "logo"
-                    });
-                    doc.styles.tableHeader.fontSize = 12;
-                }
-            }
-        ]
-    }
-}
-
 
 $("#btnExpJPEG").on('click', async () => {
     Swal2.fire({
@@ -324,7 +176,7 @@ $("#btnExpJPEG").on('click', async () => {
     });
 
     try {
-        let imgConteudo = await graficoAtual.dataURI({scale: 5})
+        let imgConteudo = await graficoAtual.dataURI({ scale: 5 })
         window.saveAs(imgConteudo.imgURI)
         successDialog();
 
