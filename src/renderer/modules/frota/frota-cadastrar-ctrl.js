@@ -30,6 +30,7 @@ $(".consumomask").mask("00", { reverse: true });
 // Esconde tipo de veículo
 $(".tipoRodo").hide();
 $(".tipoAqua").hide();
+
 $("input[name='tipoModal']").on("change", (evt) => {
     $(".tipoNeutro").hide();
     if (evt.currentTarget.value == "0") {
@@ -52,6 +53,17 @@ $("input[name='tipoModal']").on("change", (evt) => {
         $("#input-consumo-unidade").text("L / HORA");
     }
 });
+
+// Esconde desc de outro tipo por padrão
+$("#outroVeiculoDesc").hide();
+
+$("#tipoVeiculo").on("change", (evt) => {
+    if (evt.currentTarget.value == "99" || evt.currentTarget.value == 99) {
+        $("#outroVeiculoDesc").show();
+    } else {
+        $("#outroVeiculoDesc").hide();
+    }
+})
 
 var validadorFormulario = $("#wizardCadastrarVeiculoForm").validate({
     // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
@@ -143,6 +155,7 @@ $("#salvarveiculo").on('click', () => {
     $("#capacidade").valid();
     $("[name='manutencao']").valid();
     var veiculoJSON = GetVeiculoFromForm();
+    debugger
 
     var $valid = $('#wizardCadastrarVeiculoForm').valid();
     if (!$valid) {
@@ -187,10 +200,11 @@ Promise.all(promissesMetadados)
         for (let tipo of tipoVeiculos) {
             if (tipo.id <= 8) {
                 $('#tipoVeiculo').append(`<option class="tipoRodo" value="${tipo.id}">${tipo.tipo}</option>`);
-            } else {
+            } else if (tipo.id != 99) {
                 $('#tipoVeiculo').append(`<option class="tipoAqua" value="${tipo.id}">${tipo.tipo}</option>`);
             }
         }
+        $('#tipoVeiculo').append("<option id='tipoOutro' value=99>Outro</option>");
     }
     
     if (marcasVeiculos) {
@@ -226,6 +240,7 @@ function verificaEdicao() {
                     $(".renavam").trigger("input");
                     $(".kmmask").trigger("input");
                     $(".consumomask").trigger("input");
+                    $("#tipoVeiculo").trigger("input");
                     $("#cancelarAcao").on('click', () => {
                         cancelDialog()
                             .then((result) => {

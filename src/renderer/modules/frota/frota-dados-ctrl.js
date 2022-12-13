@@ -107,6 +107,7 @@ var popularTabelaVeiculo = () => {
     dataTableVeiculo.row.add(["Ano de aquisição", estadoVeiculo["ANO"]]);
     dataTableVeiculo.row.add(["Placa", estadoVeiculo["PLACA"]]);
     dataTableVeiculo.row.add(["RENAVAM", estadoVeiculo["RENAVAM"]]);
+    dataTableVeiculo.row.add(["Tipo", estadoVeiculo["TIPOSTR"]]);
     dataTableVeiculo.row.add(["Capacidade máxima", estadoVeiculo["CAPACIDADE"] + " passageiros"]);
     dataTableVeiculo.row.add(["Quilometragem inicial", estadoVeiculo["KM_INICIAL"] + " km"]);
     dataTableVeiculo.row.add(["Quilometragem atual", estadoVeiculo["KM_ATUAL"] + " km"]);
@@ -114,7 +115,6 @@ var popularTabelaVeiculo = () => {
     dataTableVeiculo.draw();
 }
 
-debugger
 restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${estadoVeiculo.ID}`)
 .then((veiculoRaw) => {
     debugger
