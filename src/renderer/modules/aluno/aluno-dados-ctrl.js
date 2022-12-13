@@ -156,10 +156,20 @@ restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}`)
             aluno["ESCOLA"] = "Aluno sem escola";
         }
 
-        // TODO: arrumar isso assim que a API estiver estável
         try {
             let rotaRaw = await restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}/rota`);
-            aluno["ROTA"] = rotaRaw.nome;
+            let rotaNome = [];
+            for (let r of rotaRaw.data) {
+                let rotaAchada = rotasRAW.filter(o => o.id_rota == r.id_rota);
+                if (rotaAchada) {
+                    rotaNome.push(rotaAchada[0]["nome"])
+                }
+            }
+            if (rotaNome.length > 0) {
+                aluno["ROTA"] = rotaNome.join(", ");
+            } else {
+                aluno["ROTA"] = "Sem rota cadastrada";
+            }
         } catch (error) {
             aluno["ROTA"] = "Sem rota cadastrada";
         }

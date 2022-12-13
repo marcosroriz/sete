@@ -16,7 +16,7 @@ if (action == "editarAluno") {
 // Importante ter para caso o usuário modifique os dados do aluno/escola e aluno/rota
 // A princípio, assuma nenhuma escola/rota, isto é, id escola/rota = 0
 var idEscolaAnterior = 0;
-var idRotaAnterior = 0;
+var idRotaAnterior = [];
 
 // Posição do Aluno (Mapa)
 var posicaoAluno;
@@ -216,7 +216,7 @@ $("#salvaraluno").on('click', () => {
     } else {
         let alunoJSON = GetAlunoFromForm();
         const idEscola = $("#listaescola").val();
-        const idRota = $("#listarota").val();
+        const idRota = $("#listarota").val().map(Number).filter(r => r != -1)
 
         if (estaEditando) {
             const idAluno = estadoAluno["ID"];
@@ -266,15 +266,19 @@ restImpl.dbGETColecao(DB_TABLE_ESCOLA)
     })
 
 restImpl.dbGETColecao(DB_TABLE_ROTA)
-    .then((res) => {
-        res.sort((e1, e2) => {
+    .then((rotas) => {
+        rotas.sort((e1, e2) => {
             return ('' + e1["nome"]).localeCompare(e2["nome"]);
         })
 
-        res.forEach((rota) => {
+        rotas.forEach((rota) => {
             var rID = rota["id_rota"];
             var rNome = rota["nome"];
             $('#listarota').append(`<option value="${rID}">${rNome}</option>`);
+        });
+
+        $('#listarota').selectpicker({
+            noneSelectedText: "Escolher rota depois"
         });
 
         if (estaEditando) {
@@ -284,16 +288,41 @@ restImpl.dbGETColecao(DB_TABLE_ROTA)
         }
     })
     .then((rota) => {
-        if (rota && $("#listarota option[value='" + rota.id_rota + "']").length > 0) {
-            $("#listarota").val(rota.id_rota);
-
-            // ID da escola anterior
-            idRotaAnterior = rota.id_rota;
+        if (rota && rota?.data?.length > 0) {
+            rota?.data?.forEach(r => {
+                idRotaAnterior.push(r["id_rota"]);
+            });
+            $("#listarota").selectpicker('val', idRotaAnterior);
         }
     })
     .catch((err) => {
         console.log("Aluno sem rota ainda", err);
     })
+
+
+$('#listarota').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+    // Verificar se quer adicionar depois
+    if (clickedIndex == 0) {
+        // Ver se não tinha escolhido isso antes
+        // previousValue = true se estava ativo antes
+        if (!previousValue) {
+            // Remover todas as opções escolhidas
+            $('.selectpicker').val('-1');
+            $('.selectpicker').selectpicker('render');
+        }
+    } else {
+        // Ver se tinha escolhido a opção de escolher depois
+        var opcoes = $('.selectpicker').val();
+        if (opcoes.includes("-1")) {
+            opcoes = opcoes.filter(item => item != '-1')
+        }
+
+        $('.selectpicker').val(opcoes);
+        $('.selectpicker').selectpicker('render');
+    }
+
+    $('.selectpicker').selectpicker('toggle');
+});
 
 
 if (estaEditando) {

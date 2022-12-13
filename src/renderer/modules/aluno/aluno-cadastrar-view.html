@@ -507,15 +507,20 @@
                                                 <div class="obrlabel">
                                                     Obrigatório
                                                 </div>
-                                                <label class="control-label">
-                                                    <b>Qual a Rota do Aluno?</b>
+                                                <label class="col-5 control-label">
+                                                    Qual a Rota do Aluno?
                                                     <star>*</star>
                                                 </label>
-                                                <div class="col-6">
-                                                    <select id="listarota" name="listarota" class="form-control">
-                                                        <option value="0">Escolher rota depois</option>
+                                                <div class="col-5">
+                                                    <select id="listarota" name="listarota" class="selectpicker"
+                                                        multiple data-selected-text-format="count">
+                                                        <option value="-1">Escolher rota depois</option>
                                                     </select>
                                                 </div>
+                                            </div>
+                                            <div class="row marcarTodosMotoristasLabel">
+                                                <div class="col-6"></div>
+                                                <span class="ml-5 hint">Marque todos que se aplique</span>
                                             </div>
                                         </div>
                                     </div>
