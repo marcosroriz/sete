@@ -86,7 +86,7 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
     }
 
     $("#tipoVeiculo").val(estadoVeiculoJSON["TIPO"]);
-    if (Number(estadoVeiculoJSON["TIPO"])) {
+    if (Number(estadoVeiculoJSON["TIPO"]) == 99) {
         $("#outroTipoText").val(estadoVeiculoJSON["outro_tipo_text"]);
         $("#outroVeiculoDesc").show();
     }
