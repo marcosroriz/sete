@@ -10,6 +10,7 @@ function GetEscolaFromForm() {
         "horario_matutino": $("#temHorarioManha").is(":checked") ? "S" : "N", // str
         "horario_vespertino": $("#temHorarioTarde").is(":checked") ? "S" : "N", // str
         "horario_noturno": $("#temHorarioNoite").is(":checked") ? "S" : "N", // str
+        "horario_integral": $("#temHorarioIntegral").is(":checked") ? "S" : "N", // str
 
         "mec_tp_dependencia": parseInt($("input[name='tipoDependencia']:checked").val()), // int
         "mec_in_regular": $("#temEnsinoRegular").is(":checked") ? "S" : "N", // str
@@ -72,6 +73,7 @@ function PopulateEscolaFromState(estadoEscolaJSON) {
     $("#temHorarioManha").prop("checked", estadoEscolaJSON["HORARIO_MATUTINO"]);
     $("#temHorarioTarde").prop("checked", estadoEscolaJSON["HORARIO_VESPERTINO"]);
     $("#temHorarioNoite").prop("checked", estadoEscolaJSON["HORARIO_NOTURNO"]);
+    $("#temHorarioIntegral").prop("checked", estadoEscolaJSON["HORARIO_INTEGRAL"]);
 }
 
 
@@ -139,7 +141,7 @@ var parseEscolaDB = function (escolaRaw) {
 
     let propParaTransformar = ["MEC_IN_REGULAR", "MEC_IN_EJA", "MEC_IN_PROFISSIONALIZANTE",  "MEC_IN_ESPECIAL_EXCLUSIVA",
                                "ENSINO_FUNDAMENTAL", "ENSINO_PRE_ESCOLA", "ENSINO_MEDIO", "ENSINO_SUPERIOR", 
-                               "HORARIO_MATUTINO", "HORARIO_VESPERTINO", "HORARIO_NOTURNO"];
+                               "HORARIO_MATUTINO", "HORARIO_VESPERTINO", "HORARIO_NOTURNO", "HORARIO_INTEGRAL"];
 
     for (let prop of propParaTransformar) {
         if (escolaJSON[prop] == "S") {
@@ -160,6 +162,7 @@ var parseEscolaDB = function (escolaRaw) {
     if (escolaJSON["HORARIO_MATUTINO"]) horarioEnsino.push("Manhã");
     if (escolaJSON["HORARIO_VESPERTINO"]) horarioEnsino.push("Tarde");
     if (escolaJSON["HORARIO_NOTURNO"]) horarioEnsino.push("Noite");
+    if (escolaJSON["HORARIO_INTEGRAL"]) horarioEnsino.push("Integral");
 
     if (horarioEnsino != 0)
         escolaJSON["HORARIO"] = horarioEnsino.join(", ");

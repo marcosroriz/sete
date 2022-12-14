@@ -14,6 +14,10 @@ function GetVeiculoFromForm() {
         "tipo_combustivel": $("[name='tipoCombustivel']:checked").val()
     }
     
+    if (Number($("#tipoVeiculo").val()) == 99) {
+        data["outro_tipo_text"] = $("#outroTipoText").val();
+    }
+
     if ($("#regkm").val() != "" && $("#regkm").val() != null) {
         data["km_inicial"] = strToNumber($("#regkm").val());
     }
@@ -82,6 +86,10 @@ function PopulateVeiculoFromState(estadoVeiculoJSON) {
     }
 
     $("#tipoVeiculo").val(estadoVeiculoJSON["TIPO"]);
+    if (Number(estadoVeiculoJSON["TIPO"])) {
+        $("#outroTipoText").val(estadoVeiculoJSON["outro_tipo_text"]);
+        $("#outroVeiculoDesc").show();
+    }
     $("#tipoMarca").val(estadoVeiculoJSON["MARCA"]);
 
     $("#listamodelo").val(estadoVeiculoJSON["MODELO"]);
@@ -208,6 +216,7 @@ var parseVeiculoDB = function (veiculoRaw) {
         case 11: veiculoJSON["TIPOSTR"] = "Barco de alumínio"; break;
         case 12: veiculoJSON["TIPOSTR"] = "Canoa motorizada"; break;
         case 13: veiculoJSON["TIPOSTR"] = "Canoa a remo"; break;
+        case 99: veiculoJSON["TIPOSTR"] = `Outro (${veiculoJSON.outro_tipo_text})`; break
         default: veiculoJSON["TIPOSTR"] = "Ônibus";
     }
 
