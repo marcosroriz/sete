@@ -2,6 +2,7 @@
 
 var Heap = require("heap");
 var Saving = require("./saving.js");
+var haversine = require("haversine-distance");
 
 module.exports = class RoutingGraph {
     constructor(cachedODMatrix, spatialiteDB, useSpatialDistance = false) {
@@ -199,6 +200,44 @@ module.exports = class RoutingGraph {
         }
     }
 
+    getSpatialDistanceMatrix(lat, lng) {
+        let sqlQuery = `
+                        SELECT *, ST_Y(PointToMatrix) as Latitude, ST_X(PointToMatrix) as Longitude, ST_Distance(PointToMatrix, ST_GeomFromText('POINT(${lng} ${lat})', 4326)) as DistPointToMatrix
+                        FROM (
+                            SELECT *, Line_Interpolate_Point(geometry, ST_Line_Locate_Point(geometry, ST_GeomFromText('POINT(${lng} ${lat})', 4326))) as PointToMatrix
+                            FROM (
+                                SELECT rd.node_from, rd.node_to, rd.geometry
+                                FROM (
+                                    SELECT *, ST_Distance(ST_GeomFromText('POINT(${lng} ${lat})', 4326), linha.geometry) as dist, node_id
+                                    FROM malha_nodes as linha
+                                    ORDER BY dist
+                                    LIMIT 1
+                                    ) as tab, malha as rd
+                                WHERE
+                                    rd.node_from = tab.node_id or
+                                    rd.node_to = tab.node_id
+                                )
+                            )
+                        ORDER BY DistPointToMatrix
+                        LIMIT 1
+                        `;
+        return (sqlQuery, new Promise((resolve, reject) => {
+            this.spatialiteDB.get(sqlQuery, (err, row) => {
+                let latMalha = row["Latitude"];
+                let lngMalha = row["Longitude"];
+                var a = { "lat": lat, "lng": lng }
+                var b = { "lat": latMalha, "lon": lngMalha }
+                let DistPointToMatrix = haversine(a, b);
+                
+                console.log(`\nLatitude Aluno: ${lat} // Longitude Aluno: ${lng}`);
+                console.log(`Latitude Malha: ${latMalha} // Longitude Malha: ${lngMalha} // DistPointToMatrix: ${DistPointToMatrix} \n`);
+                
+                // Resolving
+                resolve();
+            });
+        }));
+    }
+
     getSpatialVertex(c, spatialiteDB) {
         let rawkey = c.get("rawkey");
 
@@ -211,8 +250,7 @@ module.exports = class RoutingGraph {
             let lng = c.get("lng");
             let lat = c.get("lat");
 
-            let sqlQuery = `SELECT ST_Distance(ST_GeomFromText('POINT(${lng} ${lat})', 4326), linha.geometry) AS dist, 
-                                   node_id
+            let sqlQuery = `SELECT ST_Distance(ST_GeomFromText('POINT(${lng} ${lat})', 4326), linha.geometry) AS dist, node_id
                             FROM malha_nodes AS linha
                             ORDER BY dist
                             LIMIT 1`;

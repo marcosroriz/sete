@@ -1175,18 +1175,23 @@ $('.card-wizard').bootstrapWizard({
 // Replota dados
 ////////////////////////////////////////////////////////////////////////////////
 function replotaDados() {
-    let filtroTurno = Number($("input[name='turno']:checked").val());
+    let filtroTurno = [Number($("input[name='turno']:checked").val())];
     let filtroSemRota = $("input[name='publico']:checked").val() == "semRota";
+    if (filtroTurno.indexOf(4) >= 0) {
+        filtroTurno = [1,2] // FILTRANDO NO TURNO DA MANHÃ E TARDE AO MESMO TEMPO
+    } else if (filtroTurno.indexOf(5) >= 0) {
+        filtroTurno = [2,3] // FILTRANDO NO TURNO DA TARDE E NOITE AO MESMO TEMPO
+    }
 
     // Filtrando
     let escolasAlunosFiltrados = new Set();
     let alunosFiltrados = [...alunoMap].filter((a) => {
         let alunoFiltrado = false;
-
+        
         if (filtroSemRota) {
-            alunoFiltrado = a[1]["GPS"] && a[1]["ESCOLA_TEM_GPS"] && a[1]["TURNO"] == filtroTurno && a[1]["TEM_ROTA"] == false;
+            alunoFiltrado = a[1]["GPS"] && a[1]["ESCOLA_TEM_GPS"] && filtroTurno.indexOf(a[1]["TURNO"]) >= 0 && a[1]["TEM_ROTA"] == false;
         } else {
-            alunoFiltrado = a[1]["GPS"] && a[1]["ESCOLA_TEM_GPS"] && a[1]["TURNO"] == filtroTurno;
+            alunoFiltrado = a[1]["GPS"] && a[1]["ESCOLA_TEM_GPS"] && filtroTurno.indexOf(a[1]["TURNO"]) >= 0;
         }
 
         if (alunoFiltrado) {

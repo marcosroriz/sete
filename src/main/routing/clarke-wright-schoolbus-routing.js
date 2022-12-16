@@ -11,12 +11,12 @@ var Heap = require("heap");
 var RoutingGraph = require("./routing-graph.js");
 var BusRoute = require("./busroute.js");
 var haversine = require("haversine-distance");
-
+var spatialiteDBB = undefined
 class ClarkeWrightSchoolBusRouting {
     constructor(cachedODMatrix, inputData, spatialiteDB) {
         // Database Parameters
         this.spatialiteDB = spatialiteDB;
-
+        spatialiteDBB = spatialiteDB;
         // Algorithm Parameters
         this.maxTravDist = inputData["maxTravDist"];
         this.maxTravTime = inputData["maxTravTime"];
@@ -44,6 +44,7 @@ class ClarkeWrightSchoolBusRouting {
         this.schoolsUsed = new Set();
         this.stops.forEach((s) => {
             this.graph.addStopVertex(s["key"], s["lat"], s["lng"], s["passengers"]);
+            this.graph.getSpatialDistanceMatrix(s["lat"], s["lng"]);
             this.schoolsUsed.add(s["school"]);
         });
 
