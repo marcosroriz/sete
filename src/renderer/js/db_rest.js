@@ -2,9 +2,8 @@
 // Este arquivo implementa as funções do banco de dados utilizando a API rest
 
 // Inicializa a API
-var REST_BASE_URL = "https://sete.transportesufg.eng.br";
 var restAPI = axios.create({
-    baseURL: REST_BASE_URL,
+    baseURL: BASE_URL,
     headers: { 'Authorization': userconfig.get("TOKEN") }
 });
 

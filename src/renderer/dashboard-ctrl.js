@@ -54,7 +54,7 @@ if (userconfig.get("NOME")) {
 }
 
 // Verifica se usuário está logado
-restImpl.restAPI.get(REST_BASE_URL + "/authenticator/sete")
+restImpl.restAPI.get(BASE_URL + "/authenticator/sete")
 .then(() => preencheDashboardAlunosEscolas())
 .then(() => preencheDashboardVeiculos())
 .then(() => preencheDashboardRotas())
