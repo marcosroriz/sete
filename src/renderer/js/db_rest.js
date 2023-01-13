@@ -10,7 +10,12 @@ var restAPI = axios.create({
 
 // src/utils/cache.js
 function writeToCache(url, data) {
-    sessionStorage.setItem(url, JSON.stringify(data));
+    try {
+        sessionStorage.setItem(url, JSON.stringify(data));   
+    } catch (e) {
+        console.log("CHACHE ERROR", e)
+        sessionStorage.removeItem(url);
+    }   
 }
 
 function readFromCache(url) {

@@ -10,6 +10,7 @@ var listaDeEscolas = new Map();
 
 // Variáveis de Mapas
 var geojson = new ol.format.GeoJSON();
+var temMapa = false;
 var mapMalhas = {};
 var mapa = novoMapaOpenLayers("mapDetalheRota", cidadeLatitude, cidadeLongitude);
 
@@ -67,11 +68,11 @@ var getGeomStyle = function (feature) {
                 pontoReferencial = ol.proj.transform(start, 'EPSG:3857', 'EPSG:4326');
                 return;
             } else if ((start[0] == ultPonto[0] && start[1] == ultPonto[1]) ||
-                       (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
+                (end[0] == ultPonto[0] && end[1] == ultPonto[1])) {
                 plotSeta = true;
             } else {
                 let pontoAtual = ol.proj.transform(end, 'EPSG:3857', 'EPSG:4326');
-                
+
                 let distancia = ol.sphere.getDistance(pontoReferencial, pontoAtual);
 
                 if (distancia > 2000) {
@@ -84,7 +85,7 @@ var getGeomStyle = function (feature) {
                 var dx = end[0] - start[0];
                 var dy = end[1] - start[1];
                 var rotation = Math.atan2(dy, dx);
-    
+
                 // arrows
                 styles.push(new ol.style.Style({
                     geometry: new ol.geom.Point(end),
@@ -113,17 +114,44 @@ malhaLayer.setStyle((feature) => {
     }
 })
 
+
 // Plot
-var plotarAluno = (alunoRaw) => {
+var plotarMarcadorNumerico = (alunoRaw, num, nomes) => {
     let lat = alunoRaw["LOC_LATITUDE"];
     let lng = alunoRaw["LOC_LONGITUDE"];
-    let icon = "img/icones/aluno-marcador.png";
 
-    let marcador = gerarMarcador(lat, lng, icon);
-    marcador.set("nome", alunoRaw["NOME"]);
-    marcador.set("content", alunoRaw["NOME"]);
-    malhaSource.addFeature(marcador);
+    let p = gerarMarcadorNumerico(lat, lng, num, tamanho_fonte = 0.6);
+
+    p.setId(alunoRaw["ID_ALUNO"]);
+    p.set("ID", alunoRaw["ID_ALUNO"]);
+    p.set("Alunos", nomes.join("<br>"));
+    p.set("TIPO", "ALUNO_NUMERICO")
+    malhaSource.addFeature(p);
 }
+
+// Select para lidar com click no aluno
+var selectNumerico = selectPonto("ALUNO_NUMERICO");
+
+// Popup aluno
+mapa["map"].addInteraction(selectNumerico);
+var popupAlunoNumerico = new ol.Overlay.PopupFeature({
+    popupClass: "default anim",
+    select: selectNumerico,
+    closeBox: true,
+    template: {
+        title: (elem) => {
+            return "Aluno";
+        },
+        attributes: {
+            'Alunos': {
+                title: 'Alunos'
+            },
+        }
+    }
+});
+// Adiciona no mapa
+mapa["map"].addOverlay(popupAlunoNumerico);
+
 
 var plotarEscola = (escolaRaw) => {
     let lat = escolaRaw["LOC_LATITUDE"];
@@ -146,14 +174,6 @@ var plotarGaragem = (garagemRaw) => {
     marcador.set("nome", "GARAGEM");
     marcador.set("content", "GARAGEM");
     malhaSource.addFeature(marcador);
-}
-
-// Acrescentando rota existente
-if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
-    $("#avisoNaoGeoReferenciada").hide();
-    malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]))
-} else {
-    $("#mapDetalheRota").hide();
 }
 
 // Tira o btn group do datatable
@@ -202,7 +222,23 @@ var configTable = {
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[2].text = "Dados da Rota: " + estadoRota["NOME"];
+
+                // Adiciona mapa se tiver
+                if (temMapa) {
+                    doc.content.push({
+                        "text": "Mapa",
+                        "style": "tituloMapa",
+                        "pageBreak": "before"
+                    });
+                    doc.content.push({
+                        image: exportarParaPNG(mapa["map"]).toDataURL(),
+                        width: 500,
+                        alignment: "center",
+                        margin: [0, 20],
+                    });
+                }
             }
         },
         {
@@ -219,8 +255,8 @@ var configTable = {
             action: function (e, dt, node, config) {
                 action = "apagarRota";
                 confirmDialog("Remover essa rota?",
-                              "Ao remover essa rota ela será retirado do sistema e os alunos e "
-                            + "escolas que possuir vínculo deverão ser rearranjadas novamente."
+                    "Ao remover essa rota ela será retirado do sistema e os alunos e "
+                    + "escolas que possuir vínculo deverão ser rearranjadas novamente."
                 ).then((res) => {
                     let listaPromisePraRemover = []
                     if (res.value) {
@@ -293,16 +329,45 @@ var dataTableListaDeEscolas = $("#dataTableListaDeEscolas").DataTable({
 
 var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
     columns: [
-        { data: 'NOME', width: "25%" },
-        { data: 'LOCALIZACAO', width: "15%" },
-        { data: 'NIVELSTR', width: "150px" },
-        { data: 'TURNOSTR', width: "150px" },
-        { data: 'ESCOLA', width: "25%" },
+        { data: 'NOME', width: "50%" },
+        { data: 'LOCALIZACAO', width: "20%" },
+        { data: 'NIVELSTR', width: "20%" },
+        { data: 'TURNOSTR', width: "20%" },
     ],
     columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50) },
-                 { targets: 4, render: renderAtMostXCharacters(50) }],
+    { targets: 4, render: renderAtMostXCharacters(50) }],
     autoWidth: false,
     bAutoWidth: false,
+    buttons: [
+        {
+            extend: 'excel',
+            className: 'btnExcel',
+            filename: "Rota" + estadoRota["NOME"],
+            title: appTitle,
+            messageTop: "Dados da Rota: " + estadoRota["NOME"],
+            text: 'Exportar para Excel/LibreOffice',
+            customize: function (xlsx) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                $('row c[r^="A"]', sheet).attr('s', '2');
+                $('row[r="1"] c[r^="A"]', sheet).attr('s', '27');
+                $('row[r="2"] c[r^="A"]', sheet).attr('s', '3');
+            }
+        },
+        {
+            extend: 'pdfHtml5',
+            orientation: "landscape",
+            title: "Rota",
+            text: "Exportar para PDF",
+            exportOptions: {
+                columns: [0, 1]
+            },
+            customize: function (doc) {
+                doc = docReport(doc);
+                doc.content[3].table.widths = ['30%', '70%'];
+            }
+        },
+    ],
     lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
     pagingType: "full_numbers",
     order: [[0, "asc"]],
@@ -321,7 +386,93 @@ var dataTableListaDeAlunos = $("#dataTableListaDeAlunos").DataTable({
             "previous": "Anterior"
         },
     },
-    dom: 'frtip',
+    dom: 'frtipB',
+});
+
+var dataTableListaDeAlunosNumerada = $("#dataTableListaDeAlunosNumerada").DataTable({
+    columns: [
+        { data: 'NUM', width: "15%" },
+        { data: 'NOME', width: "25%" },
+        { data: 'LOCALIZACAO', width: "15%" },
+        { data: 'NIVELSTR', width: "150px" },
+        { data: 'TURNOSTR', width: "150px" },
+    ],
+    columnDefs: [{ targets: 0, type: "num" },
+    { targets: 1, render: renderAtMostXCharacters(50) }],
+    autoWidth: false,
+    bAutoWidth: false,
+    buttons: [
+        {
+            extend: 'excel',
+            className: 'btnExcel',
+            filename: "Rota" + estadoRota["NOME"],
+            title: appTitle,
+            messageTop: "Dados da Rota: " + estadoRota["NOME"],
+            text: 'Exportar para Excel/LibreOffice',
+            customize: function (xlsx) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                $('row c[r^="A"]', sheet).attr('s', '2');
+                $('row[r="1"] c[r^="A"]', sheet).attr('s', '27');
+                $('row[r="2"] c[r^="A"]', sheet).attr('s', '3');
+            }
+        },
+        {
+            extend: 'pdfHtml5',
+            orientation: "landscape",
+            title: "Rota",
+            text: "Exportar para PDF",
+            exportOptions: {
+                columns: [0, 1, 2, 3, 4]
+            },
+            customize: function (doc) {
+                doc.content[1].table.widths = ['10%', '45%', '20%', '15%', '10%'];
+                doc = docReport(doc);
+
+                // O datatable coloca o select dentro do header, vamos tirar isso
+                for (col of doc.content[3].table.body[0]) {
+                    col.text = col.text.split("    ")[0];
+                }
+
+                doc.content[2].text = listaDeRotas?.size + " " + doc.content[2].text;
+                doc.styles.tableHeader.fontSize = 12;
+
+                // Adiciona mapa se tiver
+                if (temMapa) {
+                    doc.content.push({
+                        "text": "Mapa",
+                        "style": "tituloMapa",
+                        "pageBreak": "before"
+                    });
+                    doc.content.push({
+                        image: exportarParaPNG(mapa["map"]).toDataURL(),
+                        width: 500,
+                        alignment: "center",
+                        margin: [0, 20],
+                    });
+                }
+            }
+        },
+    ],
+    lengthMenu: [[10, 50, -1], [10, 50, "Todas"]],
+    pagingType: "full_numbers",
+    order: [[0, "asc"]],
+    language: {
+        "search": "_INPUT_",
+        "searchPlaceholder": "Procurar alunos",
+        "lengthMenu": "Mostrar _MENU_ alunos por página",
+        "zeroRecords": "Não encontrei nenhum aluno cadastrado",
+        "info": "Mostrando página _PAGE_ de _PAGES_",
+        "infoEmpty": "Sem registros disponíveis",
+        "infoFiltered": "(Alunos filtrados a partir do total de _MAX_ alunos)",
+        "paginate": {
+            "first": "Primeira",
+            "last": "Última",
+            "next": "Próxima",
+            "previous": "Anterior"
+        },
+    },
+    dom: 'frtipB',
 });
 
 estadoRota["ALUNOS"].forEach(aluno => {
@@ -332,12 +483,29 @@ estadoRota["ESCOLAS"].forEach(escola => {
     listaDeEscolas.set(escola["ID_ESCOLA"], escola)
 })
 
-dbLeftJoinPromise(DB_TABLE_ESCOLA_TEM_ALUNOS, "ID_ESCOLA", DB_TABLE_ESCOLA, "ID_ESCOLA")
-.then(res => preprocessarRelacaoAlunoEscola(res))
-.then(() => adicionarDadosAlunoEscolaTabelaEMapa())
+restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
+    .then((rotaRaw) => {
+        loadingFn("Carregando...")
 
-dbBuscarTodosDadosPromise(DB_TABLE_GARAGEM)
-.then(res => processarGaragem(res))
+        let detalhesDaRota = parseRotaDBREST(rotaRaw);
+        Object.assign(estadoRota, detalhesDaRota);
+        return detalhesDaRota;
+    })
+    .then(() => pegarShapeRota())
+    .then(() => pegarAlunosEscolasRota())
+    .then(() => adicionarDadosRotaTabela())
+    .then(() => adicionarDadosAlunoEscolaTabelaEMapa())
+    .then(async () => {
+        // Carrega mapa para impressão
+        $("#detalheMapa").trigger("click");
+        mapa["map"].updateSize();
+        await new Promise(r => setTimeout(r, 500));
+        $("#detalheInitBtn").trigger("click");
+        Swal2.close()
+    })
+    .catch((err) => {
+        console.log(err)
+    })
 
 // Processa garagem
 var processarGaragem = (res) => {
@@ -349,30 +517,191 @@ var processarGaragem = (res) => {
     }
 }
 
-
-// Preprocessa relação aluno escola
-var preprocessarRelacaoAlunoEscola = (res) => {
-    for (let escolaRaw of res) {
-        let aID = escolaRaw["ID_ALUNO"];
-        if (listaDeAlunos.has(aID)) {
-            var aluno = listaDeAlunos.get(aID);
-            aluno["ESCOLA"] = escolaRaw["NOME"];
-            listaDeAlunos.set(aID, aluno);
+async function pegarShapeRota() {
+    let temShape = false;
+    let shapeDaRota;
+    try {
+        shapeDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}/shape`);
+        temShape = true;
+    } catch (error) {
+        temShape = false;
+    } finally {
+        if (temShape) {
+            estadoRota["SHAPE"] = shapeDaRota.shape;
         }
     }
-    return listaDeAlunos;
-};
+}
+
+async function pegarAlunosEscolasRota() {
+    try {
+        let alunos = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${estadoRota.ID}/alunos`);
+
+        for (let alunoRaw of alunos) {
+            let alunoJSON = parseAlunoREST(alunoRaw);
+            listaDeAlunos.set(alunoJSON["ID"], alunoJSON);
+        }
+    } catch (error) {
+        listaDeAlunos = new Map();
+    }
+
+    try {
+        let escolas = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${estadoRota.ID}/escolas`);
+
+        for (let escolaRaw of escolas) {
+            let escolaJSON = parseEscolaREST(escolaRaw);
+            listaDeEscolas.set(escolaJSON["ID"], escolaJSON);
+        }
+    } catch (error) {
+        listaDeEscolas = new Map();
+    }
+}
+
+function adicionarDadosRotaTabela() {
+    // Popular tabela utilizando rota escolhida
+    $("#detalheNomeRota").html(estadoRota["NOME"]);
+    dataTableRota.row.add(["Nome da rota", estadoRota["NOME"]]);
+
+    var tipoRota = "";
+    switch (estadoRota["TIPO"]) {
+        case 1: tipoRota = "Rodoviária"; break;
+        case 2: tipoRota = "Aquaviária"; break;
+        case 3: tipoRota = "Mista"; break;
+        default: tipoRota = "Rodoviária";
+    }
+    dataTableRota.row.add(["Tipo", tipoRota]);
+
+    var dificuldadesAcesso = new Array();
+    if (estadoRota["DA_PORTEIRA"] != "") { dificuldadesAcesso.push("Porteira"); }
+    if (estadoRota["DA_MATABURRO"] != "") { dificuldadesAcesso.push("Mata-Burro"); }
+    if (estadoRota["DA_COLCHETE"] != "") { dificuldadesAcesso.push("Colchete"); }
+    if (estadoRota["DA_ATOLEIRO"] != "") { dificuldadesAcesso.push("Atoleiro"); }
+    if (estadoRota["DA_PONTERUSTICA"] != "") { dificuldadesAcesso.push("Ponte Rústica"); }
+
+    if (dificuldadesAcesso.length != 0) {
+        dataTableRota.row.add(["Dificuldade de acesso", dificuldadesAcesso.join(", ")]);
+    } else {
+        dataTableRota.row.add(["Dificuldade de acesso", "Não informado"]);
+    }
+
+    dataTableRota.row.add(["Número de <br />alunos atendidos", listaDeAlunos.size]);
+    dataTableRota.row.add(["Número de <br />escolas atendidas", listaDeEscolas.size]);
+
+    if (estadoRota["KM"] != "") {
+        dataTableRota.row.add(["Quilometragem da Rota", estadoRota["KM"] + " km"]);
+    } else {
+        dataTableRota.row.add(["Quilometragem da Rota", "Não informada"]);
+    }
+
+    if (estadoRota["TEMPO"] != "") {
+        dataTableRota.row.add(["Duração da Rota", estadoRota["TEMPO"] + " min"]);
+    } else {
+        dataTableRota.row.add(["Duração da Rota", "Não informada"]);
+    }
+    dataTableRota.draw();
+}
 
 // Adiciona dados de alunos e escola nas respectivas tabelas e mapa
-var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
-    listaDeAlunos.forEach(aluno => {
-        if (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
-            aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined) {
-            plotarAluno(aluno)
-        }
+function adicionarDadosAlunoEscolaTabelaEMapa() {
+    // Acrescentando rota existente
+    if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
+        $("#avisoNaoGeoReferenciada").hide();
+        malhaSource.addFeatures((new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]));
+        temMapa = true;
+    } else {
+        $("#mapDetalheRota").hide();
+        $("#dataTableListaDeAlunosNumerada").hide();
+    }
 
-        dataTableListaDeAlunos.row.add(aluno);
-    })
+    if (estadoRota["SHAPE"] != "" && estadoRota["SHAPE"] != null && estadoRota["SHAPE"] != undefined) {
+        try {
+            // let rotaGeoJson = (new ol.format.GeoJSON()).readFeatures(estadoRota["SHAPE"]);
+            // rotaGeoJson[0].getGeometry().flatCoordinates[1]
+            let primeiro_ponto = JSON.parse(estadoRota["SHAPE"]).features[0].geometry.coordinates[0];
+
+            let novaListaDeAlunos = [...listaDeAlunos.values()];
+            let alunosComGPS = novaListaDeAlunos.filter(aluno => (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
+                                                                  aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
+                                                                  aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
+
+            alunosComGPS.forEach(aluno => { 
+                aluno["COORD"] = [aluno.LOC_LONGITUDE, aluno.LOC_LATITUDE]
+            })
+
+            // let ponto_atual = [primeiro_ponto[0], primeiro_ponto[1]];
+            let ponto_atual = ol.proj.transform([primeiro_ponto[0], primeiro_ponto[1]], "EPSG:3857", "EPSG:4326")
+            let num = 1;
+            while (alunosComGPS.length != 0) {
+                alunosComGPS.sort((a, b) => {
+                    let adist = ol.sphere.getDistance(ponto_atual, a["COORD"]);
+                    let bdist = ol.sphere.getDistance(ponto_atual, b["COORD"]);
+
+                    return adist - bdist;
+                })
+
+                // Pega o aluno mais próximo do ponto atual da rota
+                let aluno_original = alunosComGPS.shift();
+                let nome_alunos = ["⚫ " + aluno_original.NOME];
+
+                // Salva o número/ID do aluno
+                let num_original = num;
+                aluno_original["NUM"] = num;
+
+                // Adiciona na tabela
+                dataTableListaDeAlunos.row.add(aluno_original);
+                dataTableListaDeAlunosNumerada.row.add(aluno_original);
+
+                // Aluno vira o próximo ponto
+                ponto_atual = aluno_original["COORD"];
+                num++;
+
+                // Veja se tem outros alunos próximos, se sim, coloque todos juntos nesse local
+                if (alunosComGPS.length > 0) {
+                    let dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
+                    while (dist < 500) {
+                        let prox_aluno = alunosComGPS.shift();
+                        prox_aluno["NUM"] = num++;
+
+                        // Adiciona no nome dos alunos
+                        nome_alunos.push("⚫ " + prox_aluno.NOME);
+
+                        // Adiciona na tabela
+                        dataTableListaDeAlunos.row.add(prox_aluno);
+                        dataTableListaDeAlunosNumerada.row.add(prox_aluno);
+
+                        dist = ol.sphere.getDistance(ponto_atual, alunosComGPS[0].COORD);
+                    }
+                }
+
+                if (num > num_original + 1) {
+                    plotarMarcadorNumerico(aluno_original, String(num_original) + "-" + String(num - 1), nome_alunos);
+                } else {
+                    plotarMarcadorNumerico(aluno_original, String(num - 1), nome_alunos);
+                }
+            }
+
+            let alunosSemGPS = novaListaDeAlunos.filter(aluno => !(aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
+                aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined &&
+                aluno["LOC_LATITUDE"] != "" && aluno["LOC_LONGITUDE"] != ""))
+            alunosSemGPS.forEach(aluno => {
+                aluno["NUM"] = "---";
+                dataTableListaDeAlunos.row.add(aluno);
+                dataTableListaDeAlunosNumerada.row.add(aluno);
+            })
+        } catch (error) {
+            dataTableListaDeAlunos.clear();
+            dataTableListaDeAlunosNumerada.clear();
+
+            listaDeAlunos.forEach(aluno => {
+                dataTableListaDeAlunos.row.add(aluno);
+            })
+        } finally {
+            atualizaMapaOpenLayers(mapa, malhaSource);
+        }
+    } else {
+        listaDeAlunos.forEach(aluno => {
+            dataTableListaDeAlunos.row.add(aluno);
+        })
+    }
 
     listaDeEscolas.forEach(escola => {
         if (escola["LOC_LONGITUDE"] != null && escola["LOC_LONGITUDE"] != undefined &&
@@ -384,141 +713,15 @@ var adicionarDadosAlunoEscolaTabelaEMapa = ()  => {
     })
 
     dataTableListaDeAlunos.draw()
+    dataTableListaDeAlunosNumerada.draw()
     dataTableListaDeEscolas.draw()
     return true;
 }
 
-// Plota dados de aluno e escola no mapa
-var plotaDadosAlunoEscola = () => {
-    listaDeAlunos.forEach(aluno => {
-        if (aluno["LOC_A"])
-        dataTableListaDeAlunos.row.add(aluno);
-    })
-
-    listaDeEscolas.forEach(escola => {
-        dataTableListaDeEscolas.row.add(escola);
-    })
-
-}
-
-// Popular tabela utilizando rota escolhida
-$("#detalheNomeRota").html(estadoRota["NOME"]);
-dataTableRota.row.add(["Nome da rota", estadoRota["NOME"]]);
-
-var tipoRota = "";
-switch (estadoRota["TIPO"]) {
-    case 1: tipoRota = "Rodoviária"; break;
-    case 2: tipoRota = "Aquaviária"; break;
-    case 3: tipoRota = "Mista"; break;
-    default: tipoRota = "Rodoviária";
-}
-dataTableRota.row.add(["Tipo", tipoRota]);
-
-var dificuldadesAcesso = new Array();
-if (estadoRota["DA_PORTEIRA"] != "") { dificuldadesAcesso.push("Porteira"); }
-if (estadoRota["DA_MATABURRO"] != "") { dificuldadesAcesso.push("Mata-Burro"); }
-if (estadoRota["DA_COLCHETE"] != "") { dificuldadesAcesso.push("Colchete"); }
-if (estadoRota["DA_ATOLEIRO"] != "") { dificuldadesAcesso.push("Atoleiro"); }
-if (estadoRota["DA_PONTERUSTICA"] != "") { dificuldadesAcesso.push("Ponte Rústica"); }
-
-if (dificuldadesAcesso.length != 0) {
-    dataTableRota.row.add(["Dificuldade de acesso", dificuldadesAcesso.join(", ")]);
-} else {
-    dataTableRota.row.add(["Dificuldade de acesso", "Não informado"]);
-}
-
-dataTableRota.row.add(["Número de <br />alunos atendidos", listaDeAlunos.size]);
-dataTableRota.row.add(["Número de <br />escolas atendidas", listaDeEscolas.size]);
-
-if (estadoRota["KM"] != "") {
-    dataTableRota.row.add(["Quilometragem da Rota", estadoRota["KM"] + " km"]);
-} else {
-    dataTableRota.row.add(["Quilometragem da Rota", "Não informada"]);
-}
-
-if (estadoRota["TEMPO"] != "") {
-    dataTableRota.row.add(["Duração da Rota", estadoRota["TEMPO"] + " min"]);
-} else {
-    dataTableRota.row.add(["Duração da Rota", "Não informada"]);
-}
-dataTableRota.draw();
-
-// if (veiculo != "") {
-//     var veiculoSTR = `${veiculo["TIPOSTR"]} (${veiculo["PLACA"]})`;
-//     dataTableRota.row.add(["Veículo", veiculoSTR]);
-//     dataTableRota.row.add(["Marca do Veículo", veiculo["MARCASTR"]]);
-//     dataTableRota.row.add(["Modelo do Veículo", veiculo["MODELOSTR"]]);
-//     dataTableRota.row.add(["Propriedade do Veículo", veiculo["ORIGEMSTR"]]);
-// } else {
-//     dataTableRota.row.add(["Veículo", "Não informado"]);
-// }
-
-// if (motoristas != "") {
-//     dataTableRota.row.add(["Motoristas", motoristas]);
-// } else {
-//     dataTableRota.row.add(["Motoristas", "Não informado"]);
-// }
-
-
-// var veiculosRota = BuscarDadosVeiculoRotaPromise(estadoRota["ID_ROTA"])
-// var motoristasRota = BuscarDadosMotoristaRotaPromise(estadoRota["ID_ROTA"])
-// var escolasAtendidas = ListarTodasAsEscolasAtendidasPorRotaPromise(estadoRota["ID_ROTA"])
-// var alunosAtendidos = ListarTodosOsAlunosAtendidosPorRotaPromise(estadoRota["ID_ROTA"])
-
-// var veiculo = "";
-// var motoristas = "";
-// Promise.all([veiculosRota, motoristasRota, escolasAtendidas, alunosAtendidos])
-//     .then((res) => {
-//         var veiculoResult = res[0];
-//         if (veiculoResult.length != 0) {
-//             veiculo = parseVeiculoDB(veiculoResult[0]);
-//         }
-
-//         var listaDeMotoristas = new Array();
-//         for (let mRaw of res[1]) {
-//             listaDeMotoristas.push(mRaw["NOME"]);
-//         }
-//         motoristas = listaDeMotoristas.join("<br />");
-
-//         res[2].forEach((e) => {
-//             var escolaJSON = parseEscolaDB(e);
-//             listaDeEscolas.set(escolaJSON["ID_ESCOLA"], escolaJSON);
-//             dataTableListaDeEscolas.row.add(escolaJSON);
-//         });
-//         dataTableListaDeEscolas.draw();
-
-//         res[3].forEach((a) => {
-//             var alunoJSON = parseAlunoDB(a);
-//             listaDeAlunos.set(alunoJSON["ID_ALUNO"], alunoJSON);
-//         });
-//         ListarEscolasDeAlunos((err, result) => {
-//             result.forEach((alunoRaw) => {
-//                 let aID = alunoRaw["ID_ALUNO"];
-//                 let eNome = alunoRaw["NOME"];
-
-//                 if (listaDeAlunos.has(aID)) {
-//                     let completAlunoJSON = listaDeAlunos.get(aID);
-//                     completAlunoJSON["ESCOLA"] = eNome;
-//                     dataTableListaDeAlunos.row.add(completAlunoJSON);
-//                 }
-//             })
-//             dataTableListaDeAlunos.draw();
-//         })
-//         
-//     })
-
-
 $("#detalheInitBtn").click();
 
 $("#detalheMapa").on('click', () => {
-    setTimeout(function () {
-        if (mapa != null) {
-            if (malhaSource.getFeatures().length != 0) {
-                mapa["map"].getView().fit(malhaSource.getExtent());
-            }
-            mapa["map"].updateSize();
-        }
-    }, 200);
+    atualizaMapaOpenLayers(mapa, malhaSource);
 })
 action = "detalharRota";
 

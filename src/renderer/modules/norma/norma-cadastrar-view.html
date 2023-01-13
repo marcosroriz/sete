@@ -1,0 +1,182 @@
+<div class="container-fluid">
+    <div class="row justify-content-center mb-3">
+        <img id="pageIcon" src="./img/icones/normas-cadastrar.png">
+        <p class="pageTitle">Cadastro de Norma</p>
+    </div>
+
+    <div class="row">
+        <div class="mt-3 col-md-11 ml-auto mr-auto">
+            <form id="wizardCadastrarNormaForm" method="" action="">
+                <div class="card card-wizard wiz-fixes mb-3">
+                    <div class="card-body mb-3">
+                        <ul class="nav nav-tabs singletab">
+                            <li class="nav-item col-12 tab-2-fix">
+                                <a class="nav-link active" href="#tab-vis-garagem" data-toggle="tab" role="tab">
+                                    <img src="./img/icones/normas-listar.png" class="wiz-icon">
+                                    Dados da Norma
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane tab-wiz fade show active" id="tab-vis-garagem">
+                                <h6 class="text-center mb-3">
+                                    Preencha os dados referentes a garagem do município.
+                                    <br />
+                                    Você pode clicar no mapa para mudar a localização da garagem.
+                                </h6>
+
+                                <div class="col-12">
+                                    <div class="form-group obr">
+                                        <div class="row p-2">
+                                            <div class="obrlabel">
+                                                Obrigatório
+                                            </div>
+                                            <label class="col-5 control-label">
+                                                Título da Norma:
+                                                <star>*</star>
+                                            </label>
+                                            <div class="col-5">
+                                                <input id="titulo" name="titulo" type="text"
+                                                    placeholder="Exemplo: RESOLUÇÃO ABC de 20XX" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group obr">
+                                        <div class="row p-2">
+                                            <div class="obrlabel">
+                                                Obrigatório
+                                            </div>
+                                            <label class="col-5 control-label">
+                                                Data da norma:
+                                                <star>*</star>
+                                            </label>
+                                            <div class="col-5">
+                                                <input id="regdata" name="regdata" type="text"
+                                                    placeholder="DD/MM/YYYY"
+                                                    class="form-control datamask">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group obr">
+                                        <div class="row p-2">
+                                            <div class="obrlabel">
+                                                Obrigatório
+                                            </div>
+                                            <label class="col-5 control-label">
+                                                Tipo da norma:
+                                                <star>*</star>
+                                            </label>
+                                            <div class="col-5">
+                                                <select id="tipoNorma" name="tipoNorma" class="form-control">
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row p-2">
+                                            <div class="obrlabel">
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                                &nbsp;
+                                            </div>
+                                            <label class="col-5 control-label">
+                                                Título da Norma:
+                                                <star>*</star>
+                                            </label>
+                                            <div class="col-5">
+                                                <input id="titulo" name="titulo" type="text"
+                                                    placeholder="Exemplo: RESOLUÇÃO ABC de 20XX" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group obr">
+                                        <div class="row p-2">
+                                            <div class="obrlabel">
+                                                Obrigatório
+                                            </div>
+                                            <label class="col-5 control-label">
+                                                Assunto da norma:
+                                                <star>*</star>
+                                            </label>
+                                            <div class="col-5">
+                                                <select id="tipoAssunto" name="tipoAssunto" class="form-control">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group obr">
+                                        <div class="row p-2">
+                                            <div class="obrlabel">
+                                                Obrigatório
+                                            </div>
+                                            <label class="col-5 control-label">
+                                                A norma se aplica a qual modo de transporte?
+                                            </label>
+                                            <div class="col-5">
+                                                <select id="tipoModo" name="tipoModo" class="form-control">
+                                                    <option value="1">Ônibus</option>
+                                                    <option value="2">Bicicleta</option>
+                                                    <option value="3">Veículo</option>
+                                                    <option value="4">Todos</option>
+                                                    <option value="5">Não se aplica</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group obr">
+                                        <div class="row p-2">
+                                            <div class="obrlabel">
+                                                Obrigatório
+                                            </div>
+                                            <label class="col-5 control-label">
+                                                Arquivo da norma (PDF)
+                                            </label>
+                                            <div class="col-5 mt-2">
+                                                <input type="file" accept="application/pdf" class="file-input"
+                                                    id="arqNorma">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button type="button" id="cancelarAcao"
+                            class="btn btn-default btn-wd btnApagar pull-left">Cancelar
+                            Edição</button>
+                        <button type="button" class="btn btn-info btn-wd btn-finish pull-right"
+                            id="salvarnorma">Salvar</button>
+                        <div class="clearfix"></div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- <script src="./modules/frota/frota-model.js" type="text/javascript"></script> -->
+<script src="./modules/norma/norma-cadastrar-ctrl.js" type="text/javascript"></script>

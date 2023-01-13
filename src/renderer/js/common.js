@@ -35,14 +35,14 @@ var isElectron = window.process != null;
 if (isElectron) {
   // Rodando via Electron
   // Imports Principais do Electron
-  electron    = require("electron");
+  electron = require("electron");
   ipcRenderer = electron.ipcRenderer;
-  remote      = electron.remote;
-  shell       = electron.shell;
-  
-  app    = remote.app;
+  remote = electron.remote;
+  shell = electron.shell;
+
+  app = remote.app;
   dialog = remote.dialog;
-  win    = remote.getCurrentWindow();
+  win = remote.getCurrentWindow();
   versao = app.getVersion();
 
   // Imports de I/O do NodeJS
@@ -94,7 +94,7 @@ if (isElectron) {
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÕES DE ALERTA
 ////////////////////////////////////////////////////////////////////////////////
-let Swal2 = Swal; 
+let Swal2 = Swal;
 
 // Função genérica para relatar erros
 function errorFn(msg, err = "", title = "Ops... tivemos um problema!") {
@@ -186,12 +186,14 @@ function successDialog(
 function navigateDashboard(target) {
   lastPage = currentPage;
   currentPage = target;
+  desabilitaMenu();
   $("#content").load(target);
   window.scrollTo(0, 0);
 }
 
 // Função de Navegação do Software
 function navigatePage(target) {
+  desabilitaMenu();
   document.location.href = target;
 }
 
@@ -322,3 +324,48 @@ function strToNumber(str) {
 function numberToMoney(num) {
   return Number(Number(num).toFixed(2)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+
+function mostraSeTemUpdate(modal = true) {
+  fetch("https://raw.githubusercontent.com/marcosroriz/sete/master/package.json")
+    .then((res) => res.json())
+    .then((pkg) => {
+      if (isElectron) {
+        appVersion = pkg.version;
+        let upVersion = pkg.version;
+        let currentVersion = app.getVersion();
+
+        if (upVersion != currentVersion) {
+          if (modal) {
+            Swal2.fire({
+              title: "Saiu uma nova versão do SETE",
+              text: "Você deve atualizar o SETE ou utilizar a versão web do sistema. " +
+                "Clique aqui para entrar na página do SETE.",
+              icon: "warning",
+            }).then(() => {
+              shell.openExternal("https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar");
+            })
+          } else {
+            // popup
+            $.notifyClose();
+            $.notify(
+              {
+                icon: "ml-1 fa fa-cloud-download menu-icon",
+                title: "Saiu uma nova versão do SETE",
+                message: "Clique aqui para entrar na página do SETE",
+                url: "https://transportes.fct.ufg.br/p/31448-sete-sistema-eletronico-de-gestao-do-transporte-escolar",
+                target: "_blank",
+              },
+              {
+                type: "warning",
+                delay: 0,
+              }
+            );
+          }
+        }
+      }
+    });
+}
+
+function truncateText(str, n = 50) {
+  return str.substr(0, n - 1) + (str.length > n ? '&hellip;' : '');
+};

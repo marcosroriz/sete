@@ -44,7 +44,7 @@ $('.cep').mask('00000-000');
 $(".cpfmask").mask('000.000.000-00', { reverse: true });
 $(".telmask").mask(telmaskbehaviour, teloptions);
 $(".datanasc").mask('00/00/0000');
-$('.numbermask').mask('00000000');
+$('.numbermask').mask('00000000', { reverse: true });
 $(".kmmask").mask("000000.00", { reverse: true });
 $('.cnh').mask('000000000-00', { reverse: true });
 
@@ -169,7 +169,7 @@ async function preProcessarSalvarRota(alunosAdicionar, alunosRemover, escolasRem
     if (estaEditando) {
         for (const eID of escolasRemover) {
             try {
-                await restImpl.dbDELETEComParam(DB_TABLE_ESCOLA, `/${eID}/rota`, { rotas: [{ "id_rota": estadoRota["ID"] }] });
+                await restImpl.dbDELETEComParam(DB_TABLE_ESCOLA, `/${eID}/rotas`, { rotas: [{ "id_rota": estadoRota["ID"] }] });
             } catch (error) {
                 console.error(error);
             }
@@ -223,6 +223,7 @@ async function posProcessamentoSalvarRota(idRota, alunosAdicionar, escolasAdicio
     if (escolasAdicionar.size > 0) {
         let vinculoAlunosEscolas = [];
 
+        debugger
         escolasAdicionar.forEach((eID) => vinculoAlunosEscolas.push({ "id_escola": eID }));
         try {
             debugger
@@ -490,7 +491,6 @@ restImpl.dbGETColecao(DB_TABLE_ESCOLA)
             let escolasAtendidas = new Map();
             try {
                 escolasAtendidas = await restImpl.dbGETColecao(DB_TABLE_ROTA, `/${idRota}/escolas`);
-                debugger 
                 escolasAtendidas = convertListToMap(escolasAtendidas, "id_escola")
             } catch (error) {
                 escolasAtendidas = new Map();
@@ -502,7 +502,7 @@ restImpl.dbGETColecao(DB_TABLE_ESCOLA)
             escolas.forEach(escolaRaw => {
                 let escolaJSON = parseEscolaREST(escolaRaw);
                 let escolaID = String(escolaJSON["ID"]);
-                if (escolasAtendidas.has(escolaJSON["ID"])) {
+                if (escolasAtendidas.has(escolaID)) {
                     antEscolas.add(escolaID);
                     novasEscolas.add(escolaID);
                     $('#escolasAtentidas').append(`<option value="${escolaID}">${escolaJSON["NOME"]}</option>`);

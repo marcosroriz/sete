@@ -1,10 +1,10 @@
-// motorista-cadastrar-ctrl.js
-// Este arquivo contém o script de controle da tela motorista-cadastrar-view. 
-// O mesmo serve tanto para cadastrar, quanto para alterar os dados de um motorista.
+// norma-cadastrar-ctrl.js
+// Este arquivo contém o script de controle da tela norma-cadastrar-view. 
+// O mesmo serve tanto para cadastrar, quanto para alterar os dados de uma norma.
 
 // Verifica se é um cadastro novo ou é uma edição
 var estaEditando = false;
-if (action == "editarMotorista") {
+if (action == "editarNorma") {
     estaEditando = true;
 }
 
@@ -12,46 +12,52 @@ if (action == "editarMotorista") {
 var antRotas = new Set();
 
 // Máscaras
-$('.cep').mask('00000-000');
-$(".cpfmask").mask('000.000.000-00', { reverse: true });
-$(".telmask").mask(telmaskbehaviour, teloptions);
-$(".datanasc").mask('00/00/0000');
-$(".datavalidacnh").mask('00/00/0000');
-$('.cnh').mask('000000000-00', { reverse: true });
-$('.money').mask('#.##0,00', { reverse: true });
+// $('.cep').mask('00000-000');
+// $(".cpfmask").mask('000.000.000-00', { reverse: true });
+// $(".telmask").mask(telmaskbehaviour, teloptions);
+// $(".datamask").mask('00/00/0000');
+// $(".datavalidacnh").mask('00/00/0000');
+// $('.cnh').mask('000000000-00', { reverse: true });
+// $('.money').mask('#.##0,00', { reverse: true });
 
-var validadorFormulario = $("#wizardCadastrarMotoristaForm").validate({
+var validadorFormulario = $("#wizardCadastrarNormaForm").validate({
     // Estrutura comum de validação dos nossos formulários (mostrar erros, mostrar OK)
     ...configMostrarResultadoValidacao(),
     ...{
         rules: {
-            regdata: {
-                required: true,
-                datanasc: true
-            },
-            regnome: {
-                required: true,
-                lettersonly: true
-            },
-            regcpf: {
-                required: true,
-                cpf: true
-            },
-            modoSexo: {
+            tipoNorma: {
                 required: true
             },
-            regcnh: {
-                required: true,
-                cnh: true
+            tipoAssunto: {
+                required: true
             },
-            'habilitado[]': {
-                required: true,
-                minlength: 1
-            },
-            'temHorario[]': {
-                required: true,
-                minlength: 1
-            },
+            // regdata: {
+            //     required: true,
+            //     datanasc: true
+            // },
+            // regnome: {
+            //     required: true,
+            //     lettersonly: true
+            // },
+            // regcpf: {
+            //     required: true,
+            //     cpf: true
+            // },
+            // modoSexo: {
+            //     required: true
+            // },
+            // regcnh: {
+            //     required: true,
+            //     cnh: true
+            // },
+            // 'habilitado[]': {
+            //     required: true,
+            //     minlength: 1
+            // },
+            // 'temHorario[]': {
+            //     required: true,
+            //     minlength: 1
+            // },
         }
     }
 });
@@ -99,10 +105,45 @@ var completeForm = () => {
         allowOutsideClick: false,
         showConfirmButton: true
     })
-        .then(() => {
-            navigateDashboard("./modules/motorista/motorista-listar-view.html");
-        });
+    .then(() => {
+        navigateDashboard("./modules/motorista/motorista-listar-view.html");
+    });
 }
+
+$("#salvarnorma").on("click", async () => {
+    let tipo = $("#tipoNorma").val()
+    let assunto = $("#tipoAssunto").val()
+    let modo = $("#tipoModo").val()
+    let arq = $("#arqNorma")[0].files[0]
+    
+    let formData = new FormData();
+    formData.append("file", arq);
+    formData.append("titulo", $("#titulo").val());
+    formData.append("id_tipo", tipo);
+    formData.append("id_assunto", assunto);
+    formData.append("tipo_veiculo", modo);
+    
+    let dadoJSON = {
+        titulo: $("#titulo").val(),
+        id_tipo: Number($("#tipoNorma").val()),
+        id_assunto: Number($("#tipoAssunto").val()),
+        tipo_veiculo: Number($("#tipoModo").val()),
+        file: arq
+    }
+
+    debugger
+    try {
+        let req = await restImpl.dbPOST(DB_TABLE_NORMAS, "", formData)
+        console.log("aqui")
+        debugger
+        console.log(req)
+    } catch (error) {
+        debugger
+        console.log(error)
+    }
+
+    console.log('aqui')
+});
 
 $("#salvarmotorista").on('click', async () => {
     $("[name='regcnh']").valid();
@@ -187,23 +228,61 @@ $("#salvarmotorista").on('click', async () => {
 });
 
 // Lida com a atribuição nas rotas
-restImpl.dbGETColecao(DB_TABLE_ROTA)
-    .then(rotas => preprocessarRotas(rotas))
-    .then(() => verificaEdicao())
+restImpl.dbGETColecaoRaiz(DB_TABLE_NORMAS, "/tipos")
+    .then(resTipos => preprocessarTipos(resTipos))
+    .then(() => restImpl.dbGETColecaoRaiz(DB_TABLE_NORMAS, "/assuntos"))
+    .then(resAssuntos => preprocessarAssuntos(resAssuntos))
+    // .then(() => verificaEdicao())
+
+function preprocessarTipos(resTipos) {
+    if (resTipos?.data?.data) {
+        let tipos = resTipos.data.data.sort((a, b) => {
+            if (a.nm_tipo == "Outro") {
+                return 1;
+            } else if (b.nm_tipo == "Outro") {
+                return -1;
+            } else {
+                a.nm_tipo.localeCompare(b.nm_tipo)
+            }
+        });
+
+        for (let t of tipos) {
+            $('#tipoNorma').append(`<option value="${t.id_tipo}">${t.nm_tipo}</option>`);
+        }
+    } else {
+        throw "Erro ao recuperar os tipos de normas" 
+    }
+}
+
+function preprocessarAssuntos(resAssuntos) {
+    if (resAssuntos?.data?.data) {
+        let assuntos = resAssuntos.data.data.sort((a, b) => {
+            if (a.assunto == "Outros") {
+                return 1;
+            } else if (b.assunto == "Outros") {
+                return -1;
+            } else {
+                a.assunto.localeCompare(b.assunto)
+            }
+        });
+
+        for (let a of assuntos) {
+            $('#tipoAssunto').append(`<option value="${a.id_assunto}">${a.assunto}</option>`);
+        }
+    } else {
+        throw "Erro ao recuperar os tipos de assuntos" 
+    }
+}
 
 function preprocessarRotas(rotas) {
     // Processando Motoristas
     if (rotas.length != 0) {
-        try {
-            rotas.sort((a, b) => a.nome.localeCompare(b.nome))
-        } finally {
-            for (let rota of rotas) {
-                $('#tipoRota').append(`<option value="${rota.id_rota}">${truncateText(rota.nome, 30)}</option>`);
-            }
-            $('#tipoRota').selectpicker({
-                noneSelectedText: "Escolha pelo menos uma rota"
-            });
+        for (let rota of rotas) {
+            $('#tipoRota').append(`<option value="${rota.id_rota}">${rota.nome}</option>`);
         }
+        $('#tipoRota').selectpicker({
+            noneSelectedText: "Escolha pelo menos uma rota"
+        });
     } else {
         $('#tipoRota').removeClass("selectpicker")
         $('#tipoRota').addClass("form-control")
@@ -221,7 +300,7 @@ function preprocessarRotas(rotas) {
 function verificaEdicao() {
     if (estaEditando) {
         restImpl.dbGETEntidade(DB_TABLE_MOTORISTA, `/${estadoMotorista.ID}`)
-            .then(async (motoristaRaw) => {
+            .then((motoristaRaw) => {
                 if (motoristaRaw) {
                     estadoMotorista = parseMotoristaREST(motoristaRaw);
                     PopulateMotoristaFromState(estadoMotorista);
@@ -242,22 +321,6 @@ function verificaEdicao() {
                                 }
                             })
                     });
-
-                    // Ativa rota do motorista se for o caso
-                    try {
-                        let rotasMotorista = [];
-                        let opcoes = [];
-
-                        rotasMotorista = await restImpl.dbGETColecao(DB_TABLE_MOTORISTA, `/${estadoMotorista.cpf}/rota`);
-                        rotasMotorista.forEach(r => {
-                            antRotas.add(String(r.id_rota))
-                            opcoes.push(String(r.id_rota))
-                        })
-
-                        $('.selectpicker').selectpicker('val', opcoes);
-                    } catch (err) {
-                        console.log(err);
-                    }
                 }
             }).catch((err) => {
                 errorFn("Erro ao editar o motorista", err)

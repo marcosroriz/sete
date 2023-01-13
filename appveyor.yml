@@ -30,7 +30,7 @@ for:
         - image: Ubuntu
     init:
       # Install basic packages in Ubuntu
-      - sh: sudo apt-get install -y fakeroot dpkg rpm
+      - sh: sudo apt-get update && sudo apt-get install -y fakeroot dpkg rpm
   - 
     matrix:
       only:
@@ -89,7 +89,9 @@ artifacts:
   - path: "\\out\\make\\wix\\x64\\sete.msi"
     name: WinBinaries
   - path: "\\out\\make\\deb\\x64\\sete*"
-    name: UbuntuBinaries
+    name: DebBinaries
+  - path: "\\out\\make\\rpm\\x64\\sete*"
+    name: RpmBinaries
   - path: "\\out\\make\\sete*"
     name: MacBinaries
 
@@ -100,8 +102,8 @@ deploy:
   provider: GitHub
   draft: true
   auth_token: 
-    secure: gx5sdTH7NlaxbamcdboCQP+/+ue/zygB78gyfN9f7R0qIb+ZP7Ap1AFjNqYFELfC
-  artifact: WinBinaries, UbuntuBinaries, MacBinaries
+    secure: 7HN67saSTjfsfOL7pPkVAJ+o/QfMFR5I7OFbOYgDBi6liWtPRijfO3O/tXB4ekh5
+  artifact: WinBinaries, DebBinaries, RpmBinaries, MacBinaries
   on:
     branch: master
     APPVEYOR_REPO_TAG: true

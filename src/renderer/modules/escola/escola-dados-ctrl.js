@@ -10,6 +10,7 @@ var hashMapAlunos = new Map();
 
 // Cria mapa na cidade atual
 var mapaDetalhe = novoMapaOpenLayers("mapDetalheEscola", cidadeLatitude, cidadeLongitude);
+var temMapa = false;
 var vSource = mapaDetalhe["vectorSource"];
 
 // Ativa camada
@@ -69,7 +70,8 @@ var dataTableInstitucional = $("#dataTableInstitucional").DataTable({
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[2].text = estadoEscola["NOME"];
             }
         },
         {
@@ -184,11 +186,11 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable({
     ...dtConfigPadrao("aluno"),
     ...{
         columns: [
-            { data: 'NOME', width: "30%" },
+            { data: 'NOME', width: "50%" },
             // { data: 'DATA_NASCIMENTO', width: "600px" },
-            { data: 'LOCALIZACAO', width: "30%" },
-            { data: 'NIVELSTR', width: "200px" },
-            { data: 'TURNOSTR', width: "100px" },
+            { data: 'LOCALIZACAO', width: "20%" },
+            { data: 'NIVELSTR', width: "20%" },
+            { data: 'TURNOSTR', width: "20%" },
         ],
         // dom: 't<"detalheToolBar"B>',
         columnDefs: [{ targets: 0, render: renderAtMostXCharacters(50), type: 'locale-compare' } ],
@@ -218,13 +220,14 @@ var dataTableListaDeAlunos = $('#dataTableListaDeAlunos').DataTable({
                 extend: 'pdfHtml5',
                 orientation: "landscape",
                 title: appTitle,
-                messageTop: "Alunos Atendidos pela Escola: " + estadoEscola["NOME"],
                 text: "Exportar para PDF",
                 exportOptions: {
                     columns: [0, 1]
                 },
                 customize: function (doc) {
                     doc = docReport(doc);
+                    doc.content[3].table.widths = ['70%', '30%'];
+                    doc.content[2].text = "Alunos Atendidos pela Escola: " + estadoEscola["NOME"];
                 }
             },
         ]
@@ -299,6 +302,9 @@ var plotarDadosNoMapa = () => {
     // Plota a posição da escola se tiver localização GPS
     if (estadoEscola["LOC_LONGITUDE"] != "" && estadoEscola["LOC_LONGITUDE"] != undefined &&
         estadoEscola["LOC_LATITUDE"] != "" && estadoEscola["LOC_LATITUDE"] != undefined) {
+        // Flag indica que tem mapa
+        temMapa = true;
+
         // Esconde o campo que diz que a escola não tem localização
         $("#avisoNaoGeoReferenciada").hide()
 

@@ -67,10 +67,18 @@ var parseRotaDB = function (rotaRaw) {
     var rotaJSON = Object.assign({}, rotaRaw);
     rotaJSON["ROTAS"] = 0;
 
+    if (Number(rotaRaw["KM"])) {
+        rotaJSON["KM"] = Number(rotaRaw["KM"]);
+    }
+
+    if (Number(rotaRaw["TEMPO"])) {
+        rotaJSON["TEMPO"] = Number(rotaRaw["TEMPO"]);
+    }
+
     if (rotaRaw["KM"] == 0) {
         rotaJSON["KMSTR"] = "Não informado";
     } else {
-        rotaJSON["KMSTR"] = rotaRaw["KM"] + " km";
+        rotaJSON["KMSTR"] = rotaJSON["KM"] + " km";
     }
 
     switch (Number(rotaJSON["tipo"])) {
@@ -86,7 +94,10 @@ var parseRotaDB = function (rotaRaw) {
         default:
             rotaJSON["TIPOSTR"] = "Rodoviária";
     }
-    
+
+    rotaJSON["NUMALUNOS"] = rotaRaw["qtd_alunos"] ? rotaRaw["qtd_alunos"] : 0;
+    rotaJSON["NUMESCOLAS"] = rotaRaw["qtd_escolas"] ? rotaRaw["qtd_escolas"] : 0;
+
     let propParaTransformar = ["turno_matutino", "turno_vespertino", "turno_noturno",
                                 "da_porteira", "da_mataburro", "da_colchete", "da_atoleiro", "da_ponterustica"];
     for (let prop of propParaTransformar) {

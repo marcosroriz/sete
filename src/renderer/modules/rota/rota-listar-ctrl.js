@@ -15,15 +15,15 @@ var dataTablesRotas = $("#datatables").DataTable({
             style: 'multi',
             info: false
         },
-        "order": [[ 1, "asc" ]],
+        "order": [[1, "asc"]],
         columns: [
             { data: "SELECT", width: "60px" },
             { data: 'NOME', width: "20%" },
             { data: 'TURNOSTR', width: "10%" },
             { data: 'GPS', width: "300px" },
             { data: 'KMSTR', width: "18%" },
-            // { data: 'NUMALUNOS', width: "12%" },
-            // { data: 'NUMESCOLAS', width: "12%" },
+            { data: 'NUMALUNOS', width: "12%" },
+            { data: 'NUMESCOLAS', width: "12%" },
             {
                 data: "ACOES",
                 width: "110px",
@@ -35,7 +35,13 @@ var dataTablesRotas = $("#datatables").DataTable({
         ],
         columnDefs: [
             { targets: 0, 'checkboxes': { 'selectRow': true } },
-            { targets: 1,  render: renderAtMostXCharacters(50) }
+            {
+                targets: 1,
+                render: {
+                    "filter": data => data,
+                    "display": renderAtMostXCharacters(50)
+                }
+            }
         ],
         buttons: [
             {
@@ -43,7 +49,6 @@ var dataTablesRotas = $("#datatables").DataTable({
                 className: 'btnRemover',
                 action: function (e, dt, node, config) {
                     var rawDados = dataTablesRotas.rows('.selected').data().toArray();
-                    debugger
                     if (rawDados.length == 0) {
                         errorFn("Por favor, selecione pelo menos uma rota a ser removida.", "",
                             "Nenhuma rota selecionada")
@@ -104,6 +109,7 @@ var dataTablesRotas = $("#datatables").DataTable({
                             })
                             .catch((err) => {
                                 Swal2.close()
+                                console.log(err)
                                 errorFn("Erro ao remover as rotas", err)
                             })
                     }
@@ -116,7 +122,7 @@ var dataTablesRotas = $("#datatables").DataTable({
                 title: appTitle,
                 text: 'Exportar para Planilha',
                 exportOptions: {
-                    columns: [ 1, 2, 3, 4, 5, 6]
+                    columns: [1, 2, 3, 4, 5, 6]
                 },
                 customize: function (xlsx) {
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -134,15 +140,15 @@ var dataTablesRotas = $("#datatables").DataTable({
                     columns: [1, 2, 3, 4, 5, 6]
                 },
                 customize: function (doc) {
-                    doc.content[1].table.widths = ['30%', '12%', '8%', '20%', '20%', '10%'];
+                    doc.content[1].table.widths = ['50%', '10%', '10%', '10%', '10%', '10%'];
                     doc = docReport(doc);
-                    
+
                     // O datatable coloca o select dentro do header, vamos tirar isso
                     for (col of doc.content[3].table.body[0]) {
                         col.text = col.text.split("    ")[0];
                     }
 
-                    doc.content[2].text = listaDeRotas?.size +  " " + doc.content[2].text;
+                    doc.content[2].text = listaDeRotas?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
@@ -171,11 +177,11 @@ dataTablesRotas.on('click', '.rotaRemove', function () {
     estadoRota = dataTablesRotas.row($tr).data();
     action = "apagarRota";
     confirmDialog("Remover essa rota?",
-                  "Ao remover essa rota ela será retirado do sistema e os alunos e "
-                + "escolas que possuir vínculo deverão ser rearranjadas novamente."
+        "Ao remover essa rota ela será retirado do sistema e os alunos e "
+        + "escolas que possuir vínculo deverão ser rearranjadas novamente."
     ).then((res) => {
         let listaPromisePraRemover = [];
-        if (result.value) {
+        if (res?.value) {
             listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ROTA, `/${estadoRota.ID}`));
         }
 
@@ -199,7 +205,7 @@ restImpl.dbGETColecao(DB_TABLE_ROTA)
 .then(res => processarRotas(res))
 .then((res) => adicionaDadosTabela(res))
 .catch((err) => {
-    debugger
+    console.log(err)
     errorFn("Erro ao listar as rotas!", err)
 })
 
@@ -219,12 +225,10 @@ var processarRotas = (res) => {
     for (let rotaRaw of res) {
         let rotaJSON = parseRotaDBREST(rotaRaw);
         rotaJSON["STRESCOLAS"] = "Não cadastrado";
-        rotaJSON["STRALUNOS"]  = "Não cadastrado";
-        rotaJSON["NUMESCOLAS"] = 0;
-        rotaJSON["NUMALUNOS"]  = 0;
-        rotaJSON["ALUNOS"]     = [];
-        rotaJSON["ESCOLAS"]    = [];
-        rotaJSON["ID_ROTA"]    = rotaJSON["ID"];
+        rotaJSON["STRALUNOS"] = "Não cadastrado";
+        rotaJSON["ALUNOS"] = [];
+        rotaJSON["ESCOLAS"] = [];
+        rotaJSON["ID_ROTA"] = rotaJSON["ID"];
         listaDeRotas.set(rotaJSON["ID"], rotaJSON);
     }
     return listaDeRotas;
@@ -239,8 +243,8 @@ adicionaDadosTabela = (res) => {
     });
 
     dataTablesRotas.draw();
-    // dtInitFiltros(dataTablesRotas, [1, 2, 3, 4, 5, 6]);
-    dtInitFiltros(dataTablesRotas, [1, 2, 3, 4]);
+    dtInitFiltros(dataTablesRotas, [1, 2, 3, 4, 5, 6]);
+    // dtInitFiltros(dataTablesRotas, [1, 2, 3, 4]);
 }
 
 

@@ -118,7 +118,6 @@ var defaultTableConfig = {
                     columns: [1, 4, 5, 6, 7, 8]
                 },
                 customize: function (doc) {
-                    debugger
                     doc.content[1].table.widths = ['30%', '12%', '8%', '20%', '20%', '10%'];
                     doc = docReport(doc);
                     
@@ -128,7 +127,8 @@ var defaultTableConfig = {
                     }
 
                     // TODO: Melhorar header
-                    doc.content[2].text = listaDeAlunos?.size + " " + doc.content[2].text;
+                    let selecionados = dataTablesAlunos.rows( { selected: true } ).count();
+                    doc.content[2].text = selecionados + " de " + listaDeAlunos?.size + " " + doc.content[2].text;
                     doc.styles.tableHeader.fontSize = 12;
                 }
             }
@@ -164,8 +164,18 @@ defaultTableConfig["columnDefs"] = [
         "searchable": true
     },
     { targets: 0, 'checkboxes': { 'selectRow': true } },
-    { targets: 1, render: renderAtMostXCharacters(50) },
-    { targets: 5, render: renderAtMostXCharacters(50) },
+    {
+        targets: 1, render: {
+            "filter": data => data,
+            "display": renderAtMostXCharacters(50)
+        }
+    },
+    {
+        targets: 5, render: {
+            "filter": data => data,
+            "display": renderAtMostXCharacters(50)
+        }
+    },
 ];
 
 var dataTablesAlunos = $("#datatables").DataTable(defaultTableConfig)
@@ -244,7 +254,7 @@ var preprocessarEscolasTemAlunos = (res) => {
         let eNome = escolaRaw["NOME"];
         
         let alunoJSON = listaDeAlunos.get(aID);
-        if (alunoJSON && eID != undefined && eID != "undefined" && eID != null) {
+        if (alunoJSON && eID != undefined && eID != "undefined" && eID != null && eNome != null && eNome != undefined) {
             alunoJSON["ID_ESCOLA"] = eID;
             alunoJSON["ESCOLA"] = eNome;
             alunoJSON["ESCOLA_LOC_LATITUDE"] = escolaRaw["LOC_LATITUDE"];

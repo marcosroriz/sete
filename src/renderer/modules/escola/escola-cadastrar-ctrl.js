@@ -28,6 +28,23 @@ mapaOL.on('singleclick', function (evt) {
     //     return;
     // }
 
+    var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
+    $("#reglat").val(lat.toPrecision(8));
+    $("#reglon").val(lon.toPrecision(8));
+    $("#reglat").valid();
+    $("#reglon").valid();
+
+    triggerMudancaLocalizacao(lat, lon);
+});
+
+$("#reglat, #reglon").on("change", () => {
+    if ($("#reglat").val() && $("#reglon").val()) {
+        triggerMudancaLocalizacao($("#reglat").val(), $("#reglon").val());
+        mapaOL.getView().fit(vectorSource.getExtent(), { padding: [40, 40, 40, 40], maxZoom: 14 });
+    }
+});
+
+function triggerMudancaLocalizacao(lat, lon) {
     if (posicaoEscola != null) {
         try {
             vectorSource.removeFeature(posicaoEscola);
@@ -35,13 +52,6 @@ mapaOL.on('singleclick', function (evt) {
             console.log(err);
         }
     }
-    
-    var [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-    $("#reglat").val(lat.toPrecision(8));
-    $("#reglon").val(lon.toPrecision(8));
-    $("#reglat").valid();
-    $("#reglon").valid();
-
     posicaoEscola = gerarMarcador(lat, lon, "img/icones/escola-marcador.png", 25, 50);
     vectorSource.addFeature(posicaoEscola);
 
@@ -56,7 +66,7 @@ mapaOL.on('singleclick', function (evt) {
     }, posicaoEscola);
 
     mapaOL.addInteraction(translate);
-});
+}
 
 // Dados cadastrais
 var localizacao;

@@ -9,6 +9,9 @@ var idRotaSelecionada = 0;
 // Dados da Rota selecionada
 var dadosDaRota;
 var shapeDaRota;
+var alunosDaRota = [];
+var escolasDaRota = [];
+
 // $(".km").hide();
 $(".tempo").hide();
 
@@ -29,8 +32,17 @@ window.onresize = function () {
 
 // Escolheu alguma rota?
 var escolheuRota = false;
-function verificaSeEscolheuRota(e) {
+function verificaSeEscolheuRota(evt) {
+    // let evtFeatures = mapa["map"].getFeaturesAtPixel(evt.pixel_, { 'hitTolerance': 10 })
+    // let escolheuIcone = false;
+    // for (let featAtingida of evtFeatures) {
+    //     if (featAtingida.get("TIPO")) {
+    //         escolheuIcone = true;
+    //         break;
+    //     }
+    // }
     // console.log("PIXELS", mapa["map"].getFeaturesAtPixel(e.pixel_, { 'hitTolerance': 10 }))
+    // debugger
     if (!escolheuRota) {
         Swal2.fire("Escolha uma rota primeiro!", "", "error");
         return false;
@@ -228,6 +240,8 @@ var clearInteractions = () => {
     mapaOL.removeInteraction(snap)
     mapaOL.removeInteraction(modify)
     mapaOL.removeInteraction(select)
+    mapaOL.removeInteraction(selectAluno);
+    mapaOL.removeInteraction(selectEscola);
 }
 
 var drawInicioRota = new ol.interaction.Draw({
@@ -488,6 +502,44 @@ function mergeLineString(currentFeature) {
 }
 
 
+var selectAluno = selectPonto("ALUNO");
+var popupAluno = new ol.Overlay.PopupFeature({
+    popupClass: "default anim",
+    select: selectAluno,
+    closeBox: true,
+    template: {
+        title: (elem) => {
+            return "Aluno " + elem.get("nome");
+        },
+        attributes: {
+            TURNOSTR: { title: "Turno"}, 
+            NIVELSTR: { title: "Nível"}
+        }
+    }
+});
+mapaOL.addOverlay(popupAluno);
+
+var selectEscola = selectPonto("ESCOLA");
+var popupEscola = new ol.Overlay.PopupFeature({
+    popupClass: "default anim",
+    select: selectEscola,
+    closeBox: true,
+    template: {
+        title: (elem) => {
+            return "Escola " + elem.get("nome");
+        },
+        attributes: {
+            'HORARIO': {
+                title: 'Horário de Func.'
+            },
+            'ENSINO': {
+                title: 'Ensino'
+            },
+        }
+    }
+});
+mapaOL.addOverlay(popupEscola);
+
 // Plot
 var plotarAluno = (alunoRaw) => {
     let lat = alunoRaw["LOC_LATITUDE"];
@@ -496,7 +548,9 @@ var plotarAluno = (alunoRaw) => {
 
     let marcador = gerarMarcador(lat, lng, icon);
     marcador.set("nome", alunoRaw["NOME"]);
-    marcador.set("content", alunoRaw["NOME"]);
+    marcador.set("TIPO", "ALUNO");
+    marcador.set("NIVELSTR", alunoRaw["NIVELSTR"]);
+    marcador.set("TURNOSTR", alunoRaw["TURNOSTR"]);
     vectorSource.addFeature(marcador);
 }
 
@@ -507,7 +561,9 @@ var plotarEscola = (escolaRaw) => {
 
     let marcador = gerarMarcador(lat, lng, icon);
     marcador.set("nome", escolaRaw["NOME"]);
-    marcador.set("content", escolaRaw["NOME"]);
+    marcador.set("TIPO", "ESCOLA");
+    marcador.set("HORARIO", escolaRaw["HORARIO"]);
+    marcador.set("ENSINO", escolaRaw["ENSINO"]);
     vectorSource.addFeature(marcador);
 }
 
@@ -576,6 +632,8 @@ var selectCtrl = new ol.control.Toggle({
         if (active) {
             mapaOL.addInteraction(select);
             mapaOL.addInteraction(snap);
+            mapaOL.addInteraction(selectAluno);
+            mapaOL.addInteraction(selectEscola);
         }
     },
     active: false
@@ -762,6 +820,24 @@ var processarEscolasPorRota = (res) => {
     return listaDeRotas;
 }
 
+function mostrarAlunos() {
+    alunosDaRota.forEach(aluno => {
+        if (aluno["LOC_LONGITUDE"] != null && aluno["LOC_LONGITUDE"] != undefined &&
+            aluno["LOC_LATITUDE"] != null && aluno["LOC_LATITUDE"] != undefined) {
+            plotarAluno(aluno);
+        }
+    })
+}
+
+function mostrarEscolas() {
+    escolasDaRota.forEach(escola => {
+        if (escola["LOC_LONGITUDE"] != null && escola["LOC_LONGITUDE"] != undefined &&
+            escola["LOC_LATITUDE"] != null && escola["LOC_LATITUDE"] != undefined) {
+            plotarEscola(escola);
+        }
+    })
+}
+
 $("#listarotas").on("change", async (evt) => {
     if (evt.currentTarget.value == "") {
         escolheuRota = false;
@@ -770,10 +846,12 @@ $("#listarotas").on("change", async (evt) => {
         try {
             idRotaSelecionada = evt.currentTarget.value;
             let temShape = true;
-
+            
             // Limpando dados do mapa
             vectorSource.clear();
             mapaSource.clear();
+            alunosDaRota = [];
+            escolasDaRota = [];
 
             try {
                 dadosDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRotaSelecionada}`);
@@ -817,6 +895,23 @@ $("#listarotas").on("change", async (evt) => {
 
             $("#regkm").val(strToNumber(dadosDaRota["km"]));
             $(".km").show();
+
+            try {
+                let reqAlunosDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRotaSelecionada}/alunos`);
+                reqAlunosDaRota?.data.forEach(alunoRaw => alunosDaRota.push(parseAlunoREST(alunoRaw)))
+                mostrarAlunos()
+            } catch (error) {
+                console.log("Erro ao buscar os alunos da Rota ID " + idRotaSelecionada, error);
+            }
+
+            try {
+                let reqEscolasDaRota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRotaSelecionada}/escolas`);
+                reqEscolasDaRota?.data.forEach(escolaRaw => escolasDaRota.push(parseEscolaREST(escolaRaw)))
+                mostrarEscolas()
+            } catch (error) {
+                console.log("Erro ao buscar as escolas da Rota " + idRotaSelecionada, error);
+            }
+
             /*alunosRota = rotaSelect["ALUNOS"]
             escolasRota = rotaSelect["ESCOLAS"]
 
@@ -839,7 +934,8 @@ $("#listarotas").on("change", async (evt) => {
                 mapaOL.updateSize();
             }
         } catch (error) {
-            errorFn("Erro ao buscar os detalhes da Rota " + nomeRota, error)
+            debugger
+            errorFn("Erro ao buscar os detalhes da Rota ", error)
         } finally {
             Swal2.close();
         }

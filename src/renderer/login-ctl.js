@@ -231,20 +231,20 @@ $(() => {
 
     // Ações do teclado para Login (pressionar Enter para logar)
     $("#loginemail, #loginpassword").on("keyup", (e) => {
-        if (e.code == "Enter") {
+        if (e.code == "Enter" || e.code == "NumpadEnter") {
             $("#loginsubmit").trigger("click");
         }
     });
+    
     $("#recoveremail").on("keyup", (e) => {
-        if (e.code == "Enter") {
+        if (e.code == "Enter" || e.code == "NumpadEnter") {
             $("#recoversubmit").trigger("click");
         }
     });
 
     // Ações para cada click
 
-    // No caso de login iremos fazer o login com o Firebase as preferências
-    // do usuário no arquivo local (userconfig)
+    // No caso de login iremos fazer o login do usuário no arquivo local (userconfig)
     $("#loginsubmit").on("click", () => {
         let email = $("#loginemail").val().trim();
         let password = $("#loginpassword").val();
@@ -252,7 +252,6 @@ $(() => {
         let lembrarlogin = $("#loginlembrar").is(":checked");
 
         $("#loginform").validate();
-
         if ($("#loginform").valid()) {
             Swal2.fire({
                 title: "Carregando...",
@@ -453,6 +452,8 @@ $(() => {
             let nome = $("#regnome").val();
             let cpf = $("#regcpf").val();
             let telefone = $("#regtel").val();
+            let cidade = $(localizacao.cidade).find("option:selected").text();
+            let estado = $(localizacao.estado).find("option:selected").text();
 
             axios.post(`${BASE_URL}/registro/${localizacao.cidade.value}`, {
                 "nome": nome,
@@ -462,6 +463,23 @@ $(() => {
                 "password": md5password,
                 "tipo_permissao": "admin"
             }).then(() => {
+                let userData = {
+                    "NOME": nome,
+                    "EMAIL": email,
+                    "TELEFONE": telefone,
+                    "CIDADE": cidade,
+                    "ESTADO": estado,
+                    "COD_CIDADE": localizacao.cidade.value,
+                    "COD_ESTADO": localizacao.estado.value
+                };
+
+                emailjs.send(SERVICE_ID, TEMPLATE_ID, userData)
+                    .then(function (response) {
+                        console.log('SUCCESS!', response.status, response.text);
+                    }, function (error) {
+                        console.log('FAILED...', error);
+                    });
+
                 Swal2.close();
                 Swal2.fire({
                     title: "Parabéns!",
@@ -470,6 +488,7 @@ $(() => {
                     type: "success",
                     button: "Fechar"
                 });
+                
                 userconfig.set("EMAIL", email);
                 userconfig.set("PASSWORD", password);
                 $("#loginemail").val($("#regemail").val().trim());
@@ -593,6 +612,9 @@ $(() => {
         $("#login-tab").trigger('click');
     })
 
+    if (isElectron) {
+        mostraSeTemUpdate();
+    }
 });
 
 // Indica que o script terminou seu carregamento

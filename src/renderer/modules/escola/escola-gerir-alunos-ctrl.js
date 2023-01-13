@@ -95,8 +95,8 @@ var adicionaDadosNaTela = () => {
 
 $("#colocarAluno").on('click', () => {
     for (var aID of $("#alunosOutros").val()) {
-        var aNome = $(`option[value=${aID}]`).text();
-        $(`option[value=${aID}]`).remove();
+        var aNome = $(`option[value="${aID}"]`).text();
+        $(`option[value="${aID}"]`).remove();
         $('#alunosAtendidos').append(`<option value="${aID}">${aNome}</option>`);
         novoAlunosAtendidos.add(aID);
     }
@@ -106,8 +106,8 @@ $("#colocarAluno").on('click', () => {
 
 $("#tirarAluno").on('click', () => {
     for (var aID of $("#alunosAtendidos").val()) {
-        var aNome = $(`option[value=${aID}]`).text();
-        $(`option[value=${aID}]`).remove();
+        var aNome = $(`option[value="${aID}"]`).text();
+        $(`option[value="${aID}"]`).remove();
         $('#alunosOutros').append(`<option value="${aID}">${aNome}</option>`);
         novoAlunosAtendidos.delete(aID);
     }
@@ -191,6 +191,7 @@ $("#btnSalvar").on('click', async () => {
     }))
     .then(() => navigateDashboard("./modules/escola/escola-listar-view.html"))
     .catch((err) => {
+        debugger
         Swal2.close();
         errorFn("Erro ao associar os alunos a escola!", err)
     })
@@ -204,19 +205,5 @@ $("#btnCancelar").on('click', () => {
         }
     })
 });
-
-// var filtroApenasSem = false;
-// $("#mostrarApenasSem").click(() => {
-//     filtroApenasSem = !filtroApenasSem;
-//     if (filtroApenasSem) {
-//         $("#alunosOutros option").hide();
-
-//         for (var aID of naoAtendidosPorNenhuma) {
-//             $(`option[value=${aID}]`).show();
-//         }        
-//     } else {
-//         $("#alunosOutros option").show();
-//     }
-// })
 
 action = "gerirEscola"

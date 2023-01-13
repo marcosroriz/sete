@@ -2,7 +2,7 @@ $configFiles = Get-ChildItem src *.html -rec
 foreach ($file in $configFiles)
 {
     (Get-Content $file.PSPath) |
-    Foreach-Object { $_ -replace "./modules", "https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/modules" } |
+    Foreach-Object { $_ -replace "./modules", "https://sete-web.transportesufg.eng.br/src/renderer/modules" } |
     Set-Content $file.PSPath
 }
 
@@ -10,7 +10,17 @@ $configFiles = Get-ChildItem src *.html -rec
 foreach ($file in $configFiles)
 {
     (Get-Content $file.PSPath) |
-    Foreach-Object { $_ -replace "href=""css", "href=""https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/css" } |
+    Foreach-Object { $_ -replace "src=""./img", "src=""https://sete-web.transportesufg.eng.br/src/renderer/img" } |
+    Foreach-Object { $_ -replace "src=""img",   "src=""https://sete-web.transportesufg.eng.br/src/renderer/img" } |
+    Set-Content $file.PSPath
+}
+
+
+$configFiles = Get-ChildItem src *.html -rec
+foreach ($file in $configFiles)
+{
+    (Get-Content $file.PSPath) |
+    Foreach-Object { $_ -replace "href=""css", "href=""https://sete-web.transportesufg.eng.br/src/renderer/css" } |
     Set-Content $file.PSPath
 }
 
@@ -18,7 +28,7 @@ $configFiles = Get-ChildItem src *.html -rec
 foreach ($file in $configFiles)
 {
     (Get-Content $file.PSPath) |
-    Foreach-Object { $_ -replace "src=""js", "src=""https://cdn.jsdelivr.net/gh/marcosroriz/sete@master/src/renderer/js" } |
+    Foreach-Object { $_ -replace "src=""js", "src=""https://sete-web.transportesufg.eng.br/src/renderer/js" } |
     Set-Content $file.PSPath
 }
 

@@ -8,6 +8,7 @@ var aluno = {};
 
 // Cria mapa na cidade atual
 var mapaDetalhe = novoMapaOpenLayers("mapDetalheAluno", cidadeLatitude, cidadeLongitude);
+var temMapa = false;
 
 // Ativa camada
 mapaDetalhe["activateImageLayerSwitcher"]();
@@ -67,9 +68,26 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
             exportOptions: {
                 columns: [0, 1]
             },
+            
             customize: function (doc) {
                 doc = docReport(doc);
                 doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[2].text = estadoAluno.NOME;
+
+                 // Adiciona mapa se tiver
+                 if (temMapa) {
+                    doc.content.push({
+                        "text": "Mapa",
+                        "style": "tituloMapa",
+                        "pageBreak": "before"
+                    })
+                    doc.content.push({
+                        image: exportarParaPNG(mapaDetalhe["map"]).toDataURL(),
+                        width: 500,
+                        alignment: "center",
+                        margin: [0, 20],
+                    })
+                }
             }
         },
         {
@@ -115,6 +133,7 @@ var dataTableAluno = $("#dataTableDadosAluno").DataTable({
 
 restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}`)
     .then((alunoRaw) => {
+        loadingFn("Carregando...")
         aluno = parseAlunoREST(alunoRaw);
         return aluno;
     })
@@ -149,6 +168,14 @@ restImpl.dbGETEntidade(DB_TABLE_ALUNO, `/${estadoAluno.ID}`)
     })
     .then(() => popularTabelaAluno())
     .then(() => plotaDadosNoMapa())
+    .then(async () => {
+        // Carrega mapa para impressão
+        $("#detalheMapa").trigger("click");
+        mapaDetalhe["map"].updateSize();
+        await new Promise(r => setTimeout(r, 500));
+        $("#detalheInitBtn").trigger("click");
+        Swal2.close()
+    })
     .catch((err) => {
         console.log(err);
         errorFn("Erro ao listar o aluno", err)
@@ -159,6 +186,9 @@ function plotaDadosNoMapa() {
     // Plota a posição do aluno se tiver localização GPS
     if (aluno["LOC_LONGITUDE"] != "" && aluno["LOC_LONGITUDE"] != undefined &&
         aluno["LOC_LATITUDE"] != "" && aluno["LOC_LATITUDE"] != undefined) {
+        // Flag indica que tem mapa
+        temMapa = true;
+        
         // Esconde o campo que diz que o aluno não tem localização
         $("#avisoNaoGeoReferenciada").hide()
 
@@ -211,7 +241,7 @@ function popularTabelaAluno() {
     dataTableAluno.row.add(["Cor/Raça", aluno["CORSTR"]]);
 
     if (aluno["CPF"] != undefined && aluno["CPF"] != "") {
-        dataTableAluno.row.add(["CPF", aluno["CPF"]]);
+        dataTableAluno.row.add(["CPF", $(`<div>${aluno["CPF"]}</div>`).mask("000.000.000-00").text()]);
     } else {
         dataTableAluno.row.add(["CPF", "CPF não informado"]);
     }
@@ -268,7 +298,7 @@ function popularTabelaAluno() {
     }
 
     if (aluno["LOC_CEP"] != undefined && aluno["LOC_CEP"] != "") {
-        dataTableAluno.row.add(["CEP da residência", aluno["LOC_CEP"]]);
+        dataTableAluno.row.add(["CEP da residência", $(`<div>${aluno["LOC_CEP"]}</div>`).mask("00000-000").text()]);
     } else {
         dataTableAluno.row.add(["CEP da residência", "CEP não informado"]);
     }
@@ -341,8 +371,8 @@ function popularTabelaAluno() {
     return aluno;
 }
 
-$("#detalheInitBtn").click();
-$("#detalheMapa").on('click', (evt) => {
+$("#detalheInitBtn").trigger("click");
+$("#detalheMapa").on('click', () => {
     setTimeout(function () {
         mapaDetalhe["map"].updateSize();
     }, 200);

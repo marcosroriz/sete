@@ -266,7 +266,7 @@
                                                 </label>
                                                 <div class="col-5">
                                                     <select id="tipoRota" name="tipoRota" class="selectpicker"
-                                                        multiple>
+                                                        multiple data-selected-text-format="count" data-size="10">
                                                         <option value="-1">Escolher rota depois</option>
                                                     </select>
                                                 </div>
@@ -298,23 +298,22 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="form-group obr">
+                                        <div class="form-group opt">
                                             <div class="row">
-                                                <div class="obrlabel">
-                                                    Obrigatório
+                                                <div class="optlabel">
+                                                    Optativo
                                                 </div>
                                                 <label class="col-4 control-label">
                                                     Data de vencimento da CNH
                                                 </label>
                                                 <div class="col-6">
                                                     <input id="regcnhvalidade" name="regcnhvalidade" type="text"
-                                                        placeholder="Informe a data de vencimento da CNH" required="false"
-                                                        class="form-control datavalida">
+                                                        placeholder="Informe a data de vencimento da CNH"
+                                                        class="form-control datavalidacnh">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
 
                                     <div class="col-12">
                                         <div class="form-group obr">

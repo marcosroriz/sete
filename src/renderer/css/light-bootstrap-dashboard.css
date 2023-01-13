@@ -6860,7 +6860,7 @@ fieldset[disabled] .form-control {
 
 /*          Changes for small display      */
 
-@media (max-width: 991px) {
+@media (max-width: 750px) {
     .sidebar {
         right: 0 !important;
         left: auto;
@@ -7513,7 +7513,7 @@ fieldset[disabled] .form-control {
     }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 750px) {
     .table-responsive {
         width: 100%;
         margin-bottom: 15px;

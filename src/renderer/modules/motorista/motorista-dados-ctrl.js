@@ -51,7 +51,8 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
             },
             customize: function (doc) {
                 doc = docReport(doc);
-                doc.content[2].table.widths = ['30%', '70%'];
+                doc.content[3].table.widths = ['30%', '70%'];
+                doc.content[2].text = estadoMotorista["NOME"];
             }
         },
         {
@@ -72,7 +73,7 @@ var dataTableMotorista = $("#dataTableDadosMotorista").DataTable({
                                "rotas e das escolas que possuir vínculo."
                 ).then((res) => {
                     let listaPromisePraRemover = []
-                    if (result.value) {
+                    if (res.value) {
                         listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_MOTORISTA, `/${estadoMotorista.ID}`));
                     }
                     return Promise.all(listaPromisePraRemover)
@@ -98,7 +99,7 @@ var popularTabelaMotorista = () => {
     $("#detalheNomeMotorista").html(estadoMotorista["NOME"]);
 
     dataTableMotorista.row.add(["Nome do motorista", estadoMotorista["NOME"]]);
-    dataTableMotorista.row.add(["CPF", estadoMotorista["CPF"]]);
+    dataTableMotorista.row.add(["CPF", $(`<div>${estadoMotorista["CPF"]}</div>`).mask("000.000.000-00").text()]);
     dataTableMotorista.row.add(["Data de nascimento", estadoMotorista["DATA_NASCIMENTO"]]);
     
     if (estadoMotorista["TELEFONE"] != "") {
@@ -139,6 +140,18 @@ var popularTabelaMotorista = () => {
         dataTableMotorista.row.add(["Anexo dos documentos pessoais", "Não enviado"]);
     }
 
+    if (estadoMotorista["INFO_ROTAS"]) {
+        let rotas = estadoMotorista["INFO_ROTAS"];
+        rotas.sort((a, b) => a.nome.localeCompare(b.nome))
+        
+        dataTableMotorista.row.add(["Total de Rotas", rotas.length]);
+
+        for (let r of rotas) {
+            dataTableMotorista.row.add(["Rota ", r.nome]);
+            dataTableMotorista.row.add(["     ", r.VEICULO]);
+        }
+    }
+
     dataTableMotorista.draw();
 
     $("#docAnexos").click(() => {
@@ -151,8 +164,41 @@ restImpl.dbGETEntidade(DB_TABLE_MOTORISTA, `/${estadoMotorista.ID}`)
     let detalhesDoMotorista = parseMotoristaREST(motoristaRaw);
     Object.assign(estadoMotorista, detalhesDoMotorista);
     return estadoMotorista;
-}).then(() => popularTabelaMotorista())
+})
+.then(async () => buscarDadosRotasVeiculos())
+.then(() => popularTabelaMotorista())
 
+async function buscarDadosRotasVeiculos() {
+    try {
+        // Rotas a serem impressas na tela
+        let rotas = [];
+        
+        // Rotas do motorista
+        let rotasMotorista = await restImpl.dbGETColecao(DB_TABLE_MOTORISTA, `/${estadoMotorista.cpf}/rota`);
+
+        // Todos os veículos
+        let veiculos = await restImpl.dbGETColecao(DB_TABLE_VEICULO);
+
+        for (let r of rotasMotorista) {
+            try {
+                let req_veiculo_rota = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${r.id_rota}/veiculos`);
+                let veiculo = veiculos.find(v => v.id_veiculo == req_veiculo_rota.id_veiculo)
+
+                if (veiculo) {
+                    r["VEICULO"] = `${veiculo.tipo} (${veiculo.placa})`;
+                }
+            } catch (err) {
+                r["VEICULO"] = "Sem veículo informado";
+            }
+
+            rotas.push(r);
+        }
+        estadoMotorista["INFO_ROTAS"] = rotas;
+    } catch (err) {
+        console.log("ERROR", err);
+        estadoMotorista["INFO_ROTAS"] = [];
+    }
+}
 
 $("#detalheInitBtn").click();
 
