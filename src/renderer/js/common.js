@@ -73,8 +73,9 @@ if (isElectron) {
 
   // Seta a versão do sistema
   fetch("../../package.json")
-  .then((res) => {
-    versao = "SETE WEB " + res?.json()?.version
+  .then(async (res) => {
+    let vs = await res?.json()?.version;
+    versao = "SETE WEB " + vs
   })
 }
 
