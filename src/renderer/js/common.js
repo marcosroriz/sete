@@ -70,6 +70,12 @@ if (isElectron) {
     clear: () => localStorage.clear(),
     keys: () => Object.keys(localStorage)
   }
+
+  // Seta a versão do sistema
+  fetch("../../package.json")
+  .then((res) => {
+    versao = "SETE WEB " + res?.json()?.version
+  })
 }
 
 // Previne click do meio no desktop
