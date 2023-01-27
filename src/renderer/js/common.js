@@ -71,11 +71,11 @@ if (isElectron) {
     keys: () => Object.keys(localStorage)
   }
 
-  // Seta a versão do sistema
   fetch("../../package.json")
-  .then(async (res) => {
-    let vs = await res?.json()?.version;
-    versao = "SETE WEB " + vs
+  .then((res) => res.json())
+  .then((res) => {
+    let vs = res?.version;
+    versao = "SETE WEB " + vs;
   })
 }
 
