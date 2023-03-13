@@ -357,9 +357,12 @@ restImpl.dbGETColecao(DB_TABLE_VEICULO)
             return false;
         }
     }).then((veiculo) => {
-        if (veiculo && $("#tipoVeiculo option[value='" + veiculo?.id_veiculo + "']").length > 0) {
-            $("#tipoVeiculo").val(veiculo.id_veiculo);
-            antVeiculos.add(String(veiculo.id_veiculo));
+        // TODO: Arrumar na API REST
+        let v = veiculo[0];
+        debugger
+        if (v && $("#tipoVeiculo option[value='" + v?.id_veiculo + "']").length > 0) {
+            $("#tipoVeiculo").val(v.id_veiculo);
+            antVeiculos.add(String(v.id_veiculo));
         }
     })
     .catch((err) => {
