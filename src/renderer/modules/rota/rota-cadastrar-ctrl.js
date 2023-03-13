@@ -359,6 +359,7 @@ restImpl.dbGETColecao(DB_TABLE_VEICULO)
     }).then((veiculo) => {
         // TODO: Arrumar na API REST
         let v = veiculo[0];
+        debugger
         if (v && $("#tipoVeiculo option[value='" + v?.id_veiculo + "']").length > 0) {
             $("#tipoVeiculo").val(v.id_veiculo);
             antVeiculos.add(String(v.id_veiculo));

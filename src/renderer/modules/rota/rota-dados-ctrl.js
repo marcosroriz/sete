@@ -260,19 +260,12 @@ var configTable = {
                 ).then((res) => {
                     let listaPromisePraRemover = []
                     if (res.value) {
-                        listaPromisePraRemover.push(dbRemoverDadoPorIDPromise(DB_TABLE_ROTA, "ID_ROTA", idRota));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_ATENDE_ALUNO, "ID_ROTA", idRota));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_PASSA_POR_ESCOLA, "ID_ROTA", idRota));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_DIRIGIDA_POR_MOTORISTA, "ID_ROTA", idRota));
-                        listaPromisePraRemover.push(dbRemoverDadoSimplesPromise(DB_TABLE_ROTA_POSSUI_VEICULO, "ID_ROTA", idRota));
-                        listaPromisePraRemover.push(dbAtualizaVersao());
+                        listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_ROTA, `/${idRota}`));
                     }
 
                     return Promise.all(listaPromisePraRemover)
                 }).then((res) => {
                     if (res.length > 0) {
-                        dataTablesRotas.row($tr).remove();
-                        dataTablesRotas.draw();
                         Swal2.fire({
                             title: "Sucesso!",
                             icon: "success",
@@ -280,7 +273,9 @@ var configTable = {
                             confirmButtonText: 'Retornar a página de administração'
                         });
                     }
-                }).catch((err) => errorFn("Erro ao remover a rota", err))
+                }).catch((err) => {
+                    errorFn("Erro ao remover a rota", err)
+                })
             }
         },
     ]
@@ -485,6 +480,7 @@ restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${estadoRota.ID}`)
     })
     .then(() => pegarShapeRota())
     .then(() => pegarAlunosEscolasRota())
+    .then(() => pegarVeiculoRota())
     .then(() => adicionarDadosRotaTabela())
     .then(() => adicionarDadosAlunoEscolaTabelaEMapa())
     .then(async () => {
@@ -521,6 +517,21 @@ async function pegarShapeRota() {
         if (temShape) {
             estadoRota["SHAPE"] = shapeDaRota.shape;
         }
+    }
+}
+
+async function pegarVeiculoRota() {
+    try {
+        // TODO: Mudar esse código
+        let todosVeiculosReq = await restImpl.dbGETColecao(DB_TABLE_VEICULO);
+        let veiculoRotaReq = await restImpl.dbGETEntidade(DB_TABLE_ROTA, `/${idRota}/veiculos`);
+        let v = veiculoRotaReq[0];
+
+        let veiculoEspecifico = todosVeiculosReq.filter(a => Number(a.id_veiculo) == Number(v.id_veiculo))[0]
+        debugger
+        estadoRota["VEICULO_ROTA"] = `${veiculoEspecifico.tipo} (${veiculoEspecifico.placa})`
+    } catch (erro) {
+        estadoRota["VEICULO_ROTA"] = "Não informado"
     }
 }
 
@@ -568,6 +579,7 @@ function adicionarDadosRotaTabela() {
         default: tipoRota = "Rodoviária";
     }
     dataTableRota.row.add(["Tipo", tipoRota]);
+    dataTableRota.row.add(["Veículo", estadoRota["VEICULO_ROTA"]]);
 
     var dificuldadesAcesso = new Array();
     if (estadoRota["DA_PORTEIRA"] != "") { dificuldadesAcesso.push("Porteira"); }
@@ -579,7 +591,7 @@ function adicionarDadosRotaTabela() {
     if (dificuldadesAcesso.length != 0) {
         dataTableRota.row.add(["Dificuldade de acesso", dificuldadesAcesso.join(", ")]);
     } else {
-        dataTableRota.row.add(["Dificuldade de acesso", "Não informado"]);
+        dataTableRota.row.add(["Dificuldade de acesso", "Nenhuma"]);
     }
 
     dataTableRota.row.add(["Número de <br />alunos atendidos", listaDeAlunos.size]);
