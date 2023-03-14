@@ -58,30 +58,12 @@ dataTablesUsuario.on('click', '.usuarioRemove', function () {
         return false;
     }
 
-    // Guarda os dados do usuário logado para depois realizar a autenticação novamente
-    // Ao criar um novo usuário o firebase automaticamente faz logout e faz login no novo usuario
-    let emailUsuarioLogado = userconfig.get("EMAIL");
-    let senhaUsuarioLogado = userconfig.get("PASSWORD");
-
     action = "apagarUsuario";
     confirmDialog('Remover esse usuário?',
                   "Ao confirmar essa operação não será mais possível desfazer a exclusão.",
     ).then(async (result) => {
-        if (result) {
-            loadingFn("Apagando o usuário ...");
-            await firebase.auth().signOut();
-            await firebase.auth().signInWithEmailAndPassword(estadoUsuario["EMAIL"], estadoUsuario["PASSWORD"]);
-            const user = firebase.auth().currentUser;
-            await user.delete();
-            await firebase.auth().signInWithEmailAndPassword(emailUsuarioLogado, senhaUsuarioLogado)
-            return true;
-        } else {
-            return false;
-        }
-    })
-    .then((result) => {
         let listaPromisePraRemover = []
-        if (result.value) {
+        if (result) {
             listaPromisePraRemover.push(restImpl.dbDELETE(DB_TABLE_USUARIOS, "/" + estadoUsuario["ID"]))
         }
         return Promise.all(listaPromisePraRemover)
@@ -96,15 +78,9 @@ dataTablesUsuario.on('click', '.usuarioRemove', function () {
                 confirmButtonText: 'Retornar a página de administração'
             });
         }
-
         return res;
-    })    
-    .catch((err) => errorFn("Erro ao remover o usuário", err))
-    .finally(async () => {
-        await firebase.auth().signOut();
-        await firebase.auth().signInWithEmailAndPassword(emailUsuarioLogado, senhaUsuarioLogado)
-        Swal2.close();
     })
+    .catch((err) => errorFn("Erro ao remover o usuário", err))
 });
 
 
