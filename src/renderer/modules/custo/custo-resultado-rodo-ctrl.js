@@ -1115,6 +1115,9 @@ async function pegarParametrosVeiculos() {
         // for (let veiculo of veiculos) {
         let veiculo = veiculos;
         try {
+            // TODO: GAMB FIX THIS 
+            veiculo = veiculo[0]; 
+
             veiculoDetalhe = await restImpl.dbGETEntidade(DB_TABLE_VEICULO, `/${veiculo.id_veiculo}`);
             veiculos = veiculoDetalhe;
             // TODO: Modularizar e colocar o código repetido em uma função só
